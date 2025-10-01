@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import { usePathname } from 'src/routes/hooks';
 
 import Footer from './footer';
-import HeaderEcom from './header-ecom';
+import Header from './header';
 
 // ----------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ export default function MainLayout({ children }: Props) {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 1 }}>
-      <HeaderEcom />
+      <Header />
 
       <Box
         component="main"

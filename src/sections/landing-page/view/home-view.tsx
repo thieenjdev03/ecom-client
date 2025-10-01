@@ -19,6 +19,7 @@ import HomeColorPresets from '../home-color-presets';
 import HomeAdvertisement from '../home-advertisement';
 import HomeCleanInterfaces from '../home-clean-interfaces';
 import HomeHugePackElements from '../home-hugepack-elements';
+import HomeProductShowcase from '../home-product-showcase';
 
 // ----------------------------------------------------------------------
 
@@ -64,27 +65,8 @@ export default function LandingPageView() {
           bgcolor: 'background.default',
         }}
       >
-        <HomeMinimal />
-
-        <HomeHugePackElements />
-
-        <Box sx={{ position: 'relative' }}>
-          <StyledPolygon />
-          <HomeForDesigner />
-          <StyledPolygon anchor="bottom" />
-        </Box>
-
-        <HomeDarkMode />
-
-        <HomeColorPresets />
-
-        <HomeCleanInterfaces />
-
-        <HomePricing />
-
-        <HomeLookingFor />
-
-        <HomeAdvertisement />
+        <HomeProductShowcase />
+        <HomeProductShowcase priceBottom={true} />
       </Box>
     </MainLayout>
   );

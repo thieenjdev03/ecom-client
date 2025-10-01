@@ -19,17 +19,12 @@ import { useResponsive } from 'src/hooks/use-responsive';
 import { HEADER } from 'src/layouts/config-layout';
 import { bgBlur, bgGradient, textGradient } from 'src/theme/css';
 
-import Iconify from 'src/components/iconify';
 import { varFade, MotionContainer } from 'src/components/animate';
-import Image from 'next/image';
+import Carousel, { useCarousel, CarouselDots } from 'src/components/carousel';
 
 // ----------------------------------------------------------------------
 
 const StyledRoot = styled('div')(({ theme }) => ({
-  ...bgGradient({
-    color: alpha(theme.palette.background.default, theme.palette.mode === 'light' ? 0.9 : 0.94),
-    imgUrl: '/assets/images/home/hero/bg-banner.jpg',
-  }),
   width: '100%',
   height: '100vh',
   position: 'relative',
@@ -169,6 +164,32 @@ export default function LandingHero() {
 
   const hide = percent > 120;
 
+  const slides = [
+    { id: 1, img: '/assets/images/home/hero/bg-banner.jpg' },
+    { id: 2, img: '/assets/images/home/hero/bg-banner-1.avif' },
+    { id: 3, img: '/assets/images/home/hero/bg-banner-2.jpg' },
+  ];
+
+  const carousel = useCarousel({
+    dots: true,
+    arrows: false,
+    autoplay: true,
+    autoplaySpeed: 6000,
+    pauseOnHover: false,
+    infinite: true,
+    fade: true,
+    speed: 800,
+    ...CarouselDots({
+      sx: {
+        color: 'common.white',
+        position: 'absolute',
+        bottom: 24,
+        left: 0,
+        right: 0,
+      },
+    }),
+  });
+
   const renderPolygons = (
     <>
       <StyledPolygon />
@@ -190,18 +211,40 @@ export default function LandingHero() {
       <StyledRoot
         ref={heroRef}
         sx={{
-          ...(hide && {
-            opacity: 0,
-          }),
+          ...(hide && { opacity: 0 }),
         }}
       >
-        {/* <StyledWrapper> */}
-          <Container component={MotionContainer} sx={{ height: 1}}>
-            <Grid container columnSpacing={{ md: 10 }} sx={{ height: 1, backgroundImage: '/assets/images/home/hero/bg-banner.jpg', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-              <Grid xs={12} md={6}>
-              </Grid>
-            </Grid>
-          </Container>
+        <Box sx={{ position: 'absolute', inset: 0 }}>
+          <Carousel ref={carousel.carouselRef} {...carousel.carouselSettings}>
+            {slides.map((slide, index) => (
+              <Box
+                key={slide.id}
+                onClick={carousel.onNext}
+                sx={{
+                  height: '100vh',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  backgroundImage: `url(${slide.img})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              >
+                <Container sx={{ height: 1 }}>
+                  <Stack alignItems="center" justifyContent="end" sx={{ height: 1, pb: 10 }}>
+                    <Typography variant="h1" sx={{ color: 'common.white', fontWeight: 700, letterSpacing: 2, mb: 3 }}>
+                      "SOLUNA"
+                    </Typography>
+                    <Stack direction="row" spacing={2}>
+                      <Button variant="outlined" color="inherit" sx={{ color: 'common.white', borderColor: 'common.white' }}>
+                        Shop Now
+                      </Button>
+                    </Stack>
+                  </Stack>
+                </Container>
+              </Box>
+            ))}
+          </Carousel>
+        </Box>
       </StyledRoot>
       {mdUp && renderPolygons}
 
