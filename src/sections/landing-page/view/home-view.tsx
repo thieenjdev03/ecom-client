@@ -65,8 +65,6 @@ export default function LandingPageView() {
         <Box
           sx={{
             scrollSnapAlign: 'start',
-            minHeight: '100vh',
-            // overflow: 'hidden',
             position: 'relative',
             bgcolor: 'background.default',
           }}

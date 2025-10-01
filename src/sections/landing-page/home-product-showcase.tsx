@@ -137,7 +137,14 @@ export default function HomeProductShowcase({
   return (
     <Container
       maxWidth={false}
-      sx={{ px: { xs: 6, md: 8 }, py: { xs: 6, md: 8 }, mx: 'auto', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}
+      sx={{
+        px: { xs: 6, md: 8 },
+        py: { xs: 6, md: 8 },
+        mx: 'auto',
+        // minHeight: priceBottom ? '' : '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
     >
       <Typography variant="h3" sx={{ mb: 3, textAlign: 'left', fontWeight: 700, flex: '0 0 auto' }}>
         NO NAME'S NEW ARRIVAL
