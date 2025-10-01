@@ -30,6 +30,7 @@ const Image = forwardRef<HTMLSpanElement, ImageProps>(
       visibleByDefault,
       wrapperClassName,
       useIntersectionObserver,
+      imgSx,
       sx,
       ...other
     },
@@ -80,6 +81,7 @@ const Image = forwardRef<HTMLSpanElement, ImageProps>(
             left: 0,
             position: 'absolute',
           }),
+          ...imgSx,
         }}
       />
     );

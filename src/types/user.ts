@@ -107,6 +107,10 @@ export type IUserItem = {
   avatarUrl: string;
   phoneNumber: string;
   isVerified: boolean;
+  profile?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  addresses?: IUserAddress[];
 };
 
 export type IUserAccount = {
@@ -134,4 +138,29 @@ export type IUserAccountChangePassword = {
   oldPassword: string;
   newPassword: string;
   confirmNewPassword: string;
+};
+
+// ----------------------------------------------------------------------
+
+export type IUserAddress = {
+  id: string;
+  userId?: string;
+  recipientName: string;
+  recipientPhone: string;
+  label?: string;
+  countryCode?: string;
+  province?: string;
+  district?: string;
+  ward?: string;
+  streetLine1: string;
+  streetLine2?: string | null;
+  postalCode?: string;
+  latitude?: string | null;
+  longitude?: string | null;
+  isShipping?: boolean;
+  isBilling?: boolean;
+  isDefault?: boolean;
+  note?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 };

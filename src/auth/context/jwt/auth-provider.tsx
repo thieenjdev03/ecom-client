@@ -109,7 +109,17 @@ export function AuthProvider({ children }: Props) {
         if (accessToken && isValidToken(accessToken)) {
           setSession(accessToken);
           const res = await axios.get(endpoints.auth.me);
-          const { user } = res.data;
+          const apiBody = res.data;
+          const user = (apiBody && apiBody.data && apiBody.data.user) ? apiBody.data.user : apiBody.user;
+          // Persist current user for role-based navigation
+          if (user) {
+            try {
+              sessionStorage.setItem('user', JSON.stringify(user));
+            } catch (e) {
+              // noop
+            }
+          }
+
           dispatch({
             type: Types.INITIAL,
             payload: {
@@ -146,12 +156,23 @@ export function AuthProvider({ children }: Props) {
       email,
       password,
     };
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const res = await axios.post(`${apiUrl}${endpoints.auth.login}`, data);
 
-    const res = await axios.post(endpoints.auth.login, data);
-
-    const { accessToken, user } = res.data;
+    const apiBody = res.data;
+    const payload = (apiBody && apiBody.data) ? apiBody.data : apiBody;
+    const { accessToken, user } = payload;
 
     setSession(accessToken);
+
+    // Persist current user for role-based navigation
+    if (user) {
+      try {
+        sessionStorage.setItem('user', JSON.stringify(user));
+      } catch (e) {
+        // noop
+      }
+    }
 
     dispatch({
       type: Types.LOGIN,
@@ -196,6 +217,11 @@ export function AuthProvider({ children }: Props) {
   // LOGOUT
   const logout = useCallback(async () => {
     setSession(null);
+    try {
+      sessionStorage.removeItem('user');
+    } catch (e) {
+      // noop
+    }
     dispatch({
       type: Types.LOGOUT,
     });

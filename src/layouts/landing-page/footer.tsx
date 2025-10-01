@@ -2,7 +2,6 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
-import { alpha } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 import IconButton from '@mui/material/IconButton';
@@ -12,34 +11,12 @@ import { paths } from 'src/routes/paths';
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
-import { _socials } from 'src/_mock';
-
 import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-const LINKS = [
-  {
-    headline: 'Minimal',
-    children: [
-      { name: 'About us', href: paths.about },
-      { name: 'Contact us', href: paths.contact },
-      { name: 'FAQs', href: paths.faqs },
-    ],
-  },
-  {
-    headline: 'Legal',
-    children: [
-      { name: 'Terms and Condition', href: '#' },
-      { name: 'Privacy Policy', href: '#' },
-    ],
-  },
-  {
-    headline: 'Contact',
-    children: [{ name: 'support@minimals.cc', href: '#' }],
-  },
-];
+const YEAR = new Date().getFullYear();
 
 // ----------------------------------------------------------------------
 
@@ -78,95 +55,92 @@ export default function Footer() {
         bgcolor: 'background.default',
       }}
     >
-      <Divider />
-
-      <Container
-        sx={{
-          pt: 10,
-          pb: 5,
-          textAlign: { xs: 'center', md: 'unset' },
-        }}
-      >
-        <Logo sx={{ mb: 3 }} />
-
-        <Grid
-          container
-          justifyContent={{
-            xs: 'center',
-            md: 'space-between',
-          }}
-        >
-          <Grid xs={8} md={3}>
-            <Typography
-              variant="body2"
-              sx={{
-                maxWidth: 270,
-                mx: { xs: 'auto', md: 'unset' },
-              }}
-            >
-              The starting point for your next project with Minimal UI Kit, built on the newest
-              version of Material-UI ©, ready to be customized to your style.
+      <Container sx={{ pt: 6, pb: 0 }}>
+        <Grid container spacing={{ xs: 4, md: 8 }} justifyContent="space-between" alignItems="flex-start">
+          <Grid xs={12} md={2.5}>
+            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
+              WE ARE ...
             </Typography>
-
-            <Stack
-              direction="row"
-              justifyContent={{ xs: 'center', md: 'flex-start' }}
-              sx={{
-                mt: 3,
-                mb: { xs: 5, md: 0 },
-              }}
-            >
-              {_socials.map((social) => (
-                <IconButton
-                  key={social.name}
-                  sx={{
-                    '&:hover': {
-                      bgcolor: alpha(social.color, 0.08),
-                    },
-                  }}
-                >
-                  <Iconify color={social.color} icon={social.icon} />
-                </IconButton>
-              ))}
+            <Stack spacing={2} sx={{ mt: 3 }}>
+              <Link component={RouterLink} href={paths.about} color="inherit" variant="body1">
+                Our Story
+              </Link>
+              <Link href="#" color="inherit" variant="body1">
+                Careers
+              </Link>
             </Stack>
           </Grid>
 
-          <Grid xs={12} md={6}>
-            <Stack spacing={5} direction={{ xs: 'column', md: 'row' }}>
-              {LINKS.map((list) => (
-                <Stack
-                  key={list.headline}
-                  spacing={2}
-                  alignItems={{ xs: 'center', md: 'flex-start' }}
-                  sx={{ width: 1 }}
-                >
-                  <Typography component="div" variant="overline">
-                    {list.headline}
-                  </Typography>
+          <Grid xs={12} md={3}>
+            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
+              CONTRACT US
+            </Typography>
+            <Stack spacing={2} sx={{ mt: 3 }}>
+              <Link component={RouterLink} href={paths.contact} color="inherit" variant="body1" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+                <Iconify icon="solar:letter-broken" width={20} /> Email
+              </Link>
+              <Link href="#" color="inherit" variant="body1" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+                <Iconify icon="solar:phone-linear" width={20} /> (+84)
+              </Link>
+            </Stack>
+          </Grid>
 
-                  {list.children.map((link) => (
-                    <Link
-                      key={link.name}
-                      component={RouterLink}
-                      href={link.href}
-                      color="inherit"
-                      variant="body2"
-                    >
-                      {link.name}
-                    </Link>
-                  ))}
-                </Stack>
-              ))}
+          <Grid xs={12} md={3}>
+            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
+              POLICY
+            </Typography>
+            <Stack spacing={2} sx={{ mt: 3 }}>
+              <Link href="#" color="inherit" variant="body1">
+                Shipping policy
+              </Link>
+              <Link href="#" color="inherit" variant="body1">
+                Privacy Policy
+              </Link>
+              <Link href="#" color="inherit" variant="body1">
+                Exchange Policy
+              </Link>
+              <Link href="#" color="inherit" variant="body1">
+                Terms of Use
+              </Link>
+            </Stack>
+          </Grid>
+
+          <Grid xs={12} md={2}>
+            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
+              CATEGORY
+            </Typography>
+            <Stack spacing={2} sx={{ mt: 3 }}>
+              <Link href="#" color="inherit" variant="body1">
+                Bikini
+              </Link>
+            </Stack>
+          </Grid>
+
+          <Grid xs={12} md={1.5}>
+            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
+              FOLLOW US
+            </Typography>
+            <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
+              <IconButton size="small">
+                <Iconify icon="mdi:instagram" width={22} />
+              </IconButton>
+              <IconButton size="small">
+                <Iconify icon="mdi:tiktok" width={22} />
+              </IconButton>
             </Stack>
           </Grid>
         </Grid>
+      </Container>
 
-        <Typography variant="body2" sx={{ mt: 10 }}>
-          © 2021. All rights reserved
+      <Divider sx={{ mt: 6 }} />
+
+      <Container sx={{ py: 2 }}>
+        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          © {YEAR} NO NAME
         </Typography>
       </Container>
     </Box>
   );
 
-  return homePage ? simpleFooter : mainFooter;
+  return mainFooter;
 }

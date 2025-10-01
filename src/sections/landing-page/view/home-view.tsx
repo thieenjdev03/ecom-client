@@ -6,19 +6,12 @@ import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
 
 import MainLayout from 'src/layouts/main';
+import Footer from 'src/layouts/main/footer';
 
 import ScrollProgress from 'src/components/scroll-progress';
 
 import LandingHero from '../landing-hero';
-import HomeMinimal from '../home-minimal';
-import HomePricing from '../home-pricing';
-import HomeDarkMode from '../home-dark-mode';
-import HomeLookingFor from '../home-looking-for';
-import HomeForDesigner from '../home-for-designer';
-import HomeColorPresets from '../home-color-presets';
-import HomeAdvertisement from '../home-advertisement';
-import HomeCleanInterfaces from '../home-clean-interfaces';
-import HomeHugePackElements from '../home-hugepack-elements';
+
 import HomeProductShowcase from '../home-product-showcase';
 
 // ----------------------------------------------------------------------
@@ -55,19 +48,31 @@ export default function LandingPageView() {
   return (
     <MainLayout>
       <ScrollProgress scrollYProgress={scrollYProgress} />
+      <Box sx={{ height: '100vh', overflowY: 'auto', scrollSnapType: 'y mandatory', scrollBehavior: 'smooth' }}>
+          <LandingHero />
+        </Box>
+        <Box
+          sx={{
+            scrollSnapAlign: 'start',
+            minHeight: '100vh',
+            position: 'relative',
+            bgcolor: 'background.default',
+          }}
+        >
+          <HomeProductShowcase />
+        </Box>
 
-      <LandingHero />
-
-      <Box
-        sx={{
-          overflow: 'hidden',
-          position: 'relative',
-          bgcolor: 'background.default',
-        }}
-      >
-        <HomeProductShowcase />
-        <HomeProductShowcase priceBottom={true} />
-      </Box>
+        <Box
+          sx={{
+            scrollSnapAlign: 'start',
+            minHeight: '100vh',
+            // overflow: 'hidden',
+            position: 'relative',
+            bgcolor: 'background.default',
+          }}
+        >
+          <HomeProductShowcase priceBottom={true} />
+        </Box>
     </MainLayout>
   );
 }

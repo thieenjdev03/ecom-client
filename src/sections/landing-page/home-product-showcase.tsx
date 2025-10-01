@@ -23,8 +23,10 @@ type MinimalProduct = {
 
 export default function HomeProductShowcase({
   priceBottom,
+  layout,
 }: {
   priceBottom?: boolean;
+  layout?: 'image-left' | 'price-bottom';
 }) {
   const theme = useTheme();
 
@@ -68,51 +70,131 @@ export default function HomeProductShowcase({
     []
   );
 
+  const thumbnails = products.map((p) => p.image);
+
   const carousel = useCarousel({
     dots: true,
     arrows: false,
     autoplay: false,
-    slidesToShow: 3, // hiển thị 3 sp mỗi slide
-    ...CarouselDots({
-      sx: {
-        position: 'static',
-        mt: 3,
-      },
-    }),
+    slidesToShow: (layout ?? (priceBottom ? 'price-bottom' : 'image-left')) === 'price-bottom' ? 4 : 2,
+    appendDots: (dots: React.ReactNode) => (
+      <Box
+        component="div"
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          position: 'static',
+          '& ul': {
+            m: 4,
+            p: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            listStyle: 'none',
+          },
+          '& li': {
+            width: { xs: 42, md: 42 },
+            height: { xs: 42, md: 56 },
+            aspectRatio: '3/4',
+            opacity: 0.6,
+            cursor: 'pointer',
+            transition: (theme) => theme.transitions.create(['opacity', 'transform'], {
+              duration: 200,
+            }),
+            '&.slick-active': {
+              opacity: 1,
+              transform: 'scale(1.03)',
+            },
+          },
+        }}
+      >
+        {dots}
+      </Box>
+    ),
+    customPaging: (index: number) => (
+      <Box
+        component="div"
+        sx={{
+          width: 1,
+          height: 1,
+          borderRadius: 1,
+          overflow: 'hidden',
+          bgcolor: 'background.neutral',
+        }}
+      >
+        <Image
+          src={thumbnails[index]}
+          alt={`preview-${index + 1}`}
+          ratio="1/1"
+          imgSx={{ objectFit: 'cover' }}
+        />
+      </Box>
+    ),
   });
 
+  const effectiveLayout: 'image-left' | 'price-bottom' = layout ?? (priceBottom ? 'price-bottom' : 'image-left');
+
   return (
-    <Container maxWidth={false} sx={{ py: { xs: 1, md: 2 }, width: '90%', maxWidth: '90%', mx: 'auto' }}>
-      <Typography variant="h3" sx={{ mb: 5, textAlign: 'left', fontWeight: 700 }}>
+    <Container
+      maxWidth={false}
+      sx={{ px: { xs: 6, md: 8 }, py: { xs: 6, md: 8 }, mx: 'auto', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}
+    >
+      <Typography variant="h3" sx={{ mb: 3, textAlign: 'left', fontWeight: 700, flex: '0 0 auto' }}>
         NO NAME'S NEW ARRIVAL
       </Typography>
 
-      <Carousel ref={carousel.carouselRef} {...carousel.carouselSettings}>
-        {products.map((p) => (
-          <ProductCardMinimal key={p.id} product={p} priceBottom={priceBottom} />
-        ))}
-      </Carousel>
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          '--thumb-h': { xs: '56px', md: '72px' },
+          '& .slick-list': { height: 'calc(100% - var(--thumb-h))' },
+          '& .slick-track': { height: '100%' },
+          '& .slick-slide > div': { height: '100%' },
+          '& .slick-dots': { position: 'static', mb: 0, mt: 2 },
+        }}
+      >
+        <Carousel ref={carousel.carouselRef} {...carousel.carouselSettings}>
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} layout={effectiveLayout} />
+          ))}
+        </Carousel>
+      </Box>
     </Container>
   );
 }
 
+type ProductCardLayout = 'image-left' | 'price-bottom';
+
 type CardProps = {
   product: MinimalProduct;
-  priceBottom?: boolean;
+  layout?: ProductCardLayout;
 };
 
-function ProductCardMinimal({ product, priceBottom }: CardProps) {
+function ProductCard({ product, layout = 'image-left' }: CardProps) {
+  const isPriceBottom = layout === 'price-bottom';
+
   return (
-    <Box sx={{ px: 1 }}>
-      <Box sx={{ display: 'flex', alignItems: 'stretch', flexDirection: priceBottom ? 'column-reverse' : 'row', p: priceBottom ? 8 : 0 }}>
+    <Box sx={{ px: 1, height: '100%' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'stretch',
+          flexDirection: isPriceBottom ? 'column-reverse' : 'row',
+          p: isPriceBottom ? 2 : 0,
+          height: '100%',
+        }}
+      >
         <Stack
           spacing={1}
           sx={{
             width: { xs: 140, md: 200 },
             minWidth: { xs: 140, md: 200 },
-            pr: 2,
-            py: 4,
+            pr: isPriceBottom ? 0 : 2,
+            pt: isPriceBottom ? 2 : 1,
+            pb: 1,
             justifyContent: 'flex-end',
+            flexShrink: 0,
           }}
         >
           <Typography variant="subtitle1">{product.name}</Typography>
@@ -133,14 +215,19 @@ function ProductCardMinimal({ product, priceBottom }: CardProps) {
           </Link>
         </Stack>
 
-        <Box sx={{
-          flex: 1,
-        }}>
-          <Image src={product.image} alt={product.name} ratio={priceBottom ? '1/1' : '3/4'} sx={{
-            borderRadius: 0,
-            objectPosition: priceBottom ? 'top' : 'center',
-            objectFit: priceBottom ? 'cover' : 'contain',
-          }} />
+        <Box sx={{ flex: 1, minHeight: 0 }}>
+          <Image
+            src={product.image}
+            alt={product.name}
+            ratio={isPriceBottom ? '1/1' : undefined}
+            loading="lazy"
+            height={'100%'}
+            sx={{ borderRadius: 0 }}
+            imgSx={{
+              objectPosition: isPriceBottom ? 'top' : 'center',
+              objectFit: isPriceBottom ? 'cover' : 'contain',
+            }}
+          />
         </Box>
       </Box>
     </Box>

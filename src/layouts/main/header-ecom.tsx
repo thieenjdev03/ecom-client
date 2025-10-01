@@ -96,7 +96,7 @@ export default function HeaderEcom() {
             <IconButton color="inherit" sx={{ color: activeColor }}>
               <Iconify icon="solar:heart-linear" width={22} sx={{ textShadow: activeShadow }} />
             </IconButton>
-            <IconButton color="inherit" sx={{ color: activeColor }}>
+            <IconButton color="inherit" sx={{ color: activeColor }} component={RouterLink} href={paths.auth.jwt.login}>
               <Iconify icon="solar:user-linear" width={22} sx={{ textShadow: activeShadow }} />
             </IconButton>
             <IconButton color="inherit" component={RouterLink} href={paths.product.checkout} sx={{ color: activeColor }}>

@@ -164,6 +164,10 @@ export default function LandingHero() {
 
   const hide = percent > 120;
 
+  const textBlurPx = Math.min(12, percent * 0.12);
+  const textTranslateY = Math.min(60, percent * 0.6);
+  const textOpacity = Math.max(0, 1 - percent * 0.012);
+
   const slides = [
     { id: 1, img: '/assets/images/home/hero/bg-banner.jpg' },
     { id: 2, img: '/assets/images/home/hero/bg-banner-1.avif' },
@@ -231,14 +235,18 @@ export default function LandingHero() {
               >
                 <Container sx={{ height: 1 }}>
                   <Stack alignItems="center" justifyContent="end" sx={{ height: 1, pb: 10 }}>
-                    <Typography variant="h1" sx={{ color: 'common.white', fontWeight: 700, letterSpacing: 2, mb: 3 }}>
-                      "SOLUNA"
-                    </Typography>
-                    <Stack direction="row" spacing={2}>
-                      <Button variant="outlined" color="inherit" sx={{ color: 'common.white', borderColor: 'common.white' }}>
-                        Shop Now
-                      </Button>
-                    </Stack>
+                    <m.div style={{ y: textTranslateY, opacity: textOpacity, filter: `blur(${textBlurPx}px)` }}>
+                      <Typography variant="h1" sx={{ color: 'common.white', fontWeight: 700, letterSpacing: 2, mb: 3 }}>
+                        "SOLUNA"
+                      </Typography>
+                    </m.div>
+                    <m.div style={{ y: textTranslateY + 10, opacity: textOpacity, filter: `blur(${Math.max(0, textBlurPx - 2)}px)` }}>
+                      <Stack direction="row" spacing={2}>
+                        <Button variant="outlined" color="inherit" sx={{ color: 'common.white', borderColor: 'common.white' }}>
+                          Shop Now
+                        </Button>
+                      </Stack>
+                    </m.div>
                   </Stack>
                 </Container>
               </Box>

@@ -65,7 +65,16 @@ export default function JwtLoginView() {
     try {
       await login?.(data.email, data.password);
 
-      router.push(returnTo || PATH_AFTER_LOGIN);
+      const role = (typeof window !== 'undefined' && window.sessionStorage)
+        ? JSON.parse(sessionStorage.getItem('user') || 'null')?.role
+        : undefined;
+
+      if (role === 'admin') {
+        router.push(paths.dashboard.root);
+        return;
+      }
+
+      router.push(returnTo || '/');
     } catch (error) {
       console.error(error);
       reset();

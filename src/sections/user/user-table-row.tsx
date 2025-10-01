@@ -7,6 +7,8 @@ import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -16,6 +18,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 import { IUserItem } from 'src/types/user';
+import { fDateTime } from 'src/utils/format-time';
 
 import UserQuickEditForm from './user-quick-edit-form';
 
@@ -36,7 +39,7 @@ export default function UserTableRow({
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { name, avatarUrl, company, role, status, email, phoneNumber } = row;
+  const {profile, name, avatarUrl, role, status, email, phoneNumber, addresses, createdAt } = row;
 
   const confirm = useBoolean();
 
@@ -53,23 +56,35 @@ export default function UserTableRow({
 
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
           <Avatar alt={name} src={avatarUrl} sx={{ mr: 2 }} />
-
           <ListItemText
-            primary={name}
-            secondary={email}
+            primary={profile}
             primaryTypographyProps={{ typography: 'body2' }}
-            secondaryTypographyProps={{
-              component: 'span',
-              color: 'text.disabled',
-            }}
+            secondaryTypographyProps={{ component: 'span', color: 'text.disabled' }}
           />
         </TableCell>
 
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
+
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{phoneNumber}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{company}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{role}</TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          <Tooltip
+            title={(() => {
+              const def = addresses?.find((a) => a.isDefault);
+              if (!def) return '';
+              const parts = [def.streetLine1, def.streetLine2, def.ward, def.district, def.province, def.postalCode]
+                .filter(Boolean)
+                .join(', ');
+              return parts;
+            })()}
+          >
+            <span>{addresses?.length ?? 0}</span>
+          </Tooltip>
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{createdAt ? fDateTime(createdAt) : '-'}</TableCell>
 
         <TableCell>
           <Label

@@ -1,15 +1,12 @@
 'use client';
 
 import isEqual from 'lodash/isEqual';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
-import { alpha } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
@@ -21,9 +18,8 @@ import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { _roles, _userList, USER_STATUS_OPTIONS } from 'src/_mock';
+import { _roles } from 'src/_mock';
 
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { useSnackbar } from 'src/components/snackbar';
@@ -43,19 +39,21 @@ import {
 
 import { IUserItem, IUserTableFilters, IUserTableFilterValue } from 'src/types/user';
 
+import { usersApi } from 'src/api/user';
+
 import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 import UserTableFiltersResult from '../user-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
-
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name' },
-  { id: 'phoneNumber', label: 'Phone Number', width: 180 },
-  { id: 'company', label: 'Company', width: 220 },
-  { id: 'role', label: 'Role', width: 180 },
+  { id: 'name', label: 'Name', width: 300 },
+  { id: 'email', label: 'Email', width: 240 },
+  { id: 'phoneNumber', label: 'Phone Number', width: 160 },
+  { id: 'role', label: 'Role', width: 120 },
+  { id: 'addresses', label: 'Addresses', width: 140 },
+  { id: 'createdAt', label: 'Created', width: 180 },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
 ];
@@ -79,16 +77,14 @@ export default function UserListView() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState<IUserItem[]>(_userList);
+  const [tableData, setTableData] = useState<IUserItem[]>([]);
+  const [total, setTotal] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
-
+  const comparator = getComparator(table.order, table.orderBy) as unknown as (a: any, b: any) => number;
+  const dataFiltered = [...tableData].sort(comparator);
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
@@ -99,6 +95,39 @@ export default function UserListView() {
   const canReset = !isEqual(defaultFilters, filters);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+
+  const fetchUsers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const params: Record<string, any> = {
+        page: table.page + 1,
+        limit: table.rowsPerPage,
+        // sortBy: table.orderBy,
+        // sortOrder: table.order.toUpperCase(),
+      };
+      if (filters.name) {
+        // Map UI "name" search to API email filter per documentation
+        params.email = filters.name;
+      }
+      if (filters.role && filters.role.length) {
+        // Backend expects a single role; if multi-selected, send first
+        params.role = filters.role[0];
+      }
+      const res = await usersApi.list(params);
+      const payload = res.data ? res.data : res;
+      const list = payload.data || [];
+      setTableData(list as IUserItem[]);
+      setTotal(payload.total || list.length || 0);
+    } catch (err: any) {
+      enqueueSnackbar(err?.message || 'Failed to load users', { variant: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  }, [enqueueSnackbar, filters.name, filters.role, table.page, table.rowsPerPage]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleFilters = useCallback(
     (name: string, value: IUserTableFilterValue) => {
@@ -116,30 +145,32 @@ export default function UserListView() {
   }, []);
 
   const handleDeleteRow = useCallback(
-    (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      enqueueSnackbar('Delete success!');
-
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+    async (id: string) => {
+      try {
+        await usersApi.remove(id);
+        enqueueSnackbar('Delete success!');
+        fetchUsers();
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (err: any) {
+        enqueueSnackbar(err?.message || 'Delete failed', { variant: 'error' });
+      }
     },
-    [dataInPage.length, enqueueSnackbar, table, tableData]
+    [dataInPage.length, enqueueSnackbar, fetchUsers, table]
   );
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    enqueueSnackbar('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, enqueueSnackbar, table, tableData]);
+  const handleDeleteRows = useCallback(async () => {
+    try {
+      await Promise.all(table.selected.map((id) => usersApi.remove(id)));
+      enqueueSnackbar('Delete success!');
+      fetchUsers();
+      table.onUpdatePageDeleteRows({
+        totalRowsInPage: dataInPage.length,
+        totalRowsFiltered: dataFiltered.length,
+      });
+    } catch (err: any) {
+      enqueueSnackbar(err?.message || 'Delete failed', { variant: 'error' });
+    }
+  }, [dataFiltered.length, dataInPage.length, enqueueSnackbar, fetchUsers, table]);
 
   const handleEditRow = useCallback(
     (id: string) => {
@@ -148,12 +179,7 @@ export default function UserListView() {
     [router]
   );
 
-  const handleFilterStatus = useCallback(
-    (event: React.SyntheticEvent, newValue: string) => {
-      handleFilters('status', newValue);
-    },
-    [handleFilters]
-  );
+  // removed status tabs; status filter is handled via toolbar and API mapping (if needed)
 
   return (
     <>
@@ -181,40 +207,6 @@ export default function UserListView() {
         />
 
         <Card>
-          <Tabs
-            value={filters.status}
-            onChange={handleFilterStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
-          >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab
-                key={tab.value}
-                iconPosition="end"
-                value={tab.value}
-                label={tab.label}
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
-                    }
-                    color={
-                      (tab.value === 'active' && 'success') ||
-                      (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'banned' && 'error') ||
-                      'default'
-                    }
-                  >
-                    {['active', 'pending', 'banned', 'rejected'].includes(tab.value)
-                      ? tableData.filter((user) => user.status === tab.value).length
-                      : tableData.length}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs>
 
           <UserTableToolbar
             filters={filters}
@@ -239,7 +231,7 @@ export default function UserListView() {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
+              rowCount={total}
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
@@ -261,7 +253,7 @@ export default function UserListView() {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
+                  rowCount={total}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={(checked) =>
@@ -301,7 +293,7 @@ export default function UserListView() {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={total}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}

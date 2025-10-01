@@ -4,6 +4,7 @@ import { usePathname } from 'src/routes/hooks';
 
 import Footer from './footer';
 import HeaderEcom from './header-ecom';
+import LandingFooter from '../landing-page/footer';
 
 // ----------------------------------------------------------------------
 
@@ -32,7 +33,7 @@ export default function MainLayout({ children }: Props) {
         {children}
       </Box>
 
-      <Footer />
+      {homePage ? <LandingFooter /> : <Footer />}
     </Box>
   );
 }
