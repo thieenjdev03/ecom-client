@@ -30,7 +30,6 @@ import {
   useTable,
   emptyRows,
   TableNoData,
-  getComparator,
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
@@ -83,18 +82,11 @@ export default function UserListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const comparator = getComparator(table.order, table.orderBy) as unknown as (a: any, b: any) => number;
-  const dataFiltered = [...tableData].sort(comparator);
-  const dataInPage = dataFiltered.slice(
-    table.page * table.rowsPerPage,
-    table.page * table.rowsPerPage + table.rowsPerPage
-  );
-
   const denseHeight = table.dense ? 56 : 56 + 20;
 
   const canReset = !isEqual(defaultFilters, filters);
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -150,12 +142,11 @@ export default function UserListView() {
         await usersApi.remove(id);
         enqueueSnackbar('Delete success!');
         fetchUsers();
-        table.onUpdatePageDeleteRow(dataInPage.length);
       } catch (err: any) {
         enqueueSnackbar(err?.message || 'Delete failed', { variant: 'error' });
       }
     },
-    [dataInPage.length, enqueueSnackbar, fetchUsers, table]
+    [enqueueSnackbar, fetchUsers, table]
   );
 
   const handleDeleteRows = useCallback(async () => {
@@ -163,14 +154,10 @@ export default function UserListView() {
       await Promise.all(table.selected.map((id) => usersApi.remove(id)));
       enqueueSnackbar('Delete success!');
       fetchUsers();
-      table.onUpdatePageDeleteRows({
-        totalRowsInPage: dataInPage.length,
-        totalRowsFiltered: dataFiltered.length,
-      });
     } catch (err: any) {
       enqueueSnackbar(err?.message || 'Delete failed', { variant: 'error' });
     }
-  }, [dataFiltered.length, dataInPage.length, enqueueSnackbar, fetchUsers, table]);
+  }, [enqueueSnackbar, fetchUsers, table]);
 
   const handleEditRow = useCallback(
     (id: string) => {
@@ -222,7 +209,7 @@ export default function UserListView() {
               //
               onResetFilters={handleResetFilters}
               //
-              results={dataFiltered.length}
+              results={tableData.length}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -235,7 +222,7 @@ export default function UserListView() {
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row) => row.id)
+                  tableData.map((row) => row.id)
                 )
               }
               action={
@@ -259,13 +246,13 @@ export default function UserListView() {
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row.id)
+                      tableData.map((row) => row.id)
                     )
                   }
                 />
 
                 <TableBody>
-                  {dataFiltered
+                  {tableData
                     .slice(
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
@@ -283,7 +270,7 @@ export default function UserListView() {
 
                   <TableEmptyRows
                     height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
                   />
 
                   <TableNoData notFound={notFound} />

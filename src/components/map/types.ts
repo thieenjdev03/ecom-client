@@ -1,8 +1,10 @@
-import { MapProps } from 'react-map-gl';
+import { MapProps, Projection } from 'react-map-gl';
 
 // ----------------------------------------------------------------------
 
-export type MapBoxProps = Omit<MapProps, 'fog' | 'terrain'>;
+export type MapBoxProps = Omit<MapProps, 'fog' | 'terrain'> & {
+  projection?: Projection;
+};
 
 export type MapSettings = {
   minZoom: number;
@@ -19,6 +21,7 @@ export type MapSettings = {
   touchRotate: boolean;
   doubleClickZoom: boolean;
   touchZoomRotate: boolean;
+  mapStyle?: string;
 };
 
 export type MapSettingKeys =

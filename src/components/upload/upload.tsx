@@ -163,7 +163,7 @@ export default function Upload({
 
       {helperText && helperText}
 
-      <RejectionFiles fileRejections={fileRejections} />
+      <RejectionFiles fileRejections={fileRejections as any} />
 
       {renderMultiPreview}
     </Box>
