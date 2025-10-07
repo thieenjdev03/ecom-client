@@ -150,36 +150,36 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
     }
   });
 
-  const handleDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      const files = values.images || [];
+  // const handleDrop = useCallback(
+  //   (acceptedFiles: File[]) => {
+  //     const files = values.images || [];
 
-      const newFiles = acceptedFiles.map((file) =>
-        Object.assign(file, {
-          preview: URL.createObjectURL(file),
-        })
-      );
+  //     const newFiles = acceptedFiles.map((file) =>
+  //       Object.assign(file, {
+  //         preview: URL.createObjectURL(file),
+  //       })
+  //     );
 
-      setValue('images', [...files, ...newFiles], { shouldValidate: true });
-    },
-    [setValue, values.images]
-  );
+  //     setValue('images', [...files, ...newFiles], { shouldValidate: true });
+  //   },
+  //   [setValue, values.images]
+  // );
 
-  const handleRemoveFile = useCallback(
-    (inputFile: File | string) => {
-      const filtered = values.images && values.images?.filter((file) => file !== inputFile);
-      setValue('images', filtered);
-    },
-    [setValue, values.images]
-  );
+  // const handleRemoveFile = useCallback(
+  //   (inputFile: File | string) => {
+  //     const filtered = values.images && values.images?.filter((file) => file !== inputFile);
+  //     setValue('images', filtered);
+  //   },
+  //   [setValue, values.images]
+  // );
 
-  const handleRemoveAllFiles = useCallback(() => {
-    setValue('images', []);
-  }, [setValue]);
+  // const handleRemoveAllFiles = useCallback(() => {
+  //   setValue('images', []);
+  // }, [setValue]);
 
-  const handleChangeIncludeTaxes = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setIncludeTaxes(event.target.checked);
-  }, []);
+  // const handleChangeIncludeTaxes = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  //   setIncludeTaxes(event.target.checked);
+  // }, []);
 
   const renderDetails = (
     <>

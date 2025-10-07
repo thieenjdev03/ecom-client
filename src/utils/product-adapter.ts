@@ -1,5 +1,5 @@
 import { IProductItem } from 'src/types/product';
-import { ProductDto, ProductVariantDto, ColorDto, SizeDto } from 'src/types/product-dto';
+import { ProductDto } from 'src/types/product-dto';
 
 export function adaptProductDtoToItem(dto: ProductDto): IProductItem {
   return {
@@ -31,6 +31,8 @@ export function adaptProductDtoToItem(dto: ProductDto): IProductItem {
     ratings: [],
     saleLabel: { enabled: !!dto.isSale, content: dto.saleLabel ?? '' },
     newLabel: { enabled: !!dto.isNew, content: dto.newLabel ?? '' },
+    modelHeight: 0,
+    modelSize: 0,
   };
 }
 

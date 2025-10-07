@@ -64,7 +64,7 @@ export default function ProductShopView() {
 
   const { products, productsLoading, productsEmpty } = useGetProducts();
 
-  const { searchResults, searchLoading } = useSearchProducts(debouncedQuery);
+  const { data: searchResults, isLoading: searchLoading } = useSearchProducts(debouncedQuery);
 
   const handleFilters = useCallback((name: string, value: IProductFilterValue) => {
     setFilters((prevState) => ({
