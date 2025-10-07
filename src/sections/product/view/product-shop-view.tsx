@@ -152,6 +152,7 @@ export default function ProductShopView() {
       maxWidth={settings.themeStretch ? false : 'lg'}
       sx={{
         mb: 15,
+        mt: '80px',
       }}
     >
       <CartIcon totalItems={checkout.totalItems} />

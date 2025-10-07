@@ -35,6 +35,8 @@ export type IProductItem = {
   id: string;
   sku: string;
   name: string;
+  modelHeight: number;
+  modelSize: number;
   code: string;
   price: number;
   taxes: number;

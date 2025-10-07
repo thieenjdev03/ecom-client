@@ -24,15 +24,15 @@ export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
 };
 
 // ----------------------------------------------------------------------
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export const endpoints = {
   chat: '/api/chat',
   kanban: '/api/kanban',
   calendar: '/api/calendar',
   auth: {
-    me: '/api/auth/me',
-    login: '/auth/login',
-    register: '/auth/register',
+    me: `${apiUrl}/auth/me`,
+    login: `${apiUrl}/auth/login`,
+    register: `${apiUrl}/auth/register`,
   },
   mail: {
     list: '/api/mail/list',
@@ -46,8 +46,16 @@ export const endpoints = {
     search: '/api/post/search',
   },
   product: {
-    list: '/api/product/list',
-    details: '/api/product/details',
-    search: '/api/product/search',
+    list: `${apiUrl}/products`,
+    details: (id: string) => `${apiUrl}/products/${id}`,
+      create: `${apiUrl}/products`,
+    update: (id: string) => `${apiUrl}/products/${id}`,
+    delete: (id: string) => `${apiUrl}/products/${id}`,
+    // Future: variants/colors/sizes endpoints can be added here as needed
+  },
+  refs: {
+    categories: `${apiUrl}/categories`,
+    colors: `${apiUrl}/colors`,
+    sizes: `${apiUrl}/sizes`,
   },
 };

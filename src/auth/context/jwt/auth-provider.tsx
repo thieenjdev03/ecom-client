@@ -156,8 +156,7 @@ export function AuthProvider({ children }: Props) {
       email,
       password,
     };
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const res = await axios.post(`${apiUrl}${endpoints.auth.login}`, data);
+    const res = await axios.post(endpoints.auth.login, data);
 
     const apiBody = res.data;
     const payload = (apiBody && apiBody.data) ? apiBody.data : apiBody;
@@ -183,19 +182,30 @@ export function AuthProvider({ children }: Props) {
         },
       },
     });
+
+    return { user, accessToken };
   }, []);
 
   // REGISTER
   const register = useCallback(
-    async (email: string, password: string, firstName: string, lastName: string) => {
+    async (
+      email: string,
+      password: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string,
+      country?: string
+    ) => {
       const data = {
         email,
         password,
         firstName,
         lastName,
+        phoneNumber,
+        country,
       };
-
-      const res = await axios.post(endpoints.auth.register, data);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const res = await axios.post(`endpoints.auth.register`, data);
 
       const { accessToken, user } = res.data;
 
@@ -210,6 +220,8 @@ export function AuthProvider({ children }: Props) {
           },
         },
       });
+
+      return { success: true, user, accessToken };
     },
     []
   );

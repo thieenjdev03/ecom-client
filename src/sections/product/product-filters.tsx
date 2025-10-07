@@ -184,12 +184,12 @@ export default function ProductFilters({
       <Typography variant="subtitle2" sx={{ mb: 1 }}>
         Color
       </Typography>
-      <ColorPicker
+      {/* <ColorPicker
         selected={filters.colors}
         onSelectColor={(colors) => handleFilterColors(colors)}
         colors={colorOptions}
         limit={6}
-      />
+      /> */}
     </Stack>
   );
 

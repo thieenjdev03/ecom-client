@@ -9,6 +9,7 @@ import { useTheme } from '@mui/material/styles';
 
 import IconButton from '@mui/material/IconButton';
 
+import { usePathname } from 'next/navigation';
 import Iconify from 'src/components/iconify';
 import { RouterLink } from 'src/routes/components';
 import { paths } from 'src/routes/paths';
@@ -26,14 +27,18 @@ import { PRODUCT_CATEGORY_GROUP_OPTIONS } from 'src/_mock';
 
 export default function HeaderEcom() {
   const theme = useTheme();
+  const pathname = usePathname();
 
   const mdUp = useResponsive('up', 'md');
 
   const offsetTop = useOffSetTop(HEADER.H_DESKTOP);
 
-  const activeColor = offsetTop ? 'text.primary' : 'common.white';
-  const activeShadow = offsetTop ? '0px 0px 0px 0px' : '0 0 10px rgba(0, 0, 0, 0.5)';
-  const activeColorValue = offsetTop ? theme.palette.text.primary : theme.palette.common.white;
+  const isHome = pathname === '/';
+  const applyBlur = !isHome || offsetTop;
+
+  const activeColor = isHome ? (offsetTop ? 'text.primary' : 'common.white') : 'text.primary';
+  const activeShadow = isHome && !offsetTop ? '0 0 10px rgba(0, 0, 0, 0.5)' : '0 0 10px rgba(0, 0, 0, 0.2)';
+  const activeColorValue = isHome && !offsetTop ? theme.palette.common.white : theme.palette.text.primary;
 
   return (
     <AppBar elevation={0} sx={{ bgcolor: 'transparent', boxShadow: 'none' }}>
@@ -48,9 +53,9 @@ export default function HeaderEcom() {
             easing: theme.transitions.easing.easeInOut,
             duration: theme.transitions.duration.shorter,
           }),
-          ...(offsetTop && {
+          ...(applyBlur && {
             ...bgBlur({ color: theme.palette.background.paper, blur: 0.5 }),
-            height: { md: HEADER.H_DESKTOP_OFFSET },
+            ...(offsetTop && { height: { md: HEADER.H_DESKTOP_OFFSET } }),
           }),
         }}
       >

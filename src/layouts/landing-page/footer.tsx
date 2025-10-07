@@ -21,41 +21,15 @@ const YEAR = new Date().getFullYear();
 // ----------------------------------------------------------------------
 
 export default function Footer() {
-  const pathname = usePathname();
-
-  const homePage = pathname === '/';
-
-  const simpleFooter = (
-    <Box
-      component="footer"
-      sx={{
-        py: 5,
-        textAlign: 'center',
-        position: 'relative',
-        bgcolor: 'background.default',
-      }}
-    >
-      <Container>
-        <Logo sx={{ mb: 1, mx: 'auto' }} />
-
-        <Typography variant="caption" component="div">
-          © All rights reserved
-          <br /> made by
-          <Link href="https://minimals.cc/"> minimals.cc </Link>
-        </Typography>
-      </Container>
-    </Box>
-  );
-
   const mainFooter = (
     <Box
       component="footer"
       sx={{
         position: 'relative',
-        bgcolor: 'background.default',
+        bgcolor: 'background.default', borderTop: (theme) => `1px solid ${theme.palette.divider}`,
       }}
     >
-      <Container sx={{ pt: 6, pb: 0 }}>
+      <Container sx={{ pt: 6, pb: 0}}>
         <Grid container spacing={{ xs: 4, md: 8 }} justifyContent="space-between" alignItems="flex-start">
           <Grid xs={12} md={2.5}>
             <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>

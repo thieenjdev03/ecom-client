@@ -83,7 +83,7 @@ export default function ProductDetailsCarousel({ product }: Props) {
 
   const carouselThumb = useCarousel({
     rtl: false,
-    centerMode: true,
+    centerMode: false,
     swipeToSlide: true,
     focusOnSelect: true,
     variableWidth: true,
@@ -109,6 +109,8 @@ export default function ProductDetailsCarousel({ product }: Props) {
         borderRadius: 2,
         overflow: 'hidden',
         position: 'relative',
+        ml: 2,
+        minWidth: 0,
       }}
     >
       <Carousel

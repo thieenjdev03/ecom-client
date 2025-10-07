@@ -20,8 +20,8 @@ export default function JobDetailsPage({ params }: Props) {
   return <JobDetailsView id={id} />;
 }
 
-export async function generateStaticParams() {
-  return _jobs.map((job) => ({
-    id: job.id,
-  }));
-}
+// export async function generateStaticParams() {
+//   return _jobs.map((job) => ({
+//     id: job.id,
+//   }));
+// }

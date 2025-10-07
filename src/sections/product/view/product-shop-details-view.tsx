@@ -91,24 +91,12 @@ export default function ProductShopDetailsView({ id }: Props) {
 
   const renderProduct = product && (
     <>
-      <CustomBreadcrumbs
-        links={[
-          { name: 'Home', href: '/' },
-          {
-            name: 'Shop',
-            href: paths.product.root,
-          },
-          { name: product?.name },
-        ]}
-        sx={{ mb: 5 }}
-      />
-
       <Grid container spacing={{ xs: 3, md: 5, lg: 8 }}>
-        <Grid xs={12} md={6} lg={7}>
+        <Grid xs={12} md={8} lg={8}>
           <ProductDetailsCarousel product={product} />
         </Grid>
 
-        <Grid xs={12} md={6} lg={5}>
+        <Grid xs={12} md={4} lg={4}>
           <ProductDetailsSummary
             product={product}
             items={checkout.items}
@@ -185,7 +173,7 @@ export default function ProductShopDetailsView({ id }: Props) {
     <Container
       maxWidth={settings.themeStretch ? false : 'lg'}
       sx={{
-        mt: 5,
+        mt: 15,
         mb: 15,
       }}
     >

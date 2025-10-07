@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-
+import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
@@ -20,10 +20,12 @@ import { useRouter, useSearchParams } from 'src/routes/hooks';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useAuthContext } from 'src/auth/hooks';
-import { PATH_AFTER_LOGIN } from 'src/config-global';
+import { PATH_AFTER_LOGIN, PATH_AFTER_LOGIN_USER, PATH_AFTER_REGISTER_USER } from 'src/config-global';
 
 import Iconify from 'src/components/iconify';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
+import RHFAutocomplete from 'src/components/hook-form/rhf-autocomplete';
+import { countries } from 'src/assets/data';
 
 // ----------------------------------------------------------------------
 
@@ -45,6 +47,8 @@ export default function JwtRegisterView() {
     lastName: Yup.string().required('Last name required'),
     email: Yup.string().required('Email is required').email('Email must be a valid email address'),
     password: Yup.string().required('Password is required'),
+    phoneNumber: Yup.string().required('Phone number is required'),
+    country: Yup.string().required('Country is required'),
   });
 
   const defaultValues = {
@@ -52,6 +56,8 @@ export default function JwtRegisterView() {
     lastName: '',
     email: '',
     password: '',
+    phoneNumber: '',
+    country: '',
   };
 
   const methods = useForm({
@@ -67,9 +73,17 @@ export default function JwtRegisterView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await register?.(data.email, data.password, data.firstName, data.lastName);
-
-      router.push(returnTo || PATH_AFTER_LOGIN);
+      const result: any = await register?.(
+        data.email,
+        data.password,
+        data.firstName,
+        data.lastName,
+        data.phoneNumber,
+        data.country
+      );
+      if(result?.success as boolean) {
+        router.push(PATH_AFTER_REGISTER_USER);
+      } 
     } catch (error) {
       console.error(error);
       reset();
@@ -122,6 +136,17 @@ export default function JwtRegisterView() {
 
       <RHFTextField name="email" label="Email address" />
 
+      <RHFTextField name="phoneNumber" label="Phone number" />
+
+      <RHFAutocomplete
+        name="country"
+        type="country"
+        label="Country"
+        placeholder="Choose a country"
+        options={countries.map((option) => option.label)}
+        getOptionLabel={(option) => option}
+      />
+
       <RHFTextField
         name="password"
         label="Password"
@@ -151,7 +176,11 @@ export default function JwtRegisterView() {
   );
 
   return (
-    <>
+    <Box sx={{ maxWidth: 400, 
+      backgroundColor: 'white',
+      padding: 0.5,
+      borderRadius: 1,
+    }}>
       {renderHead}
 
       {!!errorMsg && (
@@ -165,6 +194,6 @@ export default function JwtRegisterView() {
       </FormProvider>
 
       {renderTerms}
-    </>
+    </Box>
   );
 }

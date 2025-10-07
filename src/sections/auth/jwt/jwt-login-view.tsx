@@ -20,7 +20,7 @@ import { useRouter, useSearchParams } from 'src/routes/hooks';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { useAuthContext } from 'src/auth/hooks';
-import { PATH_AFTER_LOGIN } from 'src/config-global';
+import { PATH_AFTER_LOGIN, PATH_AFTER_LOGIN_USER } from 'src/config-global';
 
 import Iconify from 'src/components/iconify';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
@@ -47,7 +47,7 @@ export default function JwtLoginView() {
 
   const defaultValues = {
     email: 'demo@minimals.cc',
-    password: 'demo1234',
+    password: 'Password@123',
   };
 
   const methods = useForm({
@@ -63,18 +63,14 @@ export default function JwtLoginView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await login?.(data.email, data.password);
-
-      const role = (typeof window !== 'undefined' && window.sessionStorage)
-        ? JSON.parse(sessionStorage.getItem('user') || 'null')?.role
-        : undefined;
-
-      if (role === 'admin') {
+      const result: any = await login?.(data.email, data.password);
+      if (result?.user?.role === 'admin') {
         router.push(paths.dashboard.root);
         return;
+      } else if (result?.user?.role === 'user') {
+        router.push(PATH_AFTER_LOGIN_USER);
+        return;
       }
-
-      router.push(returnTo || '/');
     } catch (error) {
       console.error(error);
       reset();
@@ -84,7 +80,7 @@ export default function JwtLoginView() {
 
   const renderHead = (
     <Stack spacing={2} sx={{ mb: 5 }}>
-      <Typography variant="h4">Sign in to Minimal</Typography>
+      <Typography variant="h4">Sign in to Luma</Typography>
 
       <Stack direction="row" spacing={0.5}>
         <Typography variant="body2">New user?</Typography>
@@ -136,9 +132,9 @@ export default function JwtLoginView() {
     <>
       {renderHead}
 
-      <Alert severity="info" sx={{ mb: 3 }}>
-        Use email : <strong>demo@minimals.cc</strong> / password :<strong> demo1234</strong>
-      </Alert>
+      {/* <Alert severity="info" sx={{ mb: 3 }}>
+        Use email : <strong>demo@minimals.cc</strong> / password :<strong>Password@123</strong>
+      </Alert> */}
 
       {!!errorMsg && (
         <Alert severity="error" sx={{ mb: 3 }}>

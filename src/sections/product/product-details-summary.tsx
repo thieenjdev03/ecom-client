@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 
 import Box from '@mui/material/Box';
@@ -7,9 +7,9 @@ import Stack from '@mui/material/Stack';
 import Rating from '@mui/material/Rating';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
-import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
-import { formHelperTextClasses } from '@mui/material/FormHelperText';
+import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -19,7 +19,7 @@ import { fCurrency, fShortenNumber } from 'src/utils/format-number';
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import { ColorPicker } from 'src/components/color-utils';
-import FormProvider, { RHFSelect } from 'src/components/hook-form';
+import FormProvider from 'src/components/hook-form';
 
 import { IProductItem } from 'src/types/product';
 import { ICheckoutItem } from 'src/types/checkout';
@@ -45,6 +45,7 @@ export default function ProductDetailsSummary({
   ...other
 }: Props) {
   const router = useRouter();
+  const [openDetails, setOpenDetails] = useState(false);
 
   const {
     id,
@@ -61,6 +62,8 @@ export default function ProductDetailsSummary({
     totalReviews,
     inventoryType,
     subDescription,
+    modelHeight,
+    modelSize,
   } = product;
 
   const existProduct = !!items?.length && items.map((item) => item.id).includes(id);
@@ -142,52 +145,12 @@ export default function ProductDetailsSummary({
     </Box>
   );
 
-  const renderShare = (
-    <Stack direction="row" spacing={3} justifyContent="center">
-      <Link
-        variant="subtitle2"
-        sx={{
-          color: 'text.secondary',
-          display: 'inline-flex',
-          alignItems: 'center',
-        }}
-      >
-        <Iconify icon="mingcute:add-line" width={16} sx={{ mr: 1 }} />
-        Compare
-      </Link>
-
-      <Link
-        variant="subtitle2"
-        sx={{
-          color: 'text.secondary',
-          display: 'inline-flex',
-          alignItems: 'center',
-        }}
-      >
-        <Iconify icon="solar:heart-bold" width={16} sx={{ mr: 1 }} />
-        Favorite
-      </Link>
-
-      <Link
-        variant="subtitle2"
-        sx={{
-          color: 'text.secondary',
-          display: 'inline-flex',
-          alignItems: 'center',
-        }}
-      >
-        <Iconify icon="solar:share-bold" width={16} sx={{ mr: 1 }} />
-        Share
-      </Link>
-    </Stack>
-  );
 
   const renderColorOptions = (
-    <Stack direction="row">
+    <Stack direction="column">
       <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
         Color
       </Typography>
-
       <Controller
         name="colors"
         control={control}
@@ -204,34 +167,67 @@ export default function ProductDetailsSummary({
   );
 
   const renderSizeOptions = (
-    <Stack direction="row">
-      <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
-        Size
-      </Typography>
+    <Stack spacing={1.5}>
+      <Stack direction="row">
+        <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
+          Size
+        </Typography>
 
-      <RHFSelect
-        name="size"
-        size="small"
-        helperText={
-          <Link underline="always" color="textPrimary">
-            Size Chart
-          </Link>
-        }
+      </Stack>
+
+      <Box
         sx={{
-          maxWidth: 88,
-          [`& .${formHelperTextClasses.root}`]: {
-            mx: 0,
-            mt: 1,
-            textAlign: 'right',
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: 'repeat(3, minmax(0, 1fr))',
+            sm: 'repeat(5, minmax(0, 1fr))',
           },
+          gap: 1,
         }}
       >
         {sizes.map((size) => (
-          <MenuItem key={size} value={size}>
+          <Button
+            key={size}
+            size="small"
+            variant={values.size === size ? 'contained' : 'outlined'}
+            color={values.size === size ? 'primary' : 'inherit'}
+            onClick={() => setValue('size', size)}
+            sx={{
+              py: 1,
+              fontWeight: 600,
+            }}
+          >
             {size}
-          </MenuItem>
+          </Button>
         ))}
-      </RHFSelect>
+      </Box>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'flex-start',
+          alignItems: { xs: 'center', sm: 'center' },
+          gap: 1.5,
+          mt: 1,
+        }}
+      >
+        <Link
+          underline="always"
+        >
+          Size Guide
+        </Link>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+            fontSize: 12,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Model size: {modelSize || 'N/A'} | Model height: {modelHeight || 'N/A'}
+        </Typography>
+      </Box>
+     
     </Stack>
   );
 
@@ -261,27 +257,16 @@ export default function ProductDetailsSummary({
   const renderActions = (
     <Stack direction="row" spacing={2}>
       <Button
-        fullWidth
-        disabled={isMaxQuantity || disabledActions}
-        size="large"
-        color="warning"
-        variant="contained"
         startIcon={<Iconify icon="solar:cart-plus-bold" width={24} />}
-        onClick={handleAddCart}
-        sx={{ whiteSpace: 'nowrap' }}
-      >
-        Add to Cart
-      </Button>
-
-      <Button fullWidth size="large" type="submit" variant="contained" disabled={disabledActions}>
-        Buy Now
+      fullWidth size="large" type="submit" variant="contained" disabled={disabledActions}>
+      Add to Bag
       </Button>
     </Stack>
   );
 
   const renderSubDescription = (
     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-      {subDescription}
+      {subDescription || 'Page layouts look better with something in each section. Web page designers, content writers, and layout artists use lorem ipsum, also known as placeholder copy, to distinguish which areas on a page will hold advertisements, editorials, and filler before the final written content and website designs receive client approval.'}
     </Typography>
   );
 
@@ -320,7 +305,62 @@ export default function ProductDetailsSummary({
       {inventoryType}
     </Box>
   );
-
+  const renderMoreDetailSection = (
+    <Stack spacing={1.5}>
+      <Stack alignItems="center" direction="row" justifyContent="space-between">
+        <Typography variant="h6">DETAILS</Typography>
+        <IconButton
+          size="small"
+          onClick={() => setOpenDetails((prev) => !prev)}
+          aria-label={openDetails ? 'Collapse details' : 'Expand details'}
+        >
+          <Iconify
+            icon="eva:arrow-ios-downward-fill"
+            width={24}
+            style={{ transform: openDetails ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms' }}
+          />
+        </IconButton>
+      </Stack>
+      <Collapse in={openDetails} timeout="auto" unmountOnExit>
+        <Stack spacing={1} sx={{ color: 'text.secondary' }}>
+          <Typography variant="body2">Model size: {modelSize || 'N/A'}</Typography>
+          <Typography variant="body2">Model height: {modelHeight || 'N/A'}</Typography>
+          <Typography variant="body2">Inventory: {inventoryType}</Typography>
+          {!!sizes?.length && (
+            <Typography variant="body2">Available sizes: {sizes.join(', ')}</Typography>
+          )}
+        </Stack>
+      </Collapse>
+    </Stack>
+  );
+  const renderAdditionalInfoSection = (
+    <Stack spacing={1.5}>
+      <Stack alignItems="center" direction="row" justifyContent="space-between">
+        <Typography variant="h6">ADDITIONAL INFO</Typography>
+        <IconButton
+          size="small"
+          onClick={() => setOpenDetails((prev) => !prev)}
+          aria-label={openDetails ? 'Collapse details' : 'Expand details'}
+        >
+          <Iconify
+            icon="eva:arrow-ios-downward-fill"
+            width={24}
+            style={{ transform: openDetails ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms' }}
+          />
+        </IconButton>
+      </Stack>
+      <Collapse in={openDetails} timeout="auto" unmountOnExit>
+        <Stack spacing={1} sx={{ color: 'text.secondary' }}>
+          <Typography variant="body2">Model size: {modelSize || 'N/A'}</Typography>
+          <Typography variant="body2">Model height: {modelHeight || 'N/A'}</Typography>
+          <Typography variant="body2">Inventory: {inventoryType}</Typography>
+          {!!sizes?.length && (
+            <Typography variant="body2">Available sizes: {sizes.join(', ')}</Typography>
+          )}
+        </Stack>
+      </Collapse>
+    </Stack>
+  );
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Stack spacing={3} sx={{ pt: 3 }} {...other}>
@@ -331,9 +371,9 @@ export default function ProductDetailsSummary({
 
           <Typography variant="h5">{name}</Typography>
 
-          {renderRating}
-
           {renderPrice}
+
+          {renderRating}
 
           {renderSubDescription}
         </Stack>
@@ -350,7 +390,9 @@ export default function ProductDetailsSummary({
 
         {renderActions}
 
-        {renderShare}
+        {renderMoreDetailSection}
+
+        {renderAdditionalInfoSection}
       </Stack>
     </FormProvider>
   );

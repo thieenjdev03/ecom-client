@@ -14,8 +14,8 @@ type Props = {
 
 export default function MainLayout({ children }: Props) {
   const pathname = usePathname();
-
-  const homePage = pathname === '/';
+  const isDashboardPage = pathname.includes('/dashboard');
+  const homePage = pathname === '/' || !isDashboardPage;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 1 }}>
@@ -27,6 +27,7 @@ export default function MainLayout({ children }: Props) {
           flexGrow: 1,
           ...(!homePage && {
             pt: { xs: 8, md: 10 },
+            mt: '80px',
           }),
         }}
       >

@@ -34,12 +34,12 @@ const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(
       <Stack
         ref={ref}
         direction="row"
-        display="inline-flex"
+        alignItems="flex-start"
+        justifyContent="flex-start"
         sx={{
           flexWrap: 'wrap',
           ...(limit !== 'auto' && {
             width: limit * 36,
-            justifyContent: 'flex-end',
           }),
           ...sx,
         }}
@@ -54,7 +54,6 @@ const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(
               sx={{
                 width: 36,
                 height: 36,
-                borderRadius: '50%',
               }}
               onClick={() => {
                 handleSelect(color);
@@ -67,12 +66,11 @@ const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(
                   width: 20,
                   height: 20,
                   bgcolor: color,
-                  borderRadius: '50%',
-                  border: (theme) => `solid 1px ${alpha(theme.palette.grey[500], 0.16)}`,
+                  // border: (theme) => `solid 1px ${alpha(theme.palette.grey[500], 0.16)}`,
                   ...(hasSelected && {
                     transform: 'scale(1.3)',
-                    boxShadow: `4px 4px 8px 0 ${alpha(color, 0.48)}`,
-                    outline: `solid 2px ${alpha(color, 0.08)}`,
+                    // boxShadow: `4px 4px 8px 0 ${alpha(color, 0.48)}`,
+                    // outline: `solid 2px ${alpha(color, 0.08)}`,
                     transition: (theme) =>
                       theme.transitions.create('all', {
                         duration: theme.transitions.duration.shortest,
@@ -84,7 +82,7 @@ const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(
                   width={hasSelected ? 12 : 0}
                   icon="eva:checkmark-fill"
                   sx={{
-                    color: (theme) => theme.palette.getContrastText(color),
+                    // color: (theme) => theme.palette.getContrastText(color),
                     transition: (theme) =>
                       theme.transitions.create('all', {
                         duration: theme.transitions.duration.shortest,

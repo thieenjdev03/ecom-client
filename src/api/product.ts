@@ -1,9 +1,11 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 
-import { fetcher, endpoints } from 'src/utils/axios';
+import axios, { fetcher, endpoints } from 'src/utils/axios';
 
 import { IProductItem } from 'src/types/product';
+import { ProductDto } from 'src/types/product-dto';
+import { adaptProductDtoToItem } from 'src/utils/product-adapter';
 
 // ----------------------------------------------------------------------
 
@@ -14,13 +16,18 @@ export function useGetProducts() {
 
   const memoizedValue = useMemo(
     () => ({
-      products: (data?.products as IProductItem[]) || [],
+      products: Array.isArray(data)
+        ? (data as ProductDto[]).map(adaptProductDtoToItem)
+        : ((data?.data as ProductDto[] | undefined)?.map(adaptProductDtoToItem) || []),
       productsLoading: isLoading,
       productsError: error,
       productsValidating: isValidating,
-      productsEmpty: !isLoading && !data?.products.length,
+      productsEmpty:
+        !isLoading &&
+        ((Array.isArray(data) && data.length === 0) ||
+          (Array.isArray(data?.data) && data.data.length === 0)),
     }),
-    [data?.products, error, isLoading, isValidating]
+    [data, error, isLoading, isValidating]
   );
 
   return memoizedValue;
@@ -29,18 +36,20 @@ export function useGetProducts() {
 // ----------------------------------------------------------------------
 
 export function useGetProduct(productId: string) {
-  const URL = productId ? [endpoints.product.details, { params: { productId } }] : '';
+  const URL = productId ? endpoints.product.details(productId) : '';
 
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
 
   const memoizedValue = useMemo(
     () => ({
-      product: data?.product as IProductItem,
+      product: data
+        ? adaptProductDtoToItem((data?.data as ProductDto) ?? (data as ProductDto))
+        : (undefined as unknown as IProductItem),
       productLoading: isLoading,
       productError: error,
       productValidating: isValidating,
     }),
-    [data?.product, error, isLoading, isValidating]
+    [data, error, isLoading, isValidating]
   );
 
   return memoizedValue;
@@ -49,22 +58,27 @@ export function useGetProduct(productId: string) {
 // ----------------------------------------------------------------------
 
 export function useSearchProducts(query: string) {
-  const URL = query ? [endpoints.product.search, { params: { query } }] : '';
+  const URL = query ? [endpoints.product.list, { params: { query } }] : '';
+  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
+  return { data, isLoading, error, isValidating };
+}
 
-  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher, {
-    keepPreviousData: true,
-  });
+export async function createProduct(payload: any) {
+  const res = await axios.post(endpoints.product.create, payload);
+  return res.data;
+}
 
-  const memoizedValue = useMemo(
-    () => ({
-      searchResults: (data?.results as IProductItem[]) || [],
-      searchLoading: isLoading,
-      searchError: error,
-      searchValidating: isValidating,
-      searchEmpty: !isLoading && !data?.results.length,
-    }),
-    [data?.results, error, isLoading, isValidating]
-  );
+export async function updateProduct(id: string, payload: any) {
+  const res = await axios.patch(endpoints.product.update(id), payload);
+  return res.data;
+}
 
-  return memoizedValue;
+export async function deleteProduct(id: string) {
+  const res = await axios.delete(endpoints.product.delete(id));
+  return res.data;
+}
+
+export async function searchProducts(query: string) {
+  const res = await axios.get(endpoints.product.list, { params: { query } });
+  return res.data;
 }

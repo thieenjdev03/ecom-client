@@ -24,13 +24,15 @@ export type AuthStateType = {
 // ----------------------------------------------------------------------
 
 type CanRemove = {
-  login?: (email: string, password: string) => Promise<void>;
+  login?: (email: string, password: string) => Promise<any>;
   register?: (
     email: string,
     password: string,
     firstName: string,
-    lastName: string
-  ) => Promise<void>;
+    lastName: string,
+    phoneNumber?: string,
+    country?: string
+  ) => Promise<any>;
   //
   loginWithGoogle?: () => Promise<void>;
   loginWithGithub?: () => Promise<void>;
@@ -52,8 +54,15 @@ export type JWTContextType = CanRemove & {
   loading: boolean;
   authenticated: boolean;
   unauthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<any>;
+  register: (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    phoneNumber?: string,
+    country?: string
+  ) => Promise<any>;
   logout: () => Promise<void>;
 };
 
@@ -68,8 +77,15 @@ export type FirebaseContextType = CanRemove & {
   loginWithGithub: () => Promise<void>;
   loginWithTwitter: () => Promise<void>;
   forgotPassword?: (email: string) => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<any>;
+  register: (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    phoneNumber?: string,
+    country?: string
+  ) => Promise<any>;
 };
 
 export type AmplifyContextType = CanRemove & {
@@ -83,7 +99,9 @@ export type AmplifyContextType = CanRemove & {
     email: string,
     password: string,
     firstName: string,
-    lastName: string
+    lastName: string,
+    phoneNumber?: string,
+    country?: string
   ) => Promise<unknown>;
   logout: () => Promise<unknown>;
   confirmRegister: (email: string, code: string) => Promise<void>;

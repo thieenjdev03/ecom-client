@@ -9,7 +9,7 @@ type Props = {
 export default function ProductDetailsDescription({ description }: Props) {
   return (
     <Markdown
-      children={description}
+      children={'Page layouts look better with something in each section. Web page designers, content writers, and layout artists use lorem ipsum, also known as placeholder copy, to distinguish which areas on a page will hold advertisements, editorials, and filler before the final written content and website designs receive client approval.'}
       sx={{
         p: 3,
         '& p, li, ol': {

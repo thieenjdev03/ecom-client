@@ -42,6 +42,8 @@ import FormProvider, {
 } from 'src/components/hook-form';
 
 import { IProductItem } from 'src/types/product';
+import { useGetCategories, useGetColors, useGetSizes } from 'src/api/reference';
+import { createProduct } from 'src/api/product';
 
 // ----------------------------------------------------------------------
 
@@ -59,46 +61,36 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
   const [includeTaxes, setIncludeTaxes] = useState(false);
 
   const NewProductSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    images: Yup.array().min(1, 'Images is required'),
-    tags: Yup.array().min(2, 'Must have at least 2 tags'),
-    category: Yup.string().required('Category is required'),
-    price: Yup.number().moreThan(0, 'Price should not be $0.00'),
-    description: Yup.string().required('Description is required'),
-    // not required
-    taxes: Yup.number(),
-    newLabel: Yup.object().shape({
-      enabled: Yup.boolean(),
-      content: Yup.string(),
-    }),
-    saleLabel: Yup.object().shape({
-      enabled: Yup.boolean(),
-      content: Yup.string(),
-    }),
+    productCode: Yup.string().required('Product code is required'),
+    productSku: Yup.string().nullable(),
+    categoryId: Yup.string().required('Category is required'),
+    quantity: Yup.number().min(0).required('Quantity is required'),
+    tags: Yup.array().of(Yup.string()),
+    gender: Yup.array().of(Yup.string()),
+    saleLabel: Yup.string().nullable(),
+    newLabel: Yup.string().nullable(),
+    isSale: Yup.boolean(),
+    isNew: Yup.boolean(),
+    colorIds: Yup.array().of(Yup.string()).min(1, 'Select at least 1 color').required(),
+    sizeIds: Yup.array().of(Yup.string()).min(1, 'Select at least 1 size').required(),
   });
 
   const defaultValues = useMemo(
     () => ({
-      name: currentProduct?.name || '',
-      description: currentProduct?.description || '',
-      subDescription: currentProduct?.subDescription || '',
-      images: currentProduct?.images || [],
-      //
-      code: currentProduct?.code || '',
-      sku: currentProduct?.sku || '',
-      price: currentProduct?.price || 0,
-      quantity: currentProduct?.quantity || 0,
-      priceSale: currentProduct?.priceSale || 0,
-      tags: currentProduct?.tags || [],
-      taxes: currentProduct?.taxes || 0,
-      gender: currentProduct?.gender || '',
-      category: currentProduct?.category || '',
-      colors: currentProduct?.colors || [],
-      sizes: currentProduct?.sizes || [],
-      newLabel: currentProduct?.newLabel || { enabled: false, content: '' },
-      saleLabel: currentProduct?.saleLabel || { enabled: false, content: '' },
+      productCode: '',
+      productSku: '',
+      categoryId: '',
+      quantity: 0,
+      tags: [] as string[],
+      gender: [] as string[],
+      saleLabel: '',
+      newLabel: '',
+      isSale: false,
+      isNew: false,
+      colorIds: [] as string[],
+      sizeIds: [] as string[],
     }),
-    [currentProduct]
+    []
   );
 
   const methods = useForm({
@@ -116,27 +108,43 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
 
   const values = watch();
 
+  const { categories } = useGetCategories();
+  const { colors } = useGetColors();
+  const { sizes } = useGetSizes(values.categoryId);
+
   useEffect(() => {
     if (currentProduct) {
       reset(defaultValues);
     }
   }, [currentProduct, defaultValues, reset]);
 
-  useEffect(() => {
-    if (includeTaxes) {
-      setValue('taxes', 0);
-    } else {
-      setValue('taxes', currentProduct?.taxes || 0);
-    }
-  }, [currentProduct?.taxes, includeTaxes, setValue]);
+  // no taxes in backend DTO; remove taxes toggling
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
-      enqueueSnackbar(currentProduct ? 'Update success!' : 'Create success!');
-      router.push(paths.dashboard.product.root);
-      console.info('DATA', data);
+      const payload = {
+        productCode: data.productCode,
+        productSku: data.productSku || undefined,
+        categoryId: data.categoryId,
+        quantity: Number(data.quantity) || 0,
+        tags: data.tags || [],
+        gender: data.gender || [],
+        saleLabel: data.saleLabel || undefined,
+        newLabel: data.newLabel || undefined,
+        isSale: !!data.isSale,
+        isNew: !!data.isNew,
+        colorIds: data.colorIds,
+        sizeIds: data.sizeIds,
+      };
+
+      const created = await createProduct(payload);
+      enqueueSnackbar('Create success!');
+      const newId = created?.id || created?.data?.id;
+      if (newId) {
+        router.push(paths.dashboard.product.details(newId));
+      } else {
+        router.push(paths.dashboard.product.root);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -191,28 +199,8 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
           {!mdUp && <CardHeader title="Details" />}
 
           <Stack spacing={3} sx={{ p: 3 }}>
-            <RHFTextField name="name" label="Product Name" />
-
-            <RHFTextField name="subDescription" label="Sub Description" multiline rows={4} />
-
-            <Stack spacing={1.5}>
-              <Typography variant="subtitle2">Content</Typography>
-              <RHFEditor simple name="description" />
-            </Stack>
-
-            <Stack spacing={1.5}>
-              <Typography variant="subtitle2">Images</Typography>
-              <RHFUpload
-                multiple
-                thumbnail
-                name="images"
-                maxSize={3145728}
-                onDrop={handleDrop}
-                onRemove={handleRemoveFile}
-                onRemoveAll={handleRemoveAllFiles}
-                onUpload={() => console.info('ON UPLOAD')}
-              />
-            </Stack>
+            <RHFTextField name="productCode" label="Product Code" />
+            <RHFTextField name="productSku" label="Product SKU" />
           </Stack>
         </Card>
       </Grid>
@@ -246,10 +234,6 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                 md: 'repeat(2, 1fr)',
               }}
             >
-              <RHFTextField name="code" label="Product Code" />
-
-              <RHFTextField name="sku" label="Product SKU" />
-
               <RHFTextField
                 name="quantity"
                 label="Quantity"
@@ -258,26 +242,28 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                 InputLabelProps={{ shrink: true }}
               />
 
-              <RHFSelect native name="category" label="Category" InputLabelProps={{ shrink: true }}>
-                {PRODUCT_CATEGORY_GROUP_OPTIONS.map((category) => (
-                  <optgroup key={category.group} label={category.group}>
-                    {category.classify.map((classify) => (
-                      <option key={classify} value={classify}>
-                        {classify}
-                      </option>
-                    ))}
-                  </optgroup>
+              <RHFSelect native name="categoryId" label="Category" InputLabelProps={{ shrink: true }}>
+                <option value="" />
+                {categories.map((c: any) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
                 ))}
               </RHFSelect>
 
               <RHFMultiSelect
                 checkbox
-                name="colors"
+                name="colorIds"
                 label="Colors"
-                options={PRODUCT_COLOR_NAME_OPTIONS}
+                options={colors.map((c: any) => ({ label: c.name, value: c.id }))}
               />
 
-              <RHFMultiSelect checkbox name="sizes" label="Sizes" options={PRODUCT_SIZE_OPTIONS} />
+              <RHFMultiSelect
+                checkbox
+                name="sizeIds"
+                label="Sizes"
+                options={sizes.map((s: any) => ({ label: s.name, value: s.id }))}
+              />
             </Box>
 
             <RHFAutocomplete
@@ -315,23 +301,13 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
             <Divider sx={{ borderStyle: 'dashed' }} />
 
             <Stack direction="row" alignItems="center" spacing={3}>
-              <RHFSwitch name="saleLabel.enabled" label={null} sx={{ m: 0 }} />
-              <RHFTextField
-                name="saleLabel.content"
-                label="Sale Label"
-                fullWidth
-                disabled={!values.saleLabel.enabled}
-              />
+              <RHFSwitch name="isSale" label={null} sx={{ m: 0 }} />
+              <RHFTextField name="saleLabel" label="Sale Label" fullWidth disabled={!values.isSale} />
             </Stack>
 
             <Stack direction="row" alignItems="center" spacing={3}>
-              <RHFSwitch name="newLabel.enabled" label={null} sx={{ m: 0 }} />
-              <RHFTextField
-                name="newLabel.content"
-                label="New Label"
-                fullWidth
-                disabled={!values.newLabel.enabled}
-              />
+              <RHFSwitch name="isNew" label={null} sx={{ m: 0 }} />
+              <RHFTextField name="newLabel" label="New Label" fullWidth disabled={!values.isNew} />
             </Stack>
           </Stack>
         </Card>
@@ -357,63 +333,9 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
           {!mdUp && <CardHeader title="Pricing" />}
 
           <Stack spacing={3} sx={{ p: 3 }}>
-            <RHFTextField
-              name="price"
-              label="Regular Price"
-              placeholder="0.00"
-              type="number"
-              InputLabelProps={{ shrink: true }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box component="span" sx={{ color: 'text.disabled' }}>
-                      $
-                    </Box>
-                  </InputAdornment>
-                ),
-              }}
-            />
-
-            <RHFTextField
-              name="priceSale"
-              label="Sale Price"
-              placeholder="0.00"
-              type="number"
-              InputLabelProps={{ shrink: true }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Box component="span" sx={{ color: 'text.disabled' }}>
-                      $
-                    </Box>
-                  </InputAdornment>
-                ),
-              }}
-            />
-
-            <FormControlLabel
-              control={<Switch checked={includeTaxes} onChange={handleChangeIncludeTaxes} />}
-              label="Price includes taxes"
-            />
-
-            {!includeTaxes && (
-              <RHFTextField
-                name="taxes"
-                label="Tax (%)"
-                placeholder="0.00"
-                type="number"
-                InputLabelProps={{ shrink: true }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Box component="span" sx={{ color: 'text.disabled' }}>
-                        %
-                      </Box>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            )}
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              Variant pricing will be added per-variant after product creation.
+            </Typography>
           </Stack>
         </Card>
       </Grid>
