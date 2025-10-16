@@ -1,10 +1,10 @@
-import Box from '@mui/material/Box';
-import Pagination, { paginationClasses } from '@mui/material/Pagination';
+import Box from "@mui/material/Box";
+import Pagination, { paginationClasses } from "@mui/material/Pagination";
 
-import { IPostItem } from 'src/types/blog';
+import { IPostItem } from "src/types/blog";
 
-import { PostItemSkeleton } from './post-skeleton';
-import PostItemHorizontal from './post-item-horizontal';
+import { PostItemSkeleton } from "./post-skeleton";
+import PostItemHorizontal from "./post-item-horizontal";
 
 // ----------------------------------------------------------------------
 
@@ -36,8 +36,8 @@ export default function PostListHorizontal({ posts, loading }: Props) {
         gap={3}
         display="grid"
         gridTemplateColumns={{
-          xs: 'repeat(1, 1fr)',
-          md: 'repeat(2, 1fr)',
+          xs: "repeat(1, 1fr)",
+          md: "repeat(2, 1fr)",
         }}
       >
         {loading ? renderSkeleton : renderList}
@@ -49,7 +49,7 @@ export default function PostListHorizontal({ posts, loading }: Props) {
           sx={{
             mt: 8,
             [`& .${paginationClasses.ul}`]: {
-              justifyContent: 'center',
+              justifyContent: "center",
             },
           }}
         />

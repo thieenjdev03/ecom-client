@@ -1,9 +1,9 @@
-import DialogView from 'src/sections/_examples/mui/dialog-view';
+import DialogView from "src/sections/_examples/mui/dialog-view";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'MUI: Dialog',
+  title: "MUI: Dialog",
 };
 
 export default function DialogPage() {

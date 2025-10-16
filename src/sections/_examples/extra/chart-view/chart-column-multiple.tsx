@@ -1,4 +1,4 @@
-import Chart, { useChart } from 'src/components/chart';
+import Chart, { useChart } from "src/components/chart";
 
 // ----------------------------------------------------------------------
 
@@ -14,20 +14,37 @@ export default function ChartColumnMultiple({ series }: Props) {
     stroke: {
       show: true,
       width: 2,
-      colors: ['transparent'],
+      colors: ["transparent"],
     },
     xaxis: {
-      categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+      categories: [
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+      ],
     },
     tooltip: {
       y: {
         formatter: (value: number) => `$ ${value} thousands`,
       },
     },
-    plotOptions: { bar: { columnWidth: '36%' } },
+    plotOptions: { bar: { columnWidth: "36%" } },
   });
 
   return (
-    <Chart dir="ltr" type="bar" series={series} options={chartOptions} width="100%" height={320} />
+    <Chart
+      dir="ltr"
+      type="bar"
+      series={series}
+      options={chartOptions}
+      width="100%"
+      height={320}
+    />
   );
 }

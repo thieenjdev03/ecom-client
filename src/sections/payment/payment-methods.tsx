@@ -1,46 +1,46 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import ListItemText from '@mui/material/ListItemText';
-import Paper, { PaperProps } from '@mui/material/Paper';
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import ListItemText from "@mui/material/ListItemText";
+import Paper, { PaperProps } from "@mui/material/Paper";
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from "src/hooks/use-boolean";
 
-import Iconify from 'src/components/iconify';
+import Iconify from "src/components/iconify";
 
-import PaymentNewCardDialog from './payment-new-card-dialog';
+import PaymentNewCardDialog from "./payment-new-card-dialog";
 
 // ----------------------------------------------------------------------
 
 const PAYMENT_OPTIONS = [
   {
-    value: 'paypal',
-    label: 'Paypal',
+    value: "paypal",
+    label: "Paypal",
   },
   {
-    value: 'credit',
-    label: 'Credit / Debit Card',
+    value: "credit",
+    label: "Credit / Debit Card",
   },
 ];
 
 const CARD_OPTIONS = [
   {
-    value: 'visa1',
-    label: '**** **** **** 1212 - Jimmy Holland',
+    value: "visa1",
+    label: "**** **** **** 1212 - Jimmy Holland",
   },
   {
-    value: 'visa2',
-    label: '**** **** **** 2424 - Shawn Stokes',
+    value: "visa2",
+    label: "**** **** **** 2424 - Shawn Stokes",
   },
   {
-    value: 'mastercard',
-    label: '**** **** **** 4545 - Cole Armstrong',
+    value: "mastercard",
+    label: "**** **** **** 4545 - Cole Armstrong",
   },
 ];
 
@@ -49,7 +49,7 @@ const CARD_OPTIONS = [
 export default function PaymentMethods() {
   const newCard = useBoolean();
 
-  const [method, setMethod] = useState('paypal');
+  const [method, setMethod] = useState("paypal");
 
   const handleChangeMethod = useCallback((newValue: string) => {
     setMethod(newValue);
@@ -66,7 +66,7 @@ export default function PaymentMethods() {
               key={option.label}
               option={option}
               selected={method === option.value}
-              isCredit={option.value === 'credit' && method === 'credit'}
+              isCredit={option.value === "credit" && method === "credit"}
               onOpen={newCard.onTrue}
               onClick={() => handleChangeMethod(option.value)}
             />
@@ -91,7 +91,13 @@ type OptionItemProps = PaperProps & {
   onOpen: VoidFunction;
 };
 
-function OptionItem({ option, selected, isCredit, onOpen, ...other }: OptionItemProps) {
+function OptionItem({
+  option,
+  selected,
+  isCredit,
+  onOpen,
+  ...other
+}: OptionItemProps) {
   const { value, label } = option;
 
   return (
@@ -100,7 +106,7 @@ function OptionItem({ option, selected, isCredit, onOpen, ...other }: OptionItem
       key={value}
       sx={{
         p: 2.5,
-        cursor: 'pointer',
+        cursor: "pointer",
         ...(selected && {
           boxShadow: (theme) => `0 0 0 2px ${theme.palette.text.primary}`,
         }),
@@ -111,11 +117,15 @@ function OptionItem({ option, selected, isCredit, onOpen, ...other }: OptionItem
         primary={
           <Stack direction="row" alignItems="center">
             <Iconify
-              icon={selected ? 'eva:checkmark-circle-2-fill' : 'eva:radio-button-off-fill'}
+              icon={
+                selected
+                  ? "eva:checkmark-circle-2-fill"
+                  : "eva:radio-button-off-fill"
+              }
               width={24}
               sx={{
                 mr: 2,
-                color: selected ? 'primary.main' : 'text.secondary',
+                color: selected ? "primary.main" : "text.secondary",
               }}
             />
 
@@ -124,18 +134,20 @@ function OptionItem({ option, selected, isCredit, onOpen, ...other }: OptionItem
             </Box>
 
             <Stack spacing={1} direction="row" alignItems="center">
-              {value === 'credit' && (
+              {value === "credit" && (
                 <>
                   <Iconify icon="logos:mastercard" width={24} />,
                   <Iconify icon="logos:visa" width={24} />
                 </>
               )}
-              {value === 'paypal' && <Iconify icon="logos:paypal" width={24} />}
-              {value === 'cash' && <Iconify icon="solar:wad-of-money-bold" width={24} />}
+              {value === "paypal" && <Iconify icon="logos:paypal" width={24} />}
+              {value === "cash" && (
+                <Iconify icon="solar:wad-of-money-bold" width={24} />
+              )}
             </Stack>
           </Stack>
         }
-        primaryTypographyProps={{ typography: 'subtitle2' }}
+        primaryTypographyProps={{ typography: "subtitle2" }}
       />
 
       {isCredit && (
@@ -146,7 +158,12 @@ function OptionItem({ option, selected, isCredit, onOpen, ...other }: OptionItem
             pt: 2.5,
           }}
         >
-          <TextField select fullWidth label="Cards" SelectProps={{ native: true }}>
+          <TextField
+            select
+            fullWidth
+            label="Cards"
+            SelectProps={{ native: true }}
+          >
             {CARD_OPTIONS.map((card) => (
               <option key={card.value} value={card.value}>
                 {card.label}

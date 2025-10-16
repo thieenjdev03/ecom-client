@@ -1,26 +1,30 @@
-import Chip from '@mui/material/Chip';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
-import Typography from '@mui/material/Typography';
+import Chip from "@mui/material/Chip";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Avatar from "@mui/material/Avatar";
+import Typography from "@mui/material/Typography";
 
-import { _mock } from 'src/_mock';
+import { _mock } from "src/_mock";
 
-import Iconify from 'src/components/iconify';
+import Iconify from "src/components/iconify";
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  variant?: 'filled' | 'outlined' | 'soft';
+  variant?: "filled" | "outlined" | "soft";
 };
 
-export default function Chips({ variant = 'filled' }: Props) {
+export default function Chips({ variant = "filled" }: Props) {
   const handleDelete = () => {
-    console.info('You clicked the delete icon.');
+    console.info("You clicked the delete icon.");
   };
 
   const renderLabel = (text: string) => (
-    <Typography variant="overline" component="div" sx={{ color: 'text.secondary', mb: 1 }}>
+    <Typography
+      variant="overline"
+      component="div"
+      sx={{ color: "text.secondary", mb: 1 }}
+    >
       {text}
     </Typography>
   );
@@ -34,7 +38,7 @@ export default function Chips({ variant = 'filled' }: Props) {
         variant="outlined"
         alignItems="center"
         justifyContent="center"
-        sx={{ p: 5, borderStyle: 'dashed' }}
+        sx={{ p: 5, borderStyle: "dashed" }}
       >
         <Chip
           variant={variant}
@@ -43,7 +47,12 @@ export default function Chips({ variant = 'filled' }: Props) {
           onDelete={handleDelete}
         />
 
-        <Chip variant={variant} clickable label="Default clickable" avatar={<Avatar>M</Avatar>} />
+        <Chip
+          variant={variant}
+          clickable
+          label="Default clickable"
+          avatar={<Avatar>M</Avatar>}
+        />
 
         <Chip
           variant={variant}
@@ -143,7 +152,7 @@ export default function Chips({ variant = 'filled' }: Props) {
       </Stack>
 
       <div>
-        {renderLabel('Custom icon')}
+        {renderLabel("Custom icon")}
 
         <Stack
           spacing={1}
@@ -152,7 +161,7 @@ export default function Chips({ variant = 'filled' }: Props) {
           variant="outlined"
           alignItems="center"
           justifyContent="center"
-          sx={{ p: 5, borderStyle: 'dashed' }}
+          sx={{ p: 5, borderStyle: "dashed" }}
         >
           <Chip
             variant={variant}
@@ -174,7 +183,7 @@ export default function Chips({ variant = 'filled' }: Props) {
       </div>
 
       <div>
-        {renderLabel('Disabled')}
+        {renderLabel("Disabled")}
 
         <Stack
           spacing={1}
@@ -183,7 +192,7 @@ export default function Chips({ variant = 'filled' }: Props) {
           variant="outlined"
           alignItems="center"
           justifyContent="center"
-          sx={{ p: 5, borderStyle: 'dashed' }}
+          sx={{ p: 5, borderStyle: "dashed" }}
         >
           <Chip
             disabled
@@ -205,7 +214,7 @@ export default function Chips({ variant = 'filled' }: Props) {
       </div>
 
       <div>
-        {renderLabel('Sizes')}
+        {renderLabel("Sizes")}
 
         <Stack
           spacing={1}
@@ -214,7 +223,7 @@ export default function Chips({ variant = 'filled' }: Props) {
           variant="outlined"
           alignItems="center"
           justifyContent="center"
-          sx={{ p: 5, borderStyle: 'dashed' }}
+          sx={{ p: 5, borderStyle: "dashed" }}
         >
           <Chip
             variant={variant}

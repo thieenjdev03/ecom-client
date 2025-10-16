@@ -1,10 +1,10 @@
-import { ApexOptions } from 'apexcharts';
+import { ApexOptions } from "apexcharts";
 
-import Box from '@mui/material/Box';
-import CardHeader from '@mui/material/CardHeader';
-import Card, { CardProps } from '@mui/material/Card';
+import Box from "@mui/material/Box";
+import CardHeader from "@mui/material/CardHeader";
+import Card, { CardProps } from "@mui/material/Card";
 
-import Chart, { useChart } from 'src/components/chart';
+import Chart, { useChart } from "src/components/chart";
 
 // ----------------------------------------------------------------------
 
@@ -24,14 +24,19 @@ interface Props extends CardProps {
   };
 }
 
-export default function AnalyticsWebsiteVisits({ title, subheader, chart, ...other }: Props) {
+export default function AnalyticsWebsiteVisits({
+  title,
+  subheader,
+  chart,
+  ...other
+}: Props) {
   const { labels, colors, series, options } = chart;
 
   const chartOptions = useChart({
     colors,
     plotOptions: {
       bar: {
-        columnWidth: '16%',
+        columnWidth: "16%",
       },
     },
     fill: {
@@ -39,14 +44,14 @@ export default function AnalyticsWebsiteVisits({ title, subheader, chart, ...oth
     },
     labels,
     xaxis: {
-      type: 'datetime',
+      type: "datetime",
     },
     tooltip: {
       shared: true,
       intersect: false,
       y: {
         formatter: (value: number) => {
-          if (typeof value !== 'undefined') {
+          if (typeof value !== "undefined") {
             return `${value.toFixed(0)} visits`;
           }
           return value;

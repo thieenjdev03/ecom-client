@@ -1,54 +1,57 @@
-'use client';
+"use client";
 
-import * as Yup from 'yup';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from "yup";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
-import Link from '@mui/material/Link';
-import Alert from '@mui/material/Alert';
-import Stack from '@mui/material/Stack';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import LoadingButton from '@mui/lab/LoadingButton';
-import InputAdornment from '@mui/material/InputAdornment';
+import Link from "@mui/material/Link";
+import Alert from "@mui/material/Alert";
+import Stack from "@mui/material/Stack";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import LoadingButton from "@mui/lab/LoadingButton";
+import InputAdornment from "@mui/material/InputAdornment";
 
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
-import { useRouter, useSearchParams } from 'src/routes/hooks';
+import { paths } from "src/routes/paths";
+import { RouterLink } from "src/routes/components";
+import { useRouter, useSearchParams } from "src/routes/hooks";
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from "src/hooks/use-boolean";
 
-import { useAuthContext } from 'src/auth/hooks';
-import { PATH_AFTER_LOGIN } from 'src/config-global';
+import { useAuthContext } from "src/auth/hooks";
+import { PATH_AFTER_LOGIN } from "src/config-global";
 
-import Iconify from 'src/components/iconify';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
+import Iconify from "src/components/iconify";
+import FormProvider, { RHFTextField } from "src/components/hook-form";
 
 // ----------------------------------------------------------------------
 
 export default function FirebaseLoginView() {
-  const { login, loginWithGoogle, loginWithGithub, loginWithTwitter } = useAuthContext();
+  const { login, loginWithGoogle, loginWithGithub, loginWithTwitter } =
+    useAuthContext();
 
   const router = useRouter();
 
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState("");
 
   const searchParams = useSearchParams();
 
-  const returnTo = searchParams.get('returnTo');
+  const returnTo = searchParams.get("returnTo");
 
   const password = useBoolean();
 
   const LoginSchema = Yup.object().shape({
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-    password: Yup.string().required('Password is required'),
+    email: Yup.string()
+      .required("Email is required")
+      .email("Email must be a valid email address"),
+    password: Yup.string().required("Password is required"),
   });
 
   const defaultValues = {
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   };
 
   const methods = useForm({
@@ -70,7 +73,7 @@ export default function FirebaseLoginView() {
     } catch (error) {
       console.error(error);
       reset();
-      setErrorMsg(typeof error === 'string' ? error : error.message);
+      setErrorMsg(typeof error === "string" ? error : error.message);
     }
   });
 
@@ -105,7 +108,11 @@ export default function FirebaseLoginView() {
       <Stack direction="row" spacing={0.5}>
         <Typography variant="body2">New user?</Typography>
 
-        <Link component={RouterLink} href={paths.auth.firebase.register} variant="subtitle2">
+        <Link
+          component={RouterLink}
+          href={paths.auth.firebase.register}
+          variant="subtitle2"
+        >
           Create an account
         </Link>
       </Stack>
@@ -119,12 +126,16 @@ export default function FirebaseLoginView() {
       <RHFTextField
         name="password"
         label="Password"
-        type={password.value ? 'text' : 'password'}
+        type={password.value ? "text" : "password"}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
               <IconButton onClick={password.onToggle} edge="end">
-                <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                <Iconify
+                  icon={
+                    password.value ? "solar:eye-bold" : "solar:eye-closed-bold"
+                  }
+                />
               </IconButton>
             </InputAdornment>
           ),
@@ -137,7 +148,7 @@ export default function FirebaseLoginView() {
         variant="body2"
         color="inherit"
         underline="always"
-        sx={{ alignSelf: 'flex-end' }}
+        sx={{ alignSelf: "flex-end" }}
       >
         Forgot password?
       </Link>
@@ -160,10 +171,10 @@ export default function FirebaseLoginView() {
       <Divider
         sx={{
           my: 2.5,
-          typography: 'overline',
-          color: 'text.disabled',
-          '&:before, :after': {
-            borderTopStyle: 'dashed',
+          typography: "overline",
+          color: "text.disabled",
+          "&:before, :after": {
+            borderTopStyle: "dashed",
           },
         }}
       >

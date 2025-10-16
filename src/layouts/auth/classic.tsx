@@ -1,52 +1,52 @@
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
-import { alpha, useTheme } from '@mui/material/styles';
+import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import Stack from "@mui/material/Stack";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
+import { alpha, useTheme } from "@mui/material/styles";
 
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
+import { paths } from "src/routes/paths";
+import { RouterLink } from "src/routes/components";
 
-import { useResponsive } from 'src/hooks/use-responsive';
+import { useResponsive } from "src/hooks/use-responsive";
 
-import { bgGradient } from 'src/theme/css';
-import { useAuthContext } from 'src/auth/hooks';
+import { bgGradient } from "src/theme/css";
+import { useAuthContext } from "src/auth/hooks";
 
-import Logo from 'src/components/logo';
+import Logo from "src/components/logo";
 
 // ----------------------------------------------------------------------
 
 const METHODS = [
   {
-    id: 'jwt',
-    label: 'Jwt',
+    id: "jwt",
+    label: "Jwt",
     path: paths.auth.jwt.login,
-    icon: '/assets/icons/auth/ic_jwt.svg',
+    icon: "/assets/icons/auth/ic_jwt.svg",
   },
   {
-    id: 'firebase',
-    label: 'Firebase',
+    id: "firebase",
+    label: "Firebase",
     path: paths.auth.firebase.login,
-    icon: '/assets/icons/auth/ic_firebase.svg',
+    icon: "/assets/icons/auth/ic_firebase.svg",
   },
   {
-    id: 'amplify',
-    label: 'Amplify',
+    id: "amplify",
+    label: "Amplify",
     path: paths.auth.amplify.login,
-    icon: '/assets/icons/auth/ic_amplify.svg',
+    icon: "/assets/icons/auth/ic_amplify.svg",
   },
   {
-    id: 'auth0',
-    label: 'Auth0',
+    id: "auth0",
+    label: "Auth0",
     path: paths.auth.auth0.login,
-    icon: '/assets/icons/auth/ic_auth0.svg',
+    icon: "/assets/icons/auth/ic_auth0.svg",
   },
   {
-    id: 'supabase',
-    label: 'Supabase',
+    id: "supabase",
+    label: "Supabase",
     path: paths.auth.supabase.login,
-    icon: '/assets/icons/auth/ic_supabase.svg',
+    icon: "/assets/icons/auth/ic_supabase.svg",
   },
 ];
 
@@ -61,13 +61,13 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
 
   const theme = useTheme();
 
-  const mdUp = useResponsive('up', 'md');
+  const mdUp = useResponsive("up", "md");
 
   const renderLogo = (
     <Logo
       sx={{
         zIndex: 9,
-        position: 'absolute',
+        position: "absolute",
         m: { xs: 2, md: 5 },
       }}
     />
@@ -77,15 +77,15 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
     <Stack
       sx={{
         width: 1,
-        mx: 'auto',
+        mx: "auto",
         maxWidth: 480,
-        backgroundColor: 'white',
+        backgroundColor: "white",
         borderRadius: 1,
         padding: 8,
         boxShadow: 1,
-        border: '1px solid #e0e0e0',
-        height: '50%',
-        my  :'auto'
+        border: "1px solid #e0e0e0",
+        height: "50%",
+        my: "auto",
       }}
     >
       {children}
@@ -97,8 +97,8 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
       component="main"
       direction="row"
       sx={{
-        minHeight: '100vh',
-        backgroundColor: '#f9efef',
+        minHeight: "100vh",
+        backgroundColor: "#f9efef",
       }}
     >
       {renderLogo}

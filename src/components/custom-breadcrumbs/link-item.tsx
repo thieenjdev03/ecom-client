@@ -1,9 +1,9 @@
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
+import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
 
-import { RouterLink } from 'src/routes/components';
+import { RouterLink } from "src/routes/components";
 
-import { BreadcrumbsLinkProps } from './types';
+import { BreadcrumbsLinkProps } from "./types";
 
 // ----------------------------------------------------------------------
 
@@ -15,15 +15,15 @@ type Props = {
 
 export default function BreadcrumbsLink({ link, activeLast, disabled }: Props) {
   const styles = {
-    typography: 'body2',
-    alignItems: 'center',
-    color: 'text.primary',
-    display: 'inline-flex',
+    typography: "body2",
+    alignItems: "center",
+    color: "text.primary",
+    display: "inline-flex",
     ...(disabled &&
       !activeLast && {
-        cursor: 'default',
-        pointerEvents: 'none',
-        color: 'text.disabled',
+        cursor: "default",
+        pointerEvents: "none",
+        color: "text.disabled",
       }),
   };
 
@@ -34,8 +34,8 @@ export default function BreadcrumbsLink({ link, activeLast, disabled }: Props) {
           component="span"
           sx={{
             mr: 1,
-            display: 'inherit',
-            '& svg': { width: 20, height: 20 },
+            display: "inherit",
+            "& svg": { width: 20, height: 20 },
           }}
         >
           {link.icon}

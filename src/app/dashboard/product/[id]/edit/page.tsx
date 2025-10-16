@@ -1,11 +1,11 @@
-import axios, { endpoints } from 'src/utils/axios';
+import axios, { endpoints } from "src/utils/axios";
 
-import { ProductEditView } from 'src/sections/product/view';
+import { ProductEditView } from "src/sections/product/view";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Product Edit',
+  title: "Dashboard: Product Edit",
 };
 
 type Props = {

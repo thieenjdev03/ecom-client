@@ -1,9 +1,9 @@
-import PermissionDeniedView from 'src/sections/permission/view';
+import PermissionDeniedView from "src/sections/permission/view";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Permission Denied',
+  title: "Dashboard: Permission Denied",
 };
 
 export default function PermissionDeniedPage() {

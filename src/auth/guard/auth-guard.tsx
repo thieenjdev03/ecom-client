@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
+import { paths } from "src/routes/paths";
+import { useRouter } from "src/routes/hooks";
 
-import { SplashScreen } from 'src/components/loading-screen';
+import { SplashScreen } from "src/components/loading-screen";
 
-import { useAuthContext } from '../hooks';
+import { useAuthContext } from "../hooks";
 
 // ----------------------------------------------------------------------
 

@@ -1,16 +1,16 @@
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
 
-import { useMockedUser } from 'src/hooks/use-mocked-user';
+import { useMockedUser } from "src/hooks/use-mocked-user";
 
-import { hideScroll } from 'src/theme/css';
+import { hideScroll } from "src/theme/css";
 
-import Logo from 'src/components/logo';
-import { NavSectionMini } from 'src/components/nav-section';
+import Logo from "src/components/logo";
+import { NavSectionMini } from "src/components/nav-section";
 
-import { NAV } from '../config-layout';
-import { useNavData } from './config-navigation';
-import NavToggleButton from '../common/nav-toggle-button';
+import { NAV } from "../config-layout";
+import { useNavData } from "./config-navigation";
+import NavToggleButton from "../common/nav-toggle-button";
 
 // ----------------------------------------------------------------------
 
@@ -37,13 +37,13 @@ export default function NavMini() {
         sx={{
           pb: 2,
           height: 1,
-          position: 'fixed',
+          position: "fixed",
           width: NAV.W_MINI,
           borderRight: (theme) => `dashed 1px ${theme.palette.divider}`,
           ...hideScroll.x,
         }}
       >
-        <Logo sx={{ mx: 'auto', my: 2 }} />
+        <Logo sx={{ mx: "auto", my: 2 }} />
 
         <NavSectionMini
           data={navData}

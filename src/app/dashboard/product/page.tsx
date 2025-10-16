@@ -1,9 +1,9 @@
-import { ProductListView } from 'src/sections/product/view';
+import { ProductListView } from "src/sections/product/view";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Product List',
+  title: "Dashboard: Product List",
 };
 
 export default function ProductListPage() {

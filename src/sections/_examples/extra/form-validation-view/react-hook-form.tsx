@@ -1,24 +1,24 @@
-import { useCallback } from 'react';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm, Controller } from 'react-hook-form';
+import { useCallback } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm, Controller } from "react-hook-form";
 
-import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
-import MenuItem from '@mui/material/MenuItem';
-import Backdrop from '@mui/material/Backdrop';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import LoadingButton from '@mui/lab/LoadingButton';
-import Stack, { StackProps } from '@mui/material/Stack';
-import InputAdornment from '@mui/material/InputAdornment';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import CircularProgress from '@mui/material/CircularProgress';
+import Box from "@mui/material/Box";
+import Divider from "@mui/material/Divider";
+import MenuItem from "@mui/material/MenuItem";
+import Backdrop from "@mui/material/Backdrop";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import LoadingButton from "@mui/lab/LoadingButton";
+import Stack, { StackProps } from "@mui/material/Stack";
+import InputAdornment from "@mui/material/InputAdornment";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import CircularProgress from "@mui/material/CircularProgress";
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from "src/hooks/use-boolean";
 
-import { countries } from 'src/assets/data';
+import { countries } from "src/assets/data";
 
-import Iconify from 'src/components/iconify';
+import Iconify from "src/components/iconify";
 import FormProvider, {
   RHFEditor,
   RHFSelect,
@@ -31,22 +31,22 @@ import FormProvider, {
   RHFMultiSelect,
   RHFAutocomplete,
   RHFMultiCheckbox,
-} from 'src/components/hook-form';
+} from "src/components/hook-form";
 
-import { FormSchema } from './schema';
-import ValuesPreview from './values-preview';
+import { FormSchema } from "./schema";
+import ValuesPreview from "./values-preview";
 
 // ----------------------------------------------------------------------
 
 const OPTIONS = [
-  { value: 'option 1', label: 'Option 1' },
-  { value: 'option 2', label: 'Option 2' },
-  { value: 'option 3', label: 'Option 3' },
-  { value: 'option 4', label: 'Option 4' },
-  { value: 'option 5', label: 'Option 5' },
-  { value: 'option 6', label: 'Option 6' },
-  { value: 'option 7', label: 'Option 7' },
-  { value: 'option 8', label: 'Option 8' },
+  { value: "option 1", label: "Option 1" },
+  { value: "option 2", label: "Option 2" },
+  { value: "option 3", label: "Option 3" },
+  { value: "option 4", label: "Option 4" },
+  { value: "option 5", label: "Option 5" },
+  { value: "option 6", label: "Option 6" },
+  { value: "option 7", label: "Option 7" },
+  { value: "option 8", label: "Option 8" },
 ];
 
 type OptionType = {
@@ -56,16 +56,16 @@ type OptionType = {
 
 export const defaultValues = {
   age: 0,
-  email: '',
-  fullName: '',
+  email: "",
+  fullName: "",
   //
-  editor: '',
+  editor: "",
   switch: false,
-  radioGroup: '',
+  radioGroup: "",
   autocomplete: null,
   //
-  password: '',
-  confirmPassword: '',
+  password: "",
+  confirmPassword: "",
   //
   startDate: null,
   endDate: null,
@@ -73,10 +73,10 @@ export const defaultValues = {
   singleUpload: null,
   multiUpload: [],
   //
-  singleSelect: '',
+  singleSelect: "",
   multiSelect: [],
   //
-  singleCountry: '',
+  singleCountry: "",
   multiCountry: [],
   //
   checkbox: false,
@@ -113,7 +113,7 @@ export default function ReactHookForm({ debug }: Props) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 3000));
       reset();
-      console.info('DATA', data);
+      console.info("DATA", data);
     } catch (error) {
       console.error(error);
     }
@@ -128,10 +128,10 @@ export default function ReactHookForm({ debug }: Props) {
       });
 
       if (newFile) {
-        setValue('singleUpload', newFile, { shouldValidate: true });
+        setValue("singleUpload", newFile, { shouldValidate: true });
       }
     },
-    [setValue]
+    [setValue],
   );
 
   const handleDropMultiFile = useCallback(
@@ -141,14 +141,14 @@ export default function ReactHookForm({ debug }: Props) {
       const newFiles = acceptedFiles.map((file) =>
         Object.assign(file, {
           preview: URL.createObjectURL(file),
-        })
+        }),
       );
 
-      setValue('multiUpload', [...files, ...newFiles], {
+      setValue("multiUpload", [...files, ...newFiles], {
         shouldValidate: true,
       });
     },
-    [setValue, values.multiUpload]
+    [setValue, values.multiUpload],
   );
 
   return (
@@ -164,8 +164,8 @@ export default function ReactHookForm({ debug }: Props) {
           gap={5}
           display="grid"
           gridTemplateColumns={{
-            xs: 'repeat(1, 1fr)',
-            sm: 'repeat(2, 1fr)',
+            xs: "repeat(1, 1fr)",
+            sm: "repeat(2, 1fr)",
           }}
         >
           <Stack spacing={2}>
@@ -181,7 +181,7 @@ export default function ReactHookForm({ debug }: Props) {
               <RHFTextField name="age" label="Age" type="number" />
             </Block>
 
-            <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
+            <Stack spacing={2} direction={{ xs: "column", sm: "row" }}>
               <Controller
                 name="startDate"
                 control={control}
@@ -221,18 +221,22 @@ export default function ReactHookForm({ debug }: Props) {
               />
             </Stack>
 
-            <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }}>
+            <Stack spacing={2} direction={{ xs: "column", sm: "row" }}>
               <Block>
                 <RHFTextField
                   name="password"
                   label="Password"
-                  type={password.value ? 'text' : 'password'}
+                  type={password.value ? "text" : "password"}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton onClick={password.onToggle} edge="end">
                           <Iconify
-                            icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
+                            icon={
+                              password.value
+                                ? "solar:eye-bold"
+                                : "solar:eye-closed-bold"
+                            }
                           />
                         </IconButton>
                       </InputAdornment>
@@ -245,13 +249,17 @@ export default function ReactHookForm({ debug }: Props) {
                 <RHFTextField
                   name="confirmPassword"
                   label="Confirm Password"
-                  type={password.value ? 'text' : 'password'}
+                  type={password.value ? "text" : "password"}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton onClick={password.onToggle} edge="end">
                           <Iconify
-                            icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
+                            icon={
+                              password.value
+                                ? "solar:eye-bold"
+                                : "solar:eye-closed-bold"
+                            }
                           />
                         </IconButton>
                       </InputAdornment>
@@ -266,8 +274,12 @@ export default function ReactHookForm({ debug }: Props) {
                 name="autocomplete"
                 label="Autocomplete"
                 options={OPTIONS}
-                getOptionLabel={(option: OptionType | string) => (option as OptionType).label}
-                isOptionEqualToValue={(option, value) => option.value === value.value}
+                getOptionLabel={(option: OptionType | string) =>
+                  (option as OptionType).label
+                }
+                isOptionEqualToValue={(option, value) =>
+                  option.value === value.value
+                }
                 renderOption={(props, option) => (
                   <li {...props} key={option.value}>
                     {option.label}
@@ -305,7 +317,7 @@ export default function ReactHookForm({ debug }: Props) {
             <Block label="RHFSelect">
               <RHFSelect name="singleSelect" label="Single select">
                 <MenuItem value="">None</MenuItem>
-                <Divider sx={{ borderStyle: 'dashed' }} />
+                <Divider sx={{ borderStyle: "dashed" }} />
                 {OPTIONS.map((option) => (
                   <MenuItem key={option.value} value={option.label}>
                     {option.label}
@@ -335,7 +347,9 @@ export default function ReactHookForm({ debug }: Props) {
                 name="singleUpload"
                 maxSize={3145728}
                 onDrop={handleDropSingleFile}
-                onDelete={() => setValue('singleUpload', null, { shouldValidate: true })}
+                onDelete={() =>
+                  setValue("singleUpload", null, { shouldValidate: true })
+                }
               />
             </Block>
 
@@ -348,13 +362,16 @@ export default function ReactHookForm({ debug }: Props) {
                 onDrop={handleDropMultiFile}
                 onRemove={(inputFile) =>
                   setValue(
-                    'multiUpload',
-                    values.multiUpload && values.multiUpload?.filter((file) => file !== inputFile),
-                    { shouldValidate: true }
+                    "multiUpload",
+                    values.multiUpload &&
+                      values.multiUpload?.filter((file) => file !== inputFile),
+                    { shouldValidate: true },
                   )
                 }
-                onRemoveAll={() => setValue('multiUpload', [], { shouldValidate: true })}
-                onUpload={() => console.info('ON UPLOAD')}
+                onRemoveAll={() =>
+                  setValue("multiUpload", [], { shouldValidate: true })
+                }
+                onUpload={() => console.info("ON UPLOAD")}
               />
             </Block>
 
@@ -368,9 +385,9 @@ export default function ReactHookForm({ debug }: Props) {
               label="RHFRadioGroup"
               spacing={4}
               options={[
-                { value: 'option 1', label: 'Radio 1' },
-                { value: 'option 2', label: 'Radio 2' },
-                { value: 'option 3', label: 'Radio 3' },
+                { value: "option 1", label: "Radio 1" },
+                { value: "option 2", label: "Radio 2" },
+                { value: "option 3", label: "Radio 3" },
               ]}
             />
 
@@ -380,9 +397,9 @@ export default function ReactHookForm({ debug }: Props) {
               label="RHFMultiCheckbox"
               spacing={4}
               options={[
-                { value: 'option 1', label: 'Checkbox 1' },
-                { value: 'option 2', label: 'Checkbox 2' },
-                { value: 'option 3', label: 'Checkbox 3' },
+                { value: "option 1", label: "Checkbox 1" },
+                { value: "option 2", label: "Checkbox 2" },
+                { value: "option 3", label: "Checkbox 3" },
               ]}
             />
 
@@ -420,15 +437,15 @@ interface BlockProps extends StackProps {
   children: React.ReactNode;
 }
 
-function Block({ label = 'RHFTextField', sx, children }: BlockProps) {
+function Block({ label = "RHFTextField", sx, children }: BlockProps) {
   return (
     <Stack spacing={1} sx={{ width: 1, ...sx }}>
       <Typography
         variant="caption"
         sx={{
-          textAlign: 'right',
-          fontStyle: 'italic',
-          color: 'text.disabled',
+          textAlign: "right",
+          fontStyle: "italic",
+          color: "text.disabled",
         }}
       >
         {label}

@@ -1,9 +1,9 @@
-import ChartView from 'src/sections/_examples/extra/chart-view';
+import ChartView from "src/sections/_examples/extra/chart-view";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Components: Chart',
+  title: "Components: Chart",
 };
 
 export default function ChartPage() {

@@ -1,22 +1,22 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
-import Box from '@mui/material/Box';
-import List from '@mui/material/List';
-import Stack from '@mui/material/Stack';
-import Drawer from '@mui/material/Drawer';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import { alpha, useTheme } from '@mui/material/styles';
-import ListItemButton from '@mui/material/ListItemButton';
+import Box from "@mui/material/Box";
+import List from "@mui/material/List";
+import Stack from "@mui/material/Stack";
+import Drawer from "@mui/material/Drawer";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import { alpha, useTheme } from "@mui/material/styles";
+import ListItemButton from "@mui/material/ListItemButton";
 
-import { RouterLink } from 'src/routes/components';
-import { usePathname, useActiveLink } from 'src/routes/hooks';
+import { RouterLink } from "src/routes/components";
+import { usePathname, useActiveLink } from "src/routes/hooks";
 
-import NavItem from './nav-item';
-import Iconify from '../../iconify';
-import Scrollbar from '../../scrollbar';
-import { NavListProps, NavSubListProps } from '../types';
+import NavItem from "./nav-item";
+import Iconify from "../../iconify";
+import Scrollbar from "../../scrollbar";
+import { NavListProps, NavSubListProps } from "../types";
 
 // ----------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ export default function NavList({ data, slotProps }: NavListProps) {
   }, [pathname]);
 
   useEffect(() => {
-    const element = document.getElementById('mega-menu-mobile');
+    const element = document.getElementById("mega-menu-mobile");
 
     if (element) {
       const clientRect = element?.getBoundingClientRect();
@@ -67,10 +67,10 @@ export default function NavList({ data, slotProps }: NavListProps) {
         icon={data.icon}
         //
         hasChild={!!data.children}
-        externalLink={data.path.includes('http')}
+        externalLink={data.path.includes("http")}
         //
         active={active}
-        className={active ? 'active' : ''}
+        className={active ? "active" : ""}
         sx={slotProps?.rootItem}
       />
 
@@ -113,7 +113,11 @@ function NavSubList({ data, slotProps, title, onCloseMenu }: NavSubListProps) {
           <Iconify icon="eva:arrow-ios-back-fill" width={16} />
         </IconButton>
 
-        <Typography noWrap variant="subtitle1" sx={{ textTransform: 'capitalize' }}>
+        <Typography
+          noWrap
+          variant="subtitle1"
+          sx={{ textTransform: "capitalize" }}
+        >
           {title}
         </Typography>
       </Stack>
@@ -133,7 +137,7 @@ function NavSubList({ data, slotProps, title, onCloseMenu }: NavSubListProps) {
                   mb: 1,
                   px: 2.5,
                   fontSize: 11,
-                  color: 'text.secondary',
+                  color: "text.secondary",
                   ...slotProps?.subheader,
                 }}
               >
@@ -142,22 +146,26 @@ function NavSubList({ data, slotProps, title, onCloseMenu }: NavSubListProps) {
             )}
 
             {list.items.map((link) => {
-              const active = pathname === link.path || pathname === `${link.path}/`;
+              const active =
+                pathname === link.path || pathname === `${link.path}/`;
 
               return (
                 <ListItemButton
                   key={link.title}
                   component={RouterLink}
                   href={link.path}
-                  className={active ? 'active' : ''}
+                  className={active ? "active" : ""}
                   sx={{
                     ...theme.typography.body2,
                     fontSize: 13,
                     ...(active && {
-                      fontWeight: 'fontWeightSemiBold',
-                      color: theme.palette.mode === 'light' ? 'primary.main' : 'primary.light',
+                      fontWeight: "fontWeightSemiBold",
+                      color:
+                        theme.palette.mode === "light"
+                          ? "primary.main"
+                          : "primary.light",
                       bgcolor: alpha(theme.palette.primary.main, 0.08),
-                      '&:hover': {
+                      "&:hover": {
                         bgcolor: alpha(theme.palette.primary.main, 0.16),
                       },
                     }),
@@ -172,13 +180,18 @@ function NavSubList({ data, slotProps, title, onCloseMenu }: NavSubListProps) {
                       width: 20,
                       height: 20,
                       flexShrink: 0,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
                     <Box
-                      sx={{ width: 4, height: 4, borderRadius: '50%', bgcolor: 'currentColor' }}
+                      sx={{
+                        width: 4,
+                        height: 4,
+                        borderRadius: "50%",
+                        bgcolor: "currentColor",
+                      }}
                     />
                   </Box>
 
@@ -188,9 +201,9 @@ function NavSubList({ data, slotProps, title, onCloseMenu }: NavSubListProps) {
                     sx={{
                       flexGrow: 1,
                       maxWidth: 1,
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap',
-                      textOverflow: 'ellipsis',
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
                     }}
                   >
                     {link.title}

@@ -1,18 +1,18 @@
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
-import Divider from '@mui/material/Divider';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Unstable_Grid2';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
+import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import Stack from "@mui/material/Stack";
+import Divider from "@mui/material/Divider";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Unstable_Grid2";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
 
-import { paths } from 'src/routes/paths';
-import { usePathname } from 'src/routes/hooks';
-import { RouterLink } from 'src/routes/components';
+import { paths } from "src/routes/paths";
+import { usePathname } from "src/routes/hooks";
+import { RouterLink } from "src/routes/components";
 
-import Logo from 'src/components/logo';
-import Iconify from 'src/components/iconify';
+import Logo from "src/components/logo";
+import Iconify from "src/components/iconify";
 
 // ----------------------------------------------------------------------
 
@@ -25,18 +25,29 @@ export default function Footer() {
     <Box
       component="footer"
       sx={{
-        position: 'relative',
-        bgcolor: 'background.default', borderTop: (theme) => `1px solid ${theme.palette.divider}`,
+        position: "relative",
+        bgcolor: "background.default",
+        borderTop: (theme) => `1px solid ${theme.palette.divider}`,
       }}
     >
-      <Container sx={{ pt: 6, pb: 0}}>
-        <Grid container spacing={{ xs: 4, md: 8 }} justifyContent="space-between" alignItems="flex-start">
+      <Container sx={{ pt: 6, pb: 0 }}>
+        <Grid
+          container
+          spacing={{ xs: 4, md: 8 }}
+          justifyContent="space-between"
+          alignItems="flex-start"
+        >
           <Grid xs={12} md={2.5}>
             <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
               WE ARE ...
             </Typography>
             <Stack spacing={2} sx={{ mt: 3 }}>
-              <Link component={RouterLink} href={paths.about} color="inherit" variant="body1">
+              <Link
+                component={RouterLink}
+                href={paths.about}
+                color="inherit"
+                variant="body1"
+              >
                 Our Story
               </Link>
               <Link href="#" color="inherit" variant="body1">
@@ -50,10 +61,21 @@ export default function Footer() {
               CONTRACT US
             </Typography>
             <Stack spacing={2} sx={{ mt: 3 }}>
-              <Link component={RouterLink} href={paths.contact} color="inherit" variant="body1" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+              <Link
+                component={RouterLink}
+                href={paths.contact}
+                color="inherit"
+                variant="body1"
+                sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
+              >
                 <Iconify icon="solar:letter-broken" width={20} /> Email
               </Link>
-              <Link href="#" color="inherit" variant="body1" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+              <Link
+                href="#"
+                color="inherit"
+                variant="body1"
+                sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
+              >
                 <Iconify icon="solar:phone-linear" width={20} /> (+84)
               </Link>
             </Stack>
@@ -109,7 +131,10 @@ export default function Footer() {
       <Divider sx={{ mt: 6 }} />
 
       <Container sx={{ py: 2 }}>
-        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography
+          variant="body2"
+          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+        >
           © {YEAR} NO NAME
         </Typography>
       </Container>

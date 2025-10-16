@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
 
-import FaqsHero from '../faqs-hero';
-import FaqsList from '../faqs-list';
-import FaqsForm from '../faqs-form';
-import FaqsCategory from '../faqs-category';
+import FaqsHero from "../faqs-hero";
+import FaqsList from "../faqs-list";
+import FaqsForm from "../faqs-form";
+import FaqsCategory from "../faqs-category";
 
 // ----------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ export default function FaqsView() {
         sx={{
           pb: 10,
           pt: { xs: 10, md: 15 },
-          position: 'relative',
+          position: "relative",
         }}
       >
         <FaqsCategory />
@@ -38,8 +38,8 @@ export default function FaqsView() {
           gap={10}
           display="grid"
           gridTemplateColumns={{
-            xs: 'repeat(1, 1fr)',
-            md: 'repeat(2, 1fr)',
+            xs: "repeat(1, 1fr)",
+            md: "repeat(2, 1fr)",
           }}
         >
           <FaqsList />

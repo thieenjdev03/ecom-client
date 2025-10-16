@@ -1,14 +1,14 @@
-import Timeline from '@mui/lab/Timeline';
-import TimelineDot from '@mui/lab/TimelineDot';
-import Typography from '@mui/material/Typography';
-import CardHeader from '@mui/material/CardHeader';
-import Card, { CardProps } from '@mui/material/Card';
-import TimelineContent from '@mui/lab/TimelineContent';
-import TimelineSeparator from '@mui/lab/TimelineSeparator';
-import TimelineConnector from '@mui/lab/TimelineConnector';
-import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
+import Timeline from "@mui/lab/Timeline";
+import TimelineDot from "@mui/lab/TimelineDot";
+import Typography from "@mui/material/Typography";
+import CardHeader from "@mui/material/CardHeader";
+import Card, { CardProps } from "@mui/material/Card";
+import TimelineContent from "@mui/lab/TimelineContent";
+import TimelineSeparator from "@mui/lab/TimelineSeparator";
+import TimelineConnector from "@mui/lab/TimelineConnector";
+import TimelineItem, { timelineItemClasses } from "@mui/lab/TimelineItem";
 
-import { fDateTime } from 'src/utils/format-time';
+import { fDateTime } from "src/utils/format-time";
 
 // ----------------------------------------------------------------------
 
@@ -25,7 +25,12 @@ interface Props extends CardProps {
   list: ItemProps[];
 }
 
-export default function AnalyticsOrderTimeline({ title, subheader, list, ...other }: Props) {
+export default function AnalyticsOrderTimeline({
+  title,
+  subheader,
+  list,
+  ...other
+}: Props) {
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} />
@@ -41,7 +46,11 @@ export default function AnalyticsOrderTimeline({ title, subheader, list, ...othe
         }}
       >
         {list.map((item, index) => (
-          <OrderItem key={item.id} item={item} lastTimeline={index === list.length - 1} />
+          <OrderItem
+            key={item.id}
+            item={item}
+            lastTimeline={index === list.length - 1}
+          />
         ))}
       </Timeline>
     </Card>
@@ -62,11 +71,11 @@ function OrderItem({ item, lastTimeline }: OrderItemProps) {
       <TimelineSeparator>
         <TimelineDot
           color={
-            (type === 'order1' && 'primary') ||
-            (type === 'order2' && 'success') ||
-            (type === 'order3' && 'info') ||
-            (type === 'order4' && 'warning') ||
-            'error'
+            (type === "order1" && "primary") ||
+            (type === "order2" && "success") ||
+            (type === "order3" && "info") ||
+            (type === "order4" && "warning") ||
+            "error"
           }
         />
         {lastTimeline ? null : <TimelineConnector />}
@@ -75,7 +84,7 @@ function OrderItem({ item, lastTimeline }: OrderItemProps) {
       <TimelineContent>
         <Typography variant="subtitle2">{title}</Typography>
 
-        <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+        <Typography variant="caption" sx={{ color: "text.disabled" }}>
           {fDateTime(time)}
         </Typography>
       </TimelineContent>

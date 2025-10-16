@@ -1,26 +1,26 @@
-import Link from '@mui/material/Link';
-import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import Divider from '@mui/material/Divider';
-import MenuItem from '@mui/material/MenuItem';
-import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
-import TableCell from '@mui/material/TableCell';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import ListItemText from '@mui/material/ListItemText';
+import Link from "@mui/material/Link";
+import Button from "@mui/material/Button";
+import Avatar from "@mui/material/Avatar";
+import Divider from "@mui/material/Divider";
+import MenuItem from "@mui/material/MenuItem";
+import TableRow from "@mui/material/TableRow";
+import Checkbox from "@mui/material/Checkbox";
+import TableCell from "@mui/material/TableCell";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import ListItemText from "@mui/material/ListItemText";
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from "src/hooks/use-boolean";
 
-import { fCurrency } from 'src/utils/format-number';
-import { fDate, fTime } from 'src/utils/format-time';
+import { fCurrency } from "src/utils/format-number";
+import { fDate, fTime } from "src/utils/format-time";
 
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import Label from "src/components/label";
+import Iconify from "src/components/iconify";
+import { ConfirmDialog } from "src/components/custom-dialog";
+import CustomPopover, { usePopover } from "src/components/custom-popover";
 
-import { IInvoice } from 'src/types/invoice';
+import { IInvoice } from "src/types/invoice";
 
 // ----------------------------------------------------------------------
 
@@ -41,7 +41,15 @@ export default function InvoiceTableRow({
   onEditRow,
   onDeleteRow,
 }: Props) {
-  const { sent, invoiceNumber, createDate, dueDate, status, invoiceTo, totalAmount } = row;
+  const {
+    sent,
+    invoiceNumber,
+    createDate,
+    dueDate,
+    status,
+    invoiceTo,
+    totalAmount,
+  } = row;
 
   const confirm = useBoolean();
 
@@ -54,7 +62,7 @@ export default function InvoiceTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+        <TableCell sx={{ display: "flex", alignItems: "center" }}>
           <Avatar alt={invoiceTo.name} sx={{ mr: 2 }}>
             {invoiceTo.name.charAt(0).toUpperCase()}
           </Avatar>
@@ -71,7 +79,7 @@ export default function InvoiceTableRow({
                 noWrap
                 variant="body2"
                 onClick={onViewRow}
-                sx={{ color: 'text.disabled', cursor: 'pointer' }}
+                sx={{ color: "text.disabled", cursor: "pointer" }}
               >
                 {invoiceNumber}
               </Link>
@@ -83,11 +91,11 @@ export default function InvoiceTableRow({
           <ListItemText
             primary={fDate(createDate)}
             secondary={fTime(createDate)}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            primaryTypographyProps={{ typography: "body2", noWrap: true }}
             secondaryTypographyProps={{
               mt: 0.5,
-              component: 'span',
-              typography: 'caption',
+              component: "span",
+              typography: "caption",
             }}
           />
         </TableCell>
@@ -96,11 +104,11 @@ export default function InvoiceTableRow({
           <ListItemText
             primary={fDate(dueDate)}
             secondary={fTime(dueDate)}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            primaryTypographyProps={{ typography: "body2", noWrap: true }}
             secondaryTypographyProps={{
               mt: 0.5,
-              component: 'span',
-              typography: 'caption',
+              component: "span",
+              typography: "caption",
             }}
           />
         </TableCell>
@@ -113,10 +121,10 @@ export default function InvoiceTableRow({
           <Label
             variant="soft"
             color={
-              (status === 'paid' && 'success') ||
-              (status === 'pending' && 'warning') ||
-              (status === 'overdue' && 'error') ||
-              'default'
+              (status === "paid" && "success") ||
+              (status === "pending" && "warning") ||
+              (status === "overdue" && "error") ||
+              "default"
             }
           >
             {status}
@@ -124,7 +132,10 @@ export default function InvoiceTableRow({
         </TableCell>
 
         <TableCell align="right" sx={{ px: 1 }}>
-          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+          <IconButton
+            color={popover.open ? "inherit" : "default"}
+            onClick={popover.onOpen}
+          >
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
@@ -156,14 +167,14 @@ export default function InvoiceTableRow({
           Edit
         </MenuItem>
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+        <Divider sx={{ borderStyle: "dashed" }} />
 
         <MenuItem
           onClick={() => {
             confirm.onTrue();
             popover.onClose();
           }}
-          sx={{ color: 'error.main' }}
+          sx={{ color: "error.main" }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
           Delete

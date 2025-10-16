@@ -1,12 +1,12 @@
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Switch from '@mui/material/Switch';
-import Divider from '@mui/material/Divider';
-import Box, { BoxProps } from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import Switch from "@mui/material/Switch";
+import Divider from "@mui/material/Divider";
+import Box, { BoxProps } from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
+import Label from "src/components/label";
+import Iconify from "src/components/iconify";
 
 // ----------------------------------------------------------------------
 
@@ -20,10 +20,10 @@ export default function PaymentSummary({ sx, ...other }: BoxProps) {
       <Typography
         component="span"
         sx={{
-          alignSelf: 'center',
-          color: 'text.disabled',
+          alignSelf: "center",
+          color: "text.disabled",
           ml: 1,
-          typography: 'body2',
+          typography: "body2",
         }}
       >
         / mo
@@ -36,7 +36,7 @@ export default function PaymentSummary({ sx, ...other }: BoxProps) {
       sx={{
         p: 5,
         borderRadius: 2,
-        bgcolor: 'background.neutral',
+        bgcolor: "background.neutral",
         ...sx,
       }}
       {...other}
@@ -47,7 +47,7 @@ export default function PaymentSummary({ sx, ...other }: BoxProps) {
 
       <Stack spacing={2.5}>
         <Stack direction="row" justifyContent="space-between">
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
             Subscription
           </Typography>
 
@@ -55,7 +55,7 @@ export default function PaymentSummary({ sx, ...other }: BoxProps) {
         </Stack>
 
         <Stack direction="row" justifyContent="space-between">
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
             Billed Monthly
           </Typography>
           <Switch defaultChecked />
@@ -63,18 +63,26 @@ export default function PaymentSummary({ sx, ...other }: BoxProps) {
 
         {renderPrice}
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+        <Divider sx={{ borderStyle: "dashed" }} />
 
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
           <Typography variant="subtitle1">Total Billed</Typography>
 
           <Typography variant="subtitle1">$9.99*</Typography>
         </Stack>
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+        <Divider sx={{ borderStyle: "dashed" }} />
       </Stack>
 
-      <Typography component="div" variant="caption" sx={{ color: 'text.secondary', mt: 1 }}>
+      <Typography
+        component="div"
+        variant="caption"
+        sx={{ color: "text.secondary", mt: 1 }}
+      >
         * Plus applicable taxes
       </Typography>
 
@@ -84,11 +92,19 @@ export default function PaymentSummary({ sx, ...other }: BoxProps) {
 
       <Stack alignItems="center" spacing={1}>
         <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="solar:shield-check-bold" sx={{ color: 'success.main' }} />
-          <Typography variant="subtitle2">Secure credit card payment</Typography>
+          <Iconify
+            icon="solar:shield-check-bold"
+            sx={{ color: "success.main" }}
+          />
+          <Typography variant="subtitle2">
+            Secure credit card payment
+          </Typography>
         </Stack>
 
-        <Typography variant="caption" sx={{ color: 'text.disabled', textAlign: 'center' }}>
+        <Typography
+          variant="caption"
+          sx={{ color: "text.disabled", textAlign: "center" }}
+        >
           This is a secure 128-bit SSL encrypted payment
         </Typography>
       </Stack>

@@ -1,11 +1,11 @@
-import { _invoices } from 'src/_mock/_invoice';
+import { _invoices } from "src/_mock/_invoice";
 
-import { InvoiceDetailsView } from 'src/sections/invoice/view';
+import { InvoiceDetailsView } from "src/sections/invoice/view";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Invoice Details',
+  title: "Dashboard: Invoice Details",
 };
 
 type Props = {

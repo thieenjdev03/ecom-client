@@ -1,5 +1,5 @@
-export { default } from './walktour';
+export { default } from "./walktour";
 
-export * from './use-walktour';
+export * from "./use-walktour";
 
-export { default as ProgressBar } from './walktour-progress-bar';
+export { default as ProgressBar } from "./walktour-progress-bar";

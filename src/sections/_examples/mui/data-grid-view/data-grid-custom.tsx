@@ -1,12 +1,12 @@
-import { useRef, useMemo, useState, useImperativeHandle } from 'react';
+import { useRef, useMemo, useState, useImperativeHandle } from "react";
 
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
-import Typography from '@mui/material/Typography';
-import LinearProgress from '@mui/material/LinearProgress';
-import Rating, { RatingProps } from '@mui/material/Rating';
+import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import Stack from "@mui/material/Stack";
+import Avatar from "@mui/material/Avatar";
+import Typography from "@mui/material/Typography";
+import LinearProgress from "@mui/material/LinearProgress";
+import Rating, { RatingProps } from "@mui/material/Rating";
 import {
   DataGrid,
   GridColDef,
@@ -22,31 +22,36 @@ import {
   GridFilterInputValueProps,
   GridColumnVisibilityModel,
   GridToolbarDensitySelector,
-} from '@mui/x-data-grid';
+} from "@mui/x-data-grid";
 
-import { fPercent } from 'src/utils/format-number';
-import { fDate, fTime } from 'src/utils/format-time';
+import { fPercent } from "src/utils/format-number";
+import { fDate, fTime } from "src/utils/format-time";
 
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import EmptyContent from 'src/components/empty-content';
+import Label from "src/components/label";
+import Iconify from "src/components/iconify";
+import EmptyContent from "src/components/empty-content";
 
 // ----------------------------------------------------------------------
 
 const baseColumns: GridColDef[] = [
   {
-    field: 'id',
-    headerName: 'Id',
+    field: "id",
+    headerName: "Id",
     filterable: false,
   },
   {
-    field: 'name',
-    headerName: 'Name',
+    field: "name",
+    headerName: "Name",
     flex: 1,
     minWidth: 160,
     hideable: false,
     renderCell: (params) => (
-      <Stack spacing={2} direction="row" alignItems="center" sx={{ minWidth: 0 }}>
+      <Stack
+        spacing={2}
+        direction="row"
+        alignItems="center"
+        sx={{ minWidth: 0 }}
+      >
         <Avatar alt={params.row.name} sx={{ width: 36, height: 36 }}>
           {params.row.name.charAt(0).toUpperCase()}
         </Avatar>
@@ -57,8 +62,8 @@ const baseColumns: GridColDef[] = [
     ),
   },
   {
-    field: 'email',
-    headerName: 'Email',
+    field: "email",
+    headerName: "Email",
     flex: 1,
     minWidth: 160,
     editable: true,
@@ -69,82 +74,95 @@ const baseColumns: GridColDef[] = [
     ),
   },
   {
-    type: 'dateTime',
-    field: 'lastLogin',
-    headerName: 'Last login',
-    align: 'right',
-    headerAlign: 'right',
+    type: "dateTime",
+    field: "lastLogin",
+    headerName: "Last login",
+    align: "right",
+    headerAlign: "right",
     width: 120,
     renderCell: (params) => (
-      <Stack sx={{ textAlign: 'right' }}>
+      <Stack sx={{ textAlign: "right" }}>
         <Box component="span">{fDate(params.row.lastLogin)}</Box>
-        <Box component="span" sx={{ color: 'text.secondary', typography: 'caption' }}>
+        <Box
+          component="span"
+          sx={{ color: "text.secondary", typography: "caption" }}
+        >
           {fTime(params.row.lastLogin)}
         </Box>
       </Stack>
     ),
   },
   {
-    type: 'number',
-    field: 'rating',
-    headerName: 'Rating',
+    type: "number",
+    field: "rating",
+    headerName: "Rating",
     width: 140,
     renderCell: (params) => (
       <Rating size="small" value={params.row.rating} precision={0.5} readOnly />
     ),
   },
   {
-    type: 'singleSelect',
-    field: 'status',
-    headerName: 'Status',
-    align: 'center',
-    headerAlign: 'center',
+    type: "singleSelect",
+    field: "status",
+    headerName: "Status",
+    align: "center",
+    headerAlign: "center",
     width: 100,
     editable: true,
-    valueOptions: ['online', 'alway', 'busy'],
+    valueOptions: ["online", "alway", "busy"],
     renderCell: (params) => (
       <Label
         variant="soft"
         color={
-          (params.row.status === 'busy' && 'error') ||
-          (params.row.status === 'alway' && 'warning') ||
-          'success'
+          (params.row.status === "busy" && "error") ||
+          (params.row.status === "alway" && "warning") ||
+          "success"
         }
-        sx={{ mx: 'auto' }}
+        sx={{ mx: "auto" }}
       >
         {params.row.status}
       </Label>
     ),
   },
   {
-    type: 'boolean',
-    field: 'isAdmin',
-    align: 'center',
-    headerAlign: 'center',
+    type: "boolean",
+    field: "isAdmin",
+    align: "center",
+    headerAlign: "center",
     width: 80,
     renderCell: (params) =>
       params.row.isAdmin ? (
-        <Iconify icon="eva:checkmark-circle-2-fill" sx={{ color: 'primary.main' }} />
+        <Iconify
+          icon="eva:checkmark-circle-2-fill"
+          sx={{ color: "primary.main" }}
+        />
       ) : (
-        '-'
+        "-"
       ),
   },
   {
-    type: 'number',
-    field: 'performance',
-    headerName: 'Performance',
-    align: 'center',
-    headerAlign: 'center',
+    type: "number",
+    field: "performance",
+    headerName: "Performance",
+    align: "center",
+    headerAlign: "center",
     width: 160,
     renderCell: (params) => (
-      <Stack spacing={1} direction="row" alignItems="center" sx={{ px: 1, width: 1, height: 1 }}>
+      <Stack
+        spacing={1}
+        direction="row"
+        alignItems="center"
+        sx={{ px: 1, width: 1, height: 1 }}
+      >
         <LinearProgress
           value={params.row.performance}
           variant="determinate"
           color={
-            (params.row.performance < 30 && 'error') ||
-            (params.row.performance > 30 && params.row.performance < 70 && 'warning') ||
-            'primary'
+            (params.row.performance < 30 && "error") ||
+            (params.row.performance > 30 &&
+              params.row.performance < 70 &&
+              "warning") ||
+            "primary"
           }
           sx={{ width: 1, height: 6 }}
         />
@@ -155,11 +173,11 @@ const baseColumns: GridColDef[] = [
     ),
   },
   {
-    type: 'actions',
-    field: 'actions',
-    headerName: 'Actions',
-    align: 'right',
-    headerAlign: 'right',
+    type: "actions",
+    field: "actions",
+    headerName: "Actions",
+    align: "right",
+    headerAlign: "right",
     width: 80,
     sortable: false,
     filterable: false,
@@ -169,20 +187,20 @@ const baseColumns: GridColDef[] = [
         showInMenu
         icon={<Iconify icon="solar:eye-bold" />}
         label="View"
-        onClick={() => console.info('VIEW', params.row.id)}
+        onClick={() => console.info("VIEW", params.row.id)}
       />,
       <GridActionsCellItem
         showInMenu
         icon={<Iconify icon="solar:pen-bold" />}
         label="Edit"
-        onClick={() => console.info('EDIT', params.row.id)}
+        onClick={() => console.info("EDIT", params.row.id)}
       />,
       <GridActionsCellItem
         showInMenu
         icon={<Iconify icon="solar:trash-bin-trash-bold" />}
         label="Delete"
-        onClick={() => console.info('DELETE', params.row.id)}
-        sx={{ color: 'error.main' }}
+        onClick={() => console.info("DELETE", params.row.id)}
+        sx={{ color: "error.main" }}
       />,
     ],
   },
@@ -210,7 +228,7 @@ const HIDE_COLUMNS = {
   id: false,
 };
 
-const HIDE_COLUMNS_TOGGLABLE = ['id', 'actions'];
+const HIDE_COLUMNS_TOGGLABLE = ["id", "actions"];
 
 export default function DataGridCustom({ data: rows }: Props) {
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
@@ -221,14 +239,14 @@ export default function DataGridCustom({ data: rows }: Props) {
   const columns = useMemo(
     () =>
       baseColumns.map((col) =>
-        col.field === 'rating'
+        col.field === "rating"
           ? {
               ...col,
               filterOperators: ratingOnlyOperators,
             }
-          : col
+          : col,
       ),
-    []
+    [],
   );
 
   const getTogglableColumns = () =>
@@ -236,9 +254,11 @@ export default function DataGridCustom({ data: rows }: Props) {
       .filter((column) => !HIDE_COLUMNS_TOGGLABLE.includes(column.field))
       .map((column) => column.field);
 
-  const selected = rows.filter((row) => selectedRows.includes(row.id)).map((_row) => _row.id);
+  const selected = rows
+    .filter((row) => selectedRows.includes(row.id))
+    .map((_row) => _row.id);
 
-  console.info('SELECTED ROWS', selected);
+  console.info("SELECTED ROWS", selected);
 
   return (
     <DataGrid
@@ -250,7 +270,9 @@ export default function DataGridCustom({ data: rows }: Props) {
         setSelectedRows(newSelectionModel);
       }}
       columnVisibilityModel={columnVisibilityModel}
-      onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
+      onColumnVisibilityModelChange={(newModel) =>
+        setColumnVisibilityModel(newModel)
+      }
       slots={{
         toolbar: CustomToolbar,
         noRowsOverlay: () => <EmptyContent title="No Data" />,
@@ -285,16 +307,22 @@ function CustomToolbar() {
 
 // ----------------------------------------------------------------------
 
-function RatingInputValue({ item, applyValue, focusElementRef }: GridFilterInputValueProps) {
+function RatingInputValue({
+  item,
+  applyValue,
+  focusElementRef,
+}: GridFilterInputValueProps) {
   const ratingRef: React.Ref<any> = useRef(null);
 
   useImperativeHandle(focusElementRef, () => ({
     focus: () => {
-      ratingRef.current.querySelector(`input[value="${Number(item.value) || ''}"]`).focus();
+      ratingRef.current
+        .querySelector(`input[value="${Number(item.value) || ""}"]`)
+        .focus();
     },
   }));
 
-  const handleFilterChange: RatingProps['onChange'] = (event, newValue) => {
+  const handleFilterChange: RatingProps["onChange"] = (event, newValue) => {
     applyValue({ ...item, value: newValue });
   };
 
@@ -312,17 +340,18 @@ function RatingInputValue({ item, applyValue, focusElementRef }: GridFilterInput
 
 const ratingOnlyOperators: GridFilterOperator[] = [
   {
-    label: 'Above',
-    value: 'above',
+    label: "Above",
+    value: "above",
     getApplyFilterFn: (filterItem: GridFilterItem) => {
       if (!filterItem.field || !filterItem.value || !filterItem.operator) {
         return null;
       }
 
-      return (params): boolean => Number(params.value) >= Number(filterItem.value);
+      return (params): boolean =>
+        Number(params.value) >= Number(filterItem.value);
     },
     InputComponent: RatingInputValue,
-    InputComponentProps: { type: 'number' },
+    InputComponentProps: { type: "number" },
     getValueAsString: (value: number) => `${value} Stars`,
   },
 ];

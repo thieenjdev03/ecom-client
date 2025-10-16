@@ -1,19 +1,25 @@
-'use client';
+"use client";
 
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Switch from '@mui/material/Switch';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Switch from "@mui/material/Switch";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
 
-import { _pricingPlans } from 'src/_mock';
+import { _pricingPlans } from "src/_mock";
 
-import PricingCard from './pricing-card';
+import PricingCard from "./pricing-card";
 
 // ----------------------------------------------------------------------
 
 const arrow = (
-  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    width="48"
+    height="48"
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
     <path
       d="M10.2147 30.6123C6.71243 22.9891 10.1906 14.9695 17.1738 11.0284C24.2834 7.01748 33.9187 7.08209 41.1519 10.6817C42.6578 11.4331 41.4507 13.5427 39.9511 12.945C33.399 10.3368 25.7611 10.0919 19.3278 13.1729C16.5269 14.4946 14.2131 16.6643 12.7143 19.3746C10.7314 22.9202 11.202 26.5193 11.6878 30.3396C11.8055 31.2586 10.5388 31.3074 10.2147 30.6123Z"
       fill="#919EAB"
@@ -41,25 +47,28 @@ export default function PricingView() {
         <br /> {`community's size and needs`}
       </Typography>
 
-      <Typography align="center" sx={{ color: 'text.secondary' }}>
+      <Typography align="center" sx={{ color: "text.secondary" }}>
         Choose your plan and make modern online conversation magic
       </Typography>
 
-      <Box sx={{ mt: 9, mb: 5, position: 'relative' }}>
+      <Box sx={{ mt: 9, mb: 5, position: "relative" }}>
         <Stack direction="row" alignItems="center" justifyContent="center">
           <Typography variant="overline">MONTHLY</Typography>
 
           <Switch sx={{ mx: 1 }} />
 
-          <Box sx={{ position: 'relative' }}>
-            <Stack direction="row" sx={{ position: 'absolute', left: 12, bottom: 12 }}>
+          <Box sx={{ position: "relative" }}>
+            <Stack
+              direction="row"
+              sx={{ position: "absolute", left: 12, bottom: 12 }}
+            >
               {arrow}
               <Box
                 component="span"
                 sx={{
-                  whiteSpace: 'nowrap',
-                  color: 'success.main',
-                  typography: 'overline',
+                  whiteSpace: "nowrap",
+                  color: "success.main",
+                  typography: "overline",
                 }}
               >
                 save 10%
@@ -74,8 +83,8 @@ export default function PricingView() {
       <Box
         gap={{ xs: 3, md: 0 }}
         display="grid"
-        alignItems={{ md: 'center' }}
-        gridTemplateColumns={{ md: 'repeat(3, 1fr)' }}
+        alignItems={{ md: "center" }}
+        gridTemplateColumns={{ md: "repeat(3, 1fr)" }}
       >
         {_pricingPlans.map((card, index) => (
           <PricingCard key={card.subscription} card={card} index={index} />

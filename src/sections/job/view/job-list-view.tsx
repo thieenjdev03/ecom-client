@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import orderBy from 'lodash/orderBy';
-import isEqual from 'lodash/isEqual';
-import { useState, useCallback } from 'react';
+import orderBy from "lodash/orderBy";
+import isEqual from "lodash/isEqual";
+import { useState, useCallback } from "react";
 
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
 
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
+import { paths } from "src/routes/paths";
+import { RouterLink } from "src/routes/components";
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from "src/hooks/use-boolean";
 
-import { countries } from 'src/assets/data';
+import { countries } from "src/assets/data";
 import {
   _jobs,
   _roles,
@@ -21,20 +21,20 @@ import {
   JOB_BENEFIT_OPTIONS,
   JOB_EXPERIENCE_OPTIONS,
   JOB_EMPLOYMENT_TYPE_OPTIONS,
-} from 'src/_mock';
+} from "src/_mock";
 
-import Iconify from 'src/components/iconify';
-import EmptyContent from 'src/components/empty-content';
-import { useSettingsContext } from 'src/components/settings';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import Iconify from "src/components/iconify";
+import EmptyContent from "src/components/empty-content";
+import { useSettingsContext } from "src/components/settings";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import { IJobItem, IJobFilters, IJobFilterValue } from 'src/types/job';
+import { IJobItem, IJobFilters, IJobFilterValue } from "src/types/job";
 
-import JobList from '../job-list';
-import JobSort from '../job-sort';
-import JobSearch from '../job-search';
-import JobFilters from '../job-filters';
-import JobFiltersResult from '../job-filters-result';
+import JobList from "../job-list";
+import JobSort from "../job-sort";
+import JobSearch from "../job-search";
+import JobFilters from "../job-filters";
+import JobFiltersResult from "../job-filters-result";
 
 // ----------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ const defaultFilters: IJobFilters = {
   roles: [],
   locations: [],
   benefits: [],
-  experience: 'all',
+  experience: "all",
   employmentTypes: [],
 };
 
@@ -53,10 +53,10 @@ export default function JobListView() {
 
   const openFilters = useBoolean();
 
-  const [sortBy, setSortBy] = useState('latest');
+  const [sortBy, setSortBy] = useState("latest");
 
   const [search, setSearch] = useState<{ query: string; results: IJobItem[] }>({
-    query: '',
+    query: "",
     results: [],
   });
 
@@ -96,7 +96,8 @@ export default function JobListView() {
 
       if (inputValue) {
         const results = _jobs.filter(
-          (job) => job.title.toLowerCase().indexOf(search.query.toLowerCase()) !== -1
+          (job) =>
+            job.title.toLowerCase().indexOf(search.query.toLowerCase()) !== -1,
         );
 
         setSearch((prevState) => ({
@@ -105,15 +106,15 @@ export default function JobListView() {
         }));
       }
     },
-    [search.query]
+    [search.query],
   );
 
   const renderFilters = (
     <Stack
       spacing={3}
       justifyContent="space-between"
-      alignItems={{ xs: 'flex-end', sm: 'center' }}
-      direction={{ xs: 'column', sm: 'row' }}
+      alignItems={{ xs: "flex-end", sm: "center" }}
+      direction={{ xs: "column", sm: "row" }}
     >
       <JobSearch
         query={search.query}
@@ -137,11 +138,20 @@ export default function JobListView() {
           locationOptions={countries.map((option) => option.label)}
           roleOptions={_roles}
           benefitOptions={JOB_BENEFIT_OPTIONS.map((option) => option.label)}
-          experienceOptions={['all', ...JOB_EXPERIENCE_OPTIONS.map((option) => option.label)]}
-          employmentTypeOptions={JOB_EMPLOYMENT_TYPE_OPTIONS.map((option) => option.label)}
+          experienceOptions={[
+            "all",
+            ...JOB_EXPERIENCE_OPTIONS.map((option) => option.label),
+          ]}
+          employmentTypeOptions={JOB_EMPLOYMENT_TYPE_OPTIONS.map(
+            (option) => option.label,
+          )}
         />
 
-        <JobSort sort={sortBy} onSort={handleSortBy} sortOptions={JOB_SORT_OPTIONS} />
+        <JobSort
+          sort={sortBy}
+          onSort={handleSortBy}
+          sortOptions={JOB_SORT_OPTIONS}
+        />
       </Stack>
     </Stack>
   );
@@ -159,16 +169,16 @@ export default function JobListView() {
   );
 
   return (
-    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+    <Container maxWidth={settings.themeStretch ? false : "lg"}>
       <CustomBreadcrumbs
         heading="List"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: "Dashboard", href: paths.dashboard.root },
           {
-            name: 'Job',
+            name: "Job",
             href: paths.dashboard.job.root,
           },
-          { name: 'List' },
+          { name: "List" },
         ]}
         action={
           <Button
@@ -217,26 +227,26 @@ const applyFilter = ({
   const { employmentTypes, experience, roles, locations, benefits } = filters;
 
   // SORT BY
-  if (sortBy === 'latest') {
-    inputData = orderBy(inputData, ['createdAt'], ['desc']);
+  if (sortBy === "latest") {
+    inputData = orderBy(inputData, ["createdAt"], ["desc"]);
   }
 
-  if (sortBy === 'oldest') {
-    inputData = orderBy(inputData, ['createdAt'], ['asc']);
+  if (sortBy === "oldest") {
+    inputData = orderBy(inputData, ["createdAt"], ["asc"]);
   }
 
-  if (sortBy === 'popular') {
-    inputData = orderBy(inputData, ['totalViews'], ['desc']);
+  if (sortBy === "popular") {
+    inputData = orderBy(inputData, ["totalViews"], ["desc"]);
   }
 
   // FILTERS
   if (employmentTypes.length) {
     inputData = inputData.filter((job) =>
-      job.employmentTypes.some((item) => employmentTypes.includes(item))
+      job.employmentTypes.some((item) => employmentTypes.includes(item)),
     );
   }
 
-  if (experience !== 'all') {
+  if (experience !== "all") {
     inputData = inputData.filter((job) => job.experience === experience);
   }
 
@@ -245,11 +255,15 @@ const applyFilter = ({
   }
 
   if (locations.length) {
-    inputData = inputData.filter((job) => job.locations.some((item) => locations.includes(item)));
+    inputData = inputData.filter((job) =>
+      job.locations.some((item) => locations.includes(item)),
+    );
   }
 
   if (benefits.length) {
-    inputData = inputData.filter((job) => job.benefits.some((item) => benefits.includes(item)));
+    inputData = inputData.filter((job) =>
+      job.benefits.some((item) => benefits.includes(item)),
+    );
   }
 
   return inputData;

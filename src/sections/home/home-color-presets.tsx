@@ -1,17 +1,17 @@
-import { m } from 'framer-motion';
+import { m } from "framer-motion";
 
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import CardActionArea from '@mui/material/CardActionArea';
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import CardActionArea from "@mui/material/CardActionArea";
 
-import { presetOptions } from 'src/theme/options/presets';
+import { presetOptions } from "src/theme/options/presets";
 
-import Image from 'src/components/image';
-import Iconify from 'src/components/iconify';
-import { useSettingsContext } from 'src/components/settings';
-import { varFade, MotionViewport } from 'src/components/animate';
+import Image from "src/components/image";
+import Iconify from "src/components/iconify";
+import { useSettingsContext } from "src/components/settings";
+import { varFade, MotionViewport } from "src/components/animate";
 
 // ----------------------------------------------------------------------
 
@@ -19,9 +19,13 @@ export default function HomeColorPresets() {
   const settings = useSettingsContext();
 
   const renderDescription = (
-    <Stack spacing={3} sx={{ textAlign: 'center' }}>
+    <Stack spacing={3} sx={{ textAlign: "center" }}>
       <m.div variants={varFade().inDown}>
-        <Typography component="div" variant="overline" sx={{ color: 'text.disabled' }}>
+        <Typography
+          component="div"
+          variant="overline"
+          sx={{ color: "text.disabled" }}
+        >
           choose your style
         </Typography>
       </m.div>
@@ -31,7 +35,7 @@ export default function HomeColorPresets() {
       </m.div>
 
       <m.div variants={varFade().inDown}>
-        <Typography sx={{ color: 'text.secondary' }}>
+        <Typography sx={{ color: "text.secondary" }}>
           Express your own style with just one click
         </Typography>
       </m.div>
@@ -39,10 +43,14 @@ export default function HomeColorPresets() {
   );
 
   const renderContent = (
-    <Box sx={{ position: 'relative' }}>
-      <Image disabledEffect alt="grid" src="/assets/images/home/presets/grid.webp" />
+    <Box sx={{ position: "relative" }}>
+      <Image
+        disabledEffect
+        alt="grid"
+        src="/assets/images/home/presets/grid.webp"
+      />
 
-      <Box sx={{ position: 'absolute', top: 0 }}>
+      <Box sx={{ position: "absolute", top: 0 }}>
         <m.div variants={varFade().inUp}>
           <Image
             disabledEffect
@@ -52,9 +60,12 @@ export default function HomeColorPresets() {
         </m.div>
       </Box>
 
-      <Box sx={{ position: 'absolute', top: 0 }}>
+      <Box sx={{ position: "absolute", top: 0 }}>
         <m.div variants={varFade().inDown}>
-          <m.div animate={{ y: [0, -15, 0] }} transition={{ duration: 8, repeat: Infinity }}>
+          <m.div
+            animate={{ y: [0, -15, 0] }}
+            transition={{ duration: 8, repeat: Infinity }}
+          >
             <Image
               disabledEffect
               alt="sidebar"
@@ -64,9 +75,12 @@ export default function HomeColorPresets() {
         </m.div>
       </Box>
 
-      <Box sx={{ position: 'absolute', top: 0 }}>
+      <Box sx={{ position: "absolute", top: 0 }}>
         <m.div variants={varFade().inDown}>
-          <m.div animate={{ y: [-5, 10, -5] }} transition={{ duration: 8, repeat: Infinity }}>
+          <m.div
+            animate={{ y: [-5, 10, -5] }}
+            transition={{ duration: 8, repeat: Infinity }}
+          >
             <Image
               disabledEffect
               alt="chart"
@@ -76,9 +90,12 @@ export default function HomeColorPresets() {
         </m.div>
       </Box>
 
-      <Box sx={{ position: 'absolute', top: 0 }}>
+      <Box sx={{ position: "absolute", top: 0 }}>
         <m.div variants={varFade().inDown}>
-          <m.div animate={{ y: [-25, 5, -25] }} transition={{ duration: 10, repeat: Infinity }}>
+          <m.div
+            animate={{ y: [-25, 5, -25] }}
+            transition={{ duration: 10, repeat: Infinity }}
+          >
             <Image
               disabledEffect
               alt="sidebar"
@@ -99,8 +116,8 @@ export default function HomeColorPresets() {
           my: 5,
           width: 100,
           height: 88,
-          mx: 'auto',
-          position: 'relative',
+          mx: "auto",
+          position: "relative",
         }}
       >
         {presetOptions.map((color, index) => {
@@ -111,17 +128,17 @@ export default function HomeColorPresets() {
           return (
             <CardActionArea
               key={name}
-              onClick={() => settings.onUpdate('themeColorPresets', name)}
+              onClick={() => settings.onUpdate("themeColorPresets", name)}
               sx={{
                 width: 24,
                 height: 24,
                 bgcolor: value,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '50%',
-                position: 'absolute',
-                color: 'common.white',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "50%",
+                position: "absolute",
+                color: "common.white",
                 ...(index === 0 && { bottom: 0 }),
                 ...(index === 1 && { left: 19 }),
                 ...(index === 2 && { right: 19 }),
@@ -142,7 +159,7 @@ export default function HomeColorPresets() {
     <Container
       component={MotionViewport}
       sx={{
-        position: 'relative',
+        position: "relative",
         py: { xs: 10, md: 15 },
       }}
     >

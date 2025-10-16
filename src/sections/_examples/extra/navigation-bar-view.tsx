@@ -1,48 +1,48 @@
-'use client';
+"use client";
 
-import isEqual from 'lodash/isEqual';
-import { useState, useCallback } from 'react';
+import isEqual from "lodash/isEqual";
+import { useState, useCallback } from "react";
 
-import Paper from '@mui/material/Paper';
-import Badge from '@mui/material/Badge';
-import Stack from '@mui/material/Stack';
-import Switch from '@mui/material/Switch';
-import Drawer from '@mui/material/Drawer';
-import { alpha } from '@mui/material/styles';
-import Container from '@mui/material/Container';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import ToggleButton from '@mui/material/ToggleButton';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Paper from "@mui/material/Paper";
+import Badge from "@mui/material/Badge";
+import Stack from "@mui/material/Stack";
+import Switch from "@mui/material/Switch";
+import Drawer from "@mui/material/Drawer";
+import { alpha } from "@mui/material/styles";
+import Container from "@mui/material/Container";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import ToggleButton from "@mui/material/ToggleButton";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from "src/hooks/use-boolean";
 
-import Logo from 'src/components/logo';
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import { NavBasicMobile, NavBasicDesktop } from 'src/components/nav-basic';
+import Logo from "src/components/logo";
+import Label from "src/components/label";
+import Iconify from "src/components/iconify";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
+import { NavBasicMobile, NavBasicDesktop } from "src/components/nav-basic";
 import {
   NavSectionMini,
   NavSectionVertical,
   NavSectionHorizontal,
-} from 'src/components/nav-section';
+} from "src/components/nav-section";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
 // ----------------------------------------------------------------------
 
 const defaultConfig = {
   gap: 4,
   icon: 24,
-  currentRole: 'admin',
+  currentRole: "admin",
   rootItemHeight: 44,
   subItemHeight: 36,
-  padding: '4px 8px 4px 12px',
+  padding: "4px 8px 4px 12px",
   radius: 8,
   hiddenLabel: false,
   hiddenSubheader: false,
@@ -77,7 +77,7 @@ export default function NavigationBarView() {
           sx={{
             p: 2,
             borderRadius: 2,
-            bgcolor: 'background.paper',
+            bgcolor: "background.paper",
             boxShadow: (theme) => theme.customShadows.z20,
           }}
         >
@@ -91,20 +91,20 @@ export default function NavigationBarView() {
               rootItem: {
                 fontSize: 15,
                 fontFamily: (theme) => theme.typography.fontSecondaryFamily,
-                '& .icon': {
+                "& .icon": {
                   /* push your styles */
                 },
-                '& .text-container': {},
-                '& .label': {},
-                '& .caption': {},
-                '& .arrow': {},
+                "& .text-container": {},
+                "& .label": {},
+                "& .caption": {},
+                "& .arrow": {},
               },
               subItem: {
-                '& .icon': {},
-                '& .text-container': {},
-                '& .label': {},
-                '& .caption': {},
-                '& .arrow': {},
+                "& .icon": {},
+                "& .text-container": {},
+                "& .label": {},
+                "& .caption": {},
+                "& .arrow": {},
               },
             }}
           />
@@ -127,20 +127,20 @@ export default function NavigationBarView() {
             rootItem: {
               fontSize: 15,
               fontFamily: (theme) => theme.typography.fontSecondaryFamily,
-              '& .icon': {
+              "& .icon": {
                 /* push your styles */
               },
-              '& .text-container': {},
-              '& .label': {},
-              '& .caption': {},
-              '& .arrow': {},
+              "& .text-container": {},
+              "& .label": {},
+              "& .caption": {},
+              "& .arrow": {},
             },
             subItem: {
-              '& .icon': {},
-              '& .text-container': {},
-              '& .label': {},
-              '& .caption': {},
-              '& .arrow': {},
+              "& .icon": {},
+              "& .text-container": {},
+              "& .label": {},
+              "& .caption": {},
+              "& .arrow": {},
             },
           }}
         />
@@ -157,7 +157,7 @@ export default function NavigationBarView() {
         sx={{
           py: 2,
           borderRadius: 2,
-          bgcolor: 'background.paper',
+          bgcolor: "background.paper",
           boxShadow: (theme) => theme.customShadows.z20,
         }}
         slotProps={{
@@ -167,14 +167,14 @@ export default function NavigationBarView() {
             padding: config.padding,
             minHeight: config.rootItemHeight,
             borderRadius: `${config.radius}px`,
-            '& .icon, .sub-icon': {
+            "& .icon, .sub-icon": {
               width: config.icon,
               height: config.icon,
-              ...(!config.icon && { display: 'none' }),
+              ...(!config.icon && { display: "none" }),
             },
             ...(config.hiddenLabel && {
-              '& .label, .caption': {
-                display: 'none',
+              "& .label, .caption": {
+                display: "none",
               },
             }),
           },
@@ -182,20 +182,20 @@ export default function NavigationBarView() {
             padding: config.padding,
             minHeight: config.subItemHeight,
             borderRadius: `${config.radius}px`,
-            '& .icon, .sub-icon': {
+            "& .icon, .sub-icon": {
               width: config.icon,
               height: config.icon,
-              ...(!config.icon && { display: 'none' }),
+              ...(!config.icon && { display: "none" }),
             },
             ...(config.hiddenLabel && {
-              '& .label, .caption': {
-                display: 'none',
+              "& .label, .caption": {
+                display: "none",
               },
             }),
           },
           subheader: {
             ...(config.hiddenSubheader && {
-              display: 'none',
+              display: "none",
             }),
           },
         }}
@@ -212,7 +212,7 @@ export default function NavigationBarView() {
         sx={{
           py: 0.5,
           borderRadius: 2,
-          bgcolor: 'background.paper',
+          bgcolor: "background.paper",
           boxShadow: (theme) => theme.customShadows.z20,
         }}
       />
@@ -226,7 +226,7 @@ export default function NavigationBarView() {
         sx={{
           p: 2,
           borderRadius: 2,
-          bgcolor: 'background.paper',
+          bgcolor: "background.paper",
           boxShadow: (theme) => theme.customShadows.z20,
         }}
       >
@@ -242,10 +242,10 @@ export default function NavigationBarView() {
           heading="Navigation Bar"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Navigation Bar' },
+            { name: "Navigation Bar" },
           ]}
         />
       </ComponentHero>
@@ -299,9 +299,19 @@ type ControlsPanelProps = {
   onChangeConfig: (name: string, value: any) => void;
 };
 
-function ControlsPanel({ config, onChangeConfig, canReset, onReset }: ControlsPanelProps) {
+function ControlsPanel({
+  config,
+  onChangeConfig,
+  canReset,
+  onReset,
+}: ControlsPanelProps) {
   return (
-    <Stack component={Paper} spacing={3} variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+    <Stack
+      component={Paper}
+      spacing={3}
+      variant="outlined"
+      sx={{ p: 3, borderRadius: 2 }}
+    >
       <Stack direction="row" alignItems="center" sx={{ width: 1 }}>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           ControlsPanel
@@ -325,7 +335,7 @@ function ControlsPanel({ config, onChangeConfig, canReset, onReset }: ControlsPa
           value={config.gap}
           onChange={(event, newValue) => {
             if (newValue !== null) {
-              onChangeConfig('gap', newValue);
+              onChangeConfig("gap", newValue);
             }
           }}
         >
@@ -346,7 +356,7 @@ function ControlsPanel({ config, onChangeConfig, canReset, onReset }: ControlsPa
           value={config.icon}
           onChange={(event, newValue) => {
             if (newValue !== null) {
-              onChangeConfig('icon', newValue);
+              onChangeConfig("icon", newValue);
             }
           }}
         >
@@ -367,7 +377,7 @@ function ControlsPanel({ config, onChangeConfig, canReset, onReset }: ControlsPa
           value={config.radius}
           onChange={(event, newValue) => {
             if (newValue !== null) {
-              onChangeConfig('radius', newValue);
+              onChangeConfig("radius", newValue);
             }
           }}
         >
@@ -388,11 +398,11 @@ function ControlsPanel({ config, onChangeConfig, canReset, onReset }: ControlsPa
           value={config.currentRole}
           onChange={(event, newValue) => {
             if (newValue !== null) {
-              onChangeConfig('currentRole', newValue);
+              onChangeConfig("currentRole", newValue);
             }
           }}
         >
-          {['admin', 'user'].map((i) => (
+          {["admin", "user"].map((i) => (
             <ToggleButton key={i} value={i} sx={{ width: 1 }}>
               {i}
             </ToggleButton>
@@ -409,7 +419,7 @@ function ControlsPanel({ config, onChangeConfig, canReset, onReset }: ControlsPa
           value={config.rootItemHeight}
           onChange={(event, newValue) => {
             if (newValue !== null) {
-              onChangeConfig('rootItemHeight', newValue);
+              onChangeConfig("rootItemHeight", newValue);
             }
           }}
         >
@@ -430,7 +440,7 @@ function ControlsPanel({ config, onChangeConfig, canReset, onReset }: ControlsPa
           value={config.subItemHeight}
           onChange={(event, newValue) => {
             if (newValue !== null) {
-              onChangeConfig('subItemHeight', newValue);
+              onChangeConfig("subItemHeight", newValue);
             }
           }}
         >
@@ -445,15 +455,15 @@ function ControlsPanel({ config, onChangeConfig, canReset, onReset }: ControlsPa
       {/* Padding */}
       <TextField
         label="Item Padding"
-        value={config.padding || ''}
-        onChange={(event) => onChangeConfig('padding', event.target.value)}
+        value={config.padding || ""}
+        onChange={(event) => onChangeConfig("padding", event.target.value)}
       />
 
       <FormControlLabel
         control={
           <Switch
             checked={config.hiddenLabel}
-            onClick={() => onChangeConfig('hiddenLabel', !config.hiddenLabel)}
+            onClick={() => onChangeConfig("hiddenLabel", !config.hiddenLabel)}
           />
         }
         label="Hidden Label"
@@ -463,7 +473,9 @@ function ControlsPanel({ config, onChangeConfig, canReset, onReset }: ControlsPa
         control={
           <Switch
             checked={config.hiddenSubheader}
-            onClick={() => onChangeConfig('hiddenSubheader', !config.hiddenSubheader)}
+            onClick={() =>
+              onChangeConfig("hiddenSubheader", !config.hiddenSubheader)
+            }
           />
         }
         label="Hidden Subheader"
@@ -475,111 +487,111 @@ function ControlsPanel({ config, onChangeConfig, canReset, onReset }: ControlsPa
 // ----------------------------------------------------------------------
 
 const BASIC_NAV_ITEMS = [
-  { title: 'Home', path: '#' },
+  { title: "Home", path: "#" },
   {
-    title: 'Page',
-    path: '#',
-    caption: 'This is the caption',
+    title: "Page",
+    path: "#",
+    caption: "This is the caption",
     children: [
       {
-        title: 'Page 1',
-        path: '#',
-        caption: 'This is the caption',
+        title: "Page 1",
+        path: "#",
+        caption: "This is the caption",
         children: [
-          { title: 'Page 1.1', path: '#' },
-          { title: 'Page 1.2', path: '#' },
+          { title: "Page 1.1", path: "#" },
+          { title: "Page 1.2", path: "#" },
         ],
       },
       {
-        title: 'Page 2',
-        path: '#',
+        title: "Page 2",
+        path: "#",
         children: [
-          { title: 'Page 2.1', path: '#' },
-          { title: 'Page 2.2', path: '#' },
+          { title: "Page 2.1", path: "#" },
+          { title: "Page 2.2", path: "#" },
           {
-            title: 'Page 2.3',
-            path: '#',
+            title: "Page 2.3",
+            path: "#",
             children: [
-              { title: 'Page 2.3.1', path: '#' },
-              { title: 'Page 2.3.2', path: '#' },
-              { title: 'Page 2.3.3', path: '#' },
+              { title: "Page 2.3.1", path: "#" },
+              { title: "Page 2.3.2", path: "#" },
+              { title: "Page 2.3.3", path: "#" },
             ],
           },
         ],
       },
-      { title: 'Page 3', path: '#' },
+      { title: "Page 3", path: "#" },
     ],
   },
-  { title: 'Blog', path: '#' },
-  { title: 'About', path: '#' },
-  { title: 'Contact', path: '#' },
-  { title: 'External', path: 'https://www.google.com/' },
+  { title: "Blog", path: "#" },
+  { title: "About", path: "#" },
+  { title: "Contact", path: "#" },
+  { title: "External", path: "https://www.google.com/" },
 ];
 
 const NAV_ITEMS = [
   {
-    subheader: 'Marketing',
+    subheader: "Marketing",
     items: [
       {
-        title: 'Landing',
-        path: '#',
+        title: "Landing",
+        path: "#",
         icon: <Iconify icon="carbon:bat" width={1} />,
-        roles: ['admin'],
-        caption: 'Display only admin role',
+        roles: ["admin"],
+        caption: "Display only admin role",
       },
       {
-        title: 'Services',
-        path: '#',
+        title: "Services",
+        path: "#",
         icon: <Iconify icon="carbon:cyclist" width={1} />,
-        roles: ['admin', 'user'],
+        roles: ["admin", "user"],
       },
       {
-        title: 'Case Studies',
-        path: '#',
+        title: "Case Studies",
+        path: "#",
         icon: <Iconify icon="carbon:3d-cursor-alt" width={1} />,
         info: <Label color="error">+32</Label>,
         children: [
-          { title: 'Case Studies', path: '#' },
-          { title: 'Case Study', path: '#' },
+          { title: "Case Studies", path: "#" },
+          { title: "Case Study", path: "#" },
         ],
       },
       {
-        title: 'Blog',
-        path: '#',
+        title: "Blog",
+        path: "#",
         icon: <Iconify icon="carbon:3d-mpr-toggle" width={1} />,
         children: [
-          { title: 'Blog Posts', path: '#' },
-          { title: 'Blog Post', path: '#' },
+          { title: "Blog Posts", path: "#" },
+          { title: "Blog Post", path: "#" },
         ],
       },
     ],
   },
   {
-    subheader: 'Travel',
+    subheader: "Travel",
     items: [
       {
-        title: 'About',
-        path: '#',
+        title: "About",
+        path: "#",
         icon: <Iconify icon="carbon:airport-01" width={1} />,
       },
       {
-        title: 'Contact',
-        path: '#',
+        title: "Contact",
+        path: "#",
         icon: <Iconify icon="carbon:battery-full" width={1} />,
       },
       {
-        title: 'Level',
-        path: '#',
+        title: "Level",
+        path: "#",
         icon: <Iconify icon="carbon:play" width={1} />,
         children: [
-          { title: 'Level 2.1', path: '#' },
-          { title: 'Level 2.2', path: '#' },
+          { title: "Level 2.1", path: "#" },
+          { title: "Level 2.2", path: "#" },
           {
-            title: 'Level 2.3',
-            path: '#',
+            title: "Level 2.3",
+            path: "#",
             children: [
-              { title: 'Level 3.1', path: '#' },
-              { title: 'Level 3.2', path: '#' },
+              { title: "Level 3.1", path: "#" },
+              { title: "Level 3.2", path: "#" },
             ],
           },
         ],

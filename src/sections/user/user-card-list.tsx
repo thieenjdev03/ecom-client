@@ -1,8 +1,8 @@
-import Box from '@mui/material/Box';
+import Box from "@mui/material/Box";
 
-import { IUserCard } from 'src/types/user';
+import { IUserCard } from "src/types/user";
 
-import UserCard from './user-card';
+import UserCard from "./user-card";
 
 // ----------------------------------------------------------------------
 
@@ -16,9 +16,9 @@ export default function UserCardList({ users }: Props) {
       gap={3}
       display="grid"
       gridTemplateColumns={{
-        xs: 'repeat(1, 1fr)',
-        sm: 'repeat(2, 1fr)',
-        md: 'repeat(3, 1fr)',
+        xs: "repeat(1, 1fr)",
+        sm: "repeat(2, 1fr)",
+        md: "repeat(3, 1fr)",
       }}
     >
       {users.map((user) => (

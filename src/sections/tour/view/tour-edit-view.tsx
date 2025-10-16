@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import Container from '@mui/material/Container';
+import Container from "@mui/material/Container";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import { _tours } from 'src/_mock';
+import { _tours } from "src/_mock";
 
-import { useSettingsContext } from 'src/components/settings';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import { useSettingsContext } from "src/components/settings";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import TourNewEditForm from '../tour-new-edit-form';
+import TourNewEditForm from "../tour-new-edit-form";
 
 // ----------------------------------------------------------------------
 
@@ -23,16 +23,16 @@ export default function TourEditView({ id }: Props) {
   const currentTour = _tours.find((tour) => tour.id === id);
 
   return (
-    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+    <Container maxWidth={settings.themeStretch ? false : "lg"}>
       <CustomBreadcrumbs
         heading="Edit"
         links={[
           {
-            name: 'Dashboard',
+            name: "Dashboard",
             href: paths.dashboard.root,
           },
           {
-            name: 'Tour',
+            name: "Tour",
             href: paths.dashboard.tour.root,
           },
           { name: currentTour?.name },

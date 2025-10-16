@@ -1,26 +1,30 @@
-'use client';
+"use client";
 
-import { useMemo } from 'react';
-import merge from 'lodash/merge';
+import { useMemo } from "react";
+import merge from "lodash/merge";
 
-import CssBaseline from '@mui/material/CssBaseline';
-import { createTheme, ThemeOptions, ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
+import CssBaseline from "@mui/material/CssBaseline";
+import {
+  createTheme,
+  ThemeOptions,
+  ThemeProvider as MuiThemeProvider,
+} from "@mui/material/styles";
 
-import { useLocales } from 'src/locales';
+import { useLocales } from "src/locales";
 
-import { useSettingsContext } from 'src/components/settings';
+import { useSettingsContext } from "src/components/settings";
 
 // system
-import { palette } from './palette';
-import { shadows } from './shadows';
-import { typography } from './typography';
+import { palette } from "./palette";
+import { shadows } from "./shadows";
+import { typography } from "./typography";
 // options
-import RTL from './options/right-to-left';
-import { customShadows } from './custom-shadows';
-import { componentsOverrides } from './overrides';
-import { createPresets } from './options/presets';
-import { createContrast } from './options/contrast';
-import NextAppDirEmotionCacheProvider from './next-emotion-cache';
+import RTL from "./options/right-to-left";
+import { customShadows } from "./custom-shadows";
+import { componentsOverrides } from "./overrides";
+import { createPresets } from "./options/presets";
+import { createContrast } from "./options/contrast";
+import NextAppDirEmotionCacheProvider from "./next-emotion-cache";
 
 // ----------------------------------------------------------------------
 
@@ -59,7 +63,7 @@ export default function ThemeProvider({ children }: Props) {
       presets.palette,
       presets.customShadows,
       contrast.palette,
-    ]
+    ],
   );
 
   const theme = createTheme(memoizedValue as ThemeOptions);
@@ -68,11 +72,11 @@ export default function ThemeProvider({ children }: Props) {
 
   const themeWithLocale = useMemo(
     () => createTheme(theme, currentLang.systemValue),
-    [currentLang.systemValue, theme]
+    [currentLang.systemValue, theme],
   );
 
   return (
-    <NextAppDirEmotionCacheProvider options={{ key: 'css' }}>
+    <NextAppDirEmotionCacheProvider options={{ key: "css" }}>
       <MuiThemeProvider theme={themeWithLocale}>
         <RTL themeDirection={settings.themeDirection}>
           <CssBaseline />

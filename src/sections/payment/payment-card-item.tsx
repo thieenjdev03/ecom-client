@@ -1,14 +1,14 @@
-import Paper from '@mui/material/Paper';
-import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Stack, { StackProps } from '@mui/material/Stack';
+import Paper from "@mui/material/Paper";
+import MenuItem from "@mui/material/MenuItem";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import Stack, { StackProps } from "@mui/material/Stack";
 
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import Label from "src/components/label";
+import Iconify from "src/components/iconify";
+import CustomPopover, { usePopover } from "src/components/custom-popover";
 
-import { IPaymentCard } from 'src/types/payment';
+import { IPaymentCard } from "src/types/payment";
 
 // ----------------------------------------------------------------------
 
@@ -16,7 +16,11 @@ type PaymentItemProps = StackProps & {
   card: IPaymentCard;
 };
 
-export default function PaymentCardItem({ card, sx, ...other }: PaymentItemProps) {
+export default function PaymentCardItem({
+  card,
+  sx,
+  ...other
+}: PaymentItemProps) {
   const popover = usePopover();
 
   return (
@@ -28,14 +32,16 @@ export default function PaymentCardItem({ card, sx, ...other }: PaymentItemProps
         sx={{
           p: 2.5,
           width: 1,
-          position: 'relative',
+          position: "relative",
           ...sx,
         }}
         {...other}
       >
         <Stack direction="row" alignItems="center" spacing={1}>
           <Iconify
-            icon={(card.cardType === 'visa' && 'logos:visa') || 'logos:mastercard'}
+            icon={
+              (card.cardType === "visa" && "logos:visa") || "logos:mastercard"
+            }
             width={36}
           />
 
@@ -49,7 +55,7 @@ export default function PaymentCardItem({ card, sx, ...other }: PaymentItemProps
           sx={{
             top: 8,
             right: 8,
-            position: 'absolute',
+            position: "absolute",
           }}
         >
           <Iconify icon="eva:more-vertical-fill" />
@@ -67,7 +73,7 @@ export default function PaymentCardItem({ card, sx, ...other }: PaymentItemProps
           Edit
         </MenuItem>
 
-        <MenuItem onClick={popover.onClose} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={popover.onClose} sx={{ color: "error.main" }}>
           <Iconify icon="solar:trash-bin-trash-bold" />
           Delete
         </MenuItem>

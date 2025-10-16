@@ -1,32 +1,40 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
-import Masonry from '@mui/lab/Masonry';
-import Radio from '@mui/material/Radio';
-import Container from '@mui/material/Container';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
+import Masonry from "@mui/lab/Masonry";
+import Radio from "@mui/material/Radio";
+import Container from "@mui/material/Container";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControl from "@mui/material/FormControl";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import ComponentBlock from '../component-block';
+import ComponentBlock from "../component-block";
 
 // ----------------------------------------------------------------------
 
-const COLORS = ['default', 'primary', 'secondary', 'info', 'success', 'warning', 'error'] as const;
+const COLORS = [
+  "default",
+  "primary",
+  "secondary",
+  "info",
+  "success",
+  "warning",
+  "error",
+] as const;
 
-const PLACEMENTS = ['top', 'start', 'bottom', 'end'] as const;
+const PLACEMENTS = ["top", "start", "bottom", "end"] as const;
 
 // ----------------------------------------------------------------------
 
 export default function RadioButtonView() {
-  const [value, setValue] = useState('a1');
+  const [value, setValue] = useState("a1");
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue((event.target as HTMLInputElement).value);
@@ -39,12 +47,12 @@ export default function RadioButtonView() {
           heading="Radio Buttons"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Radio Buttons' },
+            { name: "Radio Buttons" },
           ]}
-          moreLink={['https://mui.com/components/radio-buttons']}
+          moreLink={["https://mui.com/components/radio-buttons"]}
         />
       </ComponentHero>
 
@@ -62,8 +70,16 @@ export default function RadioButtonView() {
 
           <ComponentBlock title="Sizes">
             <RadioGroup row defaultValue="g">
-              <FormControlLabel value="g" control={<Radio size="medium" />} label="Normal" />
-              <FormControlLabel value="p" control={<Radio size="small" />} label="Small" />
+              <FormControlLabel
+                value="g"
+                control={<Radio size="medium" />}
+                label="Normal"
+              />
+              <FormControlLabel
+                value="p"
+                control={<Radio size="small" />}
+                label="Small"
+              />
             </RadioGroup>
           </ComponentBlock>
 
@@ -77,7 +93,7 @@ export default function RadioButtonView() {
                     label={placement}
                     labelPlacement={placement}
                     control={<Radio size="medium" />}
-                    sx={{ textTransform: 'capitalize' }}
+                    sx={{ textTransform: "capitalize" }}
                   />
                 ))}
               </RadioGroup>
@@ -93,7 +109,7 @@ export default function RadioButtonView() {
                     value={color}
                     control={<Radio size="medium" color={color} />}
                     label={color}
-                    sx={{ textTransform: 'capitalize' }}
+                    sx={{ textTransform: "capitalize" }}
                   />
                 ))}
 

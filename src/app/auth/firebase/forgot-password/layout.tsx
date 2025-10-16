@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import CompactLayout from 'src/layouts/compact';
+import CompactLayout from "src/layouts/compact";
 
 // ----------------------------------------------------------------------
 

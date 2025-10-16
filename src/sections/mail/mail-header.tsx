@@ -1,9 +1,9 @@
-import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
-import Stack, { StackProps } from '@mui/material/Stack';
-import InputAdornment from '@mui/material/InputAdornment';
+import TextField from "@mui/material/TextField";
+import IconButton from "@mui/material/IconButton";
+import Stack, { StackProps } from "@mui/material/Stack";
+import InputAdornment from "@mui/material/InputAdornment";
 
-import Iconify from 'src/components/iconify';
+import Iconify from "src/components/iconify";
 
 // ----------------------------------------------------------------------
 
@@ -14,7 +14,13 @@ type Props = StackProps & {
 
 export default function MailHeader({ onOpenNav, onOpenMail, ...other }: Props) {
   return (
-    <Stack spacing={2} direction="row" alignItems="center" sx={{ py: 1 }} {...other}>
+    <Stack
+      spacing={2}
+      direction="row"
+      alignItems="center"
+      sx={{ py: 1 }}
+      {...other}
+    >
       <Stack direction="row" alignItems="center">
         <IconButton onClick={onOpenNav}>
           <Iconify icon="fluent:mail-24-filled" />
@@ -34,7 +40,7 @@ export default function MailHeader({ onOpenNav, onOpenMail, ...other }: Props) {
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
-              <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              <Iconify icon="eva:search-fill" sx={{ color: "text.disabled" }} />
             </InputAdornment>
           ),
         }}

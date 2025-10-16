@@ -1,23 +1,23 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback } from "react";
 
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
-import Collapse from '@mui/material/Collapse';
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import Collapse from "@mui/material/Collapse";
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from "src/hooks/use-boolean";
 
-import Iconify from 'src/components/iconify';
-import { TableProps } from 'src/components/table';
+import Iconify from "src/components/iconify";
+import { TableProps } from "src/components/table";
 
-import { IFile } from 'src/types/file';
+import { IFile } from "src/types/file";
 
-import FileManagerPanel from './file-manager-panel';
-import FileManagerFileItem from './file-manager-file-item';
-import FileManagerFolderItem from './file-manager-folder-item';
-import FileManagerShareDialog from './file-manager-share-dialog';
-import FileManagerActionSelected from './file-manager-action-selected';
-import FileManagerNewFolderDialog from './file-manager-new-folder-dialog';
+import FileManagerPanel from "./file-manager-panel";
+import FileManagerFileItem from "./file-manager-file-item";
+import FileManagerFolderItem from "./file-manager-folder-item";
+import FileManagerShareDialog from "./file-manager-share-dialog";
+import FileManagerActionSelected from "./file-manager-action-selected";
+import FileManagerNewFolderDialog from "./file-manager-new-folder-dialog";
 
 // ----------------------------------------------------------------------
 
@@ -34,13 +34,17 @@ export default function FileManagerGridView({
   onDeleteItem,
   onOpenConfirm,
 }: Props) {
-  const { selected, onSelectRow: onSelectItem, onSelectAllRows: onSelectAllItems } = table;
+  const {
+    selected,
+    onSelectRow: onSelectItem,
+    onSelectAllRows: onSelectAllItems,
+  } = table;
 
   const containerRef = useRef(null);
 
-  const [folderName, setFolderName] = useState('');
+  const [folderName, setFolderName] = useState("");
 
-  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteEmail, setInviteEmail] = useState("");
 
   const share = useBoolean();
 
@@ -52,20 +56,26 @@ export default function FileManagerGridView({
 
   const folders = useBoolean();
 
-  const handleChangeInvite = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setInviteEmail(event.target.value);
-  }, []);
+  const handleChangeInvite = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setInviteEmail(event.target.value);
+    },
+    [],
+  );
 
-  const handleChangeFolderName = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setFolderName(event.target.value);
-  }, []);
+  const handleChangeFolderName = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFolderName(event.target.value);
+    },
+    [],
+  );
 
   return (
     <>
       <Box ref={containerRef}>
         <FileManagerPanel
           title="Folders"
-          subTitle={`${dataFiltered.filter((item) => item.type === 'folder').length} folders`}
+          subTitle={`${dataFiltered.filter((item) => item.type === "folder").length} folders`}
           onOpen={newFolder.onTrue}
           collapse={folders.value}
           onCollapse={folders.onToggle}
@@ -76,14 +86,14 @@ export default function FileManagerGridView({
             gap={3}
             display="grid"
             gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-              md: 'repeat(3, 1fr)',
-              lg: 'repeat(4, 1fr)',
+              xs: "repeat(1, 1fr)",
+              sm: "repeat(2, 1fr)",
+              md: "repeat(3, 1fr)",
+              lg: "repeat(4, 1fr)",
             }}
           >
             {dataFiltered
-              .filter((i) => i.type === 'folder')
+              .filter((i) => i.type === "folder")
               .map((folder) => (
                 <FileManagerFolderItem
                   key={folder.id}
@@ -91,17 +101,17 @@ export default function FileManagerGridView({
                   selected={selected.includes(folder.id)}
                   onSelect={() => onSelectItem(folder.id)}
                   onDelete={() => onDeleteItem(folder.id)}
-                  sx={{ maxWidth: 'auto' }}
+                  sx={{ maxWidth: "auto" }}
                 />
               ))}
           </Box>
         </Collapse>
 
-        <Divider sx={{ my: 5, borderStyle: 'dashed' }} />
+        <Divider sx={{ my: 5, borderStyle: "dashed" }} />
 
         <FileManagerPanel
           title="Files"
-          subTitle={`${dataFiltered.filter((item) => item.type !== 'folder').length} files`}
+          subTitle={`${dataFiltered.filter((item) => item.type !== "folder").length} files`}
           onOpen={upload.onTrue}
           collapse={files.value}
           onCollapse={files.onToggle}
@@ -111,15 +121,15 @@ export default function FileManagerGridView({
           <Box
             display="grid"
             gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-              md: 'repeat(3, 1fr)',
-              lg: 'repeat(4, 1fr)',
+              xs: "repeat(1, 1fr)",
+              sm: "repeat(2, 1fr)",
+              md: "repeat(3, 1fr)",
+              lg: "repeat(4, 1fr)",
             }}
             gap={3}
           >
             {dataFiltered
-              .filter((i) => i.type !== 'folder')
+              .filter((i) => i.type !== "folder")
               .map((file) => (
                 <FileManagerFileItem
                   key={file.id}
@@ -127,7 +137,7 @@ export default function FileManagerGridView({
                   selected={selected.includes(file.id)}
                   onSelect={() => onSelectItem(file.id)}
                   onDelete={() => onDeleteItem(file.id)}
-                  sx={{ maxWidth: 'auto' }}
+                  sx={{ maxWidth: "auto" }}
                 />
               ))}
           </Box>
@@ -141,7 +151,7 @@ export default function FileManagerGridView({
             onSelectAllItems={(checked) =>
               onSelectAllItems(
                 checked,
-                dataFiltered.map((row) => row.id)
+                dataFiltered.map((row) => row.id),
               )
             }
             action={
@@ -178,11 +188,14 @@ export default function FileManagerGridView({
         onChangeInvite={handleChangeInvite}
         onClose={() => {
           share.onFalse();
-          setInviteEmail('');
+          setInviteEmail("");
         }}
       />
 
-      <FileManagerNewFolderDialog open={upload.value} onClose={upload.onFalse} />
+      <FileManagerNewFolderDialog
+        open={upload.value}
+        onClose={upload.onFalse}
+      />
 
       <FileManagerNewFolderDialog
         open={newFolder.value}
@@ -190,8 +203,8 @@ export default function FileManagerGridView({
         title="New Folder"
         onCreate={() => {
           newFolder.onFalse();
-          setFolderName('');
-          console.info('CREATE NEW FOLDER', folderName);
+          setFolderName("");
+          console.info("CREATE NEW FOLDER", folderName);
         }}
         folderName={folderName}
         onChangeFolderName={handleChangeFolderName}

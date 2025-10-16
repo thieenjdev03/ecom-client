@@ -1,15 +1,15 @@
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import CardHeader from '@mui/material/CardHeader';
-import Card, { CardProps } from '@mui/material/Card';
-import ListItemText from '@mui/material/ListItemText';
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import Avatar from "@mui/material/Avatar";
+import CardHeader from "@mui/material/CardHeader";
+import Card, { CardProps } from "@mui/material/Card";
+import ListItemText from "@mui/material/ListItemText";
 
-import { fToNow } from 'src/utils/format-time';
+import { fToNow } from "src/utils/format-time";
 
-import Iconify from 'src/components/iconify';
-import Scrollbar from 'src/components/scrollbar';
+import Iconify from "src/components/iconify";
+import Scrollbar from "src/components/scrollbar";
 
 // ----------------------------------------------------------------------
 
@@ -27,7 +27,12 @@ interface Props extends CardProps {
   list: ItemProps[];
 }
 
-export default function AnalyticsNews({ title, subheader, list, ...other }: Props) {
+export default function AnalyticsNews({
+  title,
+  subheader,
+  list,
+  ...other
+}: Props) {
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 1 }} />
@@ -38,11 +43,17 @@ export default function AnalyticsNews({ title, subheader, list, ...other }: Prop
         ))}
       </Scrollbar>
 
-      <Box sx={{ p: 2, textAlign: 'right' }}>
+      <Box sx={{ p: 2, textAlign: "right" }}>
         <Button
           size="small"
           color="inherit"
-          endIcon={<Iconify icon="eva:arrow-ios-forward-fill" width={18} sx={{ ml: -0.5 }} />}
+          endIcon={
+            <Iconify
+              icon="eva:arrow-ios-forward-fill"
+              width={18}
+              sx={{ ml: -0.5 }}
+            />
+          }
         >
           View All
         </Button>
@@ -84,16 +95,18 @@ function NewsItem({ news }: NewsItemProps) {
         secondary={description}
         primaryTypographyProps={{
           noWrap: true,
-          typography: 'subtitle2',
+          typography: "subtitle2",
         }}
         secondaryTypographyProps={{
           mt: 0.5,
           noWrap: true,
-          component: 'span',
+          component: "span",
         }}
       />
 
-      <Box sx={{ flexShrink: 0, color: 'text.disabled', typography: 'caption' }}>
+      <Box
+        sx={{ flexShrink: 0, color: "text.disabled", typography: "caption" }}
+      >
         {fToNow(postedAt)}
       </Box>
     </Stack>

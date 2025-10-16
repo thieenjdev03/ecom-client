@@ -1,11 +1,11 @@
-import { memo, useState, useCallback } from 'react';
+import { memo, useState, useCallback } from "react";
 
-import Stack from '@mui/material/Stack';
-import Collapse from '@mui/material/Collapse';
-import ListSubheader from '@mui/material/ListSubheader';
+import Stack from "@mui/material/Stack";
+import Collapse from "@mui/material/Collapse";
+import ListSubheader from "@mui/material/ListSubheader";
 
-import NavList from './nav-list';
-import { NavProps, NavGroupProps } from '../types';
+import NavList from "./nav-list";
+import { NavProps, NavGroupProps } from "../types";
 
 // ----------------------------------------------------------------------
 
@@ -49,18 +49,18 @@ function Group({ subheader, items, slotProps }: NavGroupProps) {
             onClick={handleToggle}
             sx={{
               fontSize: 11,
-              cursor: 'pointer',
-              typography: 'overline',
-              display: 'inline-flex',
-              color: 'text.disabled',
+              cursor: "pointer",
+              typography: "overline",
+              display: "inline-flex",
+              color: "text.disabled",
               mb: `${slotProps?.gap || 4}px`,
               p: (theme) => theme.spacing(2, 1, 1, 1.5),
               transition: (theme) =>
-                theme.transitions.create(['color'], {
+                theme.transitions.create(["color"], {
                   duration: theme.transitions.duration.shortest,
                 }),
-              '&:hover': {
-                color: 'text.primary',
+              "&:hover": {
+                color: "text.primary",
               },
               ...slotProps?.subheader,
             }}

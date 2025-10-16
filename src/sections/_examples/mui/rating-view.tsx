@@ -1,34 +1,34 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
-import Box from '@mui/material/Box';
-import Masonry from '@mui/lab/Masonry';
-import Container from '@mui/material/Container';
-import Rating, { IconContainerProps } from '@mui/material/Rating';
+import Box from "@mui/material/Box";
+import Masonry from "@mui/lab/Masonry";
+import Container from "@mui/material/Container";
+import Rating, { IconContainerProps } from "@mui/material/Rating";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import Iconify from 'src/components/iconify';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import Iconify from "src/components/iconify";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import ComponentBlock from '../component-block';
+import ComponentBlock from "../component-block";
 
 // ----------------------------------------------------------------------
 
 const labels: { [index: string]: string } = {
-  0.5: 'Useless',
-  1: 'Useless+',
-  1.5: 'Poor',
-  2: 'Poor+',
-  2.5: 'Ok',
-  3: 'Ok+',
-  3.5: 'Good',
-  4: 'Good+',
-  4.5: 'Excellent',
-  5: 'Excellent+',
+  0.5: "Useless",
+  1: "Useless+",
+  1.5: "Poor",
+  2: "Poor+",
+  2.5: "Ok",
+  3: "Ok+",
+  3.5: "Good",
+  4: "Good+",
+  4.5: "Excellent",
+  5: "Excellent+",
 };
 
 const customIcons: {
@@ -39,23 +39,23 @@ const customIcons: {
 } = {
   1: {
     icon: <Iconify icon="ic:round-sentiment-very-dissatisfied" />,
-    label: 'Very Dissatisfied',
+    label: "Very Dissatisfied",
   },
   2: {
     icon: <Iconify icon="ic:round-sentiment-dissatisfied" />,
-    label: 'Dissatisfied',
+    label: "Dissatisfied",
   },
   3: {
     icon: <Iconify icon="ic:round-sentiment-neutral" />,
-    label: 'Neutral',
+    label: "Neutral",
   },
   4: {
     icon: <Iconify icon="ic:round-sentiment-satisfied" />,
-    label: 'Satisfied',
+    label: "Satisfied",
   },
   5: {
     icon: <Iconify icon="ic:round-sentiment-very-satisfied" />,
-    label: 'Very Satisfied',
+    label: "Very Satisfied",
   },
 };
 
@@ -73,12 +73,12 @@ export default function RatingView() {
           heading="Rating"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Rating' },
+            { name: "Rating" },
           ]}
-          moreLink={['https://mui.com/components/rating']}
+          moreLink={["https://mui.com/components/rating"]}
         />
       </ComponentHero>
 
@@ -114,13 +114,15 @@ export default function RatingView() {
             <Rating
               name="customized-color"
               defaultValue={2}
-              getLabelText={(ratingValue) => `${ratingValue} Heart${ratingValue !== 1 ? 's' : ''}`}
+              getLabelText={(ratingValue) =>
+                `${ratingValue} Heart${ratingValue !== 1 ? "s" : ""}`
+              }
               precision={0.5}
               icon={<Iconify icon="solar:heart-bold" />}
               emptyIcon={<Iconify icon="solar:heart-bold" />}
               sx={{
-                color: 'info.main',
-                '&:hover': { color: 'info.dark' },
+                color: "info.main",
+                "&:hover": { color: "info.dark" },
               }}
             />
           </ComponentBlock>
@@ -150,13 +152,20 @@ export default function RatingView() {
                 setHover(newHover);
               }}
             />
-            {value !== null && <Box sx={{ ml: 2 }}>{labels[hover !== -1 ? hover : value]}</Box>}
+            {value !== null && (
+              <Box sx={{ ml: 2 }}>{labels[hover !== -1 ? hover : value]}</Box>
+            )}
           </ComponentBlock>
 
           <ComponentBlock title="Half ratings">
             <Rating name="half-rating" defaultValue={2.5} precision={0.5} />
 
-            <Rating name="half-rating-read" defaultValue={2.5} precision={0.5} readOnly />
+            <Rating
+              name="half-rating-read"
+              defaultValue={2.5}
+              precision={0.5}
+              readOnly
+            />
           </ComponentBlock>
 
           <ComponentBlock title="Sizes">

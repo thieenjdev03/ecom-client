@@ -1,29 +1,29 @@
-'use client';
+"use client";
 
-import * as Yup from 'yup';
-import { useCallback } from 'react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from "yup";
+import { useCallback } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import LoadingButton from '@mui/lab/LoadingButton';
-import InputAdornment from '@mui/material/InputAdornment';
+import Link from "@mui/material/Link";
+import Stack from "@mui/material/Stack";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import LoadingButton from "@mui/lab/LoadingButton";
+import InputAdornment from "@mui/material/InputAdornment";
 
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
-import { useRouter, useSearchParams } from 'src/routes/hooks';
+import { paths } from "src/routes/paths";
+import { RouterLink } from "src/routes/components";
+import { useRouter, useSearchParams } from "src/routes/hooks";
 
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useCountdownSeconds } from 'src/hooks/use-countdown';
+import { useBoolean } from "src/hooks/use-boolean";
+import { useCountdownSeconds } from "src/hooks/use-countdown";
 
-import { SentIcon } from 'src/assets/icons';
-import { useAuthContext } from 'src/auth/hooks';
+import { SentIcon } from "src/assets/icons";
+import { useAuthContext } from "src/auth/hooks";
 
-import Iconify from 'src/components/iconify';
-import FormProvider, { RHFCode, RHFTextField } from 'src/components/hook-form';
+import Iconify from "src/components/iconify";
+import FormProvider, { RHFCode, RHFTextField } from "src/components/hook-form";
 
 // ----------------------------------------------------------------------
 
@@ -34,32 +34,36 @@ export default function AmplifyNewPasswordView() {
 
   const searchParams = useSearchParams();
 
-  const email = searchParams.get('email');
+  const email = searchParams.get("email");
 
   const password = useBoolean();
 
   const { countdown, counting, startCountdown } = useCountdownSeconds(60);
 
   const VerifySchema = Yup.object().shape({
-    code: Yup.string().min(6, 'Code must be at least 6 characters').required('Code is required'),
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
+    code: Yup.string()
+      .min(6, "Code must be at least 6 characters")
+      .required("Code is required"),
+    email: Yup.string()
+      .required("Email is required")
+      .email("Email must be a valid email address"),
     password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required'),
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
     confirmPassword: Yup.string()
-      .required('Confirm password is required')
-      .oneOf([Yup.ref('password')], 'Passwords must match'),
+      .required("Confirm password is required")
+      .oneOf([Yup.ref("password")], "Passwords must match"),
   });
 
   const defaultValues = {
-    code: '',
-    email: email || '',
-    password: '',
-    confirmPassword: '',
+    code: "",
+    email: email || "",
+    password: "",
+    confirmPassword: "",
   };
 
   const methods = useForm({
-    mode: 'onChange',
+    mode: "onChange",
     resolver: yupResolver(VerifySchema),
     defaultValues,
   });
@@ -105,12 +109,16 @@ export default function AmplifyNewPasswordView() {
       <RHFTextField
         name="password"
         label="Password"
-        type={password.value ? 'text' : 'password'}
+        type={password.value ? "text" : "password"}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
               <IconButton onClick={password.onToggle} edge="end">
-                <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                <Iconify
+                  icon={
+                    password.value ? "solar:eye-bold" : "solar:eye-closed-bold"
+                  }
+                />
               </IconButton>
             </InputAdornment>
           ),
@@ -120,12 +128,16 @@ export default function AmplifyNewPasswordView() {
       <RHFTextField
         name="confirmPassword"
         label="Confirm New Password"
-        type={password.value ? 'text' : 'password'}
+        type={password.value ? "text" : "password"}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
               <IconButton onClick={password.onToggle} edge="end">
-                <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                <Iconify
+                  icon={
+                    password.value ? "solar:eye-bold" : "solar:eye-closed-bold"
+                  }
+                />
               </IconButton>
             </InputAdornment>
           ),
@@ -148,10 +160,10 @@ export default function AmplifyNewPasswordView() {
           variant="subtitle2"
           onClick={handleResendCode}
           sx={{
-            cursor: 'pointer',
+            cursor: "pointer",
             ...(counting && {
-              color: 'text.disabled',
-              pointerEvents: 'none',
+              color: "text.disabled",
+              pointerEvents: "none",
             }),
           }}
         >
@@ -165,8 +177,8 @@ export default function AmplifyNewPasswordView() {
         color="inherit"
         variant="subtitle2"
         sx={{
-          alignItems: 'center',
-          display: 'inline-flex',
+          alignItems: "center",
+          display: "inline-flex",
         }}
       >
         <Iconify icon="eva:arrow-ios-back-fill" width={16} />
@@ -182,7 +194,7 @@ export default function AmplifyNewPasswordView() {
       <Stack spacing={1} sx={{ mt: 3, mb: 5 }}>
         <Typography variant="h3">Request sent successfully!</Typography>
 
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
           We&apos;ve sent a 6-digit confirmation email to your email.
           <br />
           Please enter the code in below box to verify your email.

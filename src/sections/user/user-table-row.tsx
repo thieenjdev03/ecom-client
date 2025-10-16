@@ -1,26 +1,26 @@
-import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
-import TableCell from '@mui/material/TableCell';
-import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import Button from "@mui/material/Button";
+import Avatar from "@mui/material/Avatar";
+import Tooltip from "@mui/material/Tooltip";
+import MenuItem from "@mui/material/MenuItem";
+import TableRow from "@mui/material/TableRow";
+import Checkbox from "@mui/material/Checkbox";
+import TableCell from "@mui/material/TableCell";
+import IconButton from "@mui/material/IconButton";
+import ListItemText from "@mui/material/ListItemText";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from "src/hooks/use-boolean";
 
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import Label from "src/components/label";
+import Iconify from "src/components/iconify";
+import { ConfirmDialog } from "src/components/custom-dialog";
+import CustomPopover, { usePopover } from "src/components/custom-popover";
 
-import { IUserItem } from 'src/types/user';
-import { fDateTime } from 'src/utils/format-time';
+import { IUserItem } from "src/types/user";
+import { fDateTime } from "src/utils/format-time";
 
-import UserQuickEditForm from './user-quick-edit-form';
+import UserQuickEditForm from "./user-quick-edit-form";
 
 // ----------------------------------------------------------------------
 
@@ -39,7 +39,17 @@ export default function UserTableRow({
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const {profile, name, avatarUrl, role, status, email, phoneNumber, addresses, createdAt } = row;
+  const {
+    profile,
+    name,
+    avatarUrl,
+    role,
+    status,
+    email,
+    phoneNumber,
+    addresses,
+    createdAt,
+  } = row;
 
   const confirm = useBoolean();
 
@@ -54,29 +64,39 @@ export default function UserTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+        <TableCell sx={{ display: "flex", alignItems: "center" }}>
           <Avatar alt={name} src={avatarUrl} sx={{ mr: 2 }} />
           <ListItemText
             primary={profile}
-            primaryTypographyProps={{ typography: 'body2' }}
-            secondaryTypographyProps={{ component: 'span', color: 'text.disabled' }}
+            primaryTypographyProps={{ typography: "body2" }}
+            secondaryTypographyProps={{
+              component: "span",
+              color: "text.disabled",
+            }}
           />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
+        <TableCell sx={{ whiteSpace: "nowrap" }}>{email}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{phoneNumber}</TableCell>
+        <TableCell sx={{ whiteSpace: "nowrap" }}>{phoneNumber}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{role}</TableCell>
+        <TableCell sx={{ whiteSpace: "nowrap" }}>{role}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <TableCell sx={{ whiteSpace: "nowrap" }}>
           <Tooltip
             title={(() => {
               const def = addresses?.find((a) => a.isDefault);
-              if (!def) return '';
-              const parts = [def.streetLine1, def.streetLine2, def.ward, def.district, def.province, def.postalCode]
+              if (!def) return "";
+              const parts = [
+                def.streetLine1,
+                def.streetLine2,
+                def.ward,
+                def.district,
+                def.province,
+                def.postalCode,
+              ]
                 .filter(Boolean)
-                .join(', ');
+                .join(", ");
               return parts;
             })()}
           >
@@ -84,36 +104,48 @@ export default function UserTableRow({
           </Tooltip>
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{createdAt ? fDateTime(createdAt) : '-'}</TableCell>
+        <TableCell sx={{ whiteSpace: "nowrap" }}>
+          {createdAt ? fDateTime(createdAt) : "-"}
+        </TableCell>
 
         <TableCell>
           <Label
             variant="soft"
             color={
-              (status === 'active' && 'success') ||
-              (status === 'pending' && 'warning') ||
-              (status === 'banned' && 'error') ||
-              'default'
+              (status === "active" && "success") ||
+              (status === "pending" && "warning") ||
+              (status === "banned" && "error") ||
+              "default"
             }
           >
             {status}
           </Label>
         </TableCell>
 
-        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
+        <TableCell align="right" sx={{ px: 1, whiteSpace: "nowrap" }}>
           <Tooltip title="Quick Edit" placement="top" arrow>
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
+            <IconButton
+              color={quickEdit.value ? "inherit" : "default"}
+              onClick={quickEdit.onTrue}
+            >
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
 
-          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+          <IconButton
+            color={popover.open ? "inherit" : "default"}
+            onClick={popover.onOpen}
+          >
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
       </TableRow>
 
-      <UserQuickEditForm currentUser={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      <UserQuickEditForm
+        currentUser={row}
+        open={quickEdit.value}
+        onClose={quickEdit.onFalse}
+      />
 
       <CustomPopover
         open={popover.open}
@@ -126,7 +158,7 @@ export default function UserTableRow({
             confirm.onTrue();
             popover.onClose();
           }}
-          sx={{ color: 'error.main' }}
+          sx={{ color: "error.main" }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
           Delete

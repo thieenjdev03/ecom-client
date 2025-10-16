@@ -1,9 +1,9 @@
-import { ColorsView } from 'src/sections/_examples/foundation';
+import { ColorsView } from "src/sections/_examples/foundation";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Foundations: Colors',
+  title: "Foundations: Colors",
 };
 
 export default function ColorsPage() {

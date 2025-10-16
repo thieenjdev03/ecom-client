@@ -1,15 +1,15 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
-import Collapse from '@mui/material/Collapse';
-import { stackClasses } from '@mui/material/Stack';
-import { listItemButtonClasses } from '@mui/material/ListItemButton';
+import Collapse from "@mui/material/Collapse";
+import { stackClasses } from "@mui/material/Stack";
+import { listItemButtonClasses } from "@mui/material/ListItemButton";
 
-import { useActiveLink } from 'src/routes/hooks/use-active-link';
+import { useActiveLink } from "src/routes/hooks/use-active-link";
 
-import { NavSectionVertical } from 'src/components/nav-section';
+import { NavSectionVertical } from "src/components/nav-section";
 
-import { NavItem } from './nav-item';
-import { NavListProps } from '../types';
+import { NavItem } from "./nav-item";
+import { NavListProps } from "../types";
 
 // ----------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ export default function NavList({ data }: NavListProps) {
         icon={data.icon}
         //
         hasChild={!!data.children}
-        externalLink={data.path.includes('http')}
+        externalLink={data.path.includes("http")}
         //
         active={active}
       />
@@ -51,16 +51,17 @@ export default function NavList({ data }: NavListProps) {
             }}
             sx={{
               [`& .${stackClasses.root}`]: {
-                '&:last-of-type': {
+                "&:last-of-type": {
                   [`& .${listItemButtonClasses.root}`]: {
                     height: 160,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    bgcolor: 'background.neutral',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundImage: 'url(/assets/illustrations/illustration_dashboard.png)',
-                    '& .label': {
-                      display: 'none',
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    bgcolor: "background.neutral",
+                    backgroundRepeat: "no-repeat",
+                    backgroundImage:
+                      "url(/assets/illustrations/illustration_dashboard.png)",
+                    "& .label": {
+                      display: "none",
                     },
                   },
                 },

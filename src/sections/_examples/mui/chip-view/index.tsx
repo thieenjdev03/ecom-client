@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Container from '@mui/material/Container';
-import CardHeader from '@mui/material/CardHeader';
-import CardContent from '@mui/material/CardContent';
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Container from "@mui/material/Container";
+import CardHeader from "@mui/material/CardHeader";
+import CardContent from "@mui/material/CardContent";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import Chip from './chip';
+import Chip from "./chip";
 
 // ----------------------------------------------------------------------
 
@@ -24,12 +24,12 @@ export default function ChipView() {
           heading="Chip"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Chip' },
+            { name: "Chip" },
           ]}
-          moreLink={['https://mui.com/components/chips']}
+          moreLink={["https://mui.com/components/chips"]}
         />
       </ComponentHero>
 
@@ -38,8 +38,8 @@ export default function ChipView() {
           gap={3}
           display="grid"
           gridTemplateColumns={{
-            xs: 'repeat(1, 1fr)',
-            md: 'repeat(3, 1fr)',
+            xs: "repeat(1, 1fr)",
+            md: "repeat(3, 1fr)",
           }}
         >
           <Card>

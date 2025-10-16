@@ -1,79 +1,85 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
-import Tabs from '@mui/material/Tabs';
-import Masonry from '@mui/lab/Masonry';
-import Stack from '@mui/material/Stack';
-import Container from '@mui/material/Container';
+import Tab from "@mui/material/Tab";
+import Box from "@mui/material/Box";
+import Tabs from "@mui/material/Tabs";
+import Masonry from "@mui/lab/Masonry";
+import Stack from "@mui/material/Stack";
+import Container from "@mui/material/Container";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import Iconify from 'src/components/iconify';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import Iconify from "src/components/iconify";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import ComponentBlock from '../component-block';
+import ComponentBlock from "../component-block";
 
 // ----------------------------------------------------------------------
 
 const TABS = [
   {
-    value: 'one',
+    value: "one",
     icon: <Iconify icon="solar:phone-bold" width={24} />,
-    label: 'Item One',
+    label: "Item One",
   },
   {
-    value: 'two',
+    value: "two",
     icon: <Iconify icon="solar:heart-bold" width={24} />,
-    label: 'Item Two',
+    label: "Item Two",
   },
   {
-    value: 'three',
+    value: "three",
     icon: <Iconify icon="eva:headphones-fill" width={24} />,
-    label: 'Item Three',
+    label: "Item Three",
     disabled: true,
   },
   {
-    value: 'four',
+    value: "four",
     icon: <Iconify icon="eva:headphones-fill" width={24} />,
-    label: 'Item Four',
+    label: "Item Four",
   },
   {
-    value: 'five',
+    value: "five",
     icon: <Iconify icon="eva:headphones-fill" width={24} />,
-    label: 'Item Five',
+    label: "Item Five",
     disabled: true,
   },
   {
-    value: 'six',
+    value: "six",
     icon: <Iconify icon="eva:headphones-fill" width={24} />,
-    label: 'Item Six',
+    label: "Item Six",
   },
   {
-    value: 'seven',
+    value: "seven",
     icon: <Iconify icon="eva:headphones-fill" width={24} />,
-    label: 'Item Seven',
+    label: "Item Seven",
   },
 ];
 
 // ----------------------------------------------------------------------
 
 export default function TabsView() {
-  const [currentTab, setCurrentTab] = useState('one');
+  const [currentTab, setCurrentTab] = useState("one");
 
-  const [scrollableTab, setScrollableTab] = useState('one');
+  const [scrollableTab, setScrollableTab] = useState("one");
 
-  const handleChangeTab = useCallback((event: React.SyntheticEvent, newValue: string) => {
-    setCurrentTab(newValue);
-  }, []);
+  const handleChangeTab = useCallback(
+    (event: React.SyntheticEvent, newValue: string) => {
+      setCurrentTab(newValue);
+    },
+    [],
+  );
 
-  const handleChangeScrollableTab = useCallback((event: React.SyntheticEvent, newValue: string) => {
-    setScrollableTab(newValue);
-  }, []);
+  const handleChangeScrollableTab = useCallback(
+    (event: React.SyntheticEvent, newValue: string) => {
+      setScrollableTab(newValue);
+    },
+    [],
+  );
 
   return (
     <>
@@ -82,12 +88,12 @@ export default function TabsView() {
           heading="Tabs"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Tabs' },
+            { name: "Tabs" },
           ]}
-          moreLink={['https://mui.com/components/tabs']}
+          moreLink={["https://mui.com/components/tabs"]}
         />
       </ComponentHero>
 
@@ -109,12 +115,12 @@ export default function TabsView() {
                       sx={{
                         p: 2,
                         borderRadius: 1,
-                        bgcolor: 'background.neutral',
+                        bgcolor: "background.neutral",
                       }}
                     >
                       {tab.label}
                     </Box>
-                  )
+                  ),
               )}
             </Stack>
           </ComponentBlock>
@@ -190,7 +196,7 @@ export default function TabsView() {
             <Box
               sx={{
                 flexGrow: 1,
-                width: '100%',
+                width: "100%",
                 maxWidth: 320,
               }}
             >

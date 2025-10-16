@@ -1,11 +1,11 @@
-import { _tours } from 'src/_mock/_tour';
+import { _tours } from "src/_mock/_tour";
 
-import { TourDetailsView } from 'src/sections/tour/view';
+import { TourDetailsView } from "src/sections/tour/view";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Tour Details',
+  title: "Dashboard: Tour Details",
 };
 
 type Props = {

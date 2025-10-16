@@ -1,32 +1,32 @@
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import Divider from '@mui/material/Divider';
-import Tooltip from '@mui/material/Tooltip';
-import Collapse from '@mui/material/Collapse';
-import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import ButtonBase from '@mui/material/ButtonBase';
-import Typography from '@mui/material/Typography';
-import ListItemText from '@mui/material/ListItemText';
-import { alpha, darken, lighten } from '@mui/material/styles';
+import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import Avatar from "@mui/material/Avatar";
+import Divider from "@mui/material/Divider";
+import Tooltip from "@mui/material/Tooltip";
+import Collapse from "@mui/material/Collapse";
+import Checkbox from "@mui/material/Checkbox";
+import IconButton from "@mui/material/IconButton";
+import ButtonBase from "@mui/material/ButtonBase";
+import Typography from "@mui/material/Typography";
+import ListItemText from "@mui/material/ListItemText";
+import { alpha, darken, lighten } from "@mui/material/styles";
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from "src/hooks/use-boolean";
 
-import { fDateTime } from 'src/utils/format-time';
+import { fDateTime } from "src/utils/format-time";
 
-import Label from 'src/components/label';
-import Editor from 'src/components/editor';
-import Iconify from 'src/components/iconify';
-import Markdown from 'src/components/markdown';
-import Scrollbar from 'src/components/scrollbar';
-import TextMaxLine from 'src/components/text-max-line';
-import EmptyContent from 'src/components/empty-content';
-import FileThumbnail from 'src/components/file-thumbnail';
+import Label from "src/components/label";
+import Editor from "src/components/editor";
+import Iconify from "src/components/iconify";
+import Markdown from "src/components/markdown";
+import Scrollbar from "src/components/scrollbar";
+import TextMaxLine from "src/components/text-max-line";
+import EmptyContent from "src/components/empty-content";
+import FileThumbnail from "src/components/file-thumbnail";
 
-import { IMail, IMailLabel } from 'src/types/mail';
+import { IMail, IMailLabel } from "src/types/mail";
 
 // ----------------------------------------------------------------------
 
@@ -46,14 +46,19 @@ export default function MailDetails({ mail, renderLabel }: Props) {
         imgUrl="/assets/icons/empty/ic_email_selected.svg"
         sx={{
           borderRadius: 1.5,
-          bgcolor: 'background.default',
+          bgcolor: "background.default",
         }}
       />
     );
   }
 
   const renderHead = (
-    <Stack direction="row" alignItems="center" flexShrink={0} sx={{ height: 56, pl: 2, pr: 1 }}>
+    <Stack
+      direction="row"
+      alignItems="center"
+      flexShrink={0}
+      sx={{ height: 56, pl: 2, pr: 1 }}
+    >
       <Stack direction="row" spacing={1} flexGrow={1}>
         {mail.labelIds.map((labelId) => {
           const label = renderLabel(labelId);
@@ -64,7 +69,7 @@ export default function MailDetails({ mail, renderLabel }: Props) {
               sx={{
                 bgcolor: alpha(label.color, 0.16),
                 color: (theme) =>
-                  theme.palette.mode === 'light'
+                  theme.palette.mode === "light"
                     ? darken(label.color, 0.24)
                     : lighten(label.color, 0.24),
               }}
@@ -86,7 +91,9 @@ export default function MailDetails({ mail, renderLabel }: Props) {
         <Checkbox
           color="warning"
           icon={<Iconify icon="material-symbols:label-important-rounded" />}
-          checkedIcon={<Iconify icon="material-symbols:label-important-rounded" />}
+          checkedIcon={
+            <Iconify icon="material-symbols:label-important-rounded" />
+          }
           checked={mail.isImportant}
         />
 
@@ -136,7 +143,7 @@ export default function MailDetails({ mail, renderLabel }: Props) {
           </IconButton>
         </Stack>
 
-        <Typography variant="caption" noWrap sx={{ color: 'text.disabled' }}>
+        <Typography variant="caption" noWrap sx={{ color: "text.disabled" }}>
           {fDateTime(mail.createdAt)}
         </Typography>
       </Stack>
@@ -154,7 +161,7 @@ export default function MailDetails({ mail, renderLabel }: Props) {
     >
       <Avatar
         alt={mail.from.name}
-        src={mail.from.avatarUrl ? `${mail.from.avatarUrl}` : ''}
+        src={mail.from.avatarUrl ? `${mail.from.avatarUrl}` : ""}
         sx={{ mr: 2 }}
       >
         {mail.from.name.charAt(0).toUpperCase()}
@@ -164,7 +171,10 @@ export default function MailDetails({ mail, renderLabel }: Props) {
         primary={
           <>
             {mail.from.name}
-            <Box component="span" sx={{ typography: 'body2', color: 'text.disabled' }}>
+            <Box
+              component="span"
+              sx={{ typography: "body2", color: "text.disabled" }}
+            >
               {` <${mail.from.email}>`}
             </Box>
           </>
@@ -173,7 +183,7 @@ export default function MailDetails({ mail, renderLabel }: Props) {
           <>
             {`To: `}
             {mail.to.map((person) => (
-              <Link key={person.email} sx={{ color: 'text.secondary' }}>
+              <Link key={person.email} sx={{ color: "text.secondary" }}>
                 {`${person.email}, `}
               </Link>
             ))}
@@ -182,8 +192,8 @@ export default function MailDetails({ mail, renderLabel }: Props) {
         secondaryTypographyProps={{
           mt: 0.5,
           noWrap: true,
-          component: 'span',
-          typography: 'caption',
+          component: "span",
+          typography: "caption",
         }}
       />
     </Stack>
@@ -195,15 +205,15 @@ export default function MailDetails({ mail, renderLabel }: Props) {
       sx={{
         p: 1,
         borderRadius: 1,
-        bgcolor: 'background.neutral',
+        bgcolor: "background.neutral",
       }}
     >
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <ButtonBase
           onClick={showAttachments.onToggle}
           sx={{
-            color: 'text.secondary',
-            typography: 'caption',
+            color: "text.secondary",
+            typography: "caption",
             borderRadius: 0.5,
           }}
         >
@@ -211,14 +221,18 @@ export default function MailDetails({ mail, renderLabel }: Props) {
           {mail.attachments.length} attachments
           <Iconify
             icon={
-              showAttachments.value ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'
+              showAttachments.value
+                ? "eva:arrow-ios-upward-fill"
+                : "eva:arrow-ios-downward-fill"
             }
             width={16}
             sx={{ ml: 0.5 }}
           />
         </ButtonBase>
 
-        <Button startIcon={<Iconify icon="eva:cloud-download-fill" />}>Download</Button>
+        <Button startIcon={<Iconify icon="eva:cloud-download-fill" />}>
+          Download
+        </Button>
       </Stack>
 
       <Collapse in={showAttachments.value} unmountOnExit timeout="auto">
@@ -233,16 +247,16 @@ export default function MailDetails({ mail, renderLabel }: Props) {
                 height: 40,
                 flexShrink: 0,
                 borderRadius: 1,
-                overflow: 'hidden',
-                position: 'relative',
-                backgroundColor: 'background.neutral',
+                overflow: "hidden",
+                position: "relative",
+                backgroundColor: "background.neutral",
               }}
             >
               <FileThumbnail
                 tooltip
                 imageView
                 file={attachment.preview}
-                onDownload={() => console.info('DOWNLOAD')}
+                onDownload={() => console.info("DOWNLOAD")}
                 sx={{ width: 24, height: 24 }}
               />
             </Stack>
@@ -257,7 +271,7 @@ export default function MailDetails({ mail, renderLabel }: Props) {
       sx={{
         py: 3,
         flexGrow: 1,
-        overflow: { xs: 'auto', md: 'hidden' },
+        overflow: { xs: "auto", md: "hidden" },
       }}
     >
       <Scrollbar>
@@ -265,8 +279,8 @@ export default function MailDetails({ mail, renderLabel }: Props) {
           children={mail.message}
           sx={{
             px: 2,
-            '& p': {
-              typography: 'body2',
+            "& p": {
+              typography: "body2",
             },
           }}
         />
@@ -312,20 +326,22 @@ export default function MailDetails({ mail, renderLabel }: Props) {
         width: 1,
         minWidth: 0,
         borderRadius: 1.5,
-        bgcolor: 'background.default',
+        bgcolor: "background.default",
       }}
     >
       {renderHead}
 
-      <Divider sx={{ borderStyle: 'dashed' }} />
+      <Divider sx={{ borderStyle: "dashed" }} />
 
       {renderSubject}
 
-      <Divider sx={{ borderStyle: 'dashed' }} />
+      <Divider sx={{ borderStyle: "dashed" }} />
 
       {renderSender}
 
-      {!!mail.attachments.length && <Stack sx={{ px: 2 }}> {renderAttachments} </Stack>}
+      {!!mail.attachments.length && (
+        <Stack sx={{ px: 2 }}> {renderAttachments} </Stack>
+      )}
 
       {renderContent}
 

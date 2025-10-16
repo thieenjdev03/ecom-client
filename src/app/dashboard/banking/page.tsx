@@ -1,9 +1,9 @@
-import { OverviewBankingView } from 'src/sections/overview/banking/view';
+import { OverviewBankingView } from "src/sections/overview/banking/view";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Banking',
+  title: "Dashboard: Banking",
 };
 
 export default function OverviewBankingPage() {

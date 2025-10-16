@@ -1,6 +1,6 @@
-import useSWR from 'swr';
-import { useMemo } from 'react';
-import { fetcher, endpoints } from 'src/utils/axios';
+import useSWR from "swr";
+import { useMemo } from "react";
+import { fetcher, endpoints } from "src/utils/axios";
 
 export function useGetCategories() {
   const URL = endpoints.refs.categories;
@@ -12,7 +12,7 @@ export function useGetCategories() {
       categoriesError: error,
       categoriesValidating: isValidating,
     }),
-    [data, error, isLoading, isValidating]
+    [data, error, isLoading, isValidating],
   );
   return memoized;
 }
@@ -27,13 +27,15 @@ export function useGetColors() {
       colorsError: error,
       colorsValidating: isValidating,
     }),
-    [data, error, isLoading, isValidating]
+    [data, error, isLoading, isValidating],
   );
   return memoized;
 }
 
 export function useGetSizes(categoryId?: string) {
-  const URL = categoryId ? [endpoints.refs.sizes, { params: { categoryId } }] : endpoints.refs.sizes;
+  const URL = categoryId
+    ? [endpoints.refs.sizes, { params: { categoryId } }]
+    : endpoints.refs.sizes;
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
   const memoized = useMemo(
     () => ({
@@ -42,9 +44,7 @@ export function useGetSizes(categoryId?: string) {
       sizesError: error,
       sizesValidating: isValidating,
     }),
-    [data, error, isLoading, isValidating]
+    [data, error, isLoading, isValidating],
   );
   return memoized;
 }
-
-

@@ -1,15 +1,15 @@
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
-import LoadingButton from '@mui/lab/LoadingButton';
-import Stack, { StackProps } from '@mui/material/Stack';
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Tooltip from "@mui/material/Tooltip";
+import MenuItem from "@mui/material/MenuItem";
+import IconButton from "@mui/material/IconButton";
+import LoadingButton from "@mui/lab/LoadingButton";
+import Stack, { StackProps } from "@mui/material/Stack";
 
-import { RouterLink } from 'src/routes/components';
+import { RouterLink } from "src/routes/components";
 
-import Iconify from 'src/components/iconify';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import Iconify from "src/components/iconify";
+import CustomPopover, { usePopover } from "src/components/custom-popover";
 
 // ----------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ export default function JobDetailsToolbar({
 
         <Box sx={{ flexGrow: 1 }} />
 
-        {publish === 'published' && (
+        {publish === "published" && (
           <Tooltip title="Go Live">
             <IconButton component={RouterLink} href={liveLink}>
               <Iconify icon="eva:external-link-fill" />
@@ -79,7 +79,7 @@ export default function JobDetailsToolbar({
           loadingIndicator="Loading…"
           endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
           onClick={popover.onOpen}
-          sx={{ textTransform: 'capitalize' }}
+          sx={{ textTransform: "capitalize" }}
         >
           {publish}
         </LoadingButton>
@@ -100,8 +100,12 @@ export default function JobDetailsToolbar({
               onChangePublish(option.value);
             }}
           >
-            {option.value === 'published' && <Iconify icon="eva:cloud-upload-fill" />}
-            {option.value === 'draft' && <Iconify icon="solar:file-text-bold" />}
+            {option.value === "published" && (
+              <Iconify icon="eva:cloud-upload-fill" />
+            )}
+            {option.value === "draft" && (
+              <Iconify icon="solar:file-text-bold" />
+            )}
             {option.label}
           </MenuItem>
         ))}

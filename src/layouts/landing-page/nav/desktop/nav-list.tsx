@@ -1,20 +1,20 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
-import Fade from '@mui/material/Fade';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import Portal from '@mui/material/Portal';
-import { useTheme } from '@mui/material/styles';
-import ListSubheader from '@mui/material/ListSubheader';
+import Fade from "@mui/material/Fade";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Portal from "@mui/material/Portal";
+import { useTheme } from "@mui/material/styles";
+import ListSubheader from "@mui/material/ListSubheader";
 
-import { usePathname } from 'src/routes/hooks';
-import { useActiveLink } from 'src/routes/hooks/use-active-link';
+import { usePathname } from "src/routes/hooks";
+import { useActiveLink } from "src/routes/hooks/use-active-link";
 
-import { paper } from 'src/theme/css';
+import { paper } from "src/theme/css";
 
-import { HEADER } from '../../../config-layout';
-import { NavItem, NavItemDashboard } from './nav-item';
-import { NavListProps, NavSubListProps } from '../types';
+import { HEADER } from "../../../config-layout";
+import { NavItem, NavItemDashboard } from "./nav-item";
+import { NavListProps, NavSubListProps } from "../types";
 
 // ----------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ export default function NavList({ data }: NavListProps) {
         path={data.path}
         //
         hasChild={!!data.children}
-        externalLink={data.path.includes('http')}
+        externalLink={data.path.includes("http")}
         //
         active={active}
       />
@@ -70,10 +70,10 @@ export default function NavList({ data }: NavListProps) {
                 ...paper({ theme }),
                 left: 0,
                 right: 0,
-                m: 'auto',
-                display: 'flex',
+                m: "auto",
+                display: "flex",
                 borderRadius: 2,
-                position: 'fixed',
+                position: "fixed",
                 zIndex: theme.zIndex.modal,
                 p: theme.spacing(5, 1, 1, 3),
                 top: HEADER.H_DESKTOP_OFFSET,
@@ -82,7 +82,11 @@ export default function NavList({ data }: NavListProps) {
               }}
             >
               {data.children.map((list) => (
-                <NavSubList key={list.subheader} subheader={list.subheader} data={list.items} />
+                <NavSubList
+                  key={list.subheader}
+                  subheader={list.subheader}
+                  data={list.items}
+                />
               ))}
             </Paper>
           </Fade>
@@ -97,7 +101,7 @@ export default function NavList({ data }: NavListProps) {
 function NavSubList({ data, subheader, sx, ...other }: NavSubListProps) {
   const pathname = usePathname();
 
-  const dashboard = subheader === 'Dashboard';
+  const dashboard = subheader === "Dashboard";
 
   return (
     <Stack
@@ -118,9 +122,9 @@ function NavSubList({ data, subheader, sx, ...other }: NavSubListProps) {
         disableSticky
         sx={{
           p: 0,
-          typography: 'overline',
+          typography: "overline",
           fontSize: 11,
-          color: 'text.primary',
+          color: "text.primary",
         }}
       >
         {subheader}
@@ -137,7 +141,7 @@ function NavSubList({ data, subheader, sx, ...other }: NavSubListProps) {
             active={pathname === item.path || pathname === `${item.path}/`}
             subItem
           />
-        )
+        ),
       )}
     </Stack>
   );

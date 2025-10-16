@@ -1,29 +1,29 @@
-import * as Yup from 'yup';
-import { useMemo, useEffect } from 'react';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm, Controller } from 'react-hook-form';
+import * as Yup from "yup";
+import { useMemo, useEffect } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm, Controller } from "react-hook-form";
 
-import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
-import Card from '@mui/material/Card';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import Switch from '@mui/material/Switch';
-import Grid from '@mui/material/Unstable_Grid2';
-import ButtonBase from '@mui/material/ButtonBase';
-import CardHeader from '@mui/material/CardHeader';
-import Typography from '@mui/material/Typography';
-import LoadingButton from '@mui/lab/LoadingButton';
-import InputAdornment from '@mui/material/InputAdornment';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import FormControlLabel from '@mui/material/FormControlLabel';
+import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
+import Card from "@mui/material/Card";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Switch from "@mui/material/Switch";
+import Grid from "@mui/material/Unstable_Grid2";
+import ButtonBase from "@mui/material/ButtonBase";
+import CardHeader from "@mui/material/CardHeader";
+import Typography from "@mui/material/Typography";
+import LoadingButton from "@mui/lab/LoadingButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
+import { paths } from "src/routes/paths";
+import { useRouter } from "src/routes/hooks";
 
-import { useResponsive } from 'src/hooks/use-responsive';
+import { useResponsive } from "src/hooks/use-responsive";
 
-import { countries } from 'src/assets/data';
+import { countries } from "src/assets/data";
 import {
   _roles,
   JOB_SKILL_OPTIONS,
@@ -31,10 +31,10 @@ import {
   JOB_EXPERIENCE_OPTIONS,
   JOB_EMPLOYMENT_TYPE_OPTIONS,
   JOB_WORKING_SCHEDULE_OPTIONS,
-} from 'src/_mock';
+} from "src/_mock";
 
-import Iconify from 'src/components/iconify';
-import { useSnackbar } from 'src/components/snackbar';
+import Iconify from "src/components/iconify";
+import { useSnackbar } from "src/components/snackbar";
 import FormProvider, {
   RHFEditor,
   RHFSwitch,
@@ -42,9 +42,9 @@ import FormProvider, {
   RHFRadioGroup,
   RHFAutocomplete,
   RHFMultiCheckbox,
-} from 'src/components/hook-form';
+} from "src/components/hook-form";
 
-import { IJobItem } from 'src/types/job';
+import { IJobItem } from "src/types/job";
 
 // ----------------------------------------------------------------------
 
@@ -55,23 +55,25 @@ type Props = {
 export default function JobNewEditForm({ currentJob }: Props) {
   const router = useRouter();
 
-  const mdUp = useResponsive('up', 'md');
+  const mdUp = useResponsive("up", "md");
 
   const { enqueueSnackbar } = useSnackbar();
 
   const NewJobSchema = Yup.object().shape({
-    title: Yup.string().required('Title is required'),
-    content: Yup.string().required('Content is required'),
-    employmentTypes: Yup.array().min(1, 'Choose at least one option'),
-    role: Yup.string().required('Role is required'),
-    skills: Yup.array().min(1, 'Choose at least one option'),
-    workingSchedule: Yup.array().min(1, 'Choose at least one option'),
-    benefits: Yup.array().min(1, 'Choose at least one option'),
-    locations: Yup.array().min(1, 'Choose at least one option'),
-    expiredDate: Yup.mixed<any>().nullable().required('Expired date is required'),
+    title: Yup.string().required("Title is required"),
+    content: Yup.string().required("Content is required"),
+    employmentTypes: Yup.array().min(1, "Choose at least one option"),
+    role: Yup.string().required("Role is required"),
+    skills: Yup.array().min(1, "Choose at least one option"),
+    workingSchedule: Yup.array().min(1, "Choose at least one option"),
+    benefits: Yup.array().min(1, "Choose at least one option"),
+    locations: Yup.array().min(1, "Choose at least one option"),
+    expiredDate: Yup.mixed<any>()
+      .nullable()
+      .required("Expired date is required"),
     salary: Yup.object().shape({
       type: Yup.string(),
-      price: Yup.number().min(1, 'Price is required'),
+      price: Yup.number().min(1, "Price is required"),
       negotiable: Yup.boolean(),
     }),
     experience: Yup.string(),
@@ -79,10 +81,10 @@ export default function JobNewEditForm({ currentJob }: Props) {
 
   const defaultValues = useMemo(
     () => ({
-      title: currentJob?.title || '',
-      content: currentJob?.content || '',
+      title: currentJob?.title || "",
+      content: currentJob?.content || "",
       employmentTypes: currentJob?.employmentTypes || [],
-      experience: currentJob?.experience || '1 year exp',
+      experience: currentJob?.experience || "1 year exp",
       role: currentJob?.role || _roles[1],
       skills: currentJob?.skills || [],
       workingSchedule: currentJob?.workingSchedule || [],
@@ -90,12 +92,12 @@ export default function JobNewEditForm({ currentJob }: Props) {
       benefits: currentJob?.benefits || [],
       expiredDate: currentJob?.expiredDate || null,
       salary: currentJob?.salary || {
-        type: 'Hourly',
+        type: "Hourly",
         price: 0,
         negotiable: false,
       },
     }),
-    [currentJob]
+    [currentJob],
   );
 
   const methods = useForm({
@@ -120,9 +122,9 @@ export default function JobNewEditForm({ currentJob }: Props) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
       reset();
-      enqueueSnackbar(currentJob ? 'Update success!' : 'Create success!');
+      enqueueSnackbar(currentJob ? "Update success!" : "Create success!");
       router.push(paths.dashboard.job.root);
-      console.info('DATA', data);
+      console.info("DATA", data);
     } catch (error) {
       console.error(error);
     }
@@ -135,7 +137,7 @@ export default function JobNewEditForm({ currentJob }: Props) {
           <Typography variant="h6" sx={{ mb: 0.5 }}>
             Details
           </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
             Title, short description, image...
           </Typography>
         </Grid>
@@ -148,7 +150,10 @@ export default function JobNewEditForm({ currentJob }: Props) {
           <Stack spacing={3} sx={{ p: 3 }}>
             <Stack spacing={1.5}>
               <Typography variant="subtitle2">Title</Typography>
-              <RHFTextField name="title" placeholder="Ex: Software Engineer..." />
+              <RHFTextField
+                name="title"
+                placeholder="Ex: Software Engineer..."
+              />
             </Stack>
 
             <Stack spacing={1.5}>
@@ -168,7 +173,7 @@ export default function JobNewEditForm({ currentJob }: Props) {
           <Typography variant="h6" sx={{ mb: 0.5 }}>
             Properties
           </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
             Additional functions and attributes...
           </Typography>
         </Grid>
@@ -191,7 +196,12 @@ export default function JobNewEditForm({ currentJob }: Props) {
 
             <Stack spacing={1}>
               <Typography variant="subtitle2">Experience</Typography>
-              <RHFRadioGroup row spacing={4} name="experience" options={JOB_EXPERIENCE_OPTIONS} />
+              <RHFRadioGroup
+                row
+                spacing={4}
+                name="experience"
+                options={JOB_EXPERIENCE_OPTIONS}
+              />
             </Stack>
 
             <Stack spacing={1.5}>
@@ -307,15 +317,31 @@ export default function JobNewEditForm({ currentJob }: Props) {
                 name="salary.type"
                 control={control}
                 render={({ field }) => (
-                  <Box gap={2} display="grid" gridTemplateColumns="repeat(2, 1fr)">
+                  <Box
+                    gap={2}
+                    display="grid"
+                    gridTemplateColumns="repeat(2, 1fr)"
+                  >
                     {[
                       {
-                        label: 'Hourly',
-                        icon: <Iconify icon="solar:clock-circle-bold" width={32} sx={{ mb: 2 }} />,
+                        label: "Hourly",
+                        icon: (
+                          <Iconify
+                            icon="solar:clock-circle-bold"
+                            width={32}
+                            sx={{ mb: 2 }}
+                          />
+                        ),
                       },
                       {
-                        label: 'Custom',
-                        icon: <Iconify icon="solar:wad-of-money-bold" width={32} sx={{ mb: 2 }} />,
+                        label: "Custom",
+                        icon: (
+                          <Iconify
+                            icon="solar:wad-of-money-bold"
+                            width={32}
+                            sx={{ mb: 2 }}
+                          />
+                        ),
                       },
                     ].map((item) => (
                       <Paper
@@ -326,11 +352,11 @@ export default function JobNewEditForm({ currentJob }: Props) {
                         sx={{
                           p: 2.5,
                           borderRadius: 1,
-                          typography: 'subtitle2',
-                          flexDirection: 'column',
+                          typography: "subtitle2",
+                          flexDirection: "column",
                           ...(item.label === field.value && {
                             borderWidth: 2,
-                            borderColor: 'text.primary',
+                            borderColor: "text.primary",
                           }),
                         }}
                       >
@@ -349,12 +375,19 @@ export default function JobNewEditForm({ currentJob }: Props) {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Box sx={{ typography: 'subtitle2', color: 'text.disabled' }}>$</Box>
+                      <Box
+                        sx={{ typography: "subtitle2", color: "text.disabled" }}
+                      >
+                        $
+                      </Box>
                     </InputAdornment>
                   ),
                 }}
               />
-              <RHFSwitch name="salary.negotiable" label="Salary is negotiable" />
+              <RHFSwitch
+                name="salary.negotiable"
+                label="Salary is negotiable"
+              />
             </Stack>
 
             <Stack spacing={1}>
@@ -363,8 +396,8 @@ export default function JobNewEditForm({ currentJob }: Props) {
                 name="benefits"
                 options={JOB_BENEFIT_OPTIONS}
                 sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, 1fr)",
                 }}
               />
             </Stack>
@@ -377,7 +410,7 @@ export default function JobNewEditForm({ currentJob }: Props) {
   const renderActions = (
     <>
       {mdUp && <Grid md={4} />}
-      <Grid xs={12} md={8} sx={{ display: 'flex', alignItems: 'center' }}>
+      <Grid xs={12} md={8} sx={{ display: "flex", alignItems: "center" }}>
         <FormControlLabel
           control={<Switch defaultChecked />}
           label="Publish"
@@ -391,7 +424,7 @@ export default function JobNewEditForm({ currentJob }: Props) {
           loading={isSubmitting}
           sx={{ ml: 2 }}
         >
-          {!currentJob ? 'Create Job' : 'Save Changes'}
+          {!currentJob ? "Create Job" : "Save Changes"}
         </LoadingButton>
       </Grid>
     </>

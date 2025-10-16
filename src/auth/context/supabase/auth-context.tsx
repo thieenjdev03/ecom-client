@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { createContext } from 'react';
+import { createContext } from "react";
 
-import { SupabaseContextType } from '../../types';
+import { SupabaseContextType } from "../../types";
 
 // ----------------------------------------------------------------------
 

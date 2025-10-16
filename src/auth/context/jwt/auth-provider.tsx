@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useMemo, useEffect, useReducer, useCallback } from 'react';
+import { useMemo, useEffect, useReducer, useCallback } from "react";
 
-import axios, { endpoints } from 'src/utils/axios';
+import axios, { endpoints } from "src/utils/axios";
 
-import { AuthContext } from './auth-context';
-import { setSession, isValidToken } from './utils';
-import { AuthUserType, ActionMapType, AuthStateType } from '../../types';
+import { AuthContext } from "./auth-context";
+import { setSession, isValidToken } from "./utils";
+import { AuthUserType, ActionMapType, AuthStateType } from "../../types";
 
 // ----------------------------------------------------------------------
 /**
@@ -17,10 +17,10 @@ import { AuthUserType, ActionMapType, AuthStateType } from '../../types';
 // ----------------------------------------------------------------------
 
 enum Types {
-  INITIAL = 'INITIAL',
-  LOGIN = 'LOGIN',
-  REGISTER = 'REGISTER',
-  LOGOUT = 'LOGOUT',
+  INITIAL = "INITIAL",
+  LOGIN = "LOGIN",
+  REGISTER = "REGISTER",
+  LOGOUT = "LOGOUT",
 }
 
 type Payload = {
@@ -75,7 +75,7 @@ const reducer = (state: AuthStateType, action: ActionsType) => {
 
 // ----------------------------------------------------------------------
 
-const STORAGE_KEY = 'accessToken';
+const STORAGE_KEY = "accessToken";
 
 type Props = {
   children: React.ReactNode;
@@ -86,16 +86,16 @@ export function AuthProvider({ children }: Props) {
 
   // TEMP: Allow local dev without login if localStorage has 'accessToken'
   useEffect(() => {
-    const localToken = localStorage.getItem('accessToken');
+    const localToken = localStorage.getItem("accessToken");
     if (localToken) {
       setSession(localToken);
       dispatch({
         type: Types.INITIAL,
         payload: {
           user: {
-            id: 'local-dev',
-            email: 'local@dev.com',
-            name: 'Local Dev',
+            id: "local-dev",
+            email: "local@dev.com",
+            name: "Local Dev",
             accessToken: localToken,
           },
         },
@@ -110,11 +110,14 @@ export function AuthProvider({ children }: Props) {
           setSession(accessToken);
           const res = await axios.get(endpoints.auth.me);
           const apiBody = res.data;
-          const user = (apiBody && apiBody.data && apiBody.data.user) ? apiBody.data.user : apiBody.user;
+          const user =
+            apiBody && apiBody.data && apiBody.data.user
+              ? apiBody.data.user
+              : apiBody.user;
           // Persist current user for role-based navigation
           if (user) {
             try {
-              sessionStorage.setItem('user', JSON.stringify(user));
+              sessionStorage.setItem("user", JSON.stringify(user));
             } catch (e) {
               // noop
             }
@@ -159,7 +162,7 @@ export function AuthProvider({ children }: Props) {
     const res = await axios.post(endpoints.auth.login, data);
 
     const apiBody = res.data;
-    const payload = (apiBody && apiBody.data) ? apiBody.data : apiBody;
+    const payload = apiBody && apiBody.data ? apiBody.data : apiBody;
     const { accessToken, user } = payload;
 
     setSession(accessToken);
@@ -167,7 +170,7 @@ export function AuthProvider({ children }: Props) {
     // Persist current user for role-based navigation
     if (user) {
       try {
-        sessionStorage.setItem('user', JSON.stringify(user));
+        sessionStorage.setItem("user", JSON.stringify(user));
       } catch (e) {
         // noop
       }
@@ -194,7 +197,7 @@ export function AuthProvider({ children }: Props) {
       firstName: string,
       lastName: string,
       phoneNumber?: string,
-      country?: string
+      country?: string,
     ) => {
       const data = {
         email,
@@ -204,8 +207,7 @@ export function AuthProvider({ children }: Props) {
         phoneNumber,
         country,
       };
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const res = await axios.post(`endpoints.auth.register`, data);
+      const res = await axios.post(endpoints.auth.register, data);
 
       const { accessToken, user } = res.data;
 
@@ -223,14 +225,14 @@ export function AuthProvider({ children }: Props) {
 
       return { success: true, user, accessToken };
     },
-    []
+    [],
   );
 
   // LOGOUT
   const logout = useCallback(async () => {
     setSession(null);
     try {
-      sessionStorage.removeItem('user');
+      sessionStorage.removeItem("user");
     } catch (e) {
       // noop
     }
@@ -241,24 +243,28 @@ export function AuthProvider({ children }: Props) {
 
   // ----------------------------------------------------------------------
 
-  const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
+  const checkAuthenticated = state.user ? "authenticated" : "unauthenticated";
 
-  const status = state.loading ? 'loading' : checkAuthenticated;
+  const status = state.loading ? "loading" : checkAuthenticated;
 
   const memoizedValue = useMemo(
     () => ({
       user: state.user,
-      method: 'jwt',
-      loading: status === 'loading',
-      authenticated: status === 'authenticated',
-      unauthenticated: status === 'unauthenticated',
+      method: "jwt",
+      loading: status === "loading",
+      authenticated: status === "authenticated",
+      unauthenticated: status === "unauthenticated",
       //
       login,
       register,
       logout,
     }),
-    [login, logout, register, state.user, status]
+    [login, logout, register, state.user, status],
   );
 
-  return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={memoizedValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 }

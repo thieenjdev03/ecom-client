@@ -1,7 +1,10 @@
-import Card from '@mui/material/Card';
+import Card from "@mui/material/Card";
 
-import Image from 'src/components/image';
-import Carousel, { useCarousel, CarouselArrowIndex } from 'src/components/carousel';
+import Image from "src/components/image";
+import Carousel, {
+  useCarousel,
+  CarouselArrowIndex,
+} from "src/components/carousel";
 
 // ----------------------------------------------------------------------
 
@@ -23,7 +26,12 @@ export default function CarouselBasic1({ data }: Props) {
     <Card>
       <Carousel ref={carousel.carouselRef} {...carousel.carouselSettings}>
         {data.map((item) => (
-          <Image key={item.id} alt={item.title} src={item.coverUrl} ratio="1/1" />
+          <Image
+            key={item.id}
+            alt={item.title}
+            src={item.coverUrl}
+            ratio="1/1"
+          />
         ))}
       </Carousel>
 

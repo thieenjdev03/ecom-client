@@ -1,7 +1,13 @@
-'use client';
+"use client";
 
-import { useMemo, useEffect, useReducer, useCallback } from 'react';
-import { doc, getDoc, setDoc, collection, getFirestore } from 'firebase/firestore';
+import { useMemo, useEffect, useReducer, useCallback } from "react";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  getFirestore,
+} from "firebase/firestore";
 import {
   signOut,
   getAuth,
@@ -14,11 +20,11 @@ import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-} from 'firebase/auth';
+} from "firebase/auth";
 
-import { firebaseApp } from './lib';
-import { AuthContext } from './auth-context';
-import { AuthUserType, ActionMapType, AuthStateType } from '../../types';
+import { firebaseApp } from "./lib";
+import { AuthContext } from "./auth-context";
+import { AuthUserType, ActionMapType, AuthStateType } from "../../types";
 
 // ----------------------------------------------------------------------
 /**
@@ -33,7 +39,7 @@ const AUTH = getAuth(firebaseApp);
 const DB = getFirestore(firebaseApp);
 
 enum Types {
-  INITIAL = 'INITIAL',
+  INITIAL = "INITIAL",
 }
 
 type Payload = {
@@ -73,7 +79,7 @@ export function AuthProvider({ children }: Props) {
       onAuthStateChanged(AUTH, async (user) => {
         if (user) {
           if (user.emailVerified) {
-            const userProfile = doc(DB, 'users', user.uid);
+            const userProfile = doc(DB, "users", user.uid);
 
             const docSnap = await getDoc(userProfile);
 
@@ -86,7 +92,7 @@ export function AuthProvider({ children }: Props) {
                   ...user,
                   ...profile,
                   id: user.uid,
-                  role: 'admin',
+                  role: "admin",
                 },
               },
             });
@@ -194,8 +200,17 @@ export function AuthProvider({ children }: Props) {
 
   // REGISTER
   const register = useCallback(
-    async (email: string, password: string, firstName: string, lastName: string) => {
-      const newUser = await createUserWithEmailAndPassword(AUTH, email, password);
+    async (
+      email: string,
+      password: string,
+      firstName: string,
+      lastName: string,
+    ) => {
+      const newUser = await createUserWithEmailAndPassword(
+        AUTH,
+        email,
+        password,
+      );
 
       /*
        * (1) If skip emailVerified
@@ -203,7 +218,7 @@ export function AuthProvider({ children }: Props) {
        */
       await sendEmailVerification(newUser.user);
 
-      const userProfile = doc(collection(DB, 'users'), newUser.user?.uid);
+      const userProfile = doc(collection(DB, "users"), newUser.user?.uid);
 
       await setDoc(userProfile, {
         uid: newUser.user?.uid,
@@ -211,7 +226,7 @@ export function AuthProvider({ children }: Props) {
         displayName: `${firstName} ${lastName}`,
       });
     },
-    []
+    [],
   );
 
   // LOGOUT
@@ -230,17 +245,19 @@ export function AuthProvider({ children }: Props) {
    * (1) If skip emailVerified
    * const checkAuthenticated = state.user?.emailVerified ? 'authenticated' : 'unauthenticated';
    */
-  const checkAuthenticated = state.user?.emailVerified ? 'authenticated' : 'unauthenticated';
+  const checkAuthenticated = state.user?.emailVerified
+    ? "authenticated"
+    : "unauthenticated";
 
-  const status = state.loading ? 'loading' : checkAuthenticated;
+  const status = state.loading ? "loading" : checkAuthenticated;
 
   const memoizedValue = useMemo(
     () => ({
       user: state.user,
-      method: 'firebase',
-      loading: status === 'loading',
-      authenticated: status === 'authenticated',
-      unauthenticated: status === 'unauthenticated',
+      method: "firebase",
+      loading: status === "loading",
+      authenticated: status === "authenticated",
+      unauthenticated: status === "unauthenticated",
       //
       login,
       logout,
@@ -261,8 +278,12 @@ export function AuthProvider({ children }: Props) {
       loginWithGithub,
       loginWithGoogle,
       loginWithTwitter,
-    ]
+    ],
   );
 
-  return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={memoizedValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 }

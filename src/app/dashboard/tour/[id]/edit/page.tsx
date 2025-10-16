@@ -1,11 +1,11 @@
-import { _tours } from 'src/_mock/_tour';
+import { _tours } from "src/_mock/_tour";
 
-import { TourEditView } from 'src/sections/tour/view';
+import { TourEditView } from "src/sections/tour/view";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Tour Edit',
+  title: "Dashboard: Tour Edit",
 };
 
 type Props = {

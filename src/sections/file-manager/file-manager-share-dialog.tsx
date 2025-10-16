@@ -1,18 +1,18 @@
-import List from '@mui/material/List';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import InputAdornment from '@mui/material/InputAdornment';
-import Dialog, { DialogProps } from '@mui/material/Dialog';
+import List from "@mui/material/List";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import InputAdornment from "@mui/material/InputAdornment";
+import Dialog, { DialogProps } from "@mui/material/Dialog";
 
-import Iconify from 'src/components/iconify';
-import Scrollbar from 'src/components/scrollbar';
+import Iconify from "src/components/iconify";
+import Scrollbar from "src/components/scrollbar";
 
-import { IFileShared } from 'src/types/file';
+import { IFileShared } from "src/types/file";
 
-import FileManagerInvitedItem from './file-manager-invited-item';
+import FileManagerInvitedItem from "./file-manager-invited-item";
 
 // ----------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ export default function FileManagerShareDialog({
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose} {...other}>
       <DialogTitle> Invite </DialogTitle>
 
-      <DialogContent sx={{ overflow: 'unset' }}>
+      <DialogContent sx={{ overflow: "unset" }}>
         {onChangeInvite && (
           <TextField
             fullWidth
@@ -78,9 +78,12 @@ export default function FileManagerShareDialog({
         )}
       </DialogContent>
 
-      <DialogActions sx={{ justifyContent: 'space-between' }}>
+      <DialogActions sx={{ justifyContent: "space-between" }}>
         {onCopyLink && (
-          <Button startIcon={<Iconify icon="eva:link-2-fill" />} onClick={onCopyLink}>
+          <Button
+            startIcon={<Iconify icon="eva:link-2-fill" />}
+            onClick={onCopyLink}
+          >
             Copy link
           </Button>
         )}

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useMemo, useEffect, useReducer, useCallback } from 'react';
+import { useMemo, useEffect, useReducer, useCallback } from "react";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import { supabase } from './lib';
-import { AuthContext } from './auth-context';
-import { AuthUserType, ActionMapType, AuthStateType } from '../../types';
+import { supabase } from "./lib";
+import { AuthContext } from "./auth-context";
+import { AuthUserType, ActionMapType, AuthStateType } from "../../types";
 
 // ----------------------------------------------------------------------
 /**
@@ -17,10 +17,10 @@ import { AuthUserType, ActionMapType, AuthStateType } from '../../types';
 // ----------------------------------------------------------------------
 
 enum Types {
-  INITIAL = 'INITIAL',
-  LOGIN = 'LOGIN',
-  REGISTER = 'REGISTER',
-  LOGOUT = 'LOGOUT',
+  INITIAL = "INITIAL",
+  LOGIN = "LOGIN",
+  REGISTER = "REGISTER",
+  LOGOUT = "LOGOUT",
 }
 
 type Payload = {
@@ -176,7 +176,12 @@ export function AuthProvider({ children }: Props) {
 
   // REGISTER
   const register = useCallback(
-    async (email: string, password: string, firstName: string, lastName: string) => {
+    async (
+      email: string,
+      password: string,
+      firstName: string,
+      lastName: string,
+    ) => {
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -193,7 +198,7 @@ export function AuthProvider({ children }: Props) {
         throw error;
       }
     },
-    []
+    [],
   );
 
   // LOGOUT
@@ -234,21 +239,21 @@ export function AuthProvider({ children }: Props) {
 
   // ----------------------------------------------------------------------
 
-  const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
+  const checkAuthenticated = state.user ? "authenticated" : "unauthenticated";
 
-  const status = state.loading ? 'loading' : checkAuthenticated;
+  const status = state.loading ? "loading" : checkAuthenticated;
 
   const memoizedValue = useMemo(
     () => ({
       user: {
         ...state.user,
-        role: 'admin',
+        role: "admin",
         displayName: `${state.user?.user_metadata.display_name}`,
       },
-      method: 'supabase',
-      loading: status === 'loading',
-      authenticated: status === 'authenticated',
-      unauthenticated: status === 'unauthenticated',
+      method: "supabase",
+      loading: status === "loading",
+      authenticated: status === "authenticated",
+      unauthenticated: status === "unauthenticated",
       //
       login,
       register,
@@ -256,8 +261,20 @@ export function AuthProvider({ children }: Props) {
       forgotPassword,
       updatePassword,
     }),
-    [forgotPassword, login, logout, updatePassword, register, state.user, status]
+    [
+      forgotPassword,
+      login,
+      logout,
+      updatePassword,
+      register,
+      state.user,
+      status,
+    ],
   );
 
-  return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={memoizedValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 }

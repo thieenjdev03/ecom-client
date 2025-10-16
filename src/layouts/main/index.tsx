@@ -1,10 +1,10 @@
-import Box from '@mui/material/Box';
+import Box from "@mui/material/Box";
 
-import { usePathname } from 'src/routes/hooks';
+import { usePathname } from "src/routes/hooks";
 
-import Footer from './footer';
-import HeaderEcom from './header-ecom';
-import LandingFooter from '../landing-page/footer';
+import Footer from "./footer";
+import HeaderEcom from "./header-ecom";
+import LandingFooter from "../landing-page/footer";
 
 // ----------------------------------------------------------------------
 
@@ -14,11 +14,11 @@ type Props = {
 
 export default function MainLayout({ children }: Props) {
   const pathname = usePathname();
-  const isDashboardPage = pathname.includes('/dashboard');
-  const homePage = pathname === '/' || !isDashboardPage;
+  const isDashboardPage = pathname.includes("/dashboard");
+  const homePage = pathname === "/" || !isDashboardPage;
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: 1 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", height: 1 }}>
       <HeaderEcom />
 
       <Box
@@ -27,7 +27,7 @@ export default function MainLayout({ children }: Props) {
           flexGrow: 1,
           ...(!homePage && {
             pt: { xs: 8, md: 10 },
-            mt: '80px',
+            mt: "80px",
           }),
         }}
       >

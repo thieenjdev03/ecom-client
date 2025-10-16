@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback } from "react";
 import {
   AppState,
   useAuth0,
   Auth0Provider,
   LogoutOptions,
   PopupLoginOptions,
-} from '@auth0/auth0-react';
+} from "@auth0/auth0-react";
 
-import { AUTH0_API } from 'src/config-global';
+import { AUTH0_API } from "src/config-global";
 
-import { AuthContext } from './auth-context';
+import { AuthContext } from "./auth-context";
 
 // ----------------------------------------------------------------------
 
@@ -20,8 +20,14 @@ type Props = {
 };
 
 function AuthProviderWrapper({ children }: Props) {
-  const { isAuthenticated, user, isLoading, loginWithRedirect, loginWithPopup, logout } =
-    useAuth0();
+  const {
+    isAuthenticated,
+    user,
+    isLoading,
+    loginWithRedirect,
+    loginWithPopup,
+    logout,
+  } = useAuth0();
 
   const [popupClick, setPopupClick] = useState(true);
 
@@ -31,7 +37,7 @@ function AuthProviderWrapper({ children }: Props) {
       loginWithPopup?.(options);
       setPopupClick(false);
     },
-    [loginWithPopup]
+    [loginWithPopup],
   );
 
   // LOGOUT
@@ -39,14 +45,16 @@ function AuthProviderWrapper({ children }: Props) {
     async (options?: LogoutOptions) => {
       logout?.(options);
     },
-    [logout]
+    [logout],
   );
 
   // ----------------------------------------------------------------------
 
-  const checkAuthenticated = isAuthenticated ? 'authenticated' : 'unauthenticated';
+  const checkAuthenticated = isAuthenticated
+    ? "authenticated"
+    : "unauthenticated";
 
-  const status = popupClick && isLoading ? 'loading' : checkAuthenticated;
+  const status = popupClick && isLoading ? "loading" : checkAuthenticated;
 
   const memoizedValue = useMemo(
     () => ({
@@ -54,31 +62,35 @@ function AuthProviderWrapper({ children }: Props) {
         ...user,
         displayName: user?.name,
         photoURL: user?.picture,
-        role: 'admin',
+        role: "admin",
       },
-      method: 'auth0',
-      loading: status === 'loading',
-      authenticated: status === 'authenticated',
-      unauthenticated: status === 'unauthenticated',
+      method: "auth0",
+      loading: status === "loading",
+      authenticated: status === "authenticated",
+      unauthenticated: status === "unauthenticated",
       //
       loginWithRedirect,
       loginWithPopup: handleLoginWithPopup,
       logout: handleLogout,
     }),
-    [handleLoginWithPopup, handleLogout, loginWithRedirect, status, user]
+    [handleLoginWithPopup, handleLogout, loginWithRedirect, status, user],
   );
 
-  return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={memoizedValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 // ----------------------------------------------------------------------
 
 export const AuthProvider = ({ children }: Props) => {
-  const domain = AUTH0_API.domain ?? '';
+  const domain = AUTH0_API.domain ?? "";
 
-  const clientId = AUTH0_API.clientId ?? '';
+  const clientId = AUTH0_API.clientId ?? "";
 
-  const redirectUri = AUTH0_API.callbackUrl ?? '';
+  const redirectUri = AUTH0_API.callbackUrl ?? "";
 
   const onRedirectCallback = useCallback((appState?: AppState) => {
     window.location.replace(appState?.returnTo || window.location.pathname);

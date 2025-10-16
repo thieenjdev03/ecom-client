@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useCallback } from 'react';
-import { Droppable, DropResult, DragDropContext } from '@hello-pangea/dnd';
+import { useCallback } from "react";
+import { Droppable, DropResult, DragDropContext } from "@hello-pangea/dnd";
 
-import Stack from '@mui/material/Stack';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
+import Stack from "@mui/material/Stack";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
 
-import { moveTask, moveColumn, useGetBoard } from 'src/api/kanban';
+import { moveTask, moveColumn, useGetBoard } from "src/api/kanban";
 
-import Scrollbar from 'src/components/scrollbar';
-import EmptyContent from 'src/components/empty-content';
+import Scrollbar from "src/components/scrollbar";
+import EmptyContent from "src/components/empty-content";
 
-import KanbanColumn from '../kanban-column';
-import KanbanColumnAdd from '../kanban-column-add';
-import { KanbanColumnSkeleton } from '../kanban-skeleton';
+import KanbanColumn from "../kanban-column";
+import KanbanColumnAdd from "../kanban-column-add";
+import { KanbanColumnSkeleton } from "../kanban-skeleton";
 
 // ----------------------------------------------------------------------
 
@@ -28,12 +28,15 @@ export default function KanbanView() {
           return;
         }
 
-        if (destination.droppableId === source.droppableId && destination.index === source.index) {
+        if (
+          destination.droppableId === source.droppableId &&
+          destination.index === source.index
+        ) {
           return;
         }
 
         // Moving column
-        if (type === 'COLUMN') {
+        if (type === "COLUMN") {
           const newOrdered = [...board.ordered];
 
           newOrdered.splice(source.index, 1);
@@ -64,7 +67,7 @@ export default function KanbanView() {
             },
           });
 
-          console.info('Moving to same list!');
+          console.info("Moving to same list!");
 
           return;
         }
@@ -92,12 +95,12 @@ export default function KanbanView() {
           },
         });
 
-        console.info('Moving to different list!');
+        console.info("Moving to different list!");
       } catch (error) {
         console.error(error);
       }
     },
-    [board?.columns, board?.ordered]
+    [board?.columns, board?.ordered],
   );
 
   const renderSkeleton = (
@@ -145,8 +148,8 @@ export default function KanbanView() {
                 sx={{
                   height: 1,
                   minHeight: {
-                    xs: '80vh',
-                    md: 'unset',
+                    xs: "80vh",
+                    md: "unset",
                   },
                 }}
               >

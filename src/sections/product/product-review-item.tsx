@@ -1,15 +1,15 @@
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Rating from '@mui/material/Rating';
-import Avatar from '@mui/material/Avatar';
-import Typography from '@mui/material/Typography';
-import ListItemText from '@mui/material/ListItemText';
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Rating from "@mui/material/Rating";
+import Avatar from "@mui/material/Avatar";
+import Typography from "@mui/material/Typography";
+import ListItemText from "@mui/material/ListItemText";
 
-import { fDate } from 'src/utils/format-time';
+import { fDate } from "src/utils/format-time";
 
-import Iconify from 'src/components/iconify';
+import Iconify from "src/components/iconify";
 
-import { IProductReview } from 'src/types/product';
+import { IProductReview } from "src/types/product";
 
 // ----------------------------------------------------------------------
 
@@ -18,19 +18,27 @@ type Props = {
 };
 
 export default function ProductReviewItem({ review }: Props) {
-  const { name, rating, comment, postedAt, avatarUrl, attachments, isPurchased } = review;
+  const {
+    name,
+    rating,
+    comment,
+    postedAt,
+    avatarUrl,
+    attachments,
+    isPurchased,
+  } = review;
 
   const renderInfo = (
     <Stack
       spacing={2}
       alignItems="center"
       direction={{
-        xs: 'row',
-        md: 'column',
+        xs: "row",
+        md: "column",
       }}
       sx={{
         width: { md: 240 },
-        textAlign: { md: 'center' },
+        textAlign: { md: "center" },
       }}
     >
       <Avatar
@@ -46,13 +54,13 @@ export default function ProductReviewItem({ review }: Props) {
         secondary={fDate(postedAt)}
         primaryTypographyProps={{
           noWrap: true,
-          typography: 'subtitle2',
+          typography: "subtitle2",
           mb: 0.5,
         }}
         secondaryTypographyProps={{
           noWrap: true,
-          typography: 'caption',
-          component: 'span',
+          typography: "caption",
+          component: "span",
         }}
       />
     </Stack>
@@ -67,8 +75,8 @@ export default function ProductReviewItem({ review }: Props) {
           direction="row"
           alignItems="center"
           sx={{
-            color: 'success.main',
-            typography: 'caption',
+            color: "success.main",
+            typography: "caption",
           }}
         >
           <Iconify icon="ic:round-verified" width={16} sx={{ mr: 0.5 }} />
@@ -93,12 +101,20 @@ export default function ProductReviewItem({ review }: Props) {
       )}
 
       <Stack direction="row" spacing={2} sx={{ pt: 1.5 }}>
-        <Stack direction="row" alignItems="center" sx={{ typography: 'caption' }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{ typography: "caption" }}
+        >
           <Iconify icon="solar:like-outline" width={16} sx={{ mr: 0.5 }} />
           123
         </Stack>
 
-        <Stack direction="row" alignItems="center" sx={{ typography: 'caption' }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{ typography: "caption" }}
+        >
           <Iconify icon="solar:dislike-outline" width={16} sx={{ mr: 0.5 }} />
           34
         </Stack>
@@ -110,8 +126,8 @@ export default function ProductReviewItem({ review }: Props) {
     <Stack
       spacing={2}
       direction={{
-        xs: 'column',
-        md: 'row',
+        xs: "column",
+        md: "row",
       }}
       sx={{ mt: 5, px: { xs: 2.5, md: 0 } }}
     >

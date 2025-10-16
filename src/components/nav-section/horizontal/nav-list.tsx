@@ -1,13 +1,13 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback } from "react";
 
-import Stack from '@mui/material/Stack';
-import Popover from '@mui/material/Popover';
+import Stack from "@mui/material/Stack";
+import Popover from "@mui/material/Popover";
 
-import { usePathname } from 'src/routes/hooks';
-import { useActiveLink } from 'src/routes/hooks/use-active-link';
+import { usePathname } from "src/routes/hooks";
+import { useActiveLink } from "src/routes/hooks/use-active-link";
 
-import NavItem from './nav-item';
-import { NavListProps, NavSubListProps } from '../types';
+import NavItem from "./nav-item";
+import { NavListProps, NavSubListProps } from "../types";
 
 // ----------------------------------------------------------------------
 
@@ -55,11 +55,11 @@ export default function NavList({ data, depth, slotProps }: NavListProps) {
         //
         depth={depth}
         hasChild={!!data.children}
-        externalLink={data.path.includes('http')}
+        externalLink={data.path.includes("http")}
         currentRole={slotProps?.currentRole}
         //
         active={active}
-        className={active ? 'active' : ''}
+        className={active ? "active" : ""}
         sx={depth === 1 ? slotProps?.rootItem : slotProps?.subItem}
       />
 
@@ -70,13 +70,13 @@ export default function NavList({ data, depth, slotProps }: NavListProps) {
           anchorEl={navRef.current}
           anchorOrigin={
             depth === 1
-              ? { vertical: 'bottom', horizontal: 'left' }
-              : { vertical: 'center', horizontal: 'right' }
+              ? { vertical: "bottom", horizontal: "left" }
+              : { vertical: "center", horizontal: "right" }
           }
           transformOrigin={
             depth === 1
-              ? { vertical: 'top', horizontal: 'left' }
-              : { vertical: 'center', horizontal: 'left' }
+              ? { vertical: "top", horizontal: "left" }
+              : { vertical: "center", horizontal: "left" }
           }
           slotProps={{
             paper: {
@@ -85,16 +85,20 @@ export default function NavList({ data, depth, slotProps }: NavListProps) {
               sx: {
                 minWidth: 160,
                 ...(openMenu && {
-                  pointerEvents: 'auto',
+                  pointerEvents: "auto",
                 }),
               },
             },
           }}
           sx={{
-            pointerEvents: 'none',
+            pointerEvents: "none",
           }}
         >
-          <NavSubList data={data.children} depth={depth} slotProps={slotProps} />
+          <NavSubList
+            data={data.children}
+            depth={depth}
+            slotProps={slotProps}
+          />
         </Popover>
       )}
     </>
@@ -107,7 +111,12 @@ function NavSubList({ data, depth, slotProps }: NavSubListProps) {
   return (
     <Stack spacing={0.5}>
       {data.map((list) => (
-        <NavList key={list.title} data={list} depth={depth + 1} slotProps={slotProps} />
+        <NavList
+          key={list.title}
+          data={list}
+          depth={depth + 1}
+          slotProps={slotProps}
+        />
       ))}
     </Stack>
   );

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import AuthModernLayout from 'src/layouts/auth/modern';
+import AuthModernLayout from "src/layouts/auth/modern";
 
 // ----------------------------------------------------------------------
 

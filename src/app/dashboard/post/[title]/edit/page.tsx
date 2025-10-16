@@ -1,14 +1,14 @@
-import { paramCase } from 'src/utils/change-case';
-import axios, { endpoints } from 'src/utils/axios';
+import { paramCase } from "src/utils/change-case";
+import axios, { endpoints } from "src/utils/axios";
 
-import { PostEditView } from 'src/sections/blog/view';
+import { PostEditView } from "src/sections/blog/view";
 
 // ----------------------------------------------------------------------
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
-export const fetchCache = 'force-no-store';
+export const fetchCache = "force-no-store";
 export const metadata = {
-  title: 'Dashboard: Post Edit',
+  title: "Dashboard: Post Edit",
 };
 
 type Props = {

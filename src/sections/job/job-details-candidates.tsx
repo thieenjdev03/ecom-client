@@ -1,15 +1,15 @@
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
-import Tooltip from '@mui/material/Tooltip';
-import { alpha } from '@mui/material/styles';
-import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Stack from "@mui/material/Stack";
+import Avatar from "@mui/material/Avatar";
+import Tooltip from "@mui/material/Tooltip";
+import { alpha } from "@mui/material/styles";
+import IconButton from "@mui/material/IconButton";
+import ListItemText from "@mui/material/ListItemText";
 
-import Iconify from 'src/components/iconify';
+import Iconify from "src/components/iconify";
 
-import { IJobCandidate } from 'src/types/job';
+import { IJobCandidate } from "src/types/job";
 
 // ----------------------------------------------------------------------
 
@@ -23,17 +23,27 @@ export default function JobDetailsCandidates({ candidates }: Props) {
       gap={3}
       display="grid"
       gridTemplateColumns={{
-        xs: 'repeat(1, 1fr)',
-        md: 'repeat(3, 1fr)',
+        xs: "repeat(1, 1fr)",
+        md: "repeat(3, 1fr)",
       }}
     >
       {candidates.map((candidate) => (
-        <Stack component={Card} direction="row" spacing={2} key={candidate.id} sx={{ p: 3 }}>
-          <IconButton sx={{ position: 'absolute', top: 8, right: 8 }}>
+        <Stack
+          component={Card}
+          direction="row"
+          spacing={2}
+          key={candidate.id}
+          sx={{ p: 3 }}
+        >
+          <IconButton sx={{ position: "absolute", top: 8, right: 8 }}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
 
-          <Avatar alt={candidate.name} src={candidate.avatarUrl} sx={{ width: 48, height: 48 }} />
+          <Avatar
+            alt={candidate.name}
+            src={candidate.avatarUrl}
+            sx={{ width: 48, height: 48 }}
+          />
 
           <Stack spacing={2}>
             <ListItemText
@@ -41,9 +51,9 @@ export default function JobDetailsCandidates({ candidates }: Props) {
               secondary={candidate.role}
               secondaryTypographyProps={{
                 mt: 0.5,
-                component: 'span',
-                typography: 'caption',
-                color: 'text.disabled',
+                component: "span",
+                typography: "caption",
+                color: "text.disabled",
               }}
             />
 
@@ -54,7 +64,7 @@ export default function JobDetailsCandidates({ candidates }: Props) {
                 sx={{
                   borderRadius: 1,
                   bgcolor: (theme) => alpha(theme.palette.error.main, 0.08),
-                  '&:hover': {
+                  "&:hover": {
                     bgcolor: (theme) => alpha(theme.palette.error.main, 0.16),
                   },
                 }}
@@ -68,7 +78,7 @@ export default function JobDetailsCandidates({ candidates }: Props) {
                 sx={{
                   borderRadius: 1,
                   bgcolor: (theme) => alpha(theme.palette.info.main, 0.08),
-                  '&:hover': {
+                  "&:hover": {
                     bgcolor: (theme) => alpha(theme.palette.info.main, 0.16),
                   },
                 }}
@@ -82,7 +92,7 @@ export default function JobDetailsCandidates({ candidates }: Props) {
                 sx={{
                   borderRadius: 1,
                   bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
-                  '&:hover': {
+                  "&:hover": {
                     bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
                   },
                 }}
@@ -96,9 +106,11 @@ export default function JobDetailsCandidates({ candidates }: Props) {
                   color="secondary"
                   sx={{
                     borderRadius: 1,
-                    bgcolor: (theme) => alpha(theme.palette.secondary.main, 0.08),
-                    '&:hover': {
-                      bgcolor: (theme) => alpha(theme.palette.secondary.main, 0.16),
+                    bgcolor: (theme) =>
+                      alpha(theme.palette.secondary.main, 0.08),
+                    "&:hover": {
+                      bgcolor: (theme) =>
+                        alpha(theme.palette.secondary.main, 0.16),
                     },
                   }}
                 >

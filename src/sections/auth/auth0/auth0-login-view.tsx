@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useCallback } from 'react';
+import { useCallback } from "react";
 
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
-import Typography from '@mui/material/Typography';
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
 
-import { useSearchParams } from 'src/routes/hooks';
+import { useSearchParams } from "src/routes/hooks";
 
-import { useAuthContext } from 'src/auth/hooks';
-import { PATH_AFTER_LOGIN } from 'src/config-global';
+import { useAuthContext } from "src/auth/hooks";
+import { PATH_AFTER_LOGIN } from "src/config-global";
 
 // ----------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ export default function Auth0LoginView() {
 
   const searchParams = useSearchParams();
 
-  const returnTo = searchParams.get('returnTo');
+  const returnTo = searchParams.get("returnTo");
 
   const handleLoginWithPopup = useCallback(async () => {
     try {
@@ -33,7 +33,7 @@ export default function Auth0LoginView() {
     try {
       await loginWithPopup?.({
         authorizationParams: {
-          screen_hint: 'signup',
+          screen_hint: "signup",
         },
       });
     } catch (error) {
@@ -60,7 +60,7 @@ export default function Auth0LoginView() {
           returnTo: returnTo || PATH_AFTER_LOGIN,
         },
         authorizationParams: {
-          screen_hint: 'signup',
+          screen_hint: "signup",
         },
       });
     } catch (error) {

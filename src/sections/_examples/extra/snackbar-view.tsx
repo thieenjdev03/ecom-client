@@ -1,17 +1,21 @@
-'use client';
+"use client";
 
-import Masonry from '@mui/lab/Masonry';
-import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
+import Masonry from "@mui/lab/Masonry";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import { useSnackbar, VariantType, SnackbarOrigin } from 'src/components/snackbar';
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
+import {
+  useSnackbar,
+  VariantType,
+  SnackbarOrigin,
+} from "src/components/snackbar";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import ComponentBlock from '../component-block';
+import ComponentBlock from "../component-block";
 
 // ----------------------------------------------------------------------
 
@@ -26,7 +30,7 @@ export default function SnackbarView() {
         <>
           <Button
             size="small"
-            color={color !== 'default' ? color : 'primary'}
+            color={color !== "default" ? color : "primary"}
             onClick={() => {
               console.info(`I belong to snackbar with key ${key}`);
             }}
@@ -34,7 +38,11 @@ export default function SnackbarView() {
             Alert
           </Button>
 
-          <Button size="small" color="inherit" onClick={() => closeSnackbar(key)}>
+          <Button
+            size="small"
+            color="inherit"
+            onClick={() => closeSnackbar(key)}
+          >
             Dismiss
           </Button>
         </>
@@ -49,12 +57,12 @@ export default function SnackbarView() {
           heading="Snackbar"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Snackbar' },
+            { name: "Snackbar" },
           ]}
-          moreLink={['https://www.iamhosseindhv.com/notistack']}
+          moreLink={["https://www.iamhosseindhv.com/notistack"]}
         />
       </ComponentHero>
 
@@ -65,8 +73,8 @@ export default function SnackbarView() {
               variant="contained"
               color="inherit"
               onClick={() =>
-                enqueueSnackbar('This is an default', {
-                  variant: 'default',
+                enqueueSnackbar("This is an default", {
+                  variant: "default",
                 })
               }
             >
@@ -76,8 +84,8 @@ export default function SnackbarView() {
               variant="contained"
               color="info"
               onClick={() =>
-                enqueueSnackbar('This is an info', {
-                  variant: 'info',
+                enqueueSnackbar("This is an info", {
+                  variant: "info",
                 })
               }
             >
@@ -87,8 +95,8 @@ export default function SnackbarView() {
               variant="contained"
               color="success"
               onClick={() =>
-                enqueueSnackbar('This is an success', {
-                  variant: 'success',
+                enqueueSnackbar("This is an success", {
+                  variant: "success",
                 })
               }
             >
@@ -98,8 +106,8 @@ export default function SnackbarView() {
               variant="contained"
               color="warning"
               onClick={() =>
-                enqueueSnackbar('This is an warning', {
-                  variant: 'warning',
+                enqueueSnackbar("This is an warning", {
+                  variant: "warning",
                 })
               }
             >
@@ -109,8 +117,8 @@ export default function SnackbarView() {
               variant="contained"
               color="error"
               onClick={() =>
-                enqueueSnackbar('This is an error', {
-                  variant: 'error',
+                enqueueSnackbar("This is an error", {
+                  variant: "error",
                 })
               }
             >
@@ -119,19 +127,39 @@ export default function SnackbarView() {
           </ComponentBlock>
 
           <ComponentBlock title="With Action">
-            <Button variant="contained" color="inherit" onClick={() => onSnackbarAction('default')}>
+            <Button
+              variant="contained"
+              color="inherit"
+              onClick={() => onSnackbarAction("default")}
+            >
               Default
             </Button>
-            <Button variant="contained" color="info" onClick={() => onSnackbarAction('info')}>
+            <Button
+              variant="contained"
+              color="info"
+              onClick={() => onSnackbarAction("info")}
+            >
               Info
             </Button>
-            <Button variant="contained" color="success" onClick={() => onSnackbarAction('success')}>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => onSnackbarAction("success")}
+            >
               Success
             </Button>
-            <Button variant="contained" color="warning" onClick={() => onSnackbarAction('warning')}>
+            <Button
+              variant="contained"
+              color="warning"
+              onClick={() => onSnackbarAction("warning")}
+            >
               Warning
             </Button>
-            <Button variant="contained" color="error" onClick={() => onSnackbarAction('error')}>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => onSnackbarAction("error")}
+            >
               Error
             </Button>
           </ComponentBlock>
@@ -141,9 +169,9 @@ export default function SnackbarView() {
               variant="text"
               color="inherit"
               onClick={() =>
-                onSnackbarAction('default', {
-                  vertical: 'top',
-                  horizontal: 'left',
+                onSnackbarAction("default", {
+                  vertical: "top",
+                  horizontal: "left",
                 })
               }
             >
@@ -153,24 +181,28 @@ export default function SnackbarView() {
               variant="text"
               color="inherit"
               onClick={() =>
-                onSnackbarAction('default', {
-                  vertical: 'top',
-                  horizontal: 'center',
+                onSnackbarAction("default", {
+                  vertical: "top",
+                  horizontal: "center",
                 })
               }
             >
               Top Center
             </Button>
-            <Button variant="text" color="inherit" onClick={() => onSnackbarAction('default')}>
+            <Button
+              variant="text"
+              color="inherit"
+              onClick={() => onSnackbarAction("default")}
+            >
               Top Right
             </Button>
             <Button
               variant="text"
               color="inherit"
               onClick={() =>
-                onSnackbarAction('default', {
-                  vertical: 'bottom',
-                  horizontal: 'left',
+                onSnackbarAction("default", {
+                  vertical: "bottom",
+                  horizontal: "left",
                 })
               }
             >
@@ -180,9 +212,9 @@ export default function SnackbarView() {
               variant="text"
               color="inherit"
               onClick={() =>
-                onSnackbarAction('default', {
-                  vertical: 'bottom',
-                  horizontal: 'center',
+                onSnackbarAction("default", {
+                  vertical: "bottom",
+                  horizontal: "center",
                 })
               }
             >
@@ -192,9 +224,9 @@ export default function SnackbarView() {
               variant="text"
               color="inherit"
               onClick={() =>
-                onSnackbarAction('default', {
-                  vertical: 'bottom',
-                  horizontal: 'right',
+                onSnackbarAction("default", {
+                  vertical: "bottom",
+                  horizontal: "right",
                 })
               }
             >

@@ -1,4 +1,4 @@
-import Chart, { useChart } from 'src/components/chart';
+import Chart, { useChart } from "src/components/chart";
 
 // ----------------------------------------------------------------------
 
@@ -10,20 +10,20 @@ export default function ChartBar({ series }: Props) {
   const chartOptions = useChart({
     stroke: { show: false },
     plotOptions: {
-      bar: { horizontal: true, barHeight: '30%' },
+      bar: { horizontal: true, barHeight: "30%" },
     },
     xaxis: {
       categories: [
-        'Italy',
-        'Japan',
-        'China',
-        'Canada',
-        'France',
-        'Germany',
-        'South Korea',
-        'Netherlands',
-        'United States',
-        'United Kingdom',
+        "Italy",
+        "Japan",
+        "China",
+        "Canada",
+        "France",
+        "Germany",
+        "South Korea",
+        "Netherlands",
+        "United States",
+        "United Kingdom",
       ],
     },
   });

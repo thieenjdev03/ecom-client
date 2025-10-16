@@ -1,16 +1,16 @@
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Button from '@mui/material/Button';
-import CardHeader from '@mui/material/CardHeader';
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Button from "@mui/material/Button";
+import CardHeader from "@mui/material/CardHeader";
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from "src/hooks/use-boolean";
 
-import Iconify from 'src/components/iconify';
+import Iconify from "src/components/iconify";
 
-import { IPaymentCard } from 'src/types/payment';
+import { IPaymentCard } from "src/types/payment";
 
-import PaymentCardItem from '../payment/payment-card-item';
-import PaymentNewCardDialog from '../payment/payment-new-card-dialog';
+import PaymentCardItem from "../payment/payment-card-item";
+import PaymentNewCardDialog from "../payment/payment-new-card-dialog";
 
 // ----------------------------------------------------------------------
 
@@ -43,8 +43,8 @@ export default function AccountBillingPayment({ cards }: Props) {
           columnGap={2}
           display="grid"
           gridTemplateColumns={{
-            xs: 'repeat(1, 1fr)',
-            md: 'repeat(2, 1fr)',
+            xs: "repeat(1, 1fr)",
+            md: "repeat(2, 1fr)",
           }}
           sx={{ p: 3 }}
         >

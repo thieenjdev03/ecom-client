@@ -1,52 +1,54 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
-import Tabs from '@mui/material/Tabs';
-import Card from '@mui/material/Card';
-import Button from '@mui/material/Button';
-import { alpha } from '@mui/material/styles';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Unstable_Grid2';
-import Typography from '@mui/material/Typography';
+import Tab from "@mui/material/Tab";
+import Box from "@mui/material/Box";
+import Tabs from "@mui/material/Tabs";
+import Card from "@mui/material/Card";
+import Button from "@mui/material/Button";
+import { alpha } from "@mui/material/styles";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Unstable_Grid2";
+import Typography from "@mui/material/Typography";
 
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
+import { paths } from "src/routes/paths";
+import { RouterLink } from "src/routes/components";
 
-import { useGetProduct } from 'src/api/product';
+// Using local sample data for styling instead of API hook
 
-import Iconify from 'src/components/iconify';
-import EmptyContent from 'src/components/empty-content';
-import { useSettingsContext } from 'src/components/settings';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import Iconify from "src/components/iconify";
+import EmptyContent from "src/components/empty-content";
+import { useSettingsContext } from "src/components/settings";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import CartIcon from '../common/cart-icon';
-import { useCheckoutContext } from '../../checkout/context';
-import ProductDetailsReview from '../product-details-review';
-import { ProductDetailsSkeleton } from '../product-skeleton';
-import ProductDetailsSummary from '../product-details-summary';
-import ProductDetailsCarousel from '../product-details-carousel';
-import ProductDetailsDescription from '../product-details-description';
+import CartIcon from "../common/cart-icon";
+import { useCheckoutContext } from "../../checkout/context";
+import ProductDetailsReview from "../product-details-review";
+import { ProductDetailsSkeleton } from "../product-skeleton";
+import ProductDetailsSummary from "../product-details-summary";
+import ProductDetailsCarousel from "../product-details-carousel";
+import ProductDetailsDescription from "../product-details-description";
+import HomeProductShowcase from "src/sections/landing-page/home-product-showcase";
+import { SAMPLE_PRODUCTS } from "src/_mock/_product-items";
 
 // ----------------------------------------------------------------------
 
 const SUMMARY = [
   {
-    title: '100% Original',
-    description: 'Chocolate bar candy canes ice cream toffee cookie halvah.',
-    icon: 'solar:verified-check-bold',
+    title: "100% Original",
+    description: "Chocolate bar candy canes ice cream toffee cookie halvah.",
+    icon: "solar:verified-check-bold",
   },
   {
-    title: '10 Day Replacement',
-    description: 'Marshmallow biscuit donut dragée fruitcake wafer.',
-    icon: 'solar:clock-circle-bold',
+    title: "10 Day Replacement",
+    description: "Marshmallow biscuit donut dragée fruitcake wafer.",
+    icon: "solar:clock-circle-bold",
   },
   {
-    title: 'Year Warranty',
-    description: 'Cotton candy gingerbread cake I love sugar sweet.',
-    icon: 'solar:shield-check-bold',
+    title: "Year Warranty",
+    description: "Cotton candy gingerbread cake I love sugar sweet.",
+    icon: "solar:shield-check-bold",
   },
 ];
 
@@ -61,13 +63,22 @@ export default function ProductShopDetailsView({ id }: Props) {
 
   const checkout = useCheckoutContext();
 
-  const [currentTab, setCurrentTab] = useState('description');
+  const [currentTab, setCurrentTab] = useState("description");
 
-  const { product, productLoading, productError } = useGetProduct(id);
+  // ------------------------------------------------------------------
+  // Local sample products for layout styling
+  // Import shared sample products
 
-  const handleChangeTab = useCallback((event: React.SyntheticEvent, newValue: string) => {
-    setCurrentTab(newValue);
-  }, []);
+  const product =
+    SAMPLE_PRODUCTS.find((p) => p.id === id) || SAMPLE_PRODUCTS[0];
+  const productLoading = false;
+  const productError = null as unknown as Error | null;
+  const handleChangeTab = useCallback(
+    (event: React.SyntheticEvent, newValue: string) => {
+      setCurrentTab(newValue);
+    },
+    [],
+  );
 
   const renderSkeleton = <ProductDetailsSkeleton />;
 
@@ -106,7 +117,7 @@ export default function ProductShopDetailsView({ id }: Props) {
         </Grid>
       </Grid>
 
-      <Box
+      {/* <Box
         gap={5}
         display="grid"
         gridTemplateColumns={{
@@ -128,7 +139,7 @@ export default function ProductShopDetailsView({ id }: Props) {
             </Typography>
           </Box>
         ))}
-      </Box>
+      </Box> */}
 
       <Card>
         <Tabs
@@ -136,16 +147,17 @@ export default function ProductShopDetailsView({ id }: Props) {
           onChange={handleChangeTab}
           sx={{
             px: 3,
-            boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+            boxShadow: (theme) =>
+              `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
           }}
         >
           {[
             {
-              value: 'description',
-              label: 'Description',
+              value: "description",
+              label: "Description",
             },
             {
-              value: 'reviews',
+              value: "reviews",
               label: `Reviews (${product.reviews.length})`,
             },
           ].map((tab) => (
@@ -153,11 +165,11 @@ export default function ProductShopDetailsView({ id }: Props) {
           ))}
         </Tabs>
 
-        {currentTab === 'description' && (
+        {currentTab === "description" && (
           <ProductDetailsDescription description={product?.description} />
         )}
 
-        {currentTab === 'reviews' && (
+        {currentTab === "reviews" && (
           <ProductDetailsReview
             ratings={product.ratings}
             reviews={product.reviews}
@@ -171,7 +183,7 @@ export default function ProductShopDetailsView({ id }: Props) {
 
   return (
     <Container
-      maxWidth={settings.themeStretch ? false : 'lg'}
+      maxWidth={"lg"}
       sx={{
         mt: 15,
         mb: 15,
@@ -184,6 +196,15 @@ export default function ProductShopDetailsView({ id }: Props) {
       {productError && renderError}
 
       {product && renderProduct}
+      <Box
+        sx={{
+          scrollSnapAlign: "start",
+          position: "relative",
+          bgcolor: "background.default",
+        }}
+      >
+        <HomeProductShowcase priceBottom />
+      </Box>
     </Container>
   );
 }

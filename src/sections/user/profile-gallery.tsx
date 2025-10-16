@@ -1,17 +1,17 @@
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import ListItemText from '@mui/material/ListItemText';
-import { alpha, useTheme } from '@mui/material/styles';
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import ListItemText from "@mui/material/ListItemText";
+import { alpha, useTheme } from "@mui/material/styles";
 
-import { fDate } from 'src/utils/format-time';
+import { fDate } from "src/utils/format-time";
 
-import Image from 'src/components/image';
-import Iconify from 'src/components/iconify';
-import Lightbox, { useLightBox } from 'src/components/lightbox';
+import Image from "src/components/image";
+import Iconify from "src/components/iconify";
+import Lightbox, { useLightBox } from "src/components/lightbox";
 
-import { IUserProfileGallery } from 'src/types/user';
+import { IUserProfileGallery } from "src/types/user";
 
 // ----------------------------------------------------------------------
 
@@ -38,14 +38,20 @@ export default function ProfileGallery({ gallery }: Props) {
         gap={3}
         display="grid"
         gridTemplateColumns={{
-          xs: 'repeat(1, 1fr)',
-          sm: 'repeat(2, 1fr)',
-          md: 'repeat(3, 1fr)',
+          xs: "repeat(1, 1fr)",
+          sm: "repeat(2, 1fr)",
+          md: "repeat(3, 1fr)",
         }}
       >
         {gallery.map((image) => (
-          <Card key={image.id} sx={{ cursor: 'pointer', color: 'common.white' }}>
-            <IconButton color="inherit" sx={{ position: 'absolute', top: 8, right: 8, zIndex: 9 }}>
+          <Card
+            key={image.id}
+            sx={{ cursor: "pointer", color: "common.white" }}
+          >
+            <IconButton
+              color="inherit"
+              sx={{ position: "absolute", top: 8, right: 8, zIndex: 9 }}
+            >
               <Iconify icon="eva:more-vertical-fill" />
             </IconButton>
 
@@ -56,19 +62,19 @@ export default function ProfileGallery({ gallery }: Props) {
                 width: 1,
                 bottom: 0,
                 zIndex: 9,
-                position: 'absolute',
+                position: "absolute",
               }}
               primary={image.title}
               secondary={fDate(image.postedAt)}
               primaryTypographyProps={{
                 noWrap: true,
-                typography: 'subtitle1',
+                typography: "subtitle1",
               }}
               secondaryTypographyProps={{
                 mt: 0.5,
-                color: 'inherit',
-                component: 'span',
-                typography: 'body2',
+                color: "inherit",
+                component: "span",
+                typography: "body2",
                 sx: { opacity: 0.48 },
               }}
             />

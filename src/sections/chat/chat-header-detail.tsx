@@ -1,15 +1,15 @@
-import Stack from '@mui/material/Stack';
-import Badge from '@mui/material/Badge';
-import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
-import AvatarGroup, { avatarGroupClasses } from '@mui/material/AvatarGroup';
+import Stack from "@mui/material/Stack";
+import Badge from "@mui/material/Badge";
+import Avatar from "@mui/material/Avatar";
+import IconButton from "@mui/material/IconButton";
+import ListItemText from "@mui/material/ListItemText";
+import AvatarGroup, { avatarGroupClasses } from "@mui/material/AvatarGroup";
 
-import { fToNow } from 'src/utils/format-time';
+import { fToNow } from "src/utils/format-time";
 
-import Iconify from 'src/components/iconify';
+import Iconify from "src/components/iconify";
 
-import { IChatParticipant } from 'src/types/chat';
+import { IChatParticipant } from "src/types/chat";
 
 // ----------------------------------------------------------------------
 
@@ -33,7 +33,11 @@ export default function ChatHeaderDetail({ participants }: Props) {
       }}
     >
       {participants.map((participant) => (
-        <Avatar key={participant.id} alt={participant.name} src={participant.avatarUrl} />
+        <Avatar
+          key={participant.id}
+          alt={participant.name}
+          src={participant.avatarUrl}
+        />
       ))}
     </AvatarGroup>
   );
@@ -42,22 +46,25 @@ export default function ChatHeaderDetail({ participants }: Props) {
     <Stack flexGrow={1} direction="row" alignItems="center" spacing={2}>
       <Badge
         variant={singleParticipant.status}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
-        <Avatar src={singleParticipant.avatarUrl} alt={singleParticipant.name} />
+        <Avatar
+          src={singleParticipant.avatarUrl}
+          alt={singleParticipant.name}
+        />
       </Badge>
 
       <ListItemText
         primary={singleParticipant.name}
         secondary={
-          singleParticipant.status === 'offline'
+          singleParticipant.status === "offline"
             ? fToNow(singleParticipant.lastActivity)
             : singleParticipant.status
         }
         secondaryTypographyProps={{
-          component: 'span',
-          ...(singleParticipant.status !== 'offline' && {
-            textTransform: 'capitalize',
+          component: "span",
+          ...(singleParticipant.status !== "offline" && {
+            textTransform: "capitalize",
           }),
         }}
       />

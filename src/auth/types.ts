@@ -1,4 +1,8 @@
-import { LogoutOptions, PopupLoginOptions, RedirectLoginOptions } from '@auth0/auth0-react';
+import {
+  LogoutOptions,
+  PopupLoginOptions,
+  RedirectLoginOptions,
+} from "@auth0/auth0-react";
 
 // ----------------------------------------------------------------------
 
@@ -31,7 +35,7 @@ type CanRemove = {
     firstName: string,
     lastName: string,
     phoneNumber?: string,
-    country?: string
+    country?: string,
   ) => Promise<any>;
   //
   loginWithGoogle?: () => Promise<void>;
@@ -44,7 +48,11 @@ type CanRemove = {
   confirmRegister?: (email: string, code: string) => Promise<void>;
   forgotPassword?: (email: string) => Promise<void>;
   resendCodeRegister?: (email: string) => Promise<void>;
-  newPassword?: (email: string, code: string, password: string) => Promise<void>;
+  newPassword?: (
+    email: string,
+    code: string,
+    password: string,
+  ) => Promise<void>;
   updatePassword?: (password: string) => Promise<void>;
 };
 
@@ -61,7 +69,7 @@ export type JWTContextType = CanRemove & {
     firstName: string,
     lastName: string,
     phoneNumber?: string,
-    country?: string
+    country?: string,
   ) => Promise<any>;
   logout: () => Promise<void>;
 };
@@ -84,7 +92,7 @@ export type FirebaseContextType = CanRemove & {
     firstName: string,
     lastName: string,
     phoneNumber?: string,
-    country?: string
+    country?: string,
   ) => Promise<any>;
 };
 
@@ -101,7 +109,7 @@ export type AmplifyContextType = CanRemove & {
     firstName: string,
     lastName: string,
     phoneNumber?: string,
-    country?: string
+    country?: string,
   ) => Promise<unknown>;
   logout: () => Promise<unknown>;
   confirmRegister: (email: string, code: string) => Promise<void>;
@@ -130,7 +138,12 @@ export type SupabaseContextType = CanRemove & {
   authenticated: boolean;
   unauthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
+  register: (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+  ) => Promise<void>;
   logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;

@@ -1,9 +1,9 @@
-import RatingView from 'src/sections/_examples/mui/rating-view';
+import RatingView from "src/sections/_examples/mui/rating-view";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'MUI: Rating',
+  title: "MUI: Rating",
 };
 
 export default function RatingPage() {

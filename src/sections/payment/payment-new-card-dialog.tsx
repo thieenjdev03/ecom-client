@@ -1,15 +1,15 @@
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import InputAdornment from '@mui/material/InputAdornment';
-import Dialog, { DialogProps } from '@mui/material/Dialog';
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import IconButton from "@mui/material/IconButton";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import InputAdornment from "@mui/material/InputAdornment";
+import Dialog, { DialogProps } from "@mui/material/Dialog";
 
-import Iconify from 'src/components/iconify';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import Iconify from "src/components/iconify";
+import CustomPopover, { usePopover } from "src/components/custom-popover";
 
 // ----------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ export default function PaymentNewCardDialog({ onClose, ...other }: Props) {
       <Dialog maxWidth="sm" onClose={onClose} {...other}>
         <DialogTitle> New Card </DialogTitle>
 
-        <DialogContent sx={{ overflow: 'unset' }}>
+        <DialogContent sx={{ overflow: "unset" }}>
           <Stack spacing={2.5}>
             <TextField
               autoFocus
@@ -53,7 +53,11 @@ export default function PaymentNewCardDialog({ onClose, ...other }: Props) {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton size="small" edge="end" onClick={popover.onOpen}>
+                      <IconButton
+                        size="small"
+                        edge="end"
+                        onClick={popover.onOpen}
+                      >
                         <Iconify icon="eva:info-outline" />
                       </IconButton>
                     </InputAdornment>
@@ -65,7 +69,7 @@ export default function PaymentNewCardDialog({ onClose, ...other }: Props) {
             <Stack
               direction="row"
               alignItems="center"
-              sx={{ typography: 'caption', color: 'text.disabled' }}
+              sx={{ typography: "caption", color: "text.disabled" }}
             >
               <Iconify icon="carbon:locked" sx={{ mr: 0.5 }} />
               Your transaction is secured with SSL encryption
@@ -88,7 +92,7 @@ export default function PaymentNewCardDialog({ onClose, ...other }: Props) {
         open={popover.open}
         onClose={popover.onClose}
         arrow="bottom-center"
-        sx={{ maxWidth: 200, typography: 'body2', textAlign: 'center' }}
+        sx={{ maxWidth: 200, typography: "body2", textAlign: "center" }}
       >
         Three-digit number on the back of your VISA card
       </CustomPopover>

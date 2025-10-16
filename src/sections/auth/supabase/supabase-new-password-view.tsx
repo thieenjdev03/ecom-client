@@ -1,34 +1,34 @@
-'use client';
+"use client";
 
-import * as Yup from 'yup';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from "yup";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
-import Alert from '@mui/material/Alert';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import LoadingButton from '@mui/lab/LoadingButton';
-import InputAdornment from '@mui/material/InputAdornment';
+import Alert from "@mui/material/Alert";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import LoadingButton from "@mui/lab/LoadingButton";
+import InputAdornment from "@mui/material/InputAdornment";
 
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
+import { paths } from "src/routes/paths";
+import { useRouter } from "src/routes/hooks";
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from "src/hooks/use-boolean";
 
-import { useAuthContext } from 'src/auth/hooks';
-import { NewPasswordIcon } from 'src/assets/icons';
+import { useAuthContext } from "src/auth/hooks";
+import { NewPasswordIcon } from "src/assets/icons";
 
-import Iconify from 'src/components/iconify';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
+import Iconify from "src/components/iconify";
+import FormProvider, { RHFTextField } from "src/components/hook-form";
 
 // ----------------------------------------------------------------------
 
 export default function SupabaseNewPasswordView() {
   const router = useRouter();
 
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState("");
 
   const { updatePassword } = useAuthContext();
 
@@ -36,20 +36,20 @@ export default function SupabaseNewPasswordView() {
 
   const NewPasswordSchema = Yup.object().shape({
     password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required'),
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
     confirmPassword: Yup.string()
-      .required('Confirm password is required')
-      .oneOf([Yup.ref('password')], 'Passwords must match'),
+      .required("Confirm password is required")
+      .oneOf([Yup.ref("password")], "Passwords must match"),
   });
 
   const defaultValues = {
-    password: '',
-    confirmPassword: '',
+    password: "",
+    confirmPassword: "",
   };
 
   const methods = useForm({
-    mode: 'onChange',
+    mode: "onChange",
     resolver: yupResolver(NewPasswordSchema),
     defaultValues,
   });
@@ -68,7 +68,7 @@ export default function SupabaseNewPasswordView() {
     } catch (error) {
       console.error(error);
       reset();
-      setErrorMsg(typeof error === 'string' ? error : error.message);
+      setErrorMsg(typeof error === "string" ? error : error.message);
     }
   });
 
@@ -79,7 +79,7 @@ export default function SupabaseNewPasswordView() {
       <Stack spacing={1} sx={{ mt: 3, mb: 5 }}>
         <Typography variant="h3">New Password</Typography>
 
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
           Successful updates enable access using the new password
         </Typography>
       </Stack>
@@ -91,12 +91,16 @@ export default function SupabaseNewPasswordView() {
       <RHFTextField
         name="password"
         label="Confirm Password"
-        type={password.value ? 'text' : 'password'}
+        type={password.value ? "text" : "password"}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
               <IconButton onClick={password.onToggle} edge="end">
-                <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                <Iconify
+                  icon={
+                    password.value ? "solar:eye-bold" : "solar:eye-closed-bold"
+                  }
+                />
               </IconButton>
             </InputAdornment>
           ),
@@ -106,12 +110,16 @@ export default function SupabaseNewPasswordView() {
       <RHFTextField
         name="confirmPassword"
         label="Password"
-        type={password.value ? 'text' : 'password'}
+        type={password.value ? "text" : "password"}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
               <IconButton onClick={password.onToggle} edge="end">
-                <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                <Iconify
+                  icon={
+                    password.value ? "solar:eye-bold" : "solar:eye-closed-bold"
+                  }
+                />
               </IconButton>
             </InputAdornment>
           ),
@@ -135,7 +143,7 @@ export default function SupabaseNewPasswordView() {
       {renderHead}
 
       {!!errorMsg && (
-        <Alert severity="error" sx={{ textAlign: 'left', mb: 3 }}>
+        <Alert severity="error" sx={{ textAlign: "left", mb: 3 }}>
           {errorMsg}
         </Alert>
       )}

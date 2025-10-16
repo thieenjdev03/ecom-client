@@ -1,18 +1,18 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import InputAdornment from '@mui/material/InputAdornment';
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import InputAdornment from "@mui/material/InputAdornment";
 
-import Iconify from 'src/components/iconify';
-import SearchNotFound from 'src/components/search-not-found';
+import Iconify from "src/components/iconify";
+import SearchNotFound from "src/components/search-not-found";
 
-import { IPaymentCard } from 'src/types/payment';
+import { IPaymentCard } from "src/types/payment";
 
-import PaymentCardItem from './payment-card-item';
+import PaymentCardItem from "./payment-card-item";
 
 // ----------------------------------------------------------------------
 
@@ -24,8 +24,14 @@ type Props = {
   onSelect: (card: IPaymentCard | null) => void;
 };
 
-export default function PaymentCardListDialog({ open, list, onClose, selected, onSelect }: Props) {
-  const [searchCard, setSearchCard] = useState('');
+export default function PaymentCardListDialog({
+  open,
+  list,
+  onClose,
+  selected,
+  onSelect,
+}: Props) {
+  const [searchCard, setSearchCard] = useState("");
 
   const dataFiltered = applyFilter({
     inputData: list,
@@ -34,17 +40,20 @@ export default function PaymentCardListDialog({ open, list, onClose, selected, o
 
   const notFound = !dataFiltered.length && !!searchCard;
 
-  const handleSearchAddress = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchCard(event.target.value);
-  }, []);
+  const handleSearchAddress = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchCard(event.target.value);
+    },
+    [],
+  );
 
   const handleSelectCard = useCallback(
     (card: IPaymentCard | null) => {
       onSelect(card);
-      setSearchCard('');
+      setSearchCard("");
       onClose();
     },
-    [onClose, onSelect]
+    [onClose, onSelect],
   );
 
   const renderList = (
@@ -55,7 +64,7 @@ export default function PaymentCardListDialog({ open, list, onClose, selected, o
           card={card}
           onClick={() => handleSelectCard(card)}
           sx={{
-            cursor: 'pointer',
+            cursor: "pointer",
             ...(selected(card.id) && {
               boxShadow: (theme) => `0 0 0 2px ${theme.palette.text.primary}`,
             }),
@@ -78,7 +87,7 @@ export default function PaymentCardListDialog({ open, list, onClose, selected, o
         <Button
           size="small"
           startIcon={<Iconify icon="mingcute:add-line" />}
-          sx={{ alignSelf: 'flex-end' }}
+          sx={{ alignSelf: "flex-end" }}
         >
           New
         </Button>
@@ -92,24 +101,38 @@ export default function PaymentCardListDialog({ open, list, onClose, selected, o
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                <Iconify
+                  icon="eva:search-fill"
+                  sx={{ color: "text.disabled" }}
+                />
               </InputAdornment>
             ),
           }}
         />
       </Stack>
 
-      {notFound ? <SearchNotFound query={searchCard} sx={{ px: 3, pt: 5, pb: 10 }} /> : renderList}
+      {notFound ? (
+        <SearchNotFound query={searchCard} sx={{ px: 3, pt: 5, pb: 10 }} />
+      ) : (
+        renderList
+      )}
     </Dialog>
   );
 }
 
 // ----------------------------------------------------------------------
 
-function applyFilter({ inputData, query }: { inputData: IPaymentCard[]; query: string }) {
+function applyFilter({
+  inputData,
+  query,
+}: {
+  inputData: IPaymentCard[];
+  query: string;
+}) {
   if (query) {
     return inputData.filter(
-      (card) => card.cardNumber.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      (card) =>
+        card.cardNumber.toLowerCase().indexOf(query.toLowerCase()) !== -1,
     );
   }
 

@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import Container from '@mui/material/Container';
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Container from "@mui/material/Container";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import ComponentBlock from '../../component-block';
-import CustomizedStepper from './customized-steppers';
-import VerticalLinearStepper from './vertical-linear-stepper';
-import HorizontalLinearStepper from './horizontal-linear-stepper';
-import LinearAlternativeLabel from './linear-alternative-label-stepper';
+import ComponentBlock from "../../component-block";
+import CustomizedStepper from "./customized-steppers";
+import VerticalLinearStepper from "./vertical-linear-stepper";
+import HorizontalLinearStepper from "./horizontal-linear-stepper";
+import LinearAlternativeLabel from "./linear-alternative-label-stepper";
 
 // ----------------------------------------------------------------------
 
@@ -26,12 +26,12 @@ export default function StepperView() {
           heading="Stepper"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Stepper' },
+            { name: "Stepper" },
           ]}
-          moreLink={['https://mui.com/components/steppers']}
+          moreLink={["https://mui.com/components/steppers"]}
         />
       </ComponentHero>
 

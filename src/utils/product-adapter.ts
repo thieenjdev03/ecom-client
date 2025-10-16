@@ -1,39 +1,42 @@
-import { IProductItem } from 'src/types/product';
-import { ProductDto } from 'src/types/product-dto';
+import { IProductItem } from "src/types/product";
+import { ProductDto } from "src/types/product-dto";
 
 export function adaptProductDtoToItem(dto: ProductDto): IProductItem {
   return {
     id: dto.id,
-    sku: dto.productSku ?? '',
+    sku: dto.productSku ?? "",
     name: dto.productCode,
     code: dto.productCode,
     price: dto.variants?.[0]?.price ?? 0,
     taxes: 0,
     tags: dto.tags ?? [],
-    gender: (dto.gender ?? []).join(','),
+    gender: (dto.gender ?? []).join(","),
     sizes: (dto.sizes ?? []).map((s) => s.name),
-    publish: 'published',
-    coverUrl: dto.variants?.[0]?.imageUrl ?? '',
-    images: dto.variants?.map((v) => v.imageUrl || '').filter(Boolean) ?? [],
+    publish: "published",
+    coverUrl: dto.variants?.[0]?.imageUrl ?? "",
+    images: dto.images ?? [],
+    isFeatured: dto.isFeatured ?? false,
+    productPrice: dto.productPrice ?? 0,
+    is_new: dto.is_new ?? false,
+    is_sale: dto.is_sale ?? false,
     colors: (dto.colors ?? []).map((c) => c.name),
     quantity: dto.quantity ?? 0,
-    category: dto.category?.name ?? '',
-    available: dto.variants?.reduce((sum, v) => sum + (v.isAvailable ? 1 : 0), 0) ?? 0,
+    category: dto.category?.name ?? "",
+    available:
+      dto.variants?.reduce((sum, v) => sum + (v.isAvailable ? 1 : 0), 0) ?? 0,
     totalSold: 0,
-    description: '',
+    description: "",
     totalRatings: 0,
     totalReviews: 0,
-    inventoryType: dto.isNew ? 'new' : dto.isSale ? 'sale' : 'in_stock',
-    subDescription: '',
+    inventoryType: dto.isNew ? "new" : dto.isSale ? "sale" : "in_stock",
+    subDescription: "",
     priceSale: dto.variants?.[0]?.salePrice ?? null,
     reviews: [],
     createdAt: new Date(),
     ratings: [],
-    saleLabel: { enabled: !!dto.isSale, content: dto.saleLabel ?? '' },
-    newLabel: { enabled: !!dto.isNew, content: dto.newLabel ?? '' },
+    saleLabel: { enabled: !!dto.isSale, content: dto.saleLabel ?? "" },
+    newLabel: { enabled: !!dto.isNew, content: dto.newLabel ?? "" },
     modelHeight: 0,
     modelSize: 0,
   };
 }
-
-

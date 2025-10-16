@@ -1,21 +1,21 @@
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import { useTheme } from '@mui/material/styles';
+import Link from "@mui/material/Link";
+import Stack from "@mui/material/Stack";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import { useTheme } from "@mui/material/styles";
 
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
+import { paths } from "src/routes/paths";
+import { RouterLink } from "src/routes/components";
 
-import { useOffSetTop } from 'src/hooks/use-off-set-top';
+import { useOffSetTop } from "src/hooks/use-off-set-top";
 
-import { bgBlur } from 'src/theme/css';
+import { bgBlur } from "src/theme/css";
 
-import Logo from 'src/components/logo';
+import Logo from "src/components/logo";
 
-import { HEADER } from '../config-layout';
-import HeaderShadow from './header-shadow';
-import SettingsButton from './settings-button';
+import { HEADER } from "../config-layout";
+import HeaderShadow from "./header-shadow";
+import SettingsButton from "./settings-button";
 
 // ----------------------------------------------------------------------
 
@@ -28,12 +28,12 @@ export default function HeaderSimple() {
     <AppBar>
       <Toolbar
         sx={{
-          justifyContent: 'space-between',
+          justifyContent: "space-between",
           height: {
             xs: HEADER.H_MOBILE,
             md: HEADER.H_DESKTOP,
           },
-          transition: theme.transitions.create(['height'], {
+          transition: theme.transitions.create(["height"], {
             easing: theme.transitions.easing.easeInOut,
             duration: theme.transitions.duration.shorter,
           }),
@@ -56,7 +56,7 @@ export default function HeaderSimple() {
             href={paths.faqs}
             component={RouterLink}
             color="inherit"
-            sx={{ typography: 'subtitle2' }}
+            sx={{ typography: "subtitle2" }}
           >
             Need help?
           </Link>

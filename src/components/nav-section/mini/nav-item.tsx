@@ -1,15 +1,15 @@
-import { forwardRef } from 'react';
+import { forwardRef } from "react";
 
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Tooltip from '@mui/material/Tooltip';
-import { alpha, styled } from '@mui/material/styles';
-import ListItemButton from '@mui/material/ListItemButton';
+import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import Tooltip from "@mui/material/Tooltip";
+import { alpha, styled } from "@mui/material/styles";
+import ListItemButton from "@mui/material/ListItemButton";
 
-import { RouterLink } from 'src/routes/components';
+import { RouterLink } from "src/routes/components";
 
-import Iconify from '../../iconify';
-import { NavItemProps, NavItemStateProps } from '../types';
+import Iconify from "../../iconify";
+import { NavItemProps, NavItemStateProps } from "../types";
 
 // ----------------------------------------------------------------------
 
@@ -29,10 +29,10 @@ const NavItem = forwardRef<HTMLDivElement, NavItemProps>(
       active,
       hasChild,
       externalLink,
-      currentRole = 'admin',
+      currentRole = "admin",
       ...other
     },
-    ref
+    ref,
   ) => {
     const subItem = depth !== 1;
 
@@ -70,7 +70,13 @@ const NavItem = forwardRef<HTMLDivElement, NavItemProps>(
           </Box>
         )}
 
-        {hasChild && <Iconify width={16} className="arrow" icon="eva:arrow-ios-forward-fill" />}
+        {hasChild && (
+          <Iconify
+            width={16}
+            className="arrow"
+            icon="eva:arrow-ios-forward-fill"
+          />
+        )}
       </StyledNavItem>
     );
 
@@ -90,7 +96,7 @@ const NavItem = forwardRef<HTMLDivElement, NavItemProps>(
           sx={{
             width: 1,
             ...(disabled && {
-              cursor: 'default',
+              cursor: "default",
             }),
           }}
         >
@@ -107,14 +113,14 @@ const NavItem = forwardRef<HTMLDivElement, NavItemProps>(
         sx={{
           width: 1,
           ...(disabled && {
-            cursor: 'default',
+            cursor: "default",
           }),
         }}
       >
         {renderContent}
       </Link>
     );
-  }
+  },
 );
 
 export default NavItem;
@@ -122,21 +128,21 @@ export default NavItem;
 // ----------------------------------------------------------------------
 
 const StyledNavItem = styled(ListItemButton, {
-  shouldForwardProp: (prop) => prop !== 'active',
+  shouldForwardProp: (prop) => prop !== "active",
 })<NavItemStateProps>(({ active, open, depth, theme }) => {
   const subItem = depth !== 1;
 
   const opened = open && !active;
 
-  const lightMode = theme.palette.mode === 'light';
+  const lightMode = theme.palette.mode === "light";
 
   const noWrapStyles = {
-    width: '100%',
-    maxWidth: '100%',
-    display: 'block',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
+    width: "100%",
+    maxWidth: "100%",
+    display: "block",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
   } as const;
 
   const baseStyles = {
@@ -150,7 +156,7 @@ const StyledNavItem = styled(ListItemButton, {
       flexShrink: 0,
     },
     label: {
-      textTransform: 'capitalize',
+      textTransform: "capitalize",
     },
     caption: {
       color: theme.palette.text.disabled,
@@ -163,37 +169,39 @@ const StyledNavItem = styled(ListItemButton, {
       ...baseStyles.item,
       fontSize: 10,
       minHeight: 56,
-      lineHeight: '16px',
-      textAlign: 'center',
-      flexDirection: 'column',
-      justifyContent: 'center',
+      lineHeight: "16px",
+      textAlign: "center",
+      flexDirection: "column",
+      justifyContent: "center",
       padding: theme.spacing(0.5),
       margin: theme.spacing(0, 0.5),
       fontWeight: theme.typography.fontWeightSemiBold,
-      '& .icon': {
+      "& .icon": {
         ...baseStyles.icon,
       },
-      '& .label': {
+      "& .label": {
         ...noWrapStyles,
         ...baseStyles.label,
         marginTop: theme.spacing(0.5),
       },
-      '& .caption': {
+      "& .caption": {
         ...baseStyles.caption,
         top: 11,
         left: 6,
-        position: 'absolute',
+        position: "absolute",
       },
-      '& .arrow': {
+      "& .arrow": {
         top: 11,
         right: 6,
-        position: 'absolute',
+        position: "absolute",
       },
       ...(active && {
         fontWeight: theme.typography.fontWeightBold,
         backgroundColor: alpha(theme.palette.primary.main, 0.08),
-        color: lightMode ? theme.palette.primary.main : theme.palette.primary.light,
-        '&:hover': {
+        color: lightMode
+          ? theme.palette.primary.main
+          : theme.palette.primary.light,
+        "&:hover": {
           backgroundColor: alpha(theme.palette.primary.main, 0.16),
         },
       }),
@@ -210,23 +218,23 @@ const StyledNavItem = styled(ListItemButton, {
       minHeight: 34,
       padding: theme.spacing(0, 1),
       fontWeight: theme.typography.fontWeightMedium,
-      '& .icon': {
+      "& .icon": {
         ...baseStyles.icon,
         marginRight: theme.spacing(1),
       },
-      '& .label': {
+      "& .label": {
         ...baseStyles.label,
         flexGrow: 1,
       },
-      '& .caption': {
+      "& .caption": {
         ...baseStyles.caption,
         marginLeft: theme.spacing(0.75),
       },
-      '& .info': {
-        display: 'inline-flex',
+      "& .info": {
+        display: "inline-flex",
         marginLeft: theme.spacing(0.75),
       },
-      '& .arrow': {
+      "& .arrow": {
         marginLeft: theme.spacing(0.75),
         marginRight: theme.spacing(-0.5),
       },

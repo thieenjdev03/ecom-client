@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import Stack from '@mui/material/Stack';
-import Container from '@mui/material/Container';
+import Stack from "@mui/material/Stack";
+import Container from "@mui/material/Container";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import ComponentBlock from '../../component-block';
-import SimpleTransferList from './simple-transfer-list';
-import EnhancedTransferList from './enhanced-transfer-list';
+import ComponentBlock from "../../component-block";
+import SimpleTransferList from "./simple-transfer-list";
+import EnhancedTransferList from "./enhanced-transfer-list";
 
 // ----------------------------------------------------------------------
 
@@ -23,12 +23,12 @@ export default function TransferListView() {
           heading="Transfer List"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Transfer List' },
+            { name: "Transfer List" },
           ]}
-          moreLink={['https://mui.com/components/transfer-list']}
+          moreLink={["https://mui.com/components/transfer-list"]}
         />
       </ComponentHero>
 

@@ -1,9 +1,9 @@
-import { useTheme } from '@mui/material/styles';
-import IconButton from '@mui/material/IconButton';
+import { useTheme } from "@mui/material/styles";
+import IconButton from "@mui/material/IconButton";
 
-import { bgBlur } from 'src/theme/css';
+import { bgBlur } from "src/theme/css";
 
-import Iconify from '../iconify';
+import Iconify from "../iconify";
 
 // ----------------------------------------------------------------------
 
@@ -25,14 +25,14 @@ export default function DownloadButton({ onDownload }: Props) {
         height: 1,
         zIndex: 9,
         opacity: 0,
-        position: 'absolute',
-        borderRadius: 'unset',
-        justifyContent: 'center',
-        bgcolor: 'grey.800',
-        color: 'common.white',
-        transition: theme.transitions.create(['opacity']),
+        position: "absolute",
+        borderRadius: "unset",
+        justifyContent: "center",
+        bgcolor: "grey.800",
+        color: "common.white",
+        transition: theme.transitions.create(["opacity"]),
 
-        '&:hover': {
+        "&:hover": {
           opacity: 1,
           ...bgBlur({
             opacity: 0.64,

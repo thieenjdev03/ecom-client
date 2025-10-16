@@ -1,10 +1,10 @@
-import useSWR from 'swr';
-import { useMemo } from 'react';
-import keyBy from 'lodash/keyBy';
+import useSWR from "swr";
+import { useMemo } from "react";
+import keyBy from "lodash/keyBy";
 
-import { fetcher, endpoints } from 'src/utils/axios';
+import { fetcher, endpoints } from "src/utils/axios";
 
-import { IMail, IMails, IMailLabel } from 'src/types/mail';
+import { IMail, IMails, IMailLabel } from "src/types/mail";
 
 // ----------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ export function useGetLabels() {
       labelsValidating: isValidating,
       labelsEmpty: !isLoading && !data?.labels.length,
     }),
-    [data?.labels, error, isLoading, isValidating]
+    [data?.labels, error, isLoading, isValidating],
   );
 
   return memoizedValue;
@@ -30,12 +30,12 @@ export function useGetLabels() {
 // ----------------------------------------------------------------------
 
 export function useGetMails(labelId: string) {
-  const URL = labelId ? [endpoints.mail.list, { params: { labelId } }] : '';
+  const URL = labelId ? [endpoints.mail.list, { params: { labelId } }] : "";
 
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
 
   const memoizedValue = useMemo(() => {
-    const byId = keyBy(data?.mails, 'id') || {};
+    const byId = keyBy(data?.mails, "id") || {};
     const allIds = Object.keys(byId) || [];
 
     return {
@@ -56,7 +56,7 @@ export function useGetMails(labelId: string) {
 // ----------------------------------------------------------------------
 
 export function useGetMail(mailId: string) {
-  const URL = mailId ? [endpoints.mail.details, { params: { mailId } }] : '';
+  const URL = mailId ? [endpoints.mail.details, { params: { mailId } }] : "";
 
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
 
@@ -67,7 +67,7 @@ export function useGetMail(mailId: string) {
       mailError: error,
       mailValidating: isValidating,
     }),
-    [data?.mail, error, isLoading, isValidating]
+    [data?.mail, error, isLoading, isValidating],
   );
 
   return memoizedValue;

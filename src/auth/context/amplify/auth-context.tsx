@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { createContext } from 'react';
+import { createContext } from "react";
 
-import { AmplifyContextType } from '../../types';
+import { AmplifyContextType } from "../../types";
 
 // ----------------------------------------------------------------------
 

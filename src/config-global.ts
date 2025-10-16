@@ -1,4 +1,4 @@
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
 // API
 // ----------------------------------------------------------------------
@@ -18,7 +18,8 @@ export const FIREBASE_API = {
 
 export const AMPLIFY_API = {
   userPoolId: process.env.NEXT_PUBLIC_AWS_AMPLIFY_USER_POOL_ID,
-  userPoolWebClientId: process.env.NEXT_PUBLIC_AWS_AMPLIFY_USER_POOL_WEB_CLIENT_ID,
+  userPoolWebClientId:
+    process.env.NEXT_PUBLIC_AWS_AMPLIFY_USER_POOL_WEB_CLIENT_ID,
   region: process.env.NEXT_PUBLIC_AWS_AMPLIFY_REGION,
 };
 
@@ -37,5 +38,5 @@ export const MAPBOX_API = process.env.NEXT_PUBLIC_MAPBOX_API;
 
 // ROOT PATH AFTER LOGIN SUCCESSFUL
 export const PATH_AFTER_LOGIN = paths.dashboard.root; // as '/dashboard'
-export const PATH_AFTER_LOGIN_USER= paths.landing; // as '/dashboard/admin'
-export const PATH_AFTER_REGISTER_USER= paths.auth.jwt.login; // as '/dashboard/admin'
+export const PATH_AFTER_LOGIN_USER = paths.landing; // as '/dashboard/admin'
+export const PATH_AFTER_REGISTER_USER = paths.auth.jwt.login; // as '/dashboard/admin'

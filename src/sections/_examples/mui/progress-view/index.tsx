@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from "react";
 
-import Stack from '@mui/material/Stack';
-import Container from '@mui/material/Container';
+import Stack from "@mui/material/Stack";
+import Container from "@mui/material/Container";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import ProgressLinear from './progress-linear';
-import ProgressCircular from './progress-circular';
-import ComponentBlock from '../../component-block';
+import ProgressLinear from "./progress-linear";
+import ProgressCircular from "./progress-circular";
+import ComponentBlock from "../../component-block";
 
 // ----------------------------------------------------------------------
 
@@ -71,12 +71,12 @@ export default function ProgressView() {
           heading="Progress"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Progress' },
+            { name: "Progress" },
           ]}
-          moreLink={['https://mui.com/components/progress']}
+          moreLink={["https://mui.com/components/progress"]}
         />
       </ComponentHero>
 

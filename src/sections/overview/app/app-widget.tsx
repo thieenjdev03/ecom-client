@@ -1,15 +1,15 @@
-import { ApexOptions } from 'apexcharts';
+import { ApexOptions } from "apexcharts";
 
-import { useTheme } from '@mui/material/styles';
-import ListItemText from '@mui/material/ListItemText';
-import Stack, { StackProps } from '@mui/material/Stack';
+import { useTheme } from "@mui/material/styles";
+import ListItemText from "@mui/material/ListItemText";
+import Stack, { StackProps } from "@mui/material/Stack";
 
-import { fNumber } from 'src/utils/format-number';
+import { fNumber } from "src/utils/format-number";
 
-import { ColorSchema } from 'src/theme/palette';
+import { ColorSchema } from "src/theme/palette";
 
-import Iconify from 'src/components/iconify';
-import Chart, { useChart } from 'src/components/chart';
+import Iconify from "src/components/iconify";
+import Chart, { useChart } from "src/components/chart";
 
 // ----------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ export default function AppWidget({
   title,
   total,
   icon,
-  color = 'primary',
+  color = "primary",
   chart,
   sx,
   ...other
@@ -48,7 +48,7 @@ export default function AppWidget({
       show: false,
     },
     fill: {
-      type: 'gradient',
+      type: "gradient",
       gradient: {
         colorStops: [
           { offset: 0, color: theme.palette[color].light, opacity: 1 },
@@ -59,7 +59,7 @@ export default function AppWidget({
     plotOptions: {
       radialBar: {
         hollow: {
-          size: '78%',
+          size: "78%",
         },
         track: {
           margin: 0,
@@ -86,9 +86,9 @@ export default function AppWidget({
       sx={{
         p: 3,
         borderRadius: 2,
-        overflow: 'hidden',
-        position: 'relative',
-        color: 'common.white',
+        overflow: "hidden",
+        position: "relative",
+        color: "common.white",
         bgcolor: `${color}.dark`,
         ...sx,
       }}
@@ -108,14 +108,14 @@ export default function AppWidget({
         primary={fNumber(total)}
         secondary={title}
         primaryTypographyProps={{
-          typography: 'h4',
-          component: 'span',
+          typography: "h4",
+          component: "span",
         }}
         secondaryTypographyProps={{
-          color: 'inherit',
-          component: 'span',
+          color: "inherit",
+          component: "span",
           sx: { opacity: 0.64 },
-          typography: 'subtitle2',
+          typography: "subtitle2",
         }}
       />
       <Iconify
@@ -125,7 +125,7 @@ export default function AppWidget({
           right: -32,
           height: 112,
           opacity: 0.08,
-          position: 'absolute',
+          position: "absolute",
         }}
       />
     </Stack>

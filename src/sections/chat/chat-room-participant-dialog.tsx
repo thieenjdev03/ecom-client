@@ -1,14 +1,14 @@
-import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
-import Dialog from '@mui/material/Dialog';
-import { alpha } from '@mui/material/styles';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import DialogContent from '@mui/material/DialogContent';
+import Stack from "@mui/material/Stack";
+import Avatar from "@mui/material/Avatar";
+import Dialog from "@mui/material/Dialog";
+import { alpha } from "@mui/material/styles";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import DialogContent from "@mui/material/DialogContent";
 
-import Iconify from 'src/components/iconify';
+import Iconify from "src/components/iconify";
 
-import { IChatParticipant } from 'src/types/chat';
+import { IChatParticipant } from "src/types/chat";
 
 // ----------------------------------------------------------------------
 
@@ -18,14 +18,21 @@ type Props = {
   participant: IChatParticipant;
 };
 
-export default function ChatRoomParticipantDialog({ participant, open, onClose }: Props) {
+export default function ChatRoomParticipantDialog({
+  participant,
+  open,
+  onClose,
+}: Props) {
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
-      <IconButton onClick={onClose} sx={{ position: 'absolute', right: 8, top: 8 }}>
+      <IconButton
+        onClick={onClose}
+        sx={{ position: "absolute", right: 8, top: 8 }}
+      >
         <Iconify icon="mingcute:close-line" />
       </IconButton>
 
-      <DialogContent sx={{ py: 5, px: 3, display: 'flex' }}>
+      <DialogContent sx={{ py: 5, px: 3, display: "flex" }}>
         <Avatar
           alt={participant.name}
           src={participant.avatarUrl}
@@ -33,17 +40,20 @@ export default function ChatRoomParticipantDialog({ participant, open, onClose }
         />
 
         <Stack spacing={1}>
-          <Typography variant="caption" sx={{ color: 'primary.main' }}>
+          <Typography variant="caption" sx={{ color: "primary.main" }}>
             {participant.role}
           </Typography>
 
           <Typography variant="subtitle1">{participant.name}</Typography>
 
-          <Stack direction="row" sx={{ typography: 'caption', color: 'text.disabled' }}>
+          <Stack
+            direction="row"
+            sx={{ typography: "caption", color: "text.disabled" }}
+          >
             <Iconify
               icon="mingcute:location-fill"
               width={16}
-              sx={{ flexShrink: 0, mr: 0.5, mt: '2px' }}
+              sx={{ flexShrink: 0, mr: 0.5, mt: "2px" }}
             />
             {participant.address}
           </Stack>
@@ -55,7 +65,7 @@ export default function ChatRoomParticipantDialog({ participant, open, onClose }
               sx={{
                 borderRadius: 1,
                 bgcolor: (theme) => alpha(theme.palette.error.main, 0.08),
-                '&:hover': {
+                "&:hover": {
                   bgcolor: (theme) => alpha(theme.palette.error.main, 0.16),
                 },
               }}
@@ -69,7 +79,7 @@ export default function ChatRoomParticipantDialog({ participant, open, onClose }
               sx={{
                 borderRadius: 1,
                 bgcolor: (theme) => alpha(theme.palette.info.main, 0.08),
-                '&:hover': {
+                "&:hover": {
                   bgcolor: (theme) => alpha(theme.palette.info.main, 0.16),
                 },
               }}
@@ -83,7 +93,7 @@ export default function ChatRoomParticipantDialog({ participant, open, onClose }
               sx={{
                 borderRadius: 1,
                 bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
-                '&:hover': {
+                "&:hover": {
                   bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
                 },
               }}
@@ -97,7 +107,7 @@ export default function ChatRoomParticipantDialog({ participant, open, onClose }
               sx={{
                 borderRadius: 1,
                 bgcolor: (theme) => alpha(theme.palette.secondary.main, 0.08),
-                '&:hover': {
+                "&:hover": {
                   bgcolor: (theme) => alpha(theme.palette.secondary.main, 0.16),
                 },
               }}

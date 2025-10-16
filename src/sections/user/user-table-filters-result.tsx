@@ -1,14 +1,14 @@
-import { useCallback } from 'react';
+import { useCallback } from "react";
 
-import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
-import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
-import Stack, { StackProps } from '@mui/material/Stack';
+import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
+import Paper from "@mui/material/Paper";
+import Button from "@mui/material/Button";
+import Stack, { StackProps } from "@mui/material/Stack";
 
-import Iconify from 'src/components/iconify';
+import Iconify from "src/components/iconify";
 
-import { IUserTableFilters, IUserTableFilterValue } from 'src/types/user';
+import { IUserTableFilters, IUserTableFilterValue } from "src/types/user";
 
 // ----------------------------------------------------------------------
 
@@ -31,49 +31,68 @@ export default function UserTableFiltersResult({
   ...other
 }: Props) {
   const handleRemoveKeyword = useCallback(() => {
-    onFilters('name', '');
+    onFilters("name", "");
   }, [onFilters]);
 
   const handleRemoveStatus = useCallback(() => {
-    onFilters('status', 'all');
+    onFilters("status", "all");
   }, [onFilters]);
 
   const handleRemoveRole = useCallback(
     (inputValue: string) => {
       const newValue = filters.role.filter((item) => item !== inputValue);
 
-      onFilters('role', newValue);
+      onFilters("role", newValue);
     },
-    [filters.role, onFilters]
+    [filters.role, onFilters],
   );
 
   return (
     <Stack spacing={1.5} {...other}>
-      <Box sx={{ typography: 'body2' }}>
+      <Box sx={{ typography: "body2" }}>
         <strong>{results}</strong>
-        <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
+        <Box component="span" sx={{ color: "text.secondary", ml: 0.25 }}>
           results found
         </Box>
       </Box>
 
-      <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.status !== 'all' && (
+      <Stack
+        flexGrow={1}
+        spacing={1}
+        direction="row"
+        flexWrap="wrap"
+        alignItems="center"
+      >
+        {filters.status !== "all" && (
           <Block label="Status:">
-            <Chip size="small" label={filters.status} onDelete={handleRemoveStatus} />
+            <Chip
+              size="small"
+              label={filters.status}
+              onDelete={handleRemoveStatus}
+            />
           </Block>
         )}
 
         {!!filters.role.length && (
           <Block label="Role:">
             {filters.role.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveRole(item)} />
+              <Chip
+                key={item}
+                label={item}
+                size="small"
+                onDelete={() => handleRemoveRole(item)}
+              />
             ))}
           </Block>
         )}
 
         {!!filters.name && (
           <Block label="Keyword:">
-            <Chip label={filters.name} size="small" onDelete={handleRemoveKeyword} />
+            <Chip
+              label={filters.name}
+              size="small"
+              onDelete={handleRemoveKeyword}
+            />
           </Block>
         )}
 
@@ -105,13 +124,13 @@ function Block({ label, children, sx, ...other }: BlockProps) {
       sx={{
         p: 1,
         borderRadius: 1,
-        overflow: 'hidden',
-        borderStyle: 'dashed',
+        overflow: "hidden",
+        borderStyle: "dashed",
         ...sx,
       }}
       {...other}
     >
-      <Box component="span" sx={{ typography: 'subtitle2' }}>
+      <Box component="span" sx={{ typography: "subtitle2" }}>
         {label}
       </Box>
 

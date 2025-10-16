@@ -1,11 +1,11 @@
-import useSWR from 'swr';
-import { useMemo } from 'react';
+import useSWR from "swr";
+import { useMemo } from "react";
 
-import axios, { fetcher, endpoints } from 'src/utils/axios';
+import axios, { fetcher, endpoints } from "src/utils/axios";
 
-import { IProductItem } from 'src/types/product';
-import { ProductDto } from 'src/types/product-dto';
-import { adaptProductDtoToItem } from 'src/utils/product-adapter';
+import { IProductItem } from "src/types/product";
+import { ProductDto } from "src/types/product-dto";
+import { adaptProductDtoToItem } from "src/utils/product-adapter";
 
 // ----------------------------------------------------------------------
 
@@ -18,7 +18,9 @@ export function useGetProducts() {
     () => ({
       products: Array.isArray(data)
         ? (data as ProductDto[]).map(adaptProductDtoToItem)
-        : ((data?.data as ProductDto[] | undefined)?.map(adaptProductDtoToItem) || []),
+        : (data?.data?.data as ProductDto[] | undefined)?.map(
+            adaptProductDtoToItem,
+          ) || [],
       productsLoading: isLoading,
       productsError: error,
       productsValidating: isValidating,
@@ -27,7 +29,7 @@ export function useGetProducts() {
         ((Array.isArray(data) && data.length === 0) ||
           (Array.isArray(data?.data) && data.data.length === 0)),
     }),
-    [data, error, isLoading, isValidating]
+    [data, error, isLoading, isValidating],
   );
 
   return memoizedValue;
@@ -36,20 +38,22 @@ export function useGetProducts() {
 // ----------------------------------------------------------------------
 
 export function useGetProduct(productId: string) {
-  const URL = productId ? endpoints.product.details(productId) : '';
+  const URL = productId ? endpoints.product.details(productId) : "";
 
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
 
   const memoizedValue = useMemo(
     () => ({
       product: data
-        ? adaptProductDtoToItem((data?.data as ProductDto) ?? (data as ProductDto))
+        ? adaptProductDtoToItem(
+            (data?.data as ProductDto) ?? (data as ProductDto),
+          )
         : (undefined as unknown as IProductItem),
       productLoading: isLoading,
       productError: error,
       productValidating: isValidating,
     }),
-    [data, error, isLoading, isValidating]
+    [data, error, isLoading, isValidating],
   );
 
   return memoizedValue;
@@ -58,7 +62,7 @@ export function useGetProduct(productId: string) {
 // ----------------------------------------------------------------------
 
 export function useSearchProducts(query: string) {
-  const URL = query ? [endpoints.product.list, { params: { query } }] : '';
+  const URL = query ? [endpoints.product.list, { params: { query } }] : "";
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
   return { data, isLoading, error, isValidating };
 }

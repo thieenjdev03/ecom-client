@@ -1,10 +1,10 @@
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import { useTheme } from '@mui/material/styles';
-import InputBase from '@mui/material/InputBase';
-import Box, { BoxProps } from '@mui/material/Box';
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import { useTheme } from "@mui/material/styles";
+import InputBase from "@mui/material/InputBase";
+import Box, { BoxProps } from "@mui/material/Box";
 
-import { bgGradient } from 'src/theme/css';
+import { bgGradient } from "src/theme/css";
 
 // ----------------------------------------------------------------------
 
@@ -35,8 +35,8 @@ export default function BankingInviteFriends({
           left: 40,
           zIndex: 9,
           width: 140,
-          position: 'relative',
-          filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.24))',
+          position: "relative",
+          filter: "drop-shadow(0 12px 24px rgba(0,0,0,0.24))",
           ...sx,
         }}
       />
@@ -44,28 +44,37 @@ export default function BankingInviteFriends({
       <Box
         sx={{
           mt: -15,
-          color: 'common.white',
+          color: "common.white",
           borderRadius: 2,
           p: theme.spacing(16, 5, 5, 5),
           ...bgGradient({
-            direction: '135deg',
+            direction: "135deg",
             startColor: theme.palette.primary.main,
             endColor: theme.palette.primary.dark,
           }),
         }}
       >
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Box sx={{ whiteSpace: 'pre-line', typography: 'h4' }}>{title}</Box>
-          <Box sx={{ typography: 'h2' }}>{price}</Box>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Box sx={{ whiteSpace: "pre-line", typography: "h4" }}>{title}</Box>
+          <Box sx={{ typography: "h2" }}>{price}</Box>
         </Stack>
 
-        <Box sx={{ mt: 2, mb: 3, typography: 'body2' }}>{description}</Box>
+        <Box sx={{ mt: 2, mb: 3, typography: "body2" }}>{description}</Box>
 
         <InputBase
           fullWidth
           placeholder="Email"
           endAdornment={
-            <Button color="warning" variant="contained" size="small" sx={{ mr: 0.5 }}>
+            <Button
+              color="warning"
+              variant="contained"
+              size="small"
+              sx={{ mr: 0.5 }}
+            >
               Invite
             </Button>
           }
@@ -73,7 +82,7 @@ export default function BankingInviteFriends({
             pl: 1.5,
             height: 40,
             borderRadius: 1,
-            bgcolor: 'common.white',
+            bgcolor: "common.white",
           }}
         />
       </Box>

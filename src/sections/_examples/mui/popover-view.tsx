@@ -1,31 +1,34 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
-import Box from '@mui/material/Box';
-import Radio from '@mui/material/Radio';
-import Button from '@mui/material/Button';
-import Popover from '@mui/material/Popover';
-import FormLabel from '@mui/material/FormLabel';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
+import Box from "@mui/material/Box";
+import Radio from "@mui/material/Radio";
+import Button from "@mui/material/Button";
+import Popover from "@mui/material/Popover";
+import FormLabel from "@mui/material/FormLabel";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControl from "@mui/material/FormControl";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
-import CustomPopover, { usePopover, MenuPopoverArrowValue } from 'src/components/custom-popover';
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
+import CustomPopover, {
+  usePopover,
+  MenuPopoverArrowValue,
+} from "src/components/custom-popover";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import ComponentBlock from '../component-block';
+import ComponentBlock from "../component-block";
 
 // ----------------------------------------------------------------------
 
 export default function PopoverView() {
-  const [arrow, setArrow] = useState<MenuPopoverArrowValue>('top-left');
+  const [arrow, setArrow] = useState<MenuPopoverArrowValue>("top-left");
 
   const clickPopover = usePopover();
 
@@ -33,9 +36,12 @@ export default function PopoverView() {
 
   const customizedPopover = usePopover();
 
-  const handleChangeArrow = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setArrow(event.target.value as MenuPopoverArrowValue);
-  }, []);
+  const handleChangeArrow = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setArrow(event.target.value as MenuPopoverArrowValue);
+    },
+    [],
+  );
 
   return (
     <>
@@ -44,12 +50,12 @@ export default function PopoverView() {
           heading="Popover"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Popover' },
+            { name: "Popover" },
           ]}
-          moreLink={['https://mui.com/components/popover']}
+          moreLink={["https://mui.com/components/popover"]}
         />
       </ComponentHero>
 
@@ -58,8 +64,8 @@ export default function PopoverView() {
           gap={3}
           display="grid"
           gridTemplateColumns={{
-            xs: 'repeat(1, 1fr)',
-            md: 'repeat(2, 1fr)',
+            xs: "repeat(1, 1fr)",
+            md: "repeat(2, 1fr)",
           }}
           sx={{ mb: 3 }}
         >
@@ -72,20 +78,21 @@ export default function PopoverView() {
               anchorEl={clickPopover.open}
               onClose={clickPopover.onClose}
               anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'center',
+                vertical: "bottom",
+                horizontal: "center",
               }}
               transformOrigin={{
-                vertical: 'top',
-                horizontal: 'center',
+                vertical: "top",
+                horizontal: "center",
               }}
             >
               <Box sx={{ p: 2, maxWidth: 280 }}>
                 <Typography variant="subtitle1" gutterBottom>
                   Etiam feugiat lorem non metus
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  Fusce vulputate eleifend sapien. Curabitur at lacus ac velit ornare lobortis.
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  Fusce vulputate eleifend sapien. Curabitur at lacus ac velit
+                  ornare lobortis.
                 </Typography>
               </Box>
             </Popover>
@@ -93,7 +100,7 @@ export default function PopoverView() {
 
           <ComponentBlock title="Hover">
             <Typography
-              aria-owns={hoverPopover.open ? 'mouse-over-popover' : undefined}
+              aria-owns={hoverPopover.open ? "mouse-over-popover" : undefined}
               aria-haspopup="true"
               onMouseEnter={hoverPopover.onOpen}
               onMouseLeave={hoverPopover.onClose}
@@ -105,25 +112,26 @@ export default function PopoverView() {
               open={Boolean(hoverPopover.open)}
               anchorEl={hoverPopover.open}
               anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
+                vertical: "bottom",
+                horizontal: "left",
               }}
               transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
+                vertical: "top",
+                horizontal: "left",
               }}
               onClose={hoverPopover.onClose}
               disableRestoreFocus
               sx={{
-                pointerEvents: 'none',
+                pointerEvents: "none",
               }}
             >
               <Box sx={{ p: 2, maxWidth: 280 }}>
                 <Typography variant="subtitle1" gutterBottom>
                   Etiam feugiat lorem non metus
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  Fusce vulputate eleifend sapien. Curabitur at lacus ac velit ornare lobortis.
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  Fusce vulputate eleifend sapien. Curabitur at lacus ac velit
+                  ornare lobortis.
                 </Typography>
               </Box>
             </Popover>
@@ -131,26 +139,30 @@ export default function PopoverView() {
         </Box>
 
         <ComponentBlock title="Customized">
-          <Button variant="contained" onClick={customizedPopover.onOpen} sx={{ mr: 5 }}>
+          <Button
+            variant="contained"
+            onClick={customizedPopover.onOpen}
+            sx={{ mr: 5 }}
+          >
             Open Customized
           </Button>
 
           <FormControl>
-            <FormLabel sx={{ typography: 'body2' }}>Arrow</FormLabel>
+            <FormLabel sx={{ typography: "body2" }}>Arrow</FormLabel>
             <RadioGroup value={arrow} onChange={handleChangeArrow}>
               {[
-                'top-left',
-                'top-center',
-                'top-right',
-                'bottom-left',
-                'bottom-center',
-                'bottom-right',
-                'left-top',
-                'left-center',
-                'left-bottom',
-                'right-top',
-                'right-center',
-                'right-bottom',
+                "top-left",
+                "top-center",
+                "top-right",
+                "bottom-left",
+                "bottom-center",
+                "bottom-right",
+                "left-top",
+                "left-center",
+                "left-bottom",
+                "right-top",
+                "right-center",
+                "right-bottom",
               ].map((position) => (
                 <FormControlLabel
                   key={position}
@@ -171,8 +183,9 @@ export default function PopoverView() {
               <Typography variant="subtitle1" gutterBottom>
                 Etiam feugiat lorem non metus
               </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                Fusce vulputate eleifend sapien. Curabitur at lacus ac velit ornare lobortis.
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Fusce vulputate eleifend sapien. Curabitur at lacus ac velit
+                ornare lobortis.
               </Typography>
             </Box>
           </CustomPopover>

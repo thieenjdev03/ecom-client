@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 
-import { localStorageGetItem } from 'src/utils/storage-available';
+import { localStorageGetItem } from "src/utils/storage-available";
 
-import { defaultLang } from './config-lang';
-import translationEn from './langs/en.json';
-import translationFr from './langs/fr.json';
-import translationVi from './langs/vi.json';
-import translationCn from './langs/cn.json';
-import translationAr from './langs/ar.json';
+import { defaultLang } from "./config-lang";
+import translationEn from "./langs/en.json";
+import translationFr from "./langs/fr.json";
+import translationVi from "./langs/vi.json";
+import translationCn from "./langs/cn.json";
+import translationAr from "./langs/ar.json";
 
 // ----------------------------------------------------------------------
 
-const lng = localStorageGetItem('i18nextLng', defaultLang.value);
+const lng = localStorageGetItem("i18nextLng", defaultLang.value);
 
 i18n
   .use(LanguageDetector)
@@ -29,10 +29,10 @@ i18n
       ar: { translations: translationAr },
     },
     lng,
-    fallbackLng: 'en',
+    fallbackLng: "en",
     debug: false,
-    ns: ['translations'],
-    defaultNS: 'translations',
+    ns: ["translations"],
+    defaultNS: "translations",
     interpolation: {
       escapeValue: false,
     },

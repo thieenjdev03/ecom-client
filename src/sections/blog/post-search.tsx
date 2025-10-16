@@ -1,19 +1,19 @@
-import parse from 'autosuggest-highlight/parse';
-import match from 'autosuggest-highlight/match';
+import parse from "autosuggest-highlight/parse";
+import match from "autosuggest-highlight/match";
 
-import Link from '@mui/material/Link';
-import Avatar from '@mui/material/Avatar';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import InputAdornment from '@mui/material/InputAdornment';
-import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete';
+import Link from "@mui/material/Link";
+import Avatar from "@mui/material/Avatar";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import InputAdornment from "@mui/material/InputAdornment";
+import Autocomplete, { autocompleteClasses } from "@mui/material/Autocomplete";
 
-import { useRouter } from 'src/routes/hooks';
+import { useRouter } from "src/routes/hooks";
 
-import Iconify from 'src/components/iconify';
-import SearchNotFound from 'src/components/search-not-found';
+import Iconify from "src/components/iconify";
+import SearchNotFound from "src/components/search-not-found";
 
-import { IPostItem } from 'src/types/blog';
+import { IPostItem } from "src/types/blog";
 
 // ----------------------------------------------------------------------
 
@@ -25,7 +25,13 @@ type Props = {
   loading?: boolean;
 };
 
-export default function PostSearch({ query, results, onSearch, hrefItem, loading }: Props) {
+export default function PostSearch({
+  query,
+  results,
+  onSearch,
+  hrefItem,
+  loading,
+}: Props) {
   const router = useRouter();
 
   const handleClick = (title: string) => {
@@ -34,7 +40,7 @@ export default function PostSearch({ query, results, onSearch, hrefItem, loading
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (query) {
-      if (event.key === 'Enter') {
+      if (event.key === "Enter") {
         handleClick(query);
       }
     }
@@ -49,11 +55,11 @@ export default function PostSearch({ query, results, onSearch, hrefItem, loading
       options={results}
       onInputChange={(event, newValue) => onSearch(newValue)}
       getOptionLabel={(option) => option.title}
-      noOptionsText={<SearchNotFound query={query} sx={{ bgcolor: 'unset' }} />}
+      noOptionsText={<SearchNotFound query={query} sx={{ bgcolor: "unset" }} />}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       slotProps={{
         popper: {
-          placement: 'bottom-start',
+          placement: "bottom-start",
           sx: {
             minWidth: 320,
           },
@@ -75,12 +81,17 @@ export default function PostSearch({ query, results, onSearch, hrefItem, loading
             ...params.InputProps,
             startAdornment: (
               <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ ml: 1, color: 'text.disabled' }} />
+                <Iconify
+                  icon="eva:search-fill"
+                  sx={{ ml: 1, color: "text.disabled" }}
+                />
               </InputAdornment>
             ),
             endAdornment: (
               <>
-                {loading ? <Iconify icon="svg-spinners:8-dots-rotate" sx={{ mr: -3 }} /> : null}
+                {loading ? (
+                  <Iconify icon="svg-spinners:8-dots-rotate" sx={{ mr: -3 }} />
+                ) : null}
                 {params.InputProps.endAdornment}
               </>
             ),
@@ -107,15 +118,21 @@ export default function PostSearch({ query, results, onSearch, hrefItem, loading
               }}
             />
 
-            <Link key={inputValue} underline="none" onClick={() => handleClick(post.title)}>
+            <Link
+              key={inputValue}
+              underline="none"
+              onClick={() => handleClick(post.title)}
+            >
               {parts.map((part, index) => (
                 <Typography
                   key={index}
                   component="span"
-                  color={part.highlight ? 'primary' : 'textPrimary'}
+                  color={part.highlight ? "primary" : "textPrimary"}
                   sx={{
-                    typography: 'body2',
-                    fontWeight: part.highlight ? 'fontWeightSemiBold' : 'fontWeightMedium',
+                    typography: "body2",
+                    fontWeight: part.highlight
+                      ? "fontWeightSemiBold"
+                      : "fontWeightMedium",
                   }}
                 >
                   {part.text}

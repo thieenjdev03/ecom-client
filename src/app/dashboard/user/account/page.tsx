@@ -1,9 +1,9 @@
-import { AccountView } from 'src/sections/account/view';
+import { AccountView } from "src/sections/account/view";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Account Settings',
+  title: "Dashboard: Account Settings",
 };
 
 export default function AccountPage() {

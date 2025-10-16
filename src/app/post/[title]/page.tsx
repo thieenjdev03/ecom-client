@@ -1,12 +1,12 @@
-import { paramCase } from 'src/utils/change-case';
-import axios, { endpoints } from 'src/utils/axios';
+import { paramCase } from "src/utils/change-case";
+import axios, { endpoints } from "src/utils/axios";
 
-import { PostDetailsHomeView } from 'src/sections/blog/view';
+import { PostDetailsHomeView } from "src/sections/blog/view";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Post: Details',
+  title: "Post: Details",
 };
 
 type Props = {

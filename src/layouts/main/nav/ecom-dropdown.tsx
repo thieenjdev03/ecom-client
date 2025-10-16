@@ -1,15 +1,15 @@
-import { useState, useRef } from 'react';
+import { useState, useRef } from "react";
 
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Paper from '@mui/material/Paper';
-import Popover from '@mui/material/Popover';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import List from '@mui/material/List';
-import ListItemButton from '@mui/material/ListItemButton';
+import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import Paper from "@mui/material/Paper";
+import Popover from "@mui/material/Popover";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import List from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
 
-import { RouterLink } from 'src/routes/components';
+import { RouterLink } from "src/routes/components";
 
 type Item = { label: string; href: string };
 
@@ -23,7 +23,13 @@ type Props = {
   groups?: Group[];
 };
 
-export default function EcomDropdown({ label, color, textShadow, items, groups }: Props) {
+export default function EcomDropdown({
+  label,
+  color,
+  textShadow,
+  items,
+  groups,
+}: Props) {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement | null>(null);
   const timerRef = useRef<number | null>(null);
@@ -38,10 +44,21 @@ export default function EcomDropdown({ label, color, textShadow, items, groups }
   };
 
   return (
-    <Box onMouseEnter={handleOpen} onMouseLeave={handleClose} ref={anchorRef} sx={{ position: 'relative' }}>
+    <Box
+      onMouseEnter={handleOpen}
+      onMouseLeave={handleClose}
+      ref={anchorRef}
+      sx={{ position: "relative" }}
+    >
       <Typography
         component="span"
-        sx={{ typography: 'subtitle2', letterSpacing: 1, color, textShadow, cursor: 'pointer' }}
+        sx={{
+          typography: "subtitle2",
+          letterSpacing: 1,
+          color,
+          textShadow,
+          cursor: "pointer",
+        }}
       >
         {label}
       </Typography>
@@ -51,8 +68,8 @@ export default function EcomDropdown({ label, color, textShadow, items, groups }
         disableRestoreFocus
         anchorEl={anchorRef.current}
         onClose={() => setOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
         PaperProps={{ sx: { mt: 1, p: 2 } }}
       >
         {!!groups?.length ? (
@@ -64,7 +81,12 @@ export default function EcomDropdown({ label, color, textShadow, items, groups }
                 </Typography>
                 <List dense disablePadding>
                   {g.items.map((it) => (
-                    <ListItemButton key={it.label} component={RouterLink} href={it.href} sx={{ px: 1 }}>
+                    <ListItemButton
+                      key={it.label}
+                      component={RouterLink}
+                      href={it.href}
+                      sx={{ px: 1 }}
+                    >
                       {it.label}
                     </ListItemButton>
                   ))}
@@ -76,7 +98,13 @@ export default function EcomDropdown({ label, color, textShadow, items, groups }
           <Paper elevation={0} sx={{ p: 1 }}>
             <Stack spacing={0.5} sx={{ minWidth: 200 }}>
               {items?.map((it) => (
-                <Link key={it.label} component={RouterLink} href={it.href} underline="none" sx={{ py: 0.75 }}>
+                <Link
+                  key={it.label}
+                  component={RouterLink}
+                  href={it.href}
+                  underline="none"
+                  sx={{ py: 0.75 }}
+                >
                   {it.label}
                 </Link>
               ))}
@@ -87,5 +115,3 @@ export default function EcomDropdown({ label, color, textShadow, items, groups }
     </Box>
   );
 }
-
-

@@ -1,42 +1,42 @@
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
-import AppBar from '@mui/material/AppBar';
-import Button from '@mui/material/Button';
-import Toolbar from '@mui/material/Toolbar';
-import { useTheme } from '@mui/material/styles';
-import Container from '@mui/material/Container';
-import Badge, { badgeClasses } from '@mui/material/Badge';
+import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import Stack from "@mui/material/Stack";
+import AppBar from "@mui/material/AppBar";
+import Button from "@mui/material/Button";
+import Toolbar from "@mui/material/Toolbar";
+import { useTheme } from "@mui/material/styles";
+import Container from "@mui/material/Container";
+import Badge, { badgeClasses } from "@mui/material/Badge";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import { useOffSetTop } from 'src/hooks/use-off-set-top';
-import { useResponsive } from 'src/hooks/use-responsive';
+import { useOffSetTop } from "src/hooks/use-off-set-top";
+import { useResponsive } from "src/hooks/use-responsive";
 
-import { bgBlur } from 'src/theme/css';
+import { bgBlur } from "src/theme/css";
 
-import Logo from 'src/components/logo';
-import Label from 'src/components/label';
+import Logo from "src/components/logo";
+import Label from "src/components/label";
 
-import NavMobile from './nav/mobile';
-import NavDesktop from './nav/desktop';
-import { HEADER } from '../config-layout';
-import { navConfig } from './config-navigation';
-import LoginButton from '../common/login-button';
-import HeaderShadow from '../common/header-shadow';
-import SettingsButton from '../common/settings-button';
+import NavMobile from "./nav/mobile";
+import NavDesktop from "./nav/desktop";
+import { HEADER } from "../config-layout";
+import { navConfig } from "./config-navigation";
+import LoginButton from "../common/login-button";
+import HeaderShadow from "../common/header-shadow";
+import SettingsButton from "../common/settings-button";
 
 // ----------------------------------------------------------------------
 
 export default function Header() {
   const theme = useTheme();
 
-  const mdUp = useResponsive('up', 'md');
+  const mdUp = useResponsive("up", "md");
 
   const offsetTop = useOffSetTop(HEADER.H_DESKTOP);
 
   return (
-    <AppBar sx={{ bgcolor: 'white' }}>
+    <AppBar sx={{ bgcolor: "white" }}>
       <Toolbar
         disableGutters
         sx={{
@@ -44,7 +44,7 @@ export default function Header() {
             xs: HEADER.H_MOBILE,
             md: HEADER.H_DESKTOP,
           },
-          transition: theme.transitions.create(['height'], {
+          transition: theme.transitions.create(["height"], {
             easing: theme.transitions.easing.easeInOut,
             duration: theme.transitions.duration.shorter,
           }),
@@ -58,7 +58,7 @@ export default function Header() {
           }),
         }}
       >
-        <Container sx={{ height: 1, display: 'flex', alignItems: 'center'}}>
+        <Container sx={{ height: 1, display: "flex", alignItems: "center" }}>
           <Badge
             sx={{
               [`& .${badgeClasses.badge}`]: {
@@ -74,7 +74,10 @@ export default function Header() {
                 underline="none"
                 sx={{ ml: 1 }}
               >
-                <Label color="info" sx={{ textTransform: 'unset', height: 22, px: 0.5 }}>
+                <Label
+                  color="info"
+                  sx={{ textTransform: "unset", height: 22, px: 0.5 }}
+                >
                   v5.7.0
                 </Label>
               </Link>
@@ -87,8 +90,16 @@ export default function Header() {
 
           {mdUp && <NavDesktop data={navConfig} />}
 
-          <Stack alignItems="center" direction={{ xs: 'row', md: 'row-reverse' }}>
-            <Button variant="contained" target="_blank" rel="noopener" href={paths.minimalUI}>
+          <Stack
+            alignItems="center"
+            direction={{ xs: "row", md: "row-reverse" }}
+          >
+            <Button
+              variant="contained"
+              target="_blank"
+              rel="noopener"
+              href={paths.minimalUI}
+            >
               Purchase Now
             </Button>
 

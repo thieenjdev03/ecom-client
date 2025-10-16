@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import SimpleLayout from 'src/layouts/simple';
+import SimpleLayout from "src/layouts/simple";
 
 // ----------------------------------------------------------------------
 

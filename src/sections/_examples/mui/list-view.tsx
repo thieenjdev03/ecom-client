@@ -1,36 +1,38 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
-import List from '@mui/material/List';
-import Masonry from '@mui/lab/Masonry';
-import Paper from '@mui/material/Paper';
-import Avatar from '@mui/material/Avatar';
-import Switch from '@mui/material/Switch';
-import Divider from '@mui/material/Divider';
-import Collapse from '@mui/material/Collapse';
-import Checkbox from '@mui/material/Checkbox';
-import Container from '@mui/material/Container';
-import IconButton from '@mui/material/IconButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import ListSubheader from '@mui/material/ListSubheader';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
-import ListItemButton, { ListItemButtonProps } from '@mui/material/ListItemButton';
+import List from "@mui/material/List";
+import Masonry from "@mui/lab/Masonry";
+import Paper from "@mui/material/Paper";
+import Avatar from "@mui/material/Avatar";
+import Switch from "@mui/material/Switch";
+import Divider from "@mui/material/Divider";
+import Collapse from "@mui/material/Collapse";
+import Checkbox from "@mui/material/Checkbox";
+import Container from "@mui/material/Container";
+import IconButton from "@mui/material/IconButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import ListSubheader from "@mui/material/ListSubheader";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import ListItemSecondaryAction from "@mui/material/ListItemSecondaryAction";
+import ListItemButton, {
+  ListItemButtonProps,
+} from "@mui/material/ListItemButton";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import Iconify from 'src/components/iconify';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import Iconify from "src/components/iconify";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import ComponentBlock from '../component-block';
+import ComponentBlock from "../component-block";
 
 // ----------------------------------------------------------------------
 
-function ListItemLink(props: ListItemButtonProps<'a', { button?: true }>) {
+function ListItemLink(props: ListItemButtonProps<"a", { button?: true }>) {
   return <ListItemButton component="a" {...props} />;
 }
 
@@ -41,7 +43,7 @@ export default function ListView() {
 
   const [checked, setChecked] = useState([0]);
 
-  const [toggle, setToggle] = useState(['wifi']);
+  const [toggle, setToggle] = useState(["wifi"]);
 
   const handleClick = useCallback(() => {
     setOpen((prev) => !prev);
@@ -51,7 +53,7 @@ export default function ListView() {
     (event: React.MouseEvent<HTMLDivElement, MouseEvent>, index: number) => {
       setSelectedIndex(index);
     },
-    []
+    [],
   );
 
   const handleCheck = (value: number) => () => {
@@ -85,12 +87,12 @@ export default function ListView() {
           heading="List"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Lists' },
+            { name: "Lists" },
           ]}
-          moreLink={['https://mui.com/components/lists']}
+          moreLink={["https://mui.com/components/lists"]}
         />
       </ComponentHero>
 
@@ -253,22 +255,33 @@ export default function ListView() {
                 {[0, 1, 2, 3].map((value) => {
                   const labelId = `checkbox-list-label-${value}`;
                   return (
-                    <ListItemButton key={value} role={undefined} dense onClick={handleCheck(value)}>
+                    <ListItemButton
+                      key={value}
+                      role={undefined}
+                      dense
+                      onClick={handleCheck(value)}
+                    >
                       <ListItemIcon>
                         <Checkbox
                           edge="start"
                           checked={checked.indexOf(value) !== -1}
                           tabIndex={-1}
                           disableRipple
-                          inputProps={{ 'aria-labelledby': labelId }}
+                          inputProps={{ "aria-labelledby": labelId }}
                         />
                       </ListItemIcon>
 
-                      <ListItemText id={labelId} primary={`Line item ${value + 1}`} />
+                      <ListItemText
+                        id={labelId}
+                        primary={`Line item ${value + 1}`}
+                      />
 
                       <ListItemSecondaryAction>
                         <IconButton edge="end">
-                          <Iconify icon="solar:chat-round-dots-bold" width={24} />
+                          <Iconify
+                            icon="solar:chat-round-dots-bold"
+                            width={24}
+                          />
                         </IconButton>
                       </ListItemSecondaryAction>
                     </ListItemButton>
@@ -289,10 +302,10 @@ export default function ListView() {
                   <ListItemSecondaryAction>
                     <Switch
                       edge="end"
-                      onChange={handleToggle('wifi')}
-                      checked={toggle.indexOf('wifi') !== -1}
+                      onChange={handleToggle("wifi")}
+                      checked={toggle.indexOf("wifi") !== -1}
                       inputProps={{
-                        'aria-labelledby': 'switch-list-label-wifi',
+                        "aria-labelledby": "switch-list-label-wifi",
                       }}
                     />
                   </ListItemSecondaryAction>
@@ -301,14 +314,17 @@ export default function ListView() {
                   <ListItemIcon>
                     <Iconify icon="ic:baseline-bluetooth" width={24} />
                   </ListItemIcon>
-                  <ListItemText id="switch-list-label-bluetooth" primary="Bluetooth" />
+                  <ListItemText
+                    id="switch-list-label-bluetooth"
+                    primary="Bluetooth"
+                  />
                   <ListItemSecondaryAction>
                     <Switch
                       edge="end"
-                      onChange={handleToggle('bluetooth')}
-                      checked={toggle.indexOf('bluetooth') !== -1}
+                      onChange={handleToggle("bluetooth")}
+                      checked={toggle.indexOf("bluetooth") !== -1}
                       inputProps={{
-                        'aria-labelledby': 'switch-list-label-bluetooth',
+                        "aria-labelledby": "switch-list-label-bluetooth",
                       }}
                     />
                   </ListItemSecondaryAction>

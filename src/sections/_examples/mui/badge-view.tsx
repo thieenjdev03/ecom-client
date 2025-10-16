@@ -1,25 +1,33 @@
-'use client';
+"use client";
 
-import Box from '@mui/material/Box';
-import Masonry from '@mui/lab/Masonry';
-import Badge from '@mui/material/Badge';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
+import Box from "@mui/material/Box";
+import Masonry from "@mui/lab/Masonry";
+import Badge from "@mui/material/Badge";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import Iconify from 'src/components/iconify';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import Iconify from "src/components/iconify";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import ComponentBlock from '../component-block';
+import ComponentBlock from "../component-block";
 
 // ----------------------------------------------------------------------
 
-const COLORS = ['default', 'primary', 'secondary', 'info', 'success', 'warning', 'error'] as const;
+const COLORS = [
+  "default",
+  "primary",
+  "secondary",
+  "info",
+  "success",
+  "warning",
+  "error",
+] as const;
 
-const STATUS = ['alway', 'online', 'busy', 'offline'] as const;
+const STATUS = ["alway", "online", "busy", "offline"] as const;
 
 // ----------------------------------------------------------------------
 
@@ -31,12 +39,12 @@ export default function BadgeView() {
           heading="Badge"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Badge' },
+            { name: "Badge" },
           ]}
-          moreLink={['https://mui.com/components/badges']}
+          moreLink={["https://mui.com/components/badges"]}
         />
       </ComponentHero>
 
@@ -81,11 +89,11 @@ export default function BadgeView() {
 
           <ComponentBlock title="Badge overlap">
             <Badge color="info" badgeContent=" ">
-              <Box sx={{ width: 40, height: 40, bgcolor: 'warning.main' }} />
+              <Box sx={{ width: 40, height: 40, bgcolor: "warning.main" }} />
             </Badge>
 
             <Badge color="info" badgeContent=" " variant="dot">
-              <Box sx={{ width: 40, height: 40, bgcolor: 'warning.main' }} />
+              <Box sx={{ width: 40, height: 40, bgcolor: "warning.main" }} />
             </Badge>
 
             <Badge color="info" overlap="circular" badgeContent=" ">
@@ -93,19 +101,24 @@ export default function BadgeView() {
                 sx={{
                   width: 40,
                   height: 40,
-                  borderRadius: '50%',
-                  bgcolor: 'warning.main',
+                  borderRadius: "50%",
+                  bgcolor: "warning.main",
                 }}
               />
             </Badge>
 
-            <Badge color="info" overlap="circular" badgeContent=" " variant="dot">
+            <Badge
+              color="info"
+              overlap="circular"
+              badgeContent=" "
+              variant="dot"
+            >
               <Box
                 sx={{
                   width: 40,
                   height: 40,
-                  borderRadius: '50%',
-                  bgcolor: 'warning.main',
+                  borderRadius: "50%",
+                  bgcolor: "warning.main",
                 }}
               />
             </Badge>
@@ -116,14 +129,14 @@ export default function BadgeView() {
               <Badge
                 key={status}
                 variant={status}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
               >
                 <Box
                   sx={{
                     width: 40,
                     height: 40,
-                    borderRadius: '50%',
-                    bgcolor: 'grey.400',
+                    borderRadius: "50%",
+                    bgcolor: "grey.400",
                   }}
                 />
               </Badge>

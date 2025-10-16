@@ -1,25 +1,33 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
-import Masonry from '@mui/lab/Masonry';
-import Container from '@mui/material/Container';
-import Pagination from '@mui/material/Pagination';
-import TablePagination from '@mui/material/TablePagination';
+import Masonry from "@mui/lab/Masonry";
+import Container from "@mui/material/Container";
+import Pagination from "@mui/material/Pagination";
+import TablePagination from "@mui/material/TablePagination";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import ComponentBlock from '../component-block';
+import ComponentBlock from "../component-block";
 
 // ----------------------------------------------------------------------
 
-const COLORS = ['standard', 'primary', 'secondary', 'info', 'success', 'warning', 'error'] as const;
+const COLORS = [
+  "standard",
+  "primary",
+  "secondary",
+  "info",
+  "success",
+  "warning",
+  "error",
+] as const;
 
-const SIZES = ['small', 'medium', 'large'] as const;
+const SIZES = ["small", "medium", "large"] as const;
 
 // ----------------------------------------------------------------------
 
@@ -32,7 +40,7 @@ export default function PaginationView() {
     (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
       setPage(newPage);
     },
-    []
+    [],
   );
 
   const handleChangeRowsPerPage = useCallback(
@@ -40,7 +48,7 @@ export default function PaginationView() {
       setRowsPerPage(parseInt(event.target.value, 10));
       setPage(0);
     },
-    []
+    [],
   );
 
   return (
@@ -50,12 +58,12 @@ export default function PaginationView() {
           heading="Pagination"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Pagination' },
+            { name: "Pagination" },
           ]}
-          moreLink={['https://mui.com/components/pagination']}
+          moreLink={["https://mui.com/components/pagination"]}
         />
       </ComponentHero>
 
@@ -65,7 +73,12 @@ export default function PaginationView() {
             <Pagination shape="circular" count={10} variant="text" />
             <Pagination shape="circular" count={10} variant="text" disabled />
             <Pagination shape="circular" count={10} variant="outlined" />
-            <Pagination shape="circular" count={10} variant="outlined" disabled />
+            <Pagination
+              shape="circular"
+              count={10}
+              variant="outlined"
+              disabled
+            />
             <Pagination shape="circular" count={10} variant="soft" />
             <Pagination shape="circular" count={10} variant="soft" disabled />
           </ComponentBlock>
@@ -74,7 +87,12 @@ export default function PaginationView() {
             <Pagination shape="rounded" count={10} variant="text" />
             <Pagination shape="rounded" count={10} variant="text" disabled />
             <Pagination shape="rounded" count={10} variant="outlined" />
-            <Pagination shape="rounded" count={10} variant="outlined" disabled />
+            <Pagination
+              shape="rounded"
+              count={10}
+              variant="outlined"
+              disabled
+            />
             <Pagination shape="rounded" count={10} variant="soft" />
             <Pagination shape="rounded" count={10} variant="soft" disabled />
           </ComponentBlock>
@@ -85,7 +103,12 @@ export default function PaginationView() {
             ))}
 
             {COLORS.map((color) => (
-              <Pagination key={color} color={color} count={10} variant="outlined" />
+              <Pagination
+                key={color}
+                color={color}
+                count={10}
+                variant="outlined"
+              />
             ))}
 
             {COLORS.map((color) => (
@@ -107,7 +130,12 @@ export default function PaginationView() {
           <ComponentBlock title="Ranges">
             <Pagination count={11} defaultPage={6} siblingCount={0} />
             <Pagination count={11} defaultPage={6} />
-            <Pagination count={11} defaultPage={6} siblingCount={0} boundaryCount={2} />
+            <Pagination
+              count={11}
+              defaultPage={6}
+              siblingCount={0}
+              boundaryCount={2}
+            />
             <Pagination count={11} defaultPage={6} boundaryCount={2} />
           </ComponentBlock>
 

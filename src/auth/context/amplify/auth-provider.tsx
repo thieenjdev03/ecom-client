@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Amplify } from 'aws-amplify';
-import { useMemo, useEffect, useReducer, useCallback } from 'react';
+import { Amplify } from "aws-amplify";
+import { useMemo, useEffect, useReducer, useCallback } from "react";
 import {
   signIn,
   signUp,
@@ -13,12 +13,12 @@ import {
   fetchAuthSession,
   fetchUserAttributes,
   confirmResetPassword,
-} from 'aws-amplify/auth';
+} from "aws-amplify/auth";
 
-import { AMPLIFY_API } from 'src/config-global';
+import { AMPLIFY_API } from "src/config-global";
 
-import { AuthContext } from './auth-context';
-import { AuthUserType, ActionMapType, AuthStateType } from '../../types';
+import { AuthContext } from "./auth-context";
+import { AuthUserType, ActionMapType, AuthStateType } from "../../types";
 
 // ----------------------------------------------------------------------
 /**
@@ -41,8 +41,8 @@ Amplify.configure({
 });
 
 enum Types {
-  INITIAL = 'INITIAL',
-  LOGOUT = 'LOGOUT',
+  INITIAL = "INITIAL",
+  LOGOUT = "LOGOUT",
 }
 
 type Payload = {
@@ -102,7 +102,7 @@ export function AuthProvider({ children }: Props) {
               displayName: `${userAttributes.given_name} ${userAttributes.family_name}`,
               idToken,
               accessToken,
-              role: 'admin',
+              role: "admin",
             },
           },
         });
@@ -149,7 +149,7 @@ export function AuthProvider({ children }: Props) {
           displayName: `${userAttributes.given_name} ${userAttributes.family_name}`,
           idToken,
           accessToken,
-          role: 'admin',
+          role: "admin",
         },
       },
     });
@@ -157,7 +157,12 @@ export function AuthProvider({ children }: Props) {
 
   // REGISTER
   const register = useCallback(
-    async (email: string, password: string, firstName: string, lastName: string) => {
+    async (
+      email: string,
+      password: string,
+      firstName: string,
+      lastName: string,
+    ) => {
       await signUp({
         username: email,
         password,
@@ -170,7 +175,7 @@ export function AuthProvider({ children }: Props) {
         },
       });
     },
-    []
+    [],
   );
 
   // CONFIRM REGISTER
@@ -202,27 +207,30 @@ export function AuthProvider({ children }: Props) {
   }, []);
 
   // NEW PASSWORD
-  const newPassword = useCallback(async (email: string, code: string, password: string) => {
-    await confirmResetPassword({
-      username: email,
-      confirmationCode: code,
-      newPassword: password,
-    });
-  }, []);
+  const newPassword = useCallback(
+    async (email: string, code: string, password: string) => {
+      await confirmResetPassword({
+        username: email,
+        confirmationCode: code,
+        newPassword: password,
+      });
+    },
+    [],
+  );
 
   // ----------------------------------------------------------------------
 
-  const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
+  const checkAuthenticated = state.user ? "authenticated" : "unauthenticated";
 
-  const status = state.loading ? 'loading' : checkAuthenticated;
+  const status = state.loading ? "loading" : checkAuthenticated;
 
   const memoizedValue = useMemo(
     () => ({
       user: state.user,
-      method: 'amplify',
-      loading: status === 'loading',
-      authenticated: status === 'authenticated',
-      unauthenticated: status === 'unauthenticated',
+      method: "amplify",
+      loading: status === "loading",
+      authenticated: status === "authenticated",
+      unauthenticated: status === "unauthenticated",
       //
       login,
       logout,
@@ -243,8 +251,12 @@ export function AuthProvider({ children }: Props) {
       forgotPassword,
       confirmRegister,
       resendCodeRegister,
-    ]
+    ],
   );
 
-  return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={memoizedValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 }

@@ -1,5 +1,5 @@
-export * from './config-lang';
+export * from "./config-lang";
 
-export * from './use-locales';
+export * from "./use-locales";
 
-export { default as LocalizationProvider } from './localization-provider';
+export { default as LocalizationProvider } from "./localization-provider";

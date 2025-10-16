@@ -1,11 +1,11 @@
-import Chip from '@mui/material/Chip';
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
-import Autocomplete, { AutocompleteProps } from '@mui/material/Autocomplete';
+import Chip from "@mui/material/Chip";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import Autocomplete, { AutocompleteProps } from "@mui/material/Autocomplete";
 
-import { countries } from 'src/assets/data';
+import { countries } from "src/assets/data";
 
-import Iconify from 'src/components/iconify';
+import Iconify from "src/components/iconify";
 
 // ----------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ export default function CountrySelect<
   helperText,
   placeholder,
   ...other
-}: Omit<Props<T, Multiple, DisableClearable, FreeSolo>, 'renderInput'>) {
+}: Omit<Props<T, Multiple, DisableClearable, FreeSolo>, "renderInput">) {
   const multiple = other?.multiple;
 
   return (
@@ -68,7 +68,7 @@ export default function CountrySelect<
           helperText,
           inputProps: {
             ...params.inputProps,
-            autoComplete: 'new-password',
+            autoComplete: "new-password",
           },
         };
 
@@ -86,7 +86,7 @@ export default function CountrySelect<
                   position="start"
                   sx={{
                     ...(!country.code && {
-                      display: 'none',
+                      display: "none",
                     }),
                   }}
                 >
@@ -109,7 +109,9 @@ export default function CountrySelect<
               {...getTagProps({ index })}
               key={country.label}
               label={country.label}
-              icon={<Iconify icon={`circle-flags:${country.code?.toLowerCase()}`} />}
+              icon={
+                <Iconify icon={`circle-flags:${country.code?.toLowerCase()}`} />
+              }
               size="small"
               variant="soft"
             />

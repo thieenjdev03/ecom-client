@@ -1,29 +1,29 @@
-'use client';
+"use client";
 
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Container from '@mui/material/Container';
-import CardHeader from '@mui/material/CardHeader';
-import CardContent from '@mui/material/CardContent';
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Container from "@mui/material/Container";
+import CardHeader from "@mui/material/CardHeader";
+import CardContent from "@mui/material/CardContent";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import ChartPie from './chart-pie';
-import ChartBar from './chart-bar';
-import ChartLine from './chart-line';
-import ChartArea from './chart-area';
-import ChartMixed from './chart-mixed';
-import ChartDonut from './chart-donut';
-import ChartsRadarBar from './chart-radar-bar';
-import ChartRadialBar from './chart-radial-bar';
-import ChartColumnSingle from './chart-column-single';
-import ChartColumnStacked from './chart-column-stacked';
-import ChartColumnNegative from './chart-column-negative';
-import ChartColumnMultiple from './chart-column-multiple';
+import ChartPie from "./chart-pie";
+import ChartBar from "./chart-bar";
+import ChartLine from "./chart-line";
+import ChartArea from "./chart-area";
+import ChartMixed from "./chart-mixed";
+import ChartDonut from "./chart-donut";
+import ChartsRadarBar from "./chart-radar-bar";
+import ChartRadialBar from "./chart-radial-bar";
+import ChartColumnSingle from "./chart-column-single";
+import ChartColumnStacked from "./chart-column-stacked";
+import ChartColumnNegative from "./chart-column-negative";
+import ChartColumnMultiple from "./chart-column-multiple";
 
 // ----------------------------------------------------------------------
 
@@ -35,12 +35,12 @@ export default function ChartView() {
           heading="Chart"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Chart' },
+            { name: "Chart" },
           ]}
-          moreLink={['https://apexcharts.com']}
+          moreLink={["https://apexcharts.com"]}
         />
       </ComponentHero>
 
@@ -48,15 +48,15 @@ export default function ChartView() {
         <Box
           gap={3}
           display="grid"
-          gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+          gridTemplateColumns={{ xs: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}
         >
           <Card>
             <CardHeader title="Area" />
             <CardContent>
               <ChartArea
                 series={[
-                  { name: 'series1', data: [31, 40, 28, 51, 42, 109, 100] },
-                  { name: 'series2', data: [11, 32, 45, 32, 34, 52, 41] },
+                  { name: "series1", data: [31, 40, 28, 51, 42, 109, 100] },
+                  { name: "series2", data: [11, 32, 45, 32, 34, 52, 41] },
                 ]}
               />
             </CardContent>
@@ -68,7 +68,7 @@ export default function ChartView() {
               <ChartLine
                 series={[
                   {
-                    name: 'Desktops',
+                    name: "Desktops",
                     data: [10, 41, 35, 51, 49, 62, 69, 91, 148],
                   },
                 ]}
@@ -82,7 +82,7 @@ export default function ChartView() {
               <ChartColumnSingle
                 series={[
                   {
-                    name: 'Net Profit',
+                    name: "Net Profit",
                     data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
                   },
                 ]}
@@ -96,11 +96,11 @@ export default function ChartView() {
               <ChartColumnMultiple
                 series={[
                   {
-                    name: 'Net Profit',
+                    name: "Net Profit",
                     data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
                   },
                   {
-                    name: 'Revenue',
+                    name: "Revenue",
                     data: [76, 85, 101, 98, 87, 105, 91, 114, 94],
                   },
                 ]}
@@ -113,10 +113,10 @@ export default function ChartView() {
             <CardContent>
               <ChartColumnStacked
                 series={[
-                  { name: 'Product A', data: [44, 55, 41, 67, 22, 43] },
-                  { name: 'Product B', data: [13, 23, 20, 8, 13, 27] },
-                  { name: 'Product C', data: [11, 17, 15, 15, 21, 14] },
-                  { name: 'Product D', data: [21, 7, 25, 13, 22, 8] },
+                  { name: "Product A", data: [44, 55, 41, 67, 22, 43] },
+                  { name: "Product B", data: [13, 23, 20, 8, 13, 27] },
+                  { name: "Product C", data: [11, 17, 15, 15, 21, 14] },
+                  { name: "Product D", data: [21, 7, 25, 13, 22, 8] },
                 ]}
               />
             </CardContent>
@@ -128,11 +128,12 @@ export default function ChartView() {
               <ChartColumnNegative
                 series={[
                   {
-                    name: 'Cash Flow',
+                    name: "Cash Flow",
                     data: [
-                      1.45, 5.42, 5.9, -0.42, -12.6, -18.1, -18.2, -14.16, -11.1, -6.09, 0.34, 3.88,
-                      13.07, 5.8, 2, 7.37, 8.1, 13.57, 15.75, 17.1, 19.8, -27.03, -54.4, -47.2,
-                      -43.3, -18.6, -48.6, -41.1, -39.6, -37.6, -29.4, -21.4, -2.4,
+                      1.45, 5.42, 5.9, -0.42, -12.6, -18.1, -18.2, -14.16,
+                      -11.1, -6.09, 0.34, 3.88, 13.07, 5.8, 2, 7.37, 8.1, 13.57,
+                      15.75, 17.1, 19.8, -27.03, -54.4, -47.2, -43.3, -18.6,
+                      -48.6, -41.1, -39.6, -37.6, -29.4, -21.4, -2.4,
                     ],
                   },
                 ]}
@@ -143,7 +144,9 @@ export default function ChartView() {
           <Card>
             <CardHeader title="Bar" />
             <CardContent>
-              <ChartBar series={[400, 430, 448, 470, 540, 580, 690, 1100, 1200, 1380]} />
+              <ChartBar
+                series={[400, 430, 448, 470, 540, 580, 690, 1100, 1200, 1380]}
+              />
             </CardContent>
           </Card>
 
@@ -153,18 +156,18 @@ export default function ChartView() {
               <ChartMixed
                 series={[
                   {
-                    name: 'Team A',
-                    type: 'column',
+                    name: "Team A",
+                    type: "column",
                     data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
                   },
                   {
-                    name: 'Team B',
-                    type: 'area',
+                    name: "Team B",
+                    type: "area",
                     data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
                   },
                   {
-                    name: 'Team C',
-                    type: 'line',
+                    name: "Team C",
+                    type: "line",
                     data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
                   },
                 ]}
@@ -177,9 +180,9 @@ export default function ChartView() {
             <CardContent
               sx={{
                 height: 420,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
               <ChartPie series={[44, 55, 13, 43]} />
@@ -191,9 +194,9 @@ export default function ChartView() {
             <CardContent
               sx={{
                 height: 420,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
               <ChartDonut series={[44, 55, 13, 43]} />
@@ -210,15 +213,15 @@ export default function ChartView() {
             <ChartsRadarBar
               series={[
                 {
-                  name: 'Series 1',
+                  name: "Series 1",
                   data: [80, 50, 30, 40, 100, 20],
                 },
                 {
-                  name: 'Series 2',
+                  name: "Series 2",
                   data: [20, 30, 40, 80, 20, 80],
                 },
                 {
-                  name: 'Series 3',
+                  name: "Series 3",
                   data: [44, 76, 78, 13, 43, 10],
                 },
               ]}

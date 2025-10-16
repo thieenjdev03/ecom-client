@@ -1,8 +1,8 @@
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
-import { Theme, SxProps } from '@mui/material/styles';
+import TableRow from "@mui/material/TableRow";
+import TableCell from "@mui/material/TableCell";
+import { Theme, SxProps } from "@mui/material/styles";
 
-import EmptyContent from '../empty-content';
+import EmptyContent from "../empty-content";
 
 // ----------------------------------------------------------------------
 

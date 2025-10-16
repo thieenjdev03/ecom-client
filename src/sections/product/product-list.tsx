@@ -1,10 +1,10 @@
-import Box, { BoxProps } from '@mui/material/Box';
-import Pagination, { paginationClasses } from '@mui/material/Pagination';
+import Box, { BoxProps } from "@mui/material/Box";
+import Pagination, { paginationClasses } from "@mui/material/Pagination";
 
-import { IProductItem } from 'src/types/product';
+import { IProductItem } from "src/types/product";
 
-import ProductItem from './product-item';
-import { ProductItemSkeleton } from './product-skeleton';
+import ProductItem from "./product-item";
+import { ProductItemSkeleton } from "./product-skeleton";
 
 // ----------------------------------------------------------------------
 
@@ -33,13 +33,18 @@ export default function ProductList({ products, loading, ...other }: Props) {
   return (
     <>
       <Box
-        gap={3}
+        gap={2}
         display="grid"
         gridTemplateColumns={{
-          xs: 'repeat(1, 1fr)',
-          sm: 'repeat(2, 1fr)',
-          md: 'repeat(3, 1fr)',
-          lg: 'repeat(4, 1fr)',
+          xs: "repeat(1, 1fr)",
+          sm: "repeat(2, 1fr)",
+          md: "repeat(3, 1fr)",
+          lg: "repeat(4, 1fr)",
+        }}
+        sx={{
+          "& > *": {
+            minHeight: "auto",
+          },
         }}
         {...other}
       >
@@ -52,7 +57,7 @@ export default function ProductList({ products, loading, ...other }: Props) {
           sx={{
             mt: 8,
             [`& .${paginationClasses.ul}`]: {
-              justifyContent: 'center',
+              justifyContent: "center",
             },
           }}
         />

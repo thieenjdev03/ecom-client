@@ -1,10 +1,10 @@
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Typography from '@mui/material/Typography';
+import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import Typography from "@mui/material/Typography";
 
-import { RouterLink } from 'src/routes/components';
+import { RouterLink } from "src/routes/components";
 
-import { NavLink } from '../types';
+import { NavLink } from "../types";
 
 // ----------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ export default function MenuTags({ tags, ...other }: Props) {
         variant="caption"
         sx={{
           mr: 0.5,
-          fontWeight: 'fontWeightBold',
+          fontWeight: "fontWeightBold",
         }}
       >
         Hot Products:
@@ -32,10 +32,10 @@ export default function MenuTags({ tags, ...other }: Props) {
           href={tag.path}
           variant="caption"
           sx={{
-            color: 'text.secondary',
-            transition: (theme) => theme.transitions.create(['color']),
-            '&:hover': {
-              color: 'text.primary',
+            color: "text.secondary",
+            transition: (theme) => theme.transitions.create(["color"]),
+            "&:hover": {
+              color: "text.primary",
             },
           }}
         >

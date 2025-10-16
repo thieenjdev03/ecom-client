@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import Box from '@mui/material/Box';
-import { alpha } from '@mui/material/styles';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
+import Box from "@mui/material/Box";
+import { alpha } from "@mui/material/styles";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
 
-import { useSettingsContext } from 'src/components/settings';
+import { useSettingsContext } from "src/components/settings";
 
 // ----------------------------------------------------------------------
 
@@ -13,7 +13,7 @@ export default function BlankView() {
   const settings = useSettingsContext();
 
   return (
-    <Container maxWidth={settings.themeStretch ? false : 'xl'}>
+    <Container maxWidth={settings.themeStretch ? false : "xl"}>
       <Typography variant="h4"> Blank </Typography>
 
       <Box

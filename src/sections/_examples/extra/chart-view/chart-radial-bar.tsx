@@ -1,8 +1,8 @@
-import { styled } from '@mui/material/styles';
+import { styled } from "@mui/material/styles";
 
-import { fNumber } from 'src/utils/format-number';
+import { fNumber } from "src/utils/format-number";
 
-import Chart, { useChart } from 'src/components/chart';
+import Chart, { useChart } from "src/components/chart";
 
 // ----------------------------------------------------------------------
 
@@ -12,10 +12,10 @@ const LEGEND_HEIGHT = 72;
 
 const StyledChart = styled(Chart)(({ theme }) => ({
   height: CHART_HEIGHT,
-  '& .apexcharts-canvas, .apexcharts-inner, svg, foreignObject': {
+  "& .apexcharts-canvas, .apexcharts-inner, svg, foreignObject": {
     height: `100% !important`,
   },
-  '& .apexcharts-legend': {
+  "& .apexcharts-legend": {
     height: LEGEND_HEIGHT,
     marginBottom: theme.spacing(3),
     top: `calc(${CHART_HEIGHT - LEGEND_HEIGHT}px) !important`,
@@ -35,16 +35,16 @@ export default function ChartRadialBar({ series }: Props) {
         enabled: true,
       },
     },
-    labels: ['Apples', 'Oranges'],
+    labels: ["Apples", "Oranges"],
     legend: {
       floating: true,
-      position: 'bottom',
-      horizontalAlign: 'center',
+      position: "bottom",
+      horizontalAlign: "center",
     },
     plotOptions: {
       radialBar: {
         hollow: {
-          size: '68%',
+          size: "68%",
         },
         dataLabels: {
           value: {

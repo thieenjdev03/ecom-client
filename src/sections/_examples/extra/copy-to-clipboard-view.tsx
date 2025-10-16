@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
-import Tooltip from '@mui/material/Tooltip';
-import Container from '@mui/material/Container';
-import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import InputAdornment from '@mui/material/InputAdornment';
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Stack from "@mui/material/Stack";
+import Tooltip from "@mui/material/Tooltip";
+import Container from "@mui/material/Container";
+import TextField from "@mui/material/TextField";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import InputAdornment from "@mui/material/InputAdornment";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import { useDoubleClick } from 'src/hooks/use-double-click';
-import { useCopyToClipboard } from 'src/hooks/use-copy-to-clipboard';
+import { useDoubleClick } from "src/hooks/use-double-click";
+import { useCopyToClipboard } from "src/hooks/use-copy-to-clipboard";
 
-import Iconify from 'src/components/iconify';
-import { useSnackbar } from 'src/components/snackbar';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import Iconify from "src/components/iconify";
+import { useSnackbar } from "src/components/snackbar";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
 // ----------------------------------------------------------------------
 
@@ -30,7 +30,7 @@ export default function CopyToClipboardView() {
 
   const { copy } = useCopyToClipboard();
 
-  const [value, setValue] = useState('https://www.npmjs.com/package/');
+  const [value, setValue] = useState("https://www.npmjs.com/package/");
 
   const textOnClick = `Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia
   Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat
@@ -43,27 +43,33 @@ export default function CopyToClipboardView() {
   const onCopy = useCallback(
     (text: string) => {
       if (text) {
-        enqueueSnackbar('Copied!');
+        enqueueSnackbar("Copied!");
         copy(text);
       }
     },
-    [copy, enqueueSnackbar]
+    [copy, enqueueSnackbar],
   );
 
   const handleClick = useDoubleClick({
     doubleClick: () => onCopy(textOnClick),
   });
 
-  const handleChange = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(event.target.value);
-  }, []);
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setValue(event.target.value);
+    },
+    [],
+  );
 
   return (
     <>
       <ComponentHero>
         <CustomBreadcrumbs
           heading="Copy To Clipboard"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Copy To Clipboard' }]}
+          links={[
+            { name: "Components", href: paths.components },
+            { name: "Copy To Clipboard" },
+          ]}
         />
       </ComponentHero>
 
@@ -71,11 +77,11 @@ export default function CopyToClipboardView() {
         <Card sx={{ p: 5 }}>
           <Box
             display="grid"
-            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+            gridTemplateColumns={{ xs: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}
             gap={5}
           >
             <Stack spacing={2}>
-              <Typography variant="overline" sx={{ color: 'text.secondary' }}>
+              <Typography variant="overline" sx={{ color: "text.secondary" }}>
                 on Change
               </Typography>
 
@@ -98,7 +104,7 @@ export default function CopyToClipboardView() {
             </Stack>
 
             <Stack spacing={2}>
-              <Typography variant="overline" sx={{ color: 'text.secondary' }}>
+              <Typography variant="overline" sx={{ color: "text.secondary" }}>
                 on Double Click
               </Typography>
 

@@ -1,33 +1,40 @@
-import { StyledEditorToolbar } from './styles';
+import { StyledEditorToolbar } from "./styles";
 
 // ----------------------------------------------------------------------
 
-const HEADINGS = ['Heading 1', 'Heading 2', 'Heading 3', 'Heading 4', 'Heading 5', 'Heading 6'];
+const HEADINGS = [
+  "Heading 1",
+  "Heading 2",
+  "Heading 3",
+  "Heading 4",
+  "Heading 5",
+  "Heading 6",
+];
 
 export const formats = [
-  'align',
-  'background',
-  'blockquote',
-  'bold',
-  'bullet',
-  'code',
-  'code-block',
-  'color',
-  'direction',
-  'font',
-  'formula',
-  'header',
-  'image',
-  'indent',
-  'italic',
-  'link',
-  'list',
-  'script',
-  'size',
-  'strike',
-  'table',
-  'underline',
-  'video',
+  "align",
+  "background",
+  "blockquote",
+  "bold",
+  "bullet",
+  "code",
+  "code-block",
+  "color",
+  "direction",
+  "font",
+  "formula",
+  "header",
+  "image",
+  "indent",
+  "italic",
+  "link",
+  "list",
+  "script",
+  "size",
+  "strike",
+  "table",
+  "underline",
+  "video",
 ];
 
 type EditorToolbarProps = {

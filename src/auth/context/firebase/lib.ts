@@ -1,6 +1,6 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp } from "firebase/app";
 
-import { FIREBASE_API } from 'src/config-global';
+import { FIREBASE_API } from "src/config-global";
 
 // ----------------------------------------------------------------------
 

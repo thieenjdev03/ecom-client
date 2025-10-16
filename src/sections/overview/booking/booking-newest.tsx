@@ -1,17 +1,17 @@
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
-import { useTheme } from '@mui/material/styles';
-import Box, { BoxProps } from '@mui/material/Box';
-import CardHeader from '@mui/material/CardHeader';
-import ListItemText from '@mui/material/ListItemText';
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Avatar from "@mui/material/Avatar";
+import { useTheme } from "@mui/material/styles";
+import Box, { BoxProps } from "@mui/material/Box";
+import CardHeader from "@mui/material/CardHeader";
+import ListItemText from "@mui/material/ListItemText";
 
-import { fDateTime } from 'src/utils/format-time';
+import { fDateTime } from "src/utils/format-time";
 
-import Label from 'src/components/label';
-import Image from 'src/components/image';
-import Iconify from 'src/components/iconify';
-import Carousel, { useCarousel, CarouselArrows } from 'src/components/carousel';
+import Label from "src/components/label";
+import Image from "src/components/image";
+import Iconify from "src/components/iconify";
+import Carousel, { useCarousel, CarouselArrows } from "src/components/carousel";
 
 // ----------------------------------------------------------------------
 
@@ -33,7 +33,13 @@ interface Props extends BoxProps {
   list: ItemProps[];
 }
 
-export default function BookingNewest({ title, subheader, list, sx, ...other }: Props) {
+export default function BookingNewest({
+  title,
+  subheader,
+  list,
+  sx,
+  ...other
+}: Props) {
   const theme = useTheme();
 
   const carousel = useCarousel({
@@ -65,7 +71,9 @@ export default function BookingNewest({ title, subheader, list, sx, ...other }: 
       <CardHeader
         title={title}
         subheader={subheader}
-        action={<CarouselArrows onNext={carousel.onNext} onPrev={carousel.onPrev} />}
+        action={
+          <CarouselArrows onNext={carousel.onNext} onPrev={carousel.onPrev} />
+        }
         sx={{
           p: 0,
           mb: 3,
@@ -88,15 +96,24 @@ type BookingItemProps = {
 };
 
 function BookingItem({ item }: BookingItemProps) {
-  const { avatarUrl, name, duration, bookedAt, guests, coverUrl, price, isHot } = item;
+  const {
+    avatarUrl,
+    name,
+    duration,
+    bookedAt,
+    guests,
+    coverUrl,
+    price,
+    isHot,
+  } = item;
 
   return (
     <Paper
       sx={{
         mr: 3,
         borderRadius: 2,
-        position: 'relative',
-        bgcolor: 'background.neutral',
+        position: "relative",
+        bgcolor: "background.neutral",
       }}
     >
       <Stack
@@ -114,9 +131,9 @@ function BookingItem({ item }: BookingItemProps) {
             secondary={fDateTime(bookedAt)}
             secondaryTypographyProps={{
               mt: 0.5,
-              component: 'span',
-              typography: 'caption',
-              color: 'text.disabled',
+              component: "span",
+              typography: "caption",
+              color: "text.disabled",
             }}
           />
         </Stack>
@@ -127,10 +144,14 @@ function BookingItem({ item }: BookingItemProps) {
           flexWrap="wrap"
           direction="row"
           alignItems="center"
-          sx={{ color: 'text.secondary', typography: 'caption' }}
+          sx={{ color: "text.secondary", typography: "caption" }}
         >
           <Stack direction="row" alignItems="center">
-            <Iconify width={16} icon="solar:calendar-date-bold" sx={{ mr: 0.5, flexShrink: 0 }} />
+            <Iconify
+              width={16}
+              icon="solar:calendar-date-bold"
+              sx={{ mr: 0.5, flexShrink: 0 }}
+            />
             {duration}
           </Stack>
 
@@ -151,14 +172,19 @@ function BookingItem({ item }: BookingItemProps) {
           right: 16,
           zIndex: 9,
           bottom: 16,
-          position: 'absolute',
+          position: "absolute",
         }}
       >
-        {isHot && '🔥'} ${price}
+        {isHot && "🔥"} ${price}
       </Label>
 
-      <Box sx={{ p: 1, position: 'relative' }}>
-        <Image alt={coverUrl} src={coverUrl} ratio="1/1" sx={{ borderRadius: 1.5 }} />
+      <Box sx={{ p: 1, position: "relative" }}>
+        <Image
+          alt={coverUrl}
+          src={coverUrl}
+          ratio="1/1"
+          sx={{ borderRadius: 1.5 }}
+        />
       </Box>
     </Paper>
   );

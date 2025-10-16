@@ -1,9 +1,9 @@
-import axios, { endpoints } from 'src/utils/axios';
+import axios, { endpoints } from "src/utils/axios";
 
 export type CreateUserRequest = {
   email: string;
   password: string;
-  role: 'admin' | 'user';
+  role: "admin" | "user";
   profile?: string;
   name?: string;
   phoneNumber?: string;
@@ -16,7 +16,7 @@ export type UpdateUserRequest = Partial<CreateUserRequest>;
 export type User = {
   id: number | string;
   email: string;
-  role: 'admin' | 'user';
+  role: "admin" | "user";
   profile?: string;
   name?: string;
   phoneNumber?: string;
@@ -57,5 +57,3 @@ export const usersApi = {
     return res.status === 204 ? true : res.data;
   },
 };
-
-

@@ -1,11 +1,11 @@
-import { _jobs } from 'src/_mock/_job';
+import { _jobs } from "src/_mock/_job";
 
-import { JobDetailsView } from 'src/sections/job/view';
+import { JobDetailsView } from "src/sections/job/view";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Job Details',
+  title: "Dashboard: Job Details",
 };
 
 type Props = {

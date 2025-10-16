@@ -1,25 +1,25 @@
-import Stack from '@mui/material/Stack';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import { useTheme } from '@mui/material/styles';
-import IconButton from '@mui/material/IconButton';
+import Stack from "@mui/material/Stack";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import { useTheme } from "@mui/material/styles";
+import IconButton from "@mui/material/IconButton";
 
-import { useOffSetTop } from 'src/hooks/use-off-set-top';
-import { useResponsive } from 'src/hooks/use-responsive';
+import { useOffSetTop } from "src/hooks/use-off-set-top";
+import { useResponsive } from "src/hooks/use-responsive";
 
-import { bgBlur } from 'src/theme/css';
+import { bgBlur } from "src/theme/css";
 
-import Logo from 'src/components/logo';
-import SvgColor from 'src/components/svg-color';
-import { useSettingsContext } from 'src/components/settings';
+import Logo from "src/components/logo";
+import SvgColor from "src/components/svg-color";
+import { useSettingsContext } from "src/components/settings";
 
-import Searchbar from '../common/searchbar';
-import { NAV, HEADER } from '../config-layout';
-import SettingsButton from '../common/settings-button';
-import AccountPopover from '../common/account-popover';
-import ContactsPopover from '../common/contacts-popover';
-import LanguagePopover from '../common/language-popover';
-import NotificationsPopover from '../common/notifications-popover';
+import Searchbar from "../common/searchbar";
+import { NAV, HEADER } from "../config-layout";
+import SettingsButton from "../common/settings-button";
+import AccountPopover from "../common/account-popover";
+import ContactsPopover from "../common/contacts-popover";
+import LanguagePopover from "../common/language-popover";
+import NotificationsPopover from "../common/notifications-popover";
 
 // ----------------------------------------------------------------------
 
@@ -32,11 +32,11 @@ export default function Header({ onOpenNav }: Props) {
 
   const settings = useSettingsContext();
 
-  const isNavHorizontal = settings.themeLayout === 'horizontal';
+  const isNavHorizontal = settings.themeLayout === "horizontal";
 
-  const isNavMini = settings.themeLayout === 'mini';
+  const isNavMini = settings.themeLayout === "mini";
 
-  const lgUp = useResponsive('up', 'lg');
+  const lgUp = useResponsive("up", "lg");
 
   const offset = useOffSetTop(HEADER.H_DESKTOP);
 
@@ -82,7 +82,7 @@ export default function Header({ onOpenNav }: Props) {
         ...bgBlur({
           color: theme.palette.background.default,
         }),
-        transition: theme.transitions.create(['height'], {
+        transition: theme.transitions.create(["height"], {
           duration: theme.transitions.duration.shorter,
         }),
         ...(lgUp && {
@@ -93,7 +93,7 @@ export default function Header({ onOpenNav }: Props) {
           }),
           ...(isNavHorizontal && {
             width: 1,
-            bgcolor: 'background.default',
+            bgcolor: "background.default",
             height: HEADER.H_DESKTOP_OFFSET,
             borderBottom: `dashed 1px ${theme.palette.divider}`,
           }),

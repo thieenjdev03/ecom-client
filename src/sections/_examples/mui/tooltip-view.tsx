@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import { m } from 'framer-motion';
+import { m } from "framer-motion";
 
-import Fab from '@mui/material/Fab';
-import Zoom from '@mui/material/Zoom';
-import Fade from '@mui/material/Fade';
-import Masonry from '@mui/lab/Masonry';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import Container from '@mui/material/Container';
-import IconButton from '@mui/material/IconButton';
+import Fab from "@mui/material/Fab";
+import Zoom from "@mui/material/Zoom";
+import Fade from "@mui/material/Fade";
+import Masonry from "@mui/lab/Masonry";
+import Button from "@mui/material/Button";
+import Tooltip from "@mui/material/Tooltip";
+import Container from "@mui/material/Container";
+import IconButton from "@mui/material/IconButton";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import Iconify from 'src/components/iconify';
-import { varHover } from 'src/components/animate';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import Iconify from "src/components/iconify";
+import { varHover } from "src/components/animate";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import ComponentBlock from '../component-block';
+import ComponentBlock from "../component-block";
 
 // ----------------------------------------------------------------------
 
@@ -39,12 +39,12 @@ export default function TooltipView() {
           heading="Tooltip"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Tooltip' },
+            { name: "Tooltip" },
           ]}
-          moreLink={['https://mui.com/components/tooltips']}
+          moreLink={["https://mui.com/components/tooltips"]}
         />
       </ComponentHero>
 
@@ -105,7 +105,7 @@ export default function TooltipView() {
               <Button color="inherit">Custom Width [500px]</Button>
             </Tooltip>
 
-            <Tooltip title={LONG_TEXT} sx={{ maxWidth: 'none' }}>
+            <Tooltip title={LONG_TEXT} sx={{ maxWidth: "none" }}>
               <Button color="inherit">No wrapping</Button>
             </Tooltip>
           </ComponentBlock>
@@ -115,7 +115,11 @@ export default function TooltipView() {
               <Button color="inherit">Grow</Button>
             </Tooltip>
 
-            <Tooltip TransitionComponent={Fade} TransitionProps={{ timeout: 600 }} title="Add">
+            <Tooltip
+              TransitionComponent={Fade}
+              TransitionProps={{ timeout: 600 }}
+              title="Add"
+            >
               <Button color="inherit">Fade</Button>
             </Tooltip>
 

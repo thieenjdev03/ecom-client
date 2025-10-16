@@ -1,12 +1,12 @@
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from "src/hooks/use-boolean";
 
 // ----------------------------------------------------------------------
 
@@ -24,8 +24,8 @@ export default function FormDialog() {
 
         <DialogContent>
           <Typography sx={{ mb: 3 }}>
-            To subscribe to this website, please enter your email address here. We will send updates
-            occasionally.
+            To subscribe to this website, please enter your email address here.
+            We will send updates occasionally.
           </Typography>
 
           <TextField

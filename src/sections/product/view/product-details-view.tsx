@@ -1,51 +1,52 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
-import Tabs from '@mui/material/Tabs';
-import Card from '@mui/material/Card';
-import Button from '@mui/material/Button';
-import { alpha } from '@mui/material/styles';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Unstable_Grid2';
-import Typography from '@mui/material/Typography';
+import Tab from "@mui/material/Tab";
+import Box from "@mui/material/Box";
+import Tabs from "@mui/material/Tabs";
+import Card from "@mui/material/Card";
+import Button from "@mui/material/Button";
+import { alpha } from "@mui/material/styles";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Unstable_Grid2";
+import Typography from "@mui/material/Typography";
 
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
+import { paths } from "src/routes/paths";
+import { RouterLink } from "src/routes/components";
 
-import { useGetProduct } from 'src/api/product';
-import { PRODUCT_PUBLISH_OPTIONS } from 'src/_mock';
+import { useGetProduct } from "src/api/product";
+import { PRODUCT_PUBLISH_OPTIONS } from "src/_mock";
 
-import Iconify from 'src/components/iconify';
-import EmptyContent from 'src/components/empty-content';
-import { useSettingsContext } from 'src/components/settings';
+import Iconify from "src/components/iconify";
+import EmptyContent from "src/components/empty-content";
+import { useSettingsContext } from "src/components/settings";
 
-import { ProductDetailsSkeleton } from '../product-skeleton';
-import ProductDetailsReview from '../product-details-review';
-import ProductDetailsSummary from '../product-details-summary';
-import ProductDetailsToolbar from '../product-details-toolbar';
-import ProductDetailsCarousel from '../product-details-carousel';
-import ProductDetailsDescription from '../product-details-description';
+import { ProductDetailsSkeleton } from "../product-skeleton";
+import ProductDetailsReview from "../product-details-review";
+import ProductDetailsSummary from "../product-details-summary";
+import ProductDetailsToolbar from "../product-details-toolbar";
+import ProductDetailsCarousel from "../product-details-carousel";
+import ProductDetailsDescription from "../product-details-description";
+import HomeProductShowcase from "src/sections/landing-page/home-product-showcase";
 
 // ----------------------------------------------------------------------
 
 const SUMMARY = [
   {
-    title: '100% Original',
-    description: 'Chocolate bar candy canes ice cream toffee cookie halvah.',
-    icon: 'solar:verified-check-bold',
+    title: "100% Original",
+    description: "Chocolate bar candy canes ice cream toffee cookie halvah.",
+    icon: "solar:verified-check-bold",
   },
   {
-    title: '10 Day Replacement',
-    description: 'Marshmallow biscuit donut dragée fruitcake wafer.',
-    icon: 'solar:clock-circle-bold',
+    title: "10 Day Replacement",
+    description: "Marshmallow biscuit donut dragée fruitcake wafer.",
+    icon: "solar:clock-circle-bold",
   },
   {
-    title: 'Year Warranty',
-    description: 'Cotton candy gingerbread cake I love sugar sweet.',
-    icon: 'solar:shield-check-bold',
+    title: "Year Warranty",
+    description: "Cotton candy gingerbread cake I love sugar sweet.",
+    icon: "solar:shield-check-bold",
   },
 ];
 
@@ -57,12 +58,12 @@ type Props = {
 
 export default function ProductDetailsView({ id }: Props) {
   const { product, productLoading, productError } = useGetProduct(id);
-
+  console.log("product", product);
   const settings = useSettingsContext();
 
-  const [currentTab, setCurrentTab] = useState('description');
+  const [currentTab, setCurrentTab] = useState("description");
 
-  const [publish, setPublish] = useState('');
+  const [publish, setPublish] = useState("");
 
   useEffect(() => {
     if (product) {
@@ -74,9 +75,12 @@ export default function ProductDetailsView({ id }: Props) {
     setPublish(newValue);
   }, []);
 
-  const handleChangeTab = useCallback((event: React.SyntheticEvent, newValue: string) => {
-    setCurrentTab(newValue);
-  }, []);
+  const handleChangeTab = useCallback(
+    (event: React.SyntheticEvent, newValue: string) => {
+      setCurrentTab(newValue);
+    },
+    [],
+  );
 
   const renderSkeleton = <ProductDetailsSkeleton />;
 
@@ -104,7 +108,7 @@ export default function ProductDetailsView({ id }: Props) {
         backLink={paths.dashboard.product.root}
         editLink={paths.dashboard.product.edit(`${product?.id}`)}
         liveLink={paths.product.details(`${product?.id}`)}
-        publish={publish || ''}
+        publish={publish || ""}
         onChangePublish={handleChangePublish}
         publishOptions={PRODUCT_PUBLISH_OPTIONS}
       />
@@ -123,20 +127,24 @@ export default function ProductDetailsView({ id }: Props) {
         gap={5}
         display="grid"
         gridTemplateColumns={{
-          xs: 'repeat(1, 1fr)',
-          md: 'repeat(3, 1fr)',
+          xs: "repeat(1, 1fr)",
+          md: "repeat(3, 1fr)",
         }}
         sx={{ my: 10 }}
       >
         {SUMMARY.map((item) => (
-          <Box key={item.title} sx={{ textAlign: 'center', px: 5 }}>
-            <Iconify icon={item.icon} width={32} sx={{ color: 'primary.main' }} />
+          <Box key={item.title} sx={{ textAlign: "center", px: 5 }}>
+            <Iconify
+              icon={item.icon}
+              width={32}
+              sx={{ color: "primary.main" }}
+            />
 
             <Typography variant="subtitle1" sx={{ mb: 1, mt: 2 }}>
               {item.title}
             </Typography>
 
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
               {item.description}
             </Typography>
           </Box>
@@ -149,16 +157,17 @@ export default function ProductDetailsView({ id }: Props) {
           onChange={handleChangeTab}
           sx={{
             px: 3,
-            boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+            boxShadow: (theme) =>
+              `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
           }}
         >
           {[
             {
-              value: 'description',
-              label: 'Description',
+              value: "description",
+              label: "Description",
             },
             {
-              value: 'reviews',
+              value: "reviews",
               label: `Reviews (${product.reviews.length})`,
             },
           ].map((tab) => (
@@ -166,11 +175,11 @@ export default function ProductDetailsView({ id }: Props) {
           ))}
         </Tabs>
 
-        {currentTab === 'description' && (
+        {currentTab === "description" && (
           <ProductDetailsDescription description={product?.description} />
         )}
 
-        {currentTab === 'reviews' && (
+        {currentTab === "reviews" && (
           <ProductDetailsReview
             ratings={product.ratings}
             reviews={product.reviews}
@@ -183,7 +192,7 @@ export default function ProductDetailsView({ id }: Props) {
   );
 
   return (
-    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+    <Container maxWidth={settings.themeStretch ? "lg" : "xl"}>
       {productLoading && renderSkeleton}
 
       {productError && renderError}

@@ -53,9 +53,13 @@ export type IProductItem = {
   totalSold: number;
   description: string;
   totalRatings: number;
+  productPrice: number;
   totalReviews: number;
   inventoryType: string;
   subDescription: string;
+  isFeatured: boolean;
+  is_new: boolean;
+  is_sale: boolean;
   priceSale: number | null;
   reviews: IProductReview[];
   createdAt: Date;

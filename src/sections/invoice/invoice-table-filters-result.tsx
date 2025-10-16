@@ -1,15 +1,18 @@
-import { useCallback } from 'react';
+import { useCallback } from "react";
 
-import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
-import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
-import Stack, { StackProps } from '@mui/material/Stack';
+import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
+import Paper from "@mui/material/Paper";
+import Button from "@mui/material/Button";
+import Stack, { StackProps } from "@mui/material/Stack";
 
-import Iconify from 'src/components/iconify';
-import { shortDateLabel } from 'src/components/custom-date-range-picker';
+import Iconify from "src/components/iconify";
+import { shortDateLabel } from "src/components/custom-date-range-picker";
 
-import { IInvoiceTableFilters, IInvoiceTableFilterValue } from 'src/types/invoice';
+import {
+  IInvoiceTableFilters,
+  IInvoiceTableFilterValue,
+} from "src/types/invoice";
 
 // ----------------------------------------------------------------------
 
@@ -34,37 +37,43 @@ export default function InvoiceTableFiltersResult({
   const shortLabel = shortDateLabel(filters.startDate, filters.endDate);
 
   const handleRemoveKeyword = useCallback(() => {
-    onFilters('name', '');
+    onFilters("name", "");
   }, [onFilters]);
 
   const handleRemoveService = useCallback(
     (inputValue: string) => {
       const newValue = filters.service.filter((item) => item !== inputValue);
 
-      onFilters('service', newValue);
+      onFilters("service", newValue);
     },
-    [filters.service, onFilters]
+    [filters.service, onFilters],
   );
 
   const handleRemoveStatus = useCallback(() => {
-    onFilters('status', 'all');
+    onFilters("status", "all");
   }, [onFilters]);
 
   const handleRemoveDate = useCallback(() => {
-    onFilters('startDate', null);
-    onFilters('endDate', null);
+    onFilters("startDate", null);
+    onFilters("endDate", null);
   }, [onFilters]);
 
   return (
     <Stack spacing={1.5} {...other}>
-      <Box sx={{ typography: 'body2' }}>
+      <Box sx={{ typography: "body2" }}>
         <strong>{results}</strong>
-        <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
+        <Box component="span" sx={{ color: "text.secondary", ml: 0.25 }}>
           results found
         </Box>
       </Box>
 
-      <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
+      <Stack
+        flexGrow={1}
+        spacing={1}
+        direction="row"
+        flexWrap="wrap"
+        alignItems="center"
+      >
         {!!filters.service.length && (
           <Block label="Service:">
             {filters.service.map((item) => (
@@ -78,9 +87,13 @@ export default function InvoiceTableFiltersResult({
           </Block>
         )}
 
-        {filters.status !== 'all' && (
+        {filters.status !== "all" && (
           <Block label="Status:">
-            <Chip size="small" label={filters.status} onDelete={handleRemoveStatus} />
+            <Chip
+              size="small"
+              label={filters.status}
+              onDelete={handleRemoveStatus}
+            />
           </Block>
         )}
 
@@ -92,7 +105,11 @@ export default function InvoiceTableFiltersResult({
 
         {!!filters.name && (
           <Block label="Keyword:">
-            <Chip label={filters.name} size="small" onDelete={handleRemoveKeyword} />
+            <Chip
+              label={filters.name}
+              size="small"
+              onDelete={handleRemoveKeyword}
+            />
           </Block>
         )}
 
@@ -124,13 +141,13 @@ function Block({ label, children, sx, ...other }: BlockProps) {
       sx={{
         p: 1,
         borderRadius: 1,
-        overflow: 'hidden',
-        borderStyle: 'dashed',
+        overflow: "hidden",
+        borderStyle: "dashed",
         ...sx,
       }}
       {...other}
     >
-      <Box component="span" sx={{ typography: 'subtitle2' }}>
+      <Box component="span" sx={{ typography: "subtitle2" }}>
         {label}
       </Box>
 

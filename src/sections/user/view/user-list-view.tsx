@@ -1,31 +1,31 @@
-'use client';
+"use client";
 
-import isEqual from 'lodash/isEqual';
-import { useState, useCallback, useEffect } from 'react';
+import isEqual from "lodash/isEqual";
+import { useState, useCallback, useEffect } from "react";
 
-import Card from '@mui/material/Card';
-import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import Container from '@mui/material/Container';
-import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
-import TableContainer from '@mui/material/TableContainer';
+import Card from "@mui/material/Card";
+import Table from "@mui/material/Table";
+import Button from "@mui/material/Button";
+import Tooltip from "@mui/material/Tooltip";
+import Container from "@mui/material/Container";
+import TableBody from "@mui/material/TableBody";
+import IconButton from "@mui/material/IconButton";
+import TableContainer from "@mui/material/TableContainer";
 
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
-import { RouterLink } from 'src/routes/components';
+import { paths } from "src/routes/paths";
+import { useRouter } from "src/routes/hooks";
+import { RouterLink } from "src/routes/components";
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from "src/hooks/use-boolean";
 
-import { _roles } from 'src/_mock';
+import { _roles } from "src/_mock";
 
-import Iconify from 'src/components/iconify';
-import Scrollbar from 'src/components/scrollbar';
-import { useSnackbar } from 'src/components/snackbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import { useSettingsContext } from 'src/components/settings';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import Iconify from "src/components/iconify";
+import Scrollbar from "src/components/scrollbar";
+import { useSnackbar } from "src/components/snackbar";
+import { ConfirmDialog } from "src/components/custom-dialog";
+import { useSettingsContext } from "src/components/settings";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 import {
   useTable,
   emptyRows,
@@ -34,33 +34,37 @@ import {
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
-} from 'src/components/table';
+} from "src/components/table";
 
-import { IUserItem, IUserTableFilters, IUserTableFilterValue } from 'src/types/user';
+import {
+  IUserItem,
+  IUserTableFilters,
+  IUserTableFilterValue,
+} from "src/types/user";
 
-import { usersApi } from 'src/api/user';
+import { usersApi } from "src/api/user";
 
-import UserTableRow from '../user-table-row';
-import UserTableToolbar from '../user-table-toolbar';
-import UserTableFiltersResult from '../user-table-filters-result';
+import UserTableRow from "../user-table-row";
+import UserTableToolbar from "../user-table-toolbar";
+import UserTableFiltersResult from "../user-table-filters-result";
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', width: 300 },
-  { id: 'email', label: 'Email', width: 240 },
-  { id: 'phoneNumber', label: 'Phone Number', width: 160 },
-  { id: 'role', label: 'Role', width: 120 },
-  { id: 'addresses', label: 'Addresses', width: 140 },
-  { id: 'createdAt', label: 'Created', width: 180 },
-  { id: 'status', label: 'Status', width: 100 },
-  { id: '', width: 88 },
+  { id: "name", label: "Name", width: 300 },
+  { id: "email", label: "Email", width: 240 },
+  { id: "phoneNumber", label: "Phone Number", width: 160 },
+  { id: "role", label: "Role", width: 120 },
+  { id: "addresses", label: "Addresses", width: 140 },
+  { id: "createdAt", label: "Created", width: 180 },
+  { id: "status", label: "Status", width: 100 },
+  { id: "", width: 88 },
 ];
 
 const defaultFilters: IUserTableFilters = {
-  name: '',
+  name: "",
   role: [],
-  status: 'all',
+  status: "all",
 };
 
 // ----------------------------------------------------------------------
@@ -111,11 +115,19 @@ export default function UserListView() {
       setTableData(list as IUserItem[]);
       setTotal(payload.total || list.length || 0);
     } catch (err: any) {
-      enqueueSnackbar(err?.message || 'Failed to load users', { variant: 'error' });
+      enqueueSnackbar(err?.message || "Failed to load users", {
+        variant: "error",
+      });
     } finally {
       setLoading(false);
     }
-  }, [enqueueSnackbar, filters.name, filters.role, table.page, table.rowsPerPage]);
+  }, [
+    enqueueSnackbar,
+    filters.name,
+    filters.role,
+    table.page,
+    table.rowsPerPage,
+  ]);
 
   useEffect(() => {
     fetchUsers();
@@ -129,7 +141,7 @@ export default function UserListView() {
         [name]: value,
       }));
     },
-    [table]
+    [table],
   );
 
   const handleResetFilters = useCallback(() => {
@@ -140,22 +152,22 @@ export default function UserListView() {
     async (id: string) => {
       try {
         await usersApi.remove(id);
-        enqueueSnackbar('Delete success!');
+        enqueueSnackbar("Delete success!");
         fetchUsers();
       } catch (err: any) {
-        enqueueSnackbar(err?.message || 'Delete failed', { variant: 'error' });
+        enqueueSnackbar(err?.message || "Delete failed", { variant: "error" });
       }
     },
-    [enqueueSnackbar, fetchUsers, table]
+    [enqueueSnackbar, fetchUsers, table],
   );
 
   const handleDeleteRows = useCallback(async () => {
     try {
       await Promise.all(table.selected.map((id) => usersApi.remove(id)));
-      enqueueSnackbar('Delete success!');
+      enqueueSnackbar("Delete success!");
       fetchUsers();
     } catch (err: any) {
-      enqueueSnackbar(err?.message || 'Delete failed', { variant: 'error' });
+      enqueueSnackbar(err?.message || "Delete failed", { variant: "error" });
     }
   }, [enqueueSnackbar, fetchUsers, table]);
 
@@ -163,20 +175,20 @@ export default function UserListView() {
     (id: string) => {
       router.push(paths.dashboard.user.edit(id));
     },
-    [router]
+    [router],
   );
 
   // removed status tabs; status filter is handled via toolbar and API mapping (if needed)
 
   return (
     <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+      <Container maxWidth={settings.themeStretch ? false : "lg"}>
         <CustomBreadcrumbs
           heading="List"
           links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'User', href: paths.dashboard.user.root },
-            { name: 'List' },
+            { name: "Dashboard", href: paths.dashboard.root },
+            { name: "User", href: paths.dashboard.user.root },
+            { name: "List" },
           ]}
           action={
             <Button
@@ -194,7 +206,6 @@ export default function UserListView() {
         />
 
         <Card>
-
           <UserTableToolbar
             filters={filters}
             onFilters={handleFilters}
@@ -214,7 +225,7 @@ export default function UserListView() {
             />
           )}
 
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <TableContainer sx={{ position: "relative", overflow: "unset" }}>
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
@@ -222,7 +233,7 @@ export default function UserListView() {
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  tableData.map((row) => row.id)
+                  tableData.map((row) => row.id),
                 )
               }
               action={
@@ -235,7 +246,10 @@ export default function UserListView() {
             />
 
             <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              <Table
+                size={table.dense ? "small" : "medium"}
+                sx={{ minWidth: 960 }}
+              >
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
@@ -246,7 +260,7 @@ export default function UserListView() {
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      tableData.map((row) => row.id)
+                      tableData.map((row) => row.id),
                     )
                   }
                 />
@@ -255,7 +269,7 @@ export default function UserListView() {
                   {tableData
                     .slice(
                       table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
+                      table.page * table.rowsPerPage + table.rowsPerPage,
                     )
                     .map((row) => (
                       <UserTableRow
@@ -270,7 +284,11 @@ export default function UserListView() {
 
                   <TableEmptyRows
                     height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                    emptyRows={emptyRows(
+                      table.page,
+                      table.rowsPerPage,
+                      tableData.length,
+                    )}
                   />
 
                   <TableNoData notFound={notFound} />
@@ -298,7 +316,8 @@ export default function UserListView() {
         title="Delete"
         content={
           <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
+            Are you sure want to delete{" "}
+            <strong> {table.selected.length} </strong> items?
           </>
         }
         action={
@@ -343,11 +362,11 @@ function applyFilter({
 
   if (name) {
     inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
+      (user) => user.name.toLowerCase().indexOf(name.toLowerCase()) !== -1,
     );
   }
 
-  if (status !== 'all') {
+  if (status !== "all") {
     inputData = inputData.filter((user) => user.status === status);
   }
 

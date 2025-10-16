@@ -1,13 +1,13 @@
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Grid from '@mui/material/Unstable_Grid2';
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Unstable_Grid2";
 
-import Iconify from 'src/components/iconify';
+import Iconify from "src/components/iconify";
 
-import { IPostItem } from 'src/types/blog';
+import { IPostItem } from "src/types/blog";
 
-import PostItem from './post-item';
-import { PostItemSkeleton } from './post-skeleton';
+import PostItem from "./post-item";
+import { PostItemSkeleton } from "./post-skeleton";
 
 // ----------------------------------------------------------------------
 
@@ -31,7 +31,12 @@ export default function PostList({ posts, loading, disabledIndex }: Props) {
   const renderList = (
     <>
       {posts.map((post, index) => (
-        <Grid key={post.id} xs={12} sm={6} md={!disabledIndex && index === 0 ? 6 : 3}>
+        <Grid
+          key={post.id}
+          xs={12}
+          sm={6}
+          md={!disabledIndex && index === 0 ? 6 : 3}
+        >
           <PostItem post={post} index={!disabledIndex ? index : undefined} />
         </Grid>
       ))}
@@ -55,7 +60,9 @@ export default function PostList({ posts, loading, disabledIndex }: Props) {
           <Button
             size="large"
             variant="outlined"
-            startIcon={<Iconify icon="svg-spinners:12-dots-scale-rotate" width={24} />}
+            startIcon={
+              <Iconify icon="svg-spinners:12-dots-scale-rotate" width={24} />
+            }
           >
             Load More
           </Button>

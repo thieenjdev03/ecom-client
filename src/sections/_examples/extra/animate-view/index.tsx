@@ -1,42 +1,45 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
-import Tabs from '@mui/material/Tabs';
-import Container from '@mui/material/Container';
+import Tab from "@mui/material/Tab";
+import Box from "@mui/material/Box";
+import Tabs from "@mui/material/Tabs";
+import Container from "@mui/material/Container";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import Inview from './inview';
-import OtherView from './other';
-import ScrollView from './scroll';
-import DialogView from './dialog';
-import BackgroundView from './background';
+import Inview from "./inview";
+import OtherView from "./other";
+import ScrollView from "./scroll";
+import DialogView from "./dialog";
+import BackgroundView from "./background";
 
 // ----------------------------------------------------------------------
 
 const TABS = [
-  { value: 'inview', label: 'In View', component: <Inview /> },
-  { value: 'scroll', label: 'Scroll', component: <ScrollView /> },
-  { value: 'dialog', label: 'Dialog', component: <DialogView /> },
-  { value: 'background', label: 'Background', component: <BackgroundView /> },
-  { value: 'other', label: 'Other', component: <OtherView /> },
+  { value: "inview", label: "In View", component: <Inview /> },
+  { value: "scroll", label: "Scroll", component: <ScrollView /> },
+  { value: "dialog", label: "Dialog", component: <DialogView /> },
+  { value: "background", label: "Background", component: <BackgroundView /> },
+  { value: "other", label: "Other", component: <OtherView /> },
 ];
 
 // ----------------------------------------------------------------------
 
 export default function AnimateView() {
-  const [currentTab, setCurrentTab] = useState('inview');
+  const [currentTab, setCurrentTab] = useState("inview");
 
-  const handleChangeTab = useCallback((event: React.SyntheticEvent, newValue: string) => {
-    setCurrentTab(newValue);
-  }, []);
+  const handleChangeTab = useCallback(
+    (event: React.SyntheticEvent, newValue: string) => {
+      setCurrentTab(newValue);
+    },
+    [],
+  );
 
   return (
     <>
@@ -45,12 +48,12 @@ export default function AnimateView() {
           heading="Animate"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Animate' },
+            { name: "Animate" },
           ]}
-          moreLink={['https://www.framer.com/api/motion']}
+          moreLink={["https://www.framer.com/api/motion"]}
         />
       </ComponentHero>
 
@@ -67,7 +70,7 @@ export default function AnimateView() {
               <Box key={tab.value} sx={{ mt: 5 }}>
                 {tab.component}
               </Box>
-            )
+            ),
         )}
       </Container>
     </>

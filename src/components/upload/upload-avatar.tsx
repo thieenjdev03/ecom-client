@@ -1,14 +1,14 @@
-import { useDropzone } from 'react-dropzone';
+import { useDropzone } from "react-dropzone";
 
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import { alpha } from '@mui/material/styles';
-import Typography from '@mui/material/Typography';
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import { alpha } from "@mui/material/styles";
+import Typography from "@mui/material/Typography";
 
-import Image from '../image';
-import Iconify from '../iconify';
-import { UploadProps } from './types';
-import RejectionFiles from './errors-rejection-files';
+import Image from "../image";
+import Iconify from "../iconify";
+import { UploadProps } from "./types";
+import RejectionFiles from "./errors-rejection-files";
 
 // ----------------------------------------------------------------------
 
@@ -20,11 +20,17 @@ export default function UploadAvatar({
   sx,
   ...other
 }: UploadProps) {
-  const { getRootProps, getInputProps, isDragActive, isDragReject, fileRejections } = useDropzone({
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragReject,
+    fileRejections,
+  } = useDropzone({
     multiple: false,
     disabled,
     accept: {
-      'image/*': [],
+      "image/*": [],
     },
     ...other,
   });
@@ -33,7 +39,7 @@ export default function UploadAvatar({
 
   const hasError = isDragReject || !!error;
 
-  const imgUrl = typeof file === 'string' ? file : file?.preview;
+  const imgUrl = typeof file === "string" ? file : file?.preview;
 
   const renderPreview = hasFile && (
     <Image
@@ -42,7 +48,7 @@ export default function UploadAvatar({
       sx={{
         width: 1,
         height: 1,
-        borderRadius: '50%',
+        borderRadius: "50%",
       }}
     />
   );
@@ -59,32 +65,34 @@ export default function UploadAvatar({
         width: 1,
         height: 1,
         zIndex: 9,
-        borderRadius: '50%',
-        position: 'absolute',
-        color: 'text.disabled',
+        borderRadius: "50%",
+        position: "absolute",
+        color: "text.disabled",
         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.08),
         transition: (theme) =>
-          theme.transitions.create(['opacity'], {
+          theme.transitions.create(["opacity"], {
             duration: theme.transitions.duration.shorter,
           }),
-        '&:hover': {
+        "&:hover": {
           opacity: 0.72,
         },
         ...(hasError && {
-          color: 'error.main',
+          color: "error.main",
           bgcolor: (theme) => alpha(theme.palette.error.main, 0.08),
         }),
         ...(hasFile && {
           zIndex: 9,
           opacity: 0,
-          color: 'common.white',
+          color: "common.white",
           bgcolor: (theme) => alpha(theme.palette.grey[900], 0.64),
         }),
       }}
     >
       <Iconify icon="solar:camera-add-bold" width={32} />
 
-      <Typography variant="caption">{file ? 'Update photo' : 'Upload photo'}</Typography>
+      <Typography variant="caption">
+        {file ? "Update photo" : "Upload photo"}
+      </Typography>
     </Stack>
   );
 
@@ -93,9 +101,9 @@ export default function UploadAvatar({
       sx={{
         width: 1,
         height: 1,
-        overflow: 'hidden',
-        borderRadius: '50%',
-        position: 'relative',
+        overflow: "hidden",
+        borderRadius: "50%",
+        position: "relative",
       }}
     >
       {renderPreview}
@@ -109,28 +117,29 @@ export default function UploadAvatar({
         {...getRootProps()}
         sx={{
           p: 1,
-          m: 'auto',
+          m: "auto",
           width: 144,
           height: 144,
-          cursor: 'pointer',
-          overflow: 'hidden',
-          borderRadius: '50%',
-          border: (theme) => `1px dashed ${alpha(theme.palette.grey[500], 0.2)}`,
+          cursor: "pointer",
+          overflow: "hidden",
+          borderRadius: "50%",
+          border: (theme) =>
+            `1px dashed ${alpha(theme.palette.grey[500], 0.2)}`,
           ...(isDragActive && {
             opacity: 0.72,
           }),
           ...(disabled && {
             opacity: 0.48,
-            pointerEvents: 'none',
+            pointerEvents: "none",
           }),
           ...(hasError && {
-            borderColor: 'error.main',
+            borderColor: "error.main",
           }),
           ...(hasFile && {
             ...(hasError && {
               bgcolor: (theme) => alpha(theme.palette.error.main, 0.08),
             }),
-            '&:hover .upload-placeholder': {
+            "&:hover .upload-placeholder": {
               opacity: 1,
             },
           }),

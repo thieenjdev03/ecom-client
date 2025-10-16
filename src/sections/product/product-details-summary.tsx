@@ -1,30 +1,30 @@
-import { useEffect, useCallback, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useEffect, useCallback, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
-import Rating from '@mui/material/Rating';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
-import Typography from '@mui/material/Typography';
-import Collapse from '@mui/material/Collapse';
-import IconButton from '@mui/material/IconButton';
+import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import Stack from "@mui/material/Stack";
+import Rating from "@mui/material/Rating";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
+import Collapse from "@mui/material/Collapse";
+import IconButton from "@mui/material/IconButton";
 
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
+import { paths } from "src/routes/paths";
+import { useRouter } from "src/routes/hooks";
 
-import { fCurrency, fShortenNumber } from 'src/utils/format-number';
+import { fCurrency, fShortenNumber } from "src/utils/format-number";
 
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import { ColorPicker } from 'src/components/color-utils';
-import FormProvider from 'src/components/hook-form';
+import Label from "src/components/label";
+import Iconify from "src/components/iconify";
+import { ColorPicker } from "src/components/color-utils";
+import FormProvider from "src/components/hook-form";
 
-import { IProductItem } from 'src/types/product';
-import { ICheckoutItem } from 'src/types/checkout';
+import { IProductItem } from "src/types/product";
+import { ICheckoutItem } from "src/types/checkout";
 
-import IncrementerButton from './common/incrementer-button';
+import IncrementerButton from "./common/incrementer-button";
 
 // ----------------------------------------------------------------------
 
@@ -46,6 +46,7 @@ export default function ProductDetailsSummary({
 }: Props) {
   const router = useRouter();
   const [openDetails, setOpenDetails] = useState(false);
+  const [openAdditional, setOpenAdditional] = useState(false);
 
   const {
     id,
@@ -66,11 +67,13 @@ export default function ProductDetailsSummary({
     modelSize,
   } = product;
 
-  const existProduct = !!items?.length && items.map((item) => item.id).includes(id);
+  const existProduct =
+    !!items?.length && items.map((item) => item.id).includes(id);
 
   const isMaxQuantity =
     !!items?.length &&
-    items.filter((item) => item.id === id).map((item) => item.quantity)[0] >= available;
+    items.filter((item) => item.id === id).map((item) => item.quantity)[0] >=
+      available;
 
   const defaultValues = {
     id,
@@ -127,13 +130,13 @@ export default function ProductDetailsSummary({
   }, [onAddCart, values]);
 
   const renderPrice = (
-    <Box sx={{ typography: 'h5' }}>
+    <Box sx={{ typography: "h5" }}>
       {priceSale && (
         <Box
           component="span"
           sx={{
-            color: 'text.disabled',
-            textDecoration: 'line-through',
+            color: "text.disabled",
+            textDecoration: "line-through",
             mr: 0.5,
           }}
         >
@@ -144,7 +147,6 @@ export default function ProductDetailsSummary({
       {fCurrency(price)}
     </Box>
   );
-
 
   const renderColorOptions = (
     <Stack direction="column">
@@ -172,15 +174,14 @@ export default function ProductDetailsSummary({
         <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
           Size
         </Typography>
-
       </Stack>
 
       <Box
         sx={{
-          display: 'grid',
+          display: "grid",
           gridTemplateColumns: {
-            xs: 'repeat(3, minmax(0, 1fr))',
-            sm: 'repeat(5, minmax(0, 1fr))',
+            xs: "repeat(3, minmax(0, 1fr))",
+            sm: "repeat(5, minmax(0, 1fr))",
           },
           gap: 1,
         }}
@@ -188,13 +189,15 @@ export default function ProductDetailsSummary({
         {sizes.map((size) => (
           <Button
             key={size}
-            size="small"
-            variant={values.size === size ? 'contained' : 'outlined'}
-            color={values.size === size ? 'primary' : 'inherit'}
-            onClick={() => setValue('size', size)}
+            variant={values.size === size ? "contained" : "outlined"}
+            color={values.size === size ? "primary" : "inherit"}
+            onClick={() => setValue("size", size)}
             sx={{
               py: 1,
               fontWeight: 600,
+              padding: "10px",
+              height: "40px",
+              width: "fit-content",
             }}
           >
             {size}
@@ -203,31 +206,27 @@ export default function ProductDetailsSummary({
       </Box>
       <Box
         sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
-          justifyContent: 'flex-start',
-          alignItems: { xs: 'center', sm: 'center' },
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          justifyContent: "flex-start",
+          alignItems: { xs: "center", sm: "center" },
           gap: 1.5,
           mt: 1,
         }}
       >
-        <Link
-          underline="always"
-        >
-          Size Guide
-        </Link>
+        <Link underline="always">Size Guide</Link>
         <Typography
           variant="caption"
           sx={{
-            color: 'text.secondary',
+            color: "text.secondary",
             fontSize: 12,
-            whiteSpace: 'nowrap',
+            whiteSpace: "nowrap",
           }}
         >
-          Model size: {modelSize || 'N/A'} | Model height: {modelHeight || 'N/A'}
+          Model size: {modelSize || "N/A"} | Model height:{" "}
+          {modelHeight || "N/A"}
         </Typography>
       </Box>
-     
     </Stack>
   );
 
@@ -243,11 +242,15 @@ export default function ProductDetailsSummary({
           quantity={values.quantity}
           disabledDecrease={values.quantity <= 1}
           disabledIncrease={values.quantity >= available}
-          onIncrease={() => setValue('quantity', values.quantity + 1)}
-          onDecrease={() => setValue('quantity', values.quantity - 1)}
+          onIncrease={() => setValue("quantity", values.quantity + 1)}
+          onDecrease={() => setValue("quantity", values.quantity - 1)}
         />
 
-        <Typography variant="caption" component="div" sx={{ textAlign: 'right' }}>
+        <Typography
+          variant="caption"
+          component="div"
+          sx={{ textAlign: "right" }}
+        >
           Available: {available}
         </Typography>
       </Stack>
@@ -258,15 +261,21 @@ export default function ProductDetailsSummary({
     <Stack direction="row" spacing={2}>
       <Button
         startIcon={<Iconify icon="solar:cart-plus-bold" width={24} />}
-      fullWidth size="large" type="submit" variant="contained" disabled={disabledActions}>
-      Add to Bag
+        fullWidth
+        size="large"
+        type="submit"
+        variant="contained"
+        disabled={disabledActions}
+      >
+        Add to Bag
       </Button>
     </Stack>
   );
 
   const renderSubDescription = (
-    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-      {subDescription || 'Page layouts look better with something in each section. Web page designers, content writers, and layout artists use lorem ipsum, also known as placeholder copy, to distinguish which areas on a page will hold advertisements, editorials, and filler before the final written content and website designs receive client approval.'}
+    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+      {subDescription ||
+        "Page layouts look better with something in each section. Web page designers, content writers, and layout artists use lorem ipsum, also known as placeholder copy, to distinguish which areas on a page will hold advertisements, editorials, and filler before the final written content and website designs receive client approval."}
     </Typography>
   );
 
@@ -275,11 +284,17 @@ export default function ProductDetailsSummary({
       direction="row"
       alignItems="center"
       sx={{
-        color: 'text.disabled',
-        typography: 'body2',
+        color: "text.disabled",
+        typography: "body2",
       }}
     >
-      <Rating size="small" value={totalRatings} precision={0.1} readOnly sx={{ mr: 1 }} />
+      <Rating
+        size="small"
+        value={totalRatings}
+        precision={0.1}
+        readOnly
+        sx={{ mr: 1 }}
+      />
       {`(${fShortenNumber(totalReviews)} reviews)`}
     </Stack>
   );
@@ -295,11 +310,11 @@ export default function ProductDetailsSummary({
     <Box
       component="span"
       sx={{
-        typography: 'overline',
+        typography: "overline",
         color:
-          (inventoryType === 'out of stock' && 'error.main') ||
-          (inventoryType === 'low stock' && 'warning.main') ||
-          'success.main',
+          (inventoryType === "out of stock" && "error.main") ||
+          (inventoryType === "low stock" && "warning.main") ||
+          "success.main",
       }}
     >
       {inventoryType}
@@ -312,23 +327,33 @@ export default function ProductDetailsSummary({
         <IconButton
           size="small"
           onClick={() => setOpenDetails((prev) => !prev)}
-          aria-label={openDetails ? 'Collapse details' : 'Expand details'}
+          aria-label={openDetails ? "Collapse details" : "Expand details"}
         >
           <Iconify
             icon="eva:arrow-ios-downward-fill"
             width={24}
-            style={{ transform: openDetails ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms' }}
+            style={{
+              transform: openDetails ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 200ms",
+            }}
           />
         </IconButton>
       </Stack>
       <Collapse in={openDetails} timeout="auto" unmountOnExit>
-        <Stack spacing={1} sx={{ color: 'text.secondary' }}>
-          <Typography variant="body2">Model size: {modelSize || 'N/A'}</Typography>
-          <Typography variant="body2">Model height: {modelHeight || 'N/A'}</Typography>
-          <Typography variant="body2">Inventory: {inventoryType}</Typography>
-          {!!sizes?.length && (
-            <Typography variant="body2">Available sizes: {sizes.join(', ')}</Typography>
-          )}
+        <Stack spacing={1} sx={{ color: "text.secondary" }}>
+          <Typography variant="body2">
+            Model size: {modelSize || "N/A"}
+          </Typography>
+          <Typography variant="body2">
+            Model height: {modelHeight || "N/A"}
+          </Typography>
+          <Typography variant="body2">
+            Fit: Regular fit with breathable upper
+          </Typography>
+          <Typography variant="body2">
+            Sole: Cushioned midsole for daily wear
+          </Typography>
+          <Typography variant="body2">Origin: Designed locally</Typography>
         </Stack>
       </Collapse>
     </Stack>
@@ -339,23 +364,41 @@ export default function ProductDetailsSummary({
         <Typography variant="h6">ADDITIONAL INFO</Typography>
         <IconButton
           size="small"
-          onClick={() => setOpenDetails((prev) => !prev)}
-          aria-label={openDetails ? 'Collapse details' : 'Expand details'}
+          onClick={() => setOpenAdditional((prev) => !prev)}
+          aria-label={
+            openAdditional
+              ? "Collapse additional info"
+              : "Expand additional info"
+          }
         >
           <Iconify
             icon="eva:arrow-ios-downward-fill"
             width={24}
-            style={{ transform: openDetails ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms' }}
+            style={{
+              transform: openAdditional ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 200ms",
+            }}
           />
         </IconButton>
       </Stack>
-      <Collapse in={openDetails} timeout="auto" unmountOnExit>
-        <Stack spacing={1} sx={{ color: 'text.secondary' }}>
-          <Typography variant="body2">Model size: {modelSize || 'N/A'}</Typography>
-          <Typography variant="body2">Model height: {modelHeight || 'N/A'}</Typography>
-          <Typography variant="body2">Inventory: {inventoryType}</Typography>
+      <Collapse in={openAdditional} timeout="auto" unmountOnExit>
+        <Stack spacing={1} sx={{ color: "text.secondary" }}>
+          <Typography variant="body2">
+            Material: Mesh upper, rubber outsole
+          </Typography>
+          <Typography variant="body2">
+            Care: Spot clean with mild detergent
+          </Typography>
+          <Typography variant="body2">
+            Warranty: 1 year limited warranty
+          </Typography>
+          <Typography variant="body2">
+            Shipping: Free shipping on orders over $100
+          </Typography>
           {!!sizes?.length && (
-            <Typography variant="body2">Available sizes: {sizes.join(', ')}</Typography>
+            <Typography variant="body2">
+              Available sizes: {sizes.join(", ")}
+            </Typography>
           )}
         </Stack>
       </Collapse>
@@ -373,12 +416,12 @@ export default function ProductDetailsSummary({
 
           {renderPrice}
 
-          {renderRating}
+          {/* {renderRating} */}
 
           {renderSubDescription}
         </Stack>
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+        <Divider sx={{ borderStyle: "dashed" }} />
 
         {renderColorOptions}
 
@@ -386,7 +429,7 @@ export default function ProductDetailsSummary({
 
         {renderQuantity}
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+        <Divider sx={{ borderStyle: "dashed" }} />
 
         {renderActions}
 

@@ -1,40 +1,47 @@
-import { m } from 'framer-motion';
-import { useState, useCallback } from 'react';
+import { m } from "framer-motion";
+import { useState, useCallback } from "react";
 
-import Box from '@mui/material/Box';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
-import { alpha } from '@mui/material/styles';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import Stack, { StackProps } from '@mui/material/Stack';
+import Box from "@mui/material/Box";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import { alpha } from "@mui/material/styles";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import Stack, { StackProps } from "@mui/material/Stack";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import { useResponsive } from 'src/hooks/use-responsive';
+import { useResponsive } from "src/hooks/use-responsive";
 
-import { _homePlans } from 'src/_mock';
+import { _homePlans } from "src/_mock";
 
-import Iconify from 'src/components/iconify';
-import { varFade, MotionViewport } from 'src/components/animate';
+import Iconify from "src/components/iconify";
+import { varFade, MotionViewport } from "src/components/animate";
 
 // ----------------------------------------------------------------------
 
 export default function HomePricing() {
-  const mdUp = useResponsive('up', 'md');
+  const mdUp = useResponsive("up", "md");
 
-  const [currentTab, setCurrentTab] = useState('Standard');
+  const [currentTab, setCurrentTab] = useState("Standard");
 
-  const handleChangeTab = useCallback((event: React.SyntheticEvent, newValue: string) => {
-    setCurrentTab(newValue);
-  }, []);
+  const handleChangeTab = useCallback(
+    (event: React.SyntheticEvent, newValue: string) => {
+      setCurrentTab(newValue);
+    },
+    [],
+  );
 
   const renderDescription = (
-    <Stack spacing={3} sx={{ mb: 10, textAlign: 'center' }}>
+    <Stack spacing={3} sx={{ mb: 10, textAlign: "center" }}>
       <m.div variants={varFade().inUp}>
-        <Typography component="div" variant="overline" sx={{ mb: 2, color: 'text.disabled' }}>
+        <Typography
+          component="div"
+          variant="overline"
+          sx={{ mb: 2, color: "text.disabled" }}
+        >
           pricing plans
         </Typography>
       </m.div>
@@ -46,7 +53,7 @@ export default function HomePricing() {
       </m.div>
 
       <m.div variants={varFade().inDown}>
-        <Typography sx={{ color: 'text.secondary' }}>
+        <Typography sx={{ color: "text.secondary" }}>
           Choose the perfect plan for your needs. Always flexible to grow
         </Typography>
       </m.div>
@@ -75,7 +82,11 @@ export default function HomePricing() {
           <Stack alignItems="center" sx={{ mb: 5 }}>
             <Tabs value={currentTab} onChange={handleChangeTab}>
               {_homePlans.map((tab) => (
-                <Tab key={tab.license} value={tab.license} label={tab.license} />
+                <Tab
+                  key={tab.license}
+                  value={tab.license}
+                  label={tab.license}
+                />
               ))}
             </Tabs>
           </Stack>
@@ -93,10 +104,11 @@ export default function HomePricing() {
                     key={tab.license}
                     plan={tab}
                     sx={{
-                      borderLeft: (theme) => `dashed 1px ${theme.palette.divider}`,
+                      borderLeft: (theme) =>
+                        `dashed 1px ${theme.palette.divider}`,
                     }}
                   />
-                )
+                ),
             )}
           </Box>
         </>
@@ -105,7 +117,7 @@ export default function HomePricing() {
       <m.div variants={varFade().in}>
         <Box
           sx={{
-            textAlign: 'center',
+            textAlign: "center",
             mt: {
               xs: 5,
               md: 10,
@@ -117,7 +129,7 @@ export default function HomePricing() {
           </m.div>
 
           <m.div variants={varFade().inDown}>
-            <Typography sx={{ mt: 2, mb: 5, color: 'text.secondary' }}>
+            <Typography sx={{ mt: 2, mb: 5, color: "text.secondary" }}>
               Please describe your case to receive the most accurate advice.
             </Typography>
           </m.div>
@@ -167,9 +179,9 @@ interface PlanCardProps extends StackProps {
 function PlanCard({ plan, sx, ...other }: PlanCardProps) {
   const { license, commons, options, icons } = plan;
 
-  const standardLicense = license === 'Standard';
+  const standardLicense = license === "Standard";
 
-  const plusLicense = license === 'Standard Plus';
+  const plusLicense = license === "Standard Plus";
 
   return (
     <Stack
@@ -186,11 +198,15 @@ function PlanCard({ plan, sx, ...other }: PlanCardProps) {
       {...other}
     >
       <Stack spacing={2}>
-        <Typography variant="overline" component="div" sx={{ color: 'text.disabled' }}>
+        <Typography
+          variant="overline"
+          component="div"
+          sx={{ color: "text.disabled" }}
+        >
           License
         </Typography>
 
-        <Box sx={{ position: 'relative' }}>
+        <Box sx={{ position: "relative" }}>
           <Typography variant="h4">{license}</Typography>
           <Box
             sx={{
@@ -199,21 +215,32 @@ function PlanCard({ plan, sx, ...other }: PlanCardProps) {
               width: 40,
               height: 8,
               opacity: 0.48,
-              bgcolor: 'error.main',
-              position: 'absolute',
-              ...(standardLicense && { bgcolor: 'primary.main' }),
-              ...(plusLicense && { bgcolor: 'warning.main' }),
+              bgcolor: "error.main",
+              position: "absolute",
+              ...(standardLicense && { bgcolor: "primary.main" }),
+              ...(plusLicense && { bgcolor: "warning.main" }),
             }}
           />
         </Box>
       </Stack>
 
       {standardLicense ? (
-        <Box component="img" alt={icons[1]} src={icons[1]} sx={{ width: 20, height: 20 }} />
+        <Box
+          component="img"
+          alt={icons[1]}
+          src={icons[1]}
+          sx={{ width: 20, height: 20 }}
+        />
       ) : (
         <Stack direction="row" spacing={2}>
           {icons.map((icon) => (
-            <Box component="img" key={icon} alt={icon} src={icon} sx={{ width: 20, height: 20 }} />
+            <Box
+              component="img"
+              key={icon}
+              alt={icon}
+              src={icon}
+              sx={{ width: 20, height: 20 }}
+            />
           ))}
         </Stack>
       )}
@@ -226,7 +253,7 @@ function PlanCard({ plan, sx, ...other }: PlanCardProps) {
           </Stack>
         ))}
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+        <Divider sx={{ borderStyle: "dashed" }} />
 
         {options.map((option, optionIndex) => {
           const disabled =
@@ -241,11 +268,14 @@ function PlanCard({ plan, sx, ...other }: PlanCardProps) {
               direction="row"
               alignItems="center"
               sx={{
-                ...(disabled && { color: 'text.disabled' }),
+                ...(disabled && { color: "text.disabled" }),
               }}
               key={option}
             >
-              <Iconify icon={disabled ? 'mingcute:close-line' : 'eva:checkmark-fill'} width={16} />
+              <Iconify
+                icon={disabled ? "mingcute:close-line" : "eva:checkmark-fill"}
+                width={16}
+              />
               <Typography variant="body2">{option}</Typography>
             </Stack>
           );

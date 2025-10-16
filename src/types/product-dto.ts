@@ -5,6 +5,11 @@ export type ProductDto = {
   category: { id: string; name?: string };
   quantity: number;
   tags: string[];
+  images: string[];
+  isFeatured: boolean;
+  productPrice: number;
+  is_new: boolean;
+  is_sale: boolean;
   gender: string[];
   saleLabel: string | null;
   newLabel: string | null;
@@ -39,5 +44,3 @@ export type SizeDto = {
   category: { id: string } | null;
   sortOrder: number;
 };
-
-

@@ -1,9 +1,9 @@
-import { AmplifyRegisterView } from 'src/sections/auth/amplify';
+import { AmplifyRegisterView } from "src/sections/auth/amplify";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Amplify: Register',
+  title: "Amplify: Register",
 };
 
 export default function RegisterPage() {

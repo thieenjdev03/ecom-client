@@ -1,9 +1,9 @@
-import ProgressView from 'src/sections/_examples/mui/progress-view';
+import ProgressView from "src/sections/_examples/mui/progress-view";
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'MUI: Progress',
+  title: "MUI: Progress",
 };
 
 export default function ProgressPage() {

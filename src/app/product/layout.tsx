@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import MainLayout from 'src/layouts/main';
+import MainLayout from "src/layouts/main";
 
 // ----------------------------------------------------------------------
 

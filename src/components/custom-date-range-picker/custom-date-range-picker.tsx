@@ -1,23 +1,23 @@
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import FormHelperText from '@mui/material/FormHelperText';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import FormHelperText from "@mui/material/FormHelperText";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 
-import { useResponsive } from 'src/hooks/use-responsive';
+import { useResponsive } from "src/hooks/use-responsive";
 
-import { DateRangePickerProps } from './types';
+import { DateRangePickerProps } from "./types";
 
 // ----------------------------------------------------------------------
 
 export default function CustomDateRangePicker({
-  title = 'Select date range',
-  variant = 'input',
+  title = "Select date range",
+  variant = "input",
   //
   startDate,
   endDate,
@@ -30,14 +30,14 @@ export default function CustomDateRangePicker({
   //
   error,
 }: DateRangePickerProps) {
-  const mdUp = useResponsive('up', 'md');
+  const mdUp = useResponsive("up", "md");
 
-  const isCalendarView = variant === 'calendar';
+  const isCalendarView = variant === "calendar";
 
   return (
     <Dialog
       fullWidth
-      maxWidth={isCalendarView ? false : 'xs'}
+      maxWidth={isCalendarView ? false : "xs"}
       open={open}
       onClose={onClose}
       PaperProps={{
@@ -54,14 +54,14 @@ export default function CustomDateRangePicker({
         sx={{
           ...(isCalendarView &&
             mdUp && {
-              overflow: 'unset',
+              overflow: "unset",
             }),
         }}
       >
         <Stack
           justifyContent="center"
           spacing={isCalendarView ? 3 : 2}
-          direction={isCalendarView && mdUp ? 'row' : 'column'}
+          direction={isCalendarView && mdUp ? "row" : "column"}
           sx={{ pt: 1 }}
         >
           {isCalendarView ? (
@@ -70,8 +70,8 @@ export default function CustomDateRangePicker({
                 variant="outlined"
                 sx={{
                   borderRadius: 2,
-                  borderColor: 'divider',
-                  borderStyle: 'dashed',
+                  borderColor: "divider",
+                  borderStyle: "dashed",
                 }}
               >
                 <DateCalendar value={startDate} onChange={onChangeStartDate} />
@@ -81,8 +81,8 @@ export default function CustomDateRangePicker({
                 variant="outlined"
                 sx={{
                   borderRadius: 2,
-                  borderColor: 'divider',
-                  borderStyle: 'dashed',
+                  borderColor: "divider",
+                  borderStyle: "dashed",
                 }}
               >
                 <DateCalendar value={endDate} onChange={onChangeEndDate} />
@@ -90,9 +90,17 @@ export default function CustomDateRangePicker({
             </>
           ) : (
             <>
-              <DatePicker label="Start date" value={startDate} onChange={onChangeStartDate} />
+              <DatePicker
+                label="Start date"
+                value={startDate}
+                onChange={onChangeStartDate}
+              />
 
-              <DatePicker label="End date" value={endDate} onChange={onChangeEndDate} />
+              <DatePicker
+                label="End date"
+                value={endDate}
+                onChange={onChangeEndDate}
+              />
             </>
           )}
         </Stack>

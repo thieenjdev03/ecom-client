@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import Masonry from '@mui/lab/Masonry';
-import Container from '@mui/material/Container';
+import Masonry from "@mui/lab/Masonry";
+import Container from "@mui/material/Container";
 
-import { paths } from 'src/routes/paths';
+import { paths } from "src/routes/paths";
 
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
-import ComponentHero from 'src/sections/_examples/component-hero';
+import ComponentHero from "src/sections/_examples/component-hero";
 
-import FormDialog from './form-dialog';
-import AlertDialog from './alert-dialog';
-import ScrollDialog from './scroll-dialog';
-import SimpleDialogs from './simple-dialog';
-import MaxWidthDialog from './max-width-dialog';
-import ComponentBlock from '../../component-block';
-import FullScreenDialog from './full-screen-dialog';
-import TransitionsDialog from './transitions-dialog';
+import FormDialog from "./form-dialog";
+import AlertDialog from "./alert-dialog";
+import ScrollDialog from "./scroll-dialog";
+import SimpleDialogs from "./simple-dialog";
+import MaxWidthDialog from "./max-width-dialog";
+import ComponentBlock from "../../component-block";
+import FullScreenDialog from "./full-screen-dialog";
+import TransitionsDialog from "./transitions-dialog";
 
 // ----------------------------------------------------------------------
 
@@ -28,12 +28,12 @@ export default function DialogView() {
           heading="Dialog"
           links={[
             {
-              name: 'Components',
+              name: "Components",
               href: paths.components,
             },
-            { name: 'Dialog' },
+            { name: "Dialog" },
           ]}
-          moreLink={['https://mui.com/components/dialogs']}
+          moreLink={["https://mui.com/components/dialogs"]}
         />
       </ComponentHero>
 

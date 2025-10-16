@@ -1,6 +1,6 @@
-import Box from '@mui/material/Box';
+import Box from "@mui/material/Box";
 
-import Image from '../image';
+import Image from "../image";
 
 // ----------------------------------------------------------------------
 
@@ -8,7 +8,7 @@ type Props = {
   imgUrl?: string;
 };
 
-export default function SingleFilePreview({ imgUrl = '' }: Props) {
+export default function SingleFilePreview({ imgUrl = "" }: Props) {
   return (
     <Box
       sx={{
@@ -17,7 +17,7 @@ export default function SingleFilePreview({ imgUrl = '' }: Props) {
         left: 0,
         width: 1,
         height: 1,
-        position: 'absolute',
+        position: "absolute",
       }}
     >
       <Image
