@@ -9,10 +9,12 @@ import { adaptProductDtoToItem } from "src/utils/product-adapter";
 
 // ----------------------------------------------------------------------
 
-export function useGetProducts() {
-  const URL = endpoints.product.list;
+export function useGetProducts(params?: { page?: number; limit?: number }) {
+  const URL = params
+    ? [endpoints.product.list, { params }]
+    : endpoints.product.list;
 
-  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
+  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
 
   const memoizedValue = useMemo(
     () => ({
@@ -24,12 +26,14 @@ export function useGetProducts() {
       productsLoading: isLoading,
       productsError: error,
       productsValidating: isValidating,
+      meta: (data?.data?.meta as any) || (data?.meta as any) || undefined,
       productsEmpty:
         !isLoading &&
         ((Array.isArray(data) && data.length === 0) ||
           (Array.isArray(data?.data) && data.data.length === 0)),
+      mutateProducts: mutate,
     }),
-    [data, error, isLoading, isValidating],
+    [data, error, isLoading, isValidating, mutate],
   );
 
   return memoizedValue;

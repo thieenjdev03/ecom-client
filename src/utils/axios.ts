@@ -32,8 +32,9 @@ export const endpoints = {
   chat: "/api/chat",
   kanban: "/api/kanban",
   calendar: "/api/calendar",
+  me: `${apiUrl}/me`,
   auth: {
-    me: `${apiUrl}/auth/me`,
+    me: `${apiUrl}/me`,
     login: `${apiUrl}/auth/login`,
     register: `${apiUrl}/auth/register`,
   },

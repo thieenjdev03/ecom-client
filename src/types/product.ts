@@ -1,5 +1,7 @@
 // ----------------------------------------------------------------------
 
+import { ProductVariantDto } from "src/types/product-dto";
+
 export type IProductFilterValue = string | string[] | number | number[];
 
 export type IProductFilters = {
@@ -63,6 +65,7 @@ export type IProductItem = {
   priceSale: number | null;
   reviews: IProductReview[];
   createdAt: Date;
+  variants: ProductVariantDto[];
   ratings: {
     name: string;
     starCount: number;
@@ -78,9 +81,51 @@ export type IProductItem = {
   };
 };
 
+// API Product type for new data structure
+export type IApiProductItem = {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  short_description: string | null;
+  price: string;
+  sale_price: string | null;
+  cost_price: string | null;
+  images: string[];
+  variants: any[];
+  stock_quantity: number;
+  sku: string;
+  barcode: string | null;
+  category_id: number;
+  tags: string[];
+  status: string;
+  is_featured: boolean;
+  meta_title: string | null;
+  meta_description: string | null;
+  weight: string | null;
+  dimensions: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  category: {
+    id: number;
+    name: string;
+    slug: string;
+    description: string;
+    image_url: string | null;
+    parent_id: number | null;
+    display_order: number;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+  };
+};
+
 export type IProductTableFilterValue = string | string[];
 
 export type IProductTableFilters = {
   stock: string[];
   publish: string[];
+  category: string;
+  search: string;
 };

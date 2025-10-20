@@ -66,12 +66,37 @@ export function RenderCellStock({ params }: ParamsProps) {
   );
 }
 
+export function RenderCellStatus({ params }: ParamsProps) {
+  const inventoryType: string = params.row.inventoryType || "";
+  const publish: string = params.row.publish || "";
+
+  // Map to colors per spec
+  let color: "success" | "default" | "error" | "warning" = "success";
+  let label = "active";
+
+  if (publish === "draft") {
+    color = "default";
+    label = "draft";
+  }
+  if (inventoryType === "out of stock") {
+    color = "error";
+    label = "out_of_stock";
+  }
+
+  return (
+    <Label variant="soft" color={color}>
+      {label}
+    </Label>
+  );
+}
+
 export function RenderCellProduct({ params }: ParamsProps) {
+  console.log('params', params);
   return (
     <Stack direction="row" alignItems="center" sx={{ py: 2, width: 1 }}>
       <Avatar
         alt={params.row.name}
-        src={params.row.coverUrl}
+        src={params.row.images[0]}
         variant="rounded"
         sx={{ width: 64, height: 64, mr: 2 }}
       />

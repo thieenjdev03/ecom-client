@@ -15,6 +15,7 @@ import { paper } from "src/theme/css";
 import { HEADER } from "../../../config-layout";
 import { NavItem, NavItemDashboard } from "./nav-item";
 import { NavListProps, NavSubListProps } from "../types";
+import CategoriesDropdown from "../categories-dropdown";
 
 // ----------------------------------------------------------------------
 
@@ -35,10 +36,10 @@ export default function NavList({ data }: NavListProps) {
   }, [pathname]);
 
   const handleOpenMenu = useCallback(() => {
-    if (data.children) {
+    if (data.children || data.hasCategories) {
       setOpenMenu(true);
     }
-  }, [data.children]);
+  }, [data.children, data.hasCategories]);
 
   const handleCloseMenu = useCallback(() => {
     setOpenMenu(false);
@@ -54,11 +55,19 @@ export default function NavList({ data }: NavListProps) {
         title={data.title}
         path={data.path}
         //
-        hasChild={!!data.children}
+        hasChild={!!data.children || !!data.hasCategories}
         externalLink={data.path.includes("http")}
         //
         active={active}
       />
+
+      {data.hasCategories && openMenu && (
+        <CategoriesDropdown
+          open={openMenu}
+          onMouseEnter={handleOpenMenu}
+          onMouseLeave={handleCloseMenu}
+        />
+      )}
 
       {!!data.children && openMenu && (
         <Portal>

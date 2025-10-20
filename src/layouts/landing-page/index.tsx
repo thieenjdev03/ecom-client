@@ -1,9 +1,8 @@
+"use client";
 import Box from "@mui/material/Box";
 
-import { usePathname } from "src/routes/hooks";
-
-import Footer from "./footer";
-import Header from "./header";
+import LandingFooter from "../landing-page/footer";
+import HeaderEcom from "./header-ecom";
 
 // ----------------------------------------------------------------------
 
@@ -11,28 +10,24 @@ type Props = {
   children: React.ReactNode;
 };
 
-export default function MainLayout({ children }: Props) {
-  const pathname = usePathname();
-
-  const homePage = pathname === "/";
-
+export default function LandingPageLayout({ children }: Props) {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: 1 }}>
-      <Header />
+      <HeaderEcom />
 
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          ...(!homePage && {
-            pt: { xs: 8, md: 10 },
+          ...( {
+            mt: { xs: 8, md: 10 },
           }),
         }}
       >
         {children}
       </Box>
 
-      <Footer />
+      {<LandingFooter />}
     </Box>
   );
 }

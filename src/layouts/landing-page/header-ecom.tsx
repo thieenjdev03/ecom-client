@@ -20,8 +20,10 @@ import { useResponsive } from "src/hooks/use-responsive";
 
 import { HEADER } from "../config-layout";
 import HeaderShadow from "../common/header-shadow";
-import EcomDropdown from "./nav/ecom-dropdown";
+import EcomDropdown from "../main/nav/ecom-dropdown";
+import EcomCategoriesDropdown from "./nav/ecom-categories-dropdown";
 import { PRODUCT_CATEGORY_GROUP_OPTIONS } from "src/_mock";
+import { useAuthContext } from "src/auth/hooks";
 
 // ----------------------------------------------------------------------
 
@@ -49,7 +51,8 @@ export default function HeaderEcom() {
     isHome && !offsetTop
       ? theme.palette.common.white
       : theme.palette.text.primary;
-
+  const userProfile = useAuthContext();
+  console.log('userProfile', userProfile);
   return (
     <AppBar elevation={0} sx={{ bgcolor: "transparent", boxShadow: "none" }}>
       <Toolbar
@@ -87,6 +90,13 @@ export default function HeaderEcom() {
                     typography: "subtitle2",
                     letterSpacing: 1,
                     textShadow: activeShadow,
+                    transition: "all 0.3s ease",
+                    cursor: "pointer",
+                    "&:hover": {
+                      color: theme.palette.primary.main,
+                      transform: "translateY(-2px)",
+                      textShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+                    },
                   }}
                 >
                   HOME
@@ -102,6 +112,11 @@ export default function HeaderEcom() {
                       href: `${paths.product.root}?category=${encodeURIComponent(c)}`,
                     })),
                   }))}
+                />
+                <EcomCategoriesDropdown
+                  label="CATEGORIES"
+                  color={activeColorValue}
+                  textShadow={activeShadow}
                 />
                 <EcomDropdown
                   label="COLLECTION"
@@ -122,11 +137,22 @@ export default function HeaderEcom() {
           <Box sx={{ flex: 0, textAlign: "center" }}>
             <Typography
               variant="h3"
+              component={RouterLink}
+              href="/"
               sx={{
                 fontWeight: 700,
                 letterSpacing: 8,
                 color: activeColor,
                 textShadow: activeShadow,
+                textDecoration: "none",
+                display: "block",
+                transition: "all 0.3s ease",
+                cursor: "pointer",
+                "&:hover": {
+                  color: theme.palette.primary.main,
+                  transform: "scale(1.05)",
+                  textShadow: "0 6px 12px rgba(0, 0, 0, 0.4)",
+                },
               }}
             >
               LUMÉ
@@ -139,14 +165,38 @@ export default function HeaderEcom() {
             spacing={1.5}
             sx={{ flex: 1, justifyContent: "flex-end" }}
           >
-            <IconButton color="inherit" sx={{ color: activeColor }}>
+            <IconButton 
+              color="inherit" 
+              sx={{ 
+                color: activeColor,
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  color: theme.palette.primary.main,
+                  transform: "scale(1.1)",
+                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                },
+              }}
+            >
               <Iconify
                 icon="solar:magnifier-linear"
                 width={22}
                 sx={{ textShadow: activeShadow }}
               />
             </IconButton>
-            <IconButton color="inherit" sx={{ color: activeColor }}>
+                <IconButton 
+                  component={RouterLink} 
+                  href={paths.landing.product.wishlist} 
+                  color="inherit" 
+                  sx={{ 
+                    color: activeColor,
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      color: theme.palette.error.main,
+                      transform: "scale(1.1)",
+                      backgroundColor: "rgba(0, 0, 0, 0.05)",
+                    },
+                  }}
+                >
               <Iconify
                 icon="solar:heart-linear"
                 width={22}
@@ -155,9 +205,17 @@ export default function HeaderEcom() {
             </IconButton>
             <IconButton
               color="inherit"
-              sx={{ color: activeColor }}
+              sx={{ 
+                color: activeColor,
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  color: theme.palette.primary.main,
+                  transform: "scale(1.1)",
+                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                },
+              }}
               component={RouterLink}
-              href={paths.auth.jwt.login}
+              href={userProfile?.authenticated ? paths.landing.user.account : paths.auth.jwt.login}
             >
               <Iconify
                 icon="solar:user-linear"
@@ -169,7 +227,15 @@ export default function HeaderEcom() {
               color="inherit"
               component={RouterLink}
               href={paths.product.checkout}
-              sx={{ color: activeColor }}
+              sx={{ 
+                color: activeColor,
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  color: theme.palette.success.main,
+                  transform: "scale(1.1)",
+                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                },
+              }}
             >
               <Iconify
                 icon="solar:bag-3-linear"

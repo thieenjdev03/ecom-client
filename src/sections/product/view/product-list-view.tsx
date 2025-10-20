@@ -1,5 +1,6 @@
 "use client";
-
+ 
+import orderBy from "lodash/orderBy";
 import isEqual from "lodash/isEqual";
 import { useState, useEffect, useCallback } from "react";
 
@@ -62,6 +63,8 @@ const PUBLISH_OPTIONS = [
 const defaultFilters: IProductTableFilters = {
   publish: [],
   stock: [],
+  category: "all",
+  search: "",
 };
 
 const HIDE_COLUMNS = {
@@ -81,7 +84,12 @@ export default function ProductListView() {
 
   const settings = useSettingsContext();
 
-  const { products, productsLoading } = useGetProducts();
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
+
+  const { products, productsLoading, productsError, meta, mutateProducts } = useGetProducts({
+    page: paginationModel.page + 1,
+    limit: paginationModel.pageSize,
+  });
 
   const [tableData, setTableData] = useState<IProductItem[]>([]);
 
@@ -103,6 +111,7 @@ export default function ProductListView() {
   const dataFiltered = applyFilter({
     inputData: tableData,
     filters,
+    sortBy: undefined,
   });
 
   const canReset = !isEqual(defaultFilters, filters);
@@ -122,25 +131,34 @@ export default function ProductListView() {
   }, []);
 
   const handleDeleteRow = useCallback(
-    (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      enqueueSnackbar("Delete success!");
-
-      setTableData(deleteRow);
+    async (id: string) => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`, {
+          method: 'DELETE',
+        });
+        if (!res.ok) throw new Error('Failed to delete');
+        enqueueSnackbar("Delete success!");
+        await mutateProducts?.();
+      } catch (e) {
+        enqueueSnackbar("Delete failed", { variant: 'error' });
+      }
     },
-    [enqueueSnackbar, tableData],
+    [enqueueSnackbar, mutateProducts],
   );
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter(
-      (row) => !selectedRowIds.includes(row.id),
-    );
-
-    enqueueSnackbar("Delete success!");
-
-    setTableData(deleteRows);
-  }, [enqueueSnackbar, selectedRowIds, tableData]);
+  const handleDeleteRows = useCallback(async () => {
+    try {
+      await Promise.all(
+        tableData
+          .filter((row) => selectedRowIds.includes(row.id))
+          .map((row) => fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${row.id}`, { method: 'DELETE' })),
+      );
+      enqueueSnackbar("Delete success!");
+      await mutateProducts?.();
+    } catch (e) {
+      enqueueSnackbar("Delete failed", { variant: 'error' });
+    }
+  }, [enqueueSnackbar, mutateProducts, selectedRowIds, tableData]);
 
   const handleEditRow = useCallback(
     (id: string) => {
@@ -157,6 +175,14 @@ export default function ProductListView() {
   );
 
   const columns: GridColDef[] = [
+    {
+      field: "status",
+      headerName: "Status",
+      width: 140,
+      filterable: false,
+      sortable: false,
+      renderCell: (params) => <RenderCellPublish params={params} />,
+    },
     {
       field: "category",
       headerName: "Category",
@@ -243,6 +269,29 @@ export default function ProductListView() {
 
   return (
     <>
+      {!!productsError && (
+        <Container
+          maxWidth={settings.themeStretch ? false : "lg"}
+          sx={{
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <EmptyContent
+            filled
+            title={String(productsError?.message || 'Failed to load products')}
+            action={
+              <Button variant="contained" onClick={() => mutateProducts?.()}>
+                Retry
+              </Button>
+            }
+            sx={{ py: 10 }}
+          />
+        </Container>
+      )}
+
+      {!productsError && (
       <Container
         maxWidth={settings.themeStretch ? false : "lg"}
         sx={{
@@ -252,7 +301,7 @@ export default function ProductListView() {
         }}
       >
         <CustomBreadcrumbs
-          heading="List"
+          heading="Danh sách sản phẩm"
           links={[
             { name: "Dashboard", href: paths.dashboard.root },
             {
@@ -268,7 +317,7 @@ export default function ProductListView() {
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Product
+             Tạo sản phẩm
             </Button>
           }
           sx={{
@@ -294,12 +343,11 @@ export default function ProductListView() {
             columns={columns}
             loading={productsLoading}
             getRowHeight={() => "auto"}
+            paginationMode="server"
+            rowCount={meta?.totalItems ?? 0}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
             pageSizeOptions={[5, 10, 25]}
-            initialState={{
-              pagination: {
-                paginationModel: { pageSize: 10 },
-              },
-            }}
             onRowSelectionModelChange={(newSelectionModel) => {
               setSelectedRowIds(newSelectionModel);
             }}
@@ -316,6 +364,14 @@ export default function ProductListView() {
                       onFilters={handleFilters}
                       stockOptions={PRODUCT_STOCK_OPTIONS}
                       publishOptions={PUBLISH_OPTIONS}
+                      categoryOptions={Array.from(new Set(tableData.map((p) => p.category)))}
+                      sortOptions={[
+                        { value: "createdDesc", label: "Created (Newest)" },
+                        { value: "createdAsc", label: "Created (Oldest)" },
+                        { value: "priceAsc", label: "Price (ASC)" },
+                        { value: "priceDesc", label: "Price (DESC)" },
+                        { value: "nameAsc", label: "Name (A–Z)" },
+                      ]}
                     />
 
                     <GridToolbarQuickFilter />
@@ -368,6 +424,7 @@ export default function ProductListView() {
           />
         </Card>
       </Container>
+      )}
 
       <ConfirmDialog
         open={confirmRows.value}
@@ -401,11 +458,13 @@ export default function ProductListView() {
 function applyFilter({
   inputData,
   filters,
+  sortBy,
 }: {
   inputData: IProductItem[];
   filters: IProductTableFilters;
+  sortBy?: string;
 }) {
-  const { stock, publish } = filters;
+  const { stock, publish, category, search } = filters;
 
   if (stock.length) {
     inputData = inputData.filter((product) =>
@@ -417,6 +476,36 @@ function applyFilter({
     inputData = inputData.filter((product) =>
       publish.includes(product.publish),
     );
+  }
+
+  if (category && category !== "all") {
+    inputData = inputData.filter((product) => product.category === category);
+  }
+
+  if (search) {
+    const q = search.toLowerCase();
+    inputData = inputData.filter(
+      (product) =>
+        product.name.toLowerCase().includes(q) ||
+        product.sku.toLowerCase().includes(q),
+    );
+  }
+
+  // SORTING
+  if (sortBy === "createdDesc") {
+    inputData = orderBy(inputData, ["createdAt"], ["desc"]);
+  }
+  if (sortBy === "createdAsc") {
+    inputData = orderBy(inputData, ["createdAt"], ["asc"]);
+  }
+  if (sortBy === "priceAsc") {
+    inputData = orderBy(inputData, ["price"], ["asc"]);
+  }
+  if (sortBy === "priceDesc") {
+    inputData = orderBy(inputData, ["price"], ["desc"]);
+  }
+  if (sortBy === "nameAsc") {
+    inputData = orderBy(inputData, ["name"], ["asc"]);
   }
 
   return inputData;

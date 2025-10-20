@@ -13,6 +13,22 @@ export const navConfig = [
     path: "/",
   },
   {
+    title: "Shop",
+    icon: <Iconify icon="solar:shop-bold-duotone" />,
+    path: paths.product.root,
+  },
+  {
+    title: "Categories",
+    icon: <Iconify icon="solar:category-bold-duotone" />,
+    path: paths.categories.root,
+    hasCategories: true, // Custom flag to identify categories menu
+  },
+  {
+    title: "Collection",
+    icon: <Iconify icon="solar:folder-bold-duotone" />,
+    path: paths.collection,
+  },
+  {
     title: "Components",
     icon: <Iconify icon="solar:atom-bold-duotone" />,
     path: paths.components,

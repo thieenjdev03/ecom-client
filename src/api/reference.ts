@@ -1,6 +1,6 @@
 import useSWR from "swr";
 import { useMemo } from "react";
-import { fetcher, endpoints } from "src/utils/axios";
+import axios, { fetcher, endpoints } from "src/utils/axios";
 
 export function useGetCategories() {
   const URL = endpoints.refs.categories;
@@ -37,6 +37,7 @@ export function useGetSizes(categoryId?: string) {
     ? [endpoints.refs.sizes, { params: { categoryId } }]
     : endpoints.refs.sizes;
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
+  console.log('data', data);
   const memoized = useMemo(
     () => ({
       sizes: (Array.isArray(data?.data) ? data.data : data) || [],
@@ -47,4 +48,21 @@ export function useGetSizes(categoryId?: string) {
     [data, error, isLoading, isValidating],
   );
   return memoized;
+}
+
+// ----------------------------------------------------------------------
+
+export async function createCategory(payload: { name: string }) {
+  const res = await axios.post(endpoints.refs.categories, payload);
+  return res.data;
+}
+
+export async function createColor(payload: { name: string; hexCode?: string }) {
+  const res = await axios.post(endpoints.refs.colors, payload);
+  return res.data;
+}
+
+export async function createSize(payload: { name: string; categoryId?: string }) {
+  const res = await axios.post(endpoints.refs.sizes, payload);
+  return res.data;
 }

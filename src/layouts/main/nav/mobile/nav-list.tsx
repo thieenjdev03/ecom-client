@@ -10,6 +10,7 @@ import { NavSectionVertical } from "src/components/nav-section";
 
 import { NavItem } from "./nav-item";
 import { NavListProps } from "../types";
+import MobileCategoriesDropdown from "../mobile-categories-dropdown";
 
 // ----------------------------------------------------------------------
 
@@ -19,10 +20,10 @@ export default function NavList({ data }: NavListProps) {
   const [openMenu, setOpenMenu] = useState(false);
 
   const handleToggleMenu = useCallback(() => {
-    if (data.children) {
+    if (data.children || data.hasCategories) {
       setOpenMenu((prev) => !prev);
     }
-  }, [data.children]);
+  }, [data.children, data.hasCategories]);
 
   return (
     <>
@@ -34,11 +35,18 @@ export default function NavList({ data }: NavListProps) {
         path={data.path}
         icon={data.icon}
         //
-        hasChild={!!data.children}
+        hasChild={!!data.children || !!data.hasCategories}
         externalLink={data.path.includes("http")}
         //
         active={active}
       />
+
+      {data.hasCategories && (
+        <MobileCategoriesDropdown
+          open={openMenu}
+          onToggle={handleToggleMenu}
+        />
+      )}
 
       {!!data.children && (
         <Collapse in={openMenu} unmountOnExit>

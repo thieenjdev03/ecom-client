@@ -58,6 +58,12 @@ export default function EcomDropdown({
           color,
           textShadow,
           cursor: "pointer",
+          transition: "all 0.3s ease",
+          "&:hover": {
+            color: "primary.main",
+            transform: "translateY(-2px)",
+            textShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+          },
         }}
       >
         {label}
@@ -85,7 +91,14 @@ export default function EcomDropdown({
                       key={it.label}
                       component={RouterLink}
                       href={it.href}
-                      sx={{ px: 1 }}
+                      sx={{ 
+                        px: 1,
+                        transition: "all 0.2s ease",
+                        "&:hover": {
+                          backgroundColor: "primary.lighter",
+                          transform: "translateX(4px)",
+                        },
+                      }}
                     >
                       {it.label}
                     </ListItemButton>
@@ -103,7 +116,14 @@ export default function EcomDropdown({
                   component={RouterLink}
                   href={it.href}
                   underline="none"
-                  sx={{ py: 0.75 }}
+                  sx={{ 
+                    py: 0.75,
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      color: "primary.main",
+                      transform: "translateX(4px)",
+                    },
+                  }}
                 >
                   {it.label}
                 </Link>

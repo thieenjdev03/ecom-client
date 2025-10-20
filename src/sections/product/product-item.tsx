@@ -17,15 +17,16 @@ import Image from "src/components/image";
 import Iconify from "src/components/iconify";
 import { ColorPreview } from "src/components/color-utils";
 
-import { IProductItem } from "src/types/product";
+import { IProductItem, IApiProductItem } from "src/types/product";
 
 import { useCheckoutContext } from "../checkout/context";
 import { useWishlistContext } from "../wishlist/context";
+import { ProductVariantDto } from "src/types/product-dto";
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  product: IProductItem;
+  product: IProductItem | IApiProductItem;
 };
 
 export default function ProductItem({ product }: Props) {
@@ -33,25 +34,67 @@ export default function ProductItem({ product }: Props) {
   const { onAddToWishlist, onRemoveFromWishlist, isInWishlist } = useWishlistContext();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const {
-    id,
-    name,
-    coverUrl,
-    productPrice,
-    colors,
-    available,
-    sizes,
-    priceSale,
-    newLabel,
-    saleLabel,
-    images,
-    isFeatured,
-  } = product;
   console.log("product", product);
+  
+  // Check if it's API product format or legacy format
+  const isApiProduct = 'slug' in product && 'sale_price' in product;
+  
+  let id: string;
+  let name: string;
+  let price: number;
+  let priceSale: number | null;
+  let images: string[];
+  let available: boolean;
+  let isFeatured: boolean;
+  let category: { name: string };
+  let stock_quantity: number;
+  let coverUrl: string;
+  let variants: ProductVariantDto[];
+  if (isApiProduct) {
+    // API product format
+    const apiProduct = product as IApiProductItem;
+    id = apiProduct.id.toString();
+    name = apiProduct.name;
+    price = parseFloat(apiProduct.price);
+    priceSale = apiProduct.sale_price ? parseFloat(apiProduct.sale_price) : null;
+    images = apiProduct.images;
+    stock_quantity = apiProduct.stock_quantity;
+    available = apiProduct.stock_quantity > 0 && apiProduct.status === 'active';
+    isFeatured = apiProduct.is_featured;
+    category = apiProduct.category;
+    coverUrl = apiProduct.images?.[0] || '';
+    variants = apiProduct.variants || [];
+  } else {
+    // Legacy format
+    const legacyProduct = product as IProductItem;
+    id = legacyProduct.id;
+    name = legacyProduct.name;
+    price = legacyProduct.productPrice;
+    priceSale = legacyProduct.priceSale;
+    images = legacyProduct.images;
+    stock_quantity = legacyProduct.quantity;
+    available = legacyProduct.available > 0;
+    isFeatured = legacyProduct.isFeatured;
+    category = { name: legacyProduct.category };
+    coverUrl = legacyProduct.coverUrl;
+    variants = legacyProduct.variants;
+  }
+  
+  // Mock colors and sizes for now (can be updated when API provides this data)
+  const colors = ['#000000', '#FFFFFF', '#FF0000']; // Default colors
+  const sizes = ['S', 'M', 'L', 'XL']; // Default sizes
+  
+  // Labels based on data
+  const newLabel = { enabled: false, content: 'New' };
+  const saleLabel = { 
+    enabled: !!priceSale && priceSale < price, 
+    content: 'Sale' 
+  };
+  
   const linkTo = paths.product.details(id);
 
   const handleImageHover = () => {
-    if (images.length > 1) {
+    if (images && images.length > 1) {
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
     }
   };
@@ -64,7 +107,45 @@ export default function ProductItem({ product }: Props) {
     if (isInWishlist(id)) {
       onRemoveFromWishlist(id);
     } else {
-      onAddToWishlist(product);
+      // Convert to IProductItem format for wishlist
+      const wishlistProduct: IProductItem = {
+        id,
+        name,
+        sku: isApiProduct ? (product as IApiProductItem).sku : (product as IProductItem).sku,
+        modelHeight: 0,
+        modelSize: 0,
+        code: '',
+        price: price,
+        taxes: 0,
+        tags: [],
+        gender: 'unisex',
+        sizes: ['S', 'M', 'L', 'XL'],
+        publish: 'published',
+        coverUrl: coverUrl,
+        images: images,
+        colors: ['#000000'],
+        quantity: stock_quantity,
+        category: category.name,
+        available: available ? 1 : 0,
+        totalSold: 0,
+        description: '',
+        totalRatings: 0,
+        productPrice: price,
+        totalReviews: 0,
+        inventoryType: 'infinite',
+        subDescription: '',
+        isFeatured: isFeatured,
+        is_new: false,
+        is_sale: !!priceSale,
+        priceSale: priceSale,
+        reviews: [],
+        createdAt: new Date(),
+        ratings: [],
+        saleLabel: { enabled: !!priceSale, content: 'Sale' },
+        newLabel: { enabled: false, content: 'New' },
+        variants: variants,
+      };
+      onAddToWishlist(wishlistProduct);
     }
   };
 
@@ -72,13 +153,15 @@ export default function ProductItem({ product }: Props) {
     const newProduct = {
       id,
       name,
-      coverUrl,
-      available,
-      price: productPrice,
-      productPrice,
+      coverUrl: images?.[0] || coverUrl,
+      available: available ? 1 : 0,
+      price: price,
+      productPrice: price,
       colors: [colors[0]],
       size: sizes[0],
       quantity: 1,
+      stock_quantity,
+      category: category?.name || '',
     };
     try {
       onAddToCart(newProduct);
@@ -122,7 +205,7 @@ export default function ProductItem({ product }: Props) {
       onMouseEnter={handleImageHover}
       onMouseLeave={handleImageLeave}
     >
-      {!!available && !isFeatured && (
+      {!!available && !isFeatured && variants && variants.length > 0 && (
         <Fab
           color="warning"
           size="medium"
@@ -173,12 +256,12 @@ export default function ProductItem({ product }: Props) {
       </IconButton>
 
       <Tooltip
-        title={!available && !isFeatured && "Out of stock"}
+        title={!available && !isFeatured && variants && variants.length === 0 ? "Out of stock" : "In stock"}
         placement="bottom-end"
       >
         <Image
           alt={name}
-          src={images[currentImageIndex] || images[0]}
+          src={images?.[currentImageIndex] || images?.[0] || coverUrl}
           ratio="3/4"
           sx={{
             borderRadius: 1.5,
@@ -188,7 +271,7 @@ export default function ProductItem({ product }: Props) {
                 duration: theme.transitions.duration.shorter,
               }),
             ...(!available &&
-              !isFeatured && {
+              !isFeatured && variants && variants.length === 0 && {
                 opacity: 0.48,
                 filter: "grayscale(1)",
               }),
@@ -202,6 +285,20 @@ export default function ProductItem({ product }: Props) {
     <Stack spacing={2} sx={{ p: 2 }}>
       <Stack direction="row" alignItems="center" spacing={1}>
         <ColorPreview colors={colors} />
+        {category && (
+          <Box
+            sx={{
+              px: 1,
+              py: 0.5,
+              borderRadius: 1,
+              bgcolor: 'grey.100',
+              typography: 'caption',
+              color: 'text.secondary',
+            }}
+          >
+            {category.name}
+          </Box>
+        )}
       </Stack>
 
       <Link
@@ -234,26 +331,43 @@ export default function ProductItem({ product }: Props) {
           )}
 
           <Box component="span" sx={{ fontWeight: 600, fontSize: "1rem" }}>
-            {fCurrency(productPrice)}
+            {fCurrency(price)}
           </Box>
         </Stack>
 
-        <IconButton
-          size="small"
-          onClick={handleWishlistToggle}
-          sx={{
-            p: 0.5,
-            "&:hover": {
-              backgroundColor: "rgba(0, 0, 0, 0.04)",
-            },
-          }}
-        >
-          <Iconify 
-            icon={isInWishlist(id) ? "solar:heart-bold" : "solar:heart-outline"} 
-            width={20} 
-            sx={{ color: isInWishlist(id) ? "error.main" : "inherit" }}
-          />
-        </IconButton>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          {stock_quantity > 0 && (
+            <Box
+              sx={{
+                px: 1,
+                py: 0.5,
+                borderRadius: 1,
+                bgcolor: stock_quantity > 10 ? 'success.lighter' : 'warning.lighter',
+                typography: 'caption',
+                color: stock_quantity > 10 ? 'success.darker' : 'warning.darker',
+              }}
+            >
+              {stock_quantity} left
+            </Box>
+          )}
+          
+          <IconButton
+            size="small"
+            onClick={handleWishlistToggle}
+            sx={{
+              p: 0.5,
+              "&:hover": {
+                backgroundColor: "rgba(0, 0, 0, 0.04)",
+              },
+            }}
+          >
+            <Iconify 
+              icon={isInWishlist(id) ? "solar:heart-bold" : "solar:heart-outline"} 
+              width={20} 
+              sx={{ color: isInWishlist(id) ? "error.main" : "inherit" }}
+            />
+          </IconButton>
+        </Stack>
       </Stack>
     </Stack>
   );

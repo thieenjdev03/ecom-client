@@ -15,6 +15,7 @@ export type NavItemBaseProps = {
   title: string;
   path: string;
   icon?: React.ReactElement;
+  hasCategories?: boolean; // Custom flag for categories dropdown
   children?: {
     subheader: string;
     items: {

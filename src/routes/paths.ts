@@ -17,7 +17,22 @@ const ROOTS = {
 // ----------------------------------------------------------------------
 
 export const paths = {
-  landing: "/",
+  landing: {
+    root: "/#",
+    wishlist: "/wishlist",
+    user: {
+      account: "/user/account",
+    },
+    product: {
+      root: `/product`,
+      checkout: `/product/checkout`,
+      wishlist: `/product/wishlist`,
+      details: (id: string) => `/product/${id}`,
+      demo: {
+        details: `/product/${MOCK_ID}`,
+      },
+    },
+  },
   comingSoon: "/coming-soon",
   maintenance: "/maintenance",
   pricing: "/pricing",
@@ -45,6 +60,11 @@ export const paths = {
       details: `/product/${MOCK_ID}`,
     },
   },
+  categories: {
+    root: `/categories`,
+    details: (slug: string) => `/categories/${slug}`,
+  },
+  collection: `/collection`,
   post: {
     root: `/post`,
     details: (title: string) => `/post/${paramCase(title)}`,

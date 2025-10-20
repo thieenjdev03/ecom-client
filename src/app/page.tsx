@@ -1,3 +1,5 @@
+import { LandingGuard } from "src/auth/guard";
+
 import { LandingPageView } from "src/sections/landing-page/view";
 
 // ----------------------------------------------------------------------
@@ -7,5 +9,9 @@ export const metadata = {
 };
 
 export default function HomePage() {
-  return <LandingPageView />;
+  return (
+    <LandingGuard>
+      <LandingPageView />
+    </LandingGuard>
+  );
 }

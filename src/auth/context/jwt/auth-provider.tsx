@@ -7,6 +7,8 @@ import axios, { endpoints } from "src/utils/axios";
 import { AuthContext } from "./auth-context";
 import { setSession, isValidToken } from "./utils";
 import { AuthUserType, ActionMapType, AuthStateType } from "../../types";
+import { PATH_AFTER_LOGIN, PATH_AFTER_LOGIN_USER } from "src/config-global";
+import router from "next/router";
 
 // ----------------------------------------------------------------------
 /**
@@ -97,6 +99,7 @@ export function AuthProvider({ children }: Props) {
             email: "local@dev.com",
             name: "Local Dev",
             accessToken: localToken,
+            role: "customer", // Set as customer for development
           },
         },
       });
@@ -110,10 +113,7 @@ export function AuthProvider({ children }: Props) {
           setSession(accessToken);
           const res = await axios.get(endpoints.auth.me);
           const apiBody = res.data;
-          const user =
-            apiBody && apiBody.data && apiBody.data.user
-              ? apiBody.data.user
-              : apiBody.user;
+          const user = apiBody && apiBody.data ? apiBody.data : apiBody;
           // Persist current user for role-based navigation
           if (user) {
             try {
@@ -166,11 +166,17 @@ export function AuthProvider({ children }: Props) {
     const { accessToken, user } = payload;
 
     setSession(accessToken);
-
+    localStorage.setItem("userProfile", JSON.stringify(user));
     // Persist current user for role-based navigation
     if (user) {
       try {
         sessionStorage.setItem("user", JSON.stringify(user));
+        // Điều hướng chính xác sau đăng nhập dựa theo vai trò
+        if (user.role === "user") {
+          window.location.href = '/#';
+        } else {
+          window.location.href = PATH_AFTER_LOGIN;
+        }
       } catch (e) {
         // noop
       }

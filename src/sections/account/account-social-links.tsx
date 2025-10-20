@@ -1,33 +1,59 @@
-import { useForm } from "react-hook-form";
+"use client";
 
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
+
+import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
-import LoadingButton from "@mui/lab/LoadingButton";
-import InputAdornment from "@mui/material/InputAdornment";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
 
-import Iconify from "src/components/iconify";
 import { useSnackbar } from "src/components/snackbar";
 import FormProvider, { RHFTextField } from "src/components/hook-form";
 
-import { IUserSocialLink } from "src/types/user";
+// ----------------------------------------------------------------------
+
+interface FormValuesProps {
+  facebook?: string;
+  instagram?: string;
+  linkedin?: string;
+  twitter?: string;
+}
 
 // ----------------------------------------------------------------------
 
-type Props = {
-  socialLinks: IUserSocialLink;
-};
+interface AccountSocialLinksProps {
+  socialLinks: {
+    facebook: string;
+    instagram: string;
+    linkedin: string;
+    twitter: string;
+  };
+}
 
-export default function AccountSocialLinks({ socialLinks }: Props) {
+export default function AccountSocialLinks({ socialLinks }: AccountSocialLinksProps) {
   const { enqueueSnackbar } = useSnackbar();
 
+  const UpdateSocialSchema = Yup.object().shape({
+    facebook: Yup.string().url("Must be a valid URL"),
+    instagram: Yup.string().url("Must be a valid URL"),
+    linkedin: Yup.string().url("Must be a valid URL"),
+    twitter: Yup.string().url("Must be a valid URL"),
+  });
+
   const defaultValues = {
-    facebook: socialLinks.facebook,
-    instagram: socialLinks.instagram,
-    linkedin: socialLinks.linkedin,
-    twitter: socialLinks.twitter,
+    facebook: socialLinks.facebook || "",
+    instagram: socialLinks.instagram || "",
+    linkedin: socialLinks.linkedin || "",
+    twitter: socialLinks.twitter || "",
   };
 
-  const methods = useForm({
+  const methods = useForm<FormValuesProps>({
+    resolver: yupResolver(UpdateSocialSchema),
     defaultValues,
   });
 
@@ -40,7 +66,7 @@ export default function AccountSocialLinks({ socialLinks }: Props) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
       enqueueSnackbar("Update success!");
-      console.info("DATA", data);
+      console.log("SOCIAL LINKS", data);
     } catch (error) {
       console.error(error);
     }
@@ -48,46 +74,35 @@ export default function AccountSocialLinks({ socialLinks }: Props) {
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
-      <Stack component={Card} spacing={3} sx={{ p: 3 }}>
-        {Object.keys(socialLinks).map((link) => (
-          <RHFTextField
-            key={link}
-            name={link}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify
-                    width={24}
-                    icon={
-                      (link === "facebook" && "eva:facebook-fill") ||
-                      (link === "instagram" && "ant-design:instagram-filled") ||
-                      (link === "linkedin" && "eva:linkedin-fill") ||
-                      (link === "twitter" && "eva:twitter-fill") ||
-                      ""
-                    }
-                    color={
-                      (link === "facebook" && "#1877F2") ||
-                      (link === "instagram" && "#DF3E30") ||
-                      (link === "linkedin" && "#006097") ||
-                      (link === "twitter" && "#1C9CEA") ||
-                      ""
-                    }
-                  />
-                </InputAdornment>
-              ),
-            }}
-          />
-        ))}
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={8}>
+          <Card sx={{ p: 3 }}>
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              gridTemplateColumns={{
+                xs: "repeat(1, 1fr)",
+                sm: "repeat(2, 1fr)",
+              }}
+            >
+              <RHFTextField name="facebook" label="Facebook" placeholder="https://facebook.com/username" />
 
-        <LoadingButton
-          type="submit"
-          variant="contained"
-          loading={isSubmitting}
-          sx={{ ml: "auto" }}
-        >
-          Save Changes
-        </LoadingButton>
-      </Stack>
+              <RHFTextField name="instagram" label="Instagram" placeholder="https://instagram.com/username" />
+
+              <RHFTextField name="linkedin" label="LinkedIn" placeholder="https://linkedin.com/in/username" />
+
+              <RHFTextField name="twitter" label="Twitter" placeholder="https://twitter.com/username" />
+            </Box>
+
+            <Stack spacing={3} alignItems="flex-end" sx={{ mt: 3 }}>
+              <Button type="submit" variant="contained" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </Button>
+            </Stack>
+          </Card>
+        </Grid>
+      </Grid>
     </FormProvider>
   );
 }

@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import { usePathname } from "src/routes/hooks";
 
 import Footer from "./footer";
-import HeaderEcom from "./header-ecom";
+import HeaderEcom from "../landing-page/header-ecom";
 import LandingFooter from "../landing-page/footer";
 
 // ----------------------------------------------------------------------
@@ -26,8 +26,7 @@ export default function MainLayout({ children }: Props) {
         sx={{
           flexGrow: 1,
           ...(!homePage && {
-            pt: { xs: 8, md: 10 },
-            mt: "80px",
+            mt: { xs: 8, md: 10 },
           }),
         }}
       >

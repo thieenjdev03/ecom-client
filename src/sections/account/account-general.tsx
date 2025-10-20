@@ -1,158 +1,101 @@
-import * as Yup from "yup";
-import { useCallback } from "react";
+"use client";
+
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
 
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
-import Grid from "@mui/material/Unstable_Grid2";
+import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import LoadingButton from "@mui/lab/LoadingButton";
-
-import { useMockedUser } from "src/hooks/use-mocked-user";
-
-import { fData } from "src/utils/format-number";
-
-import { countries } from "src/assets/data";
 
 import { useSnackbar } from "src/components/snackbar";
-import FormProvider, {
-  RHFSwitch,
-  RHFTextField,
-  RHFUploadAvatar,
-  RHFAutocomplete,
-} from "src/components/hook-form";
+import FormProvider, { RHFTextField, RHFSelect } from "src/components/hook-form";
+import { AddressAutocomplete } from "src/components/address-autocomplete";
 
 // ----------------------------------------------------------------------
 
-type UserType = {
+interface FormValuesProps {
   displayName: string;
   email: string;
-  photoURL: any;
   phoneNumber: string;
   country: string;
   address: string;
   state: string;
   city: string;
   zipCode: string;
-  about: string;
-  isPublic: boolean;
-};
+  about?: string;
+}
+
+// ----------------------------------------------------------------------
 
 export default function AccountGeneral() {
   const { enqueueSnackbar } = useSnackbar();
 
-  const { user } = useMockedUser();
+  const [coordinates, setCoordinates] = useState<{ lat: number; lon: number } | undefined>();
 
   const UpdateUserSchema = Yup.object().shape({
     displayName: Yup.string().required("Name is required"),
-    email: Yup.string()
-      .required("Email is required")
-      .email("Email must be a valid email address"),
-    photoURL: Yup.mixed<any>().nullable().required("Avatar is required"),
+    email: Yup.string().required("Email is required").email("Email must be a valid email address"),
     phoneNumber: Yup.string().required("Phone number is required"),
     country: Yup.string().required("Country is required"),
     address: Yup.string().required("Address is required"),
     state: Yup.string().required("State is required"),
     city: Yup.string().required("City is required"),
     zipCode: Yup.string().required("Zip code is required"),
-    about: Yup.string().required("About is required"),
-    // not required
-    isPublic: Yup.boolean(),
+    about: Yup.string(),
   });
 
-  const defaultValues: UserType = {
-    displayName: user?.displayName || "",
-    email: user?.email || "",
-    photoURL: user?.photoURL || null,
-    phoneNumber: user?.phoneNumber || "",
-    country: user?.country || "",
-    address: user?.address || "",
-    state: user?.state || "",
-    city: user?.city || "",
-    zipCode: user?.zipCode || "",
-    about: user?.about || "",
-    isPublic: user?.isPublic || false,
+  const defaultValues = {
+    displayName: "Jayvion Simon",
+    email: "demo@minimals.cc",
+    phoneNumber: "+84 234 567 890",
+    country: "Vietnam",
+    address: "123 Lý Thường Kiệt, Quận 1",
+    state: "Ho Chi Minh City",
+    city: "Ho Chi Minh City",
+    zipCode: "700000",
+    about: "Hello there, my name is Jayvion Simon. I am a creative graphic designer with passion for designing digital experiences.",
   };
 
-  const methods = useForm({
+  const methods = useForm<FormValuesProps>({
     resolver: yupResolver(UpdateUserSchema),
     defaultValues,
   });
 
   const {
-    setValue,
+    reset,
+    watch,
+    control,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
+
+  const values = watch();
 
   const onSubmit = handleSubmit(async (data) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
       enqueueSnackbar("Update success!");
-      console.info("DATA", data);
+      console.log("DATA", data);
+      console.log("COORDINATES", coordinates);
     } catch (error) {
       console.error(error);
     }
   });
 
-  const handleDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      const file = acceptedFiles[0];
-
-      const newFile = Object.assign(file, {
-        preview: URL.createObjectURL(file),
-      });
-
-      if (file) {
-        setValue("photoURL", newFile, { shouldValidate: true });
-      }
-    },
-    [setValue],
-  );
+  const handleAddressChange = (address: string, coords?: { lat: number; lon: number }) => {
+    methods.setValue("address", address);
+    setCoordinates(coords);
+  };
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
-        <Grid xs={12} md={4}>
-          <Card sx={{ pt: 10, pb: 5, px: 3, textAlign: "center" }}>
-            <RHFUploadAvatar
-              name="photoURL"
-              maxSize={3145728}
-              onDrop={handleDrop}
-              helperText={
-                <Typography
-                  variant="caption"
-                  sx={{
-                    mt: 3,
-                    mx: "auto",
-                    display: "block",
-                    textAlign: "center",
-                    color: "text.disabled",
-                  }}
-                >
-                  Allowed *.jpeg, *.jpg, *.png, *.gif
-                  <br /> max size of {fData(3145728)}
-                </Typography>
-              }
-            />
-
-            <RHFSwitch
-              name="isPublic"
-              labelPlacement="start"
-              label="Public Profile"
-              sx={{ mt: 5 }}
-            />
-
-            <Button variant="soft" color="error" sx={{ mt: 3 }}>
-              Delete User
-            </Button>
-          </Card>
-        </Grid>
-
-        <Grid xs={12} md={8}>
+        <Grid item xs={12} md={8}>
           <Card sx={{ p: 3 }}>
             <Box
               rowGap={3}
@@ -164,34 +107,74 @@ export default function AccountGeneral() {
               }}
             >
               <RHFTextField name="displayName" label="Name" />
-              <RHFTextField name="email" label="Email Address" />
-              <RHFTextField name="phoneNumber" label="Phone Number" />
-              <RHFTextField name="address" label="Address" />
 
-              <RHFAutocomplete
-                name="country"
-                type="country"
-                label="Country"
-                placeholder="Choose a country"
-                options={countries.map((option) => option.label)}
-                getOptionLabel={(option) => option}
-              />
+              <RHFTextField name="email" label="Email Address" />
+
+              <RHFTextField name="phoneNumber" label="Phone Number" />
+
+              <RHFSelect native name="country" label="Country">
+                <option value="" />
+                <option value="Vietnam">Vietnam</option>
+                <option value="United States">United States</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="Canada">Canada</option>
+                <option value="Australia">Australia</option>
+              </RHFSelect>
+
+              <Box sx={{ gridColumn: "span 2" }}>
+                <AddressAutocomplete
+                  value={values.address}
+                  onChange={handleAddressChange}
+                  label="Address"
+                  placeholder="Nhập địa chỉ giao hàng..."
+                  required
+                  countryCode={values.country as string}
+                />
+              </Box>
 
               <RHFTextField name="state" label="State/Region" />
+
               <RHFTextField name="city" label="City" />
+
               <RHFTextField name="zipCode" label="Zip/Code" />
+
+              <Box sx={{ gridColumn: "span 2" }}>
+                <RHFTextField name="about" multiline rows={4} label="About" />
+              </Box>
             </Box>
 
             <Stack spacing={3} alignItems="flex-end" sx={{ mt: 3 }}>
-              <RHFTextField name="about" multiline rows={4} label="About" />
+              <Button type="submit" variant="contained" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </Button>
+            </Stack>
+          </Card>
+        </Grid>
 
-              <LoadingButton
-                type="submit"
-                variant="contained"
-                loading={isSubmitting}
-              >
-                Save Changes
-              </LoadingButton>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Address Information
+            </Typography>
+            <Stack spacing={2}>
+              <Box>
+                <Typography variant="caption" color="text.secondary">
+                  Full Address
+                </Typography>
+                <Typography variant="body2">{values.address || "No address entered"}</Typography>
+              </Box>
+              {coordinates && (
+                <>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Coordinates
+                    </Typography>
+                    <Typography variant="body2">
+                      Lat: {coordinates.lat.toFixed(6)}, Lon: {coordinates.lon.toFixed(6)}
+                    </Typography>
+                  </Box>
+                </>
+              )}
             </Stack>
           </Card>
         </Grid>

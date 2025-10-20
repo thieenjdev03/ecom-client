@@ -1,143 +1,151 @@
-import { useForm, Controller } from "react-hook-form";
+"use client";
 
+import { useState } from "react";
+
+import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
 import Switch from "@mui/material/Switch";
-import Grid from "@mui/material/Unstable_Grid2";
-import LoadingButton from "@mui/lab/LoadingButton";
-import ListItemText from "@mui/material/ListItemText";
+import Typography from "@mui/material/Typography";
 import FormControlLabel from "@mui/material/FormControlLabel";
 
-import FormProvider from "src/components/hook-form";
 import { useSnackbar } from "src/components/snackbar";
-
-// ----------------------------------------------------------------------
-
-const NOTIFICATIONS = [
-  {
-    subheader: "Activity",
-    caption: "Donec mi odio, faucibus at, scelerisque quis",
-    items: [
-      {
-        id: "activity_comments",
-        label: "Email me when someone comments onmy article",
-      },
-      {
-        id: "activity_answers",
-        label: "Email me when someone answers on my form",
-      },
-      { id: "activityFollows", label: "Email me hen someone follows me" },
-    ],
-  },
-  {
-    subheader: "Application",
-    caption: "Donec mi odio, faucibus at, scelerisque quis",
-    items: [
-      { id: "application_news", label: "News and announcements" },
-      { id: "application_product", label: "Weekly product updates" },
-      { id: "application_blog", label: "Weekly blog digest" },
-    ],
-  },
-];
 
 // ----------------------------------------------------------------------
 
 export default function AccountNotifications() {
   const { enqueueSnackbar } = useSnackbar();
 
-  const methods = useForm({
-    defaultValues: {
-      selected: ["activity_comments", "application_product"],
-    },
+  const [notifications, setNotifications] = useState({
+    emailMarketing: true,
+    emailSecurity: true,
+    emailActivity: false,
+    emailNewsletter: true,
+    pushMarketing: false,
+    pushSecurity: true,
+    pushActivity: true,
+    pushNewsletter: false,
   });
 
-  const {
-    watch,
-    control,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
+  const handleChange = (key: keyof typeof notifications) => {
+    setNotifications((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
-  const values = watch();
-
-  const onSubmit = handleSubmit(async (data) => {
+  const handleSubmit = async () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
-      enqueueSnackbar("Update success!");
-      console.info("DATA", data);
+      enqueueSnackbar("Settings saved!");
+      console.log("NOTIFICATIONS", notifications);
     } catch (error) {
       console.error(error);
     }
-  });
-
-  const getSelected = (selectedItems: string[], item: string) =>
-    selectedItems.includes(item)
-      ? selectedItems.filter((value) => value !== item)
-      : [...selectedItems, item];
+  };
 
   return (
-    <FormProvider methods={methods} onSubmit={onSubmit}>
-      <Stack component={Card} spacing={3} sx={{ p: 3 }}>
-        {NOTIFICATIONS.map((notification) => (
-          <Grid key={notification.subheader} container spacing={3}>
-            <Grid xs={12} md={4}>
-              <ListItemText
-                primary={notification.subheader}
-                secondary={notification.caption}
-                primaryTypographyProps={{ typography: "h6", mb: 0.5 }}
-                secondaryTypographyProps={{ component: "span" }}
+    <Box sx={{ maxWidth: 600 }}>
+      <Card sx={{ p: 3 }}>
+        <Typography variant="h6" sx={{ mb: 3 }}>
+          Notifications
+        </Typography>
+
+        <Stack spacing={3}>
+          <Box>
+            <Typography variant="subtitle2" sx={{ mb: 2 }}>
+              Email Notifications
+            </Typography>
+            <Stack spacing={2}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={notifications.emailMarketing}
+                    onChange={() => handleChange("emailMarketing")}
+                  />
+                }
+                label="Marketing emails"
               />
-            </Grid>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={notifications.emailSecurity}
+                    onChange={() => handleChange("emailSecurity")}
+                  />
+                }
+                label="Security alerts"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={notifications.emailActivity}
+                    onChange={() => handleChange("emailActivity")}
+                  />
+                }
+                label="Activity summary"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={notifications.emailNewsletter}
+                    onChange={() => handleChange("emailNewsletter")}
+                  />
+                }
+                label="Newsletter"
+              />
+            </Stack>
+          </Box>
 
-            <Grid xs={12} md={8}>
-              <Stack
-                spacing={1}
-                sx={{ p: 3, borderRadius: 2, bgcolor: "background.neutral" }}
-              >
-                <Controller
-                  name="selected"
-                  control={control}
-                  render={({ field }) => (
-                    <>
-                      {notification.items.map((item) => (
-                        <FormControlLabel
-                          key={item.id}
-                          label={item.label}
-                          labelPlacement="start"
-                          control={
-                            <Switch
-                              checked={field.value.includes(item.id)}
-                              onChange={() =>
-                                field.onChange(
-                                  getSelected(values.selected, item.id),
-                                )
-                              }
-                            />
-                          }
-                          sx={{
-                            m: 0,
-                            width: 1,
-                            justifyContent: "space-between",
-                          }}
-                        />
-                      ))}
-                    </>
-                  )}
-                />
-              </Stack>
-            </Grid>
-          </Grid>
-        ))}
+          <Box>
+            <Typography variant="subtitle2" sx={{ mb: 2 }}>
+              Push Notifications
+            </Typography>
+            <Stack spacing={2}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={notifications.pushMarketing}
+                    onChange={() => handleChange("pushMarketing")}
+                  />
+                }
+                label="Marketing push"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={notifications.pushSecurity}
+                    onChange={() => handleChange("pushSecurity")}
+                  />
+                }
+                label="Security alerts"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={notifications.pushActivity}
+                    onChange={() => handleChange("pushActivity")}
+                  />
+                }
+                label="Activity summary"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={notifications.pushNewsletter}
+                    onChange={() => handleChange("pushNewsletter")}
+                  />
+                }
+                label="Newsletter"
+              />
+            </Stack>
+          </Box>
 
-        <LoadingButton
-          type="submit"
-          variant="contained"
-          loading={isSubmitting}
-          sx={{ ml: "auto" }}
-        >
-          Save Changes
-        </LoadingButton>
-      </Stack>
-    </FormProvider>
+          <Button variant="contained" onClick={handleSubmit} sx={{ alignSelf: "flex-start" }}>
+            Save Changes
+          </Button>
+        </Stack>
+      </Card>
+    </Box>
   );
 }
