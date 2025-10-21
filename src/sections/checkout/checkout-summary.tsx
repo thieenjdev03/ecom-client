@@ -10,7 +10,7 @@ import Avatar from "@mui/material/Avatar";
 import { fCurrency } from "src/utils/format-number";
 
 import Iconify from "src/components/iconify";
-
+import { ICheckoutItem } from "src/types/checkout";
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -18,7 +18,7 @@ type Props = {
   discount?: number;
   subTotal: number;
   shipping?: number;
-  items: any[];
+  items: ICheckoutItem[];
   //
   onEdit?: VoidFunction;
   onApplyDiscount?: (discount: number) => void;

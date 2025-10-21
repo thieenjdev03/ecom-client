@@ -24,6 +24,8 @@ import EcomDropdown from "../main/nav/ecom-dropdown";
 import EcomCategoriesDropdown from "./nav/ecom-categories-dropdown";
 import { PRODUCT_CATEGORY_GROUP_OPTIONS } from "src/_mock";
 import { useAuthContext } from "src/auth/hooks";
+import { useCheckoutContext } from "src/sections/checkout/context/checkout-context";
+import { CartPreviewDrawer } from "src/components/cart-preview";
 
 // ----------------------------------------------------------------------
 
@@ -52,6 +54,7 @@ export default function HeaderEcom() {
       ? theme.palette.common.white
       : theme.palette.text.primary;
   const userProfile = useAuthContext();
+  const checkout = useCheckoutContext();
   console.log('userProfile', userProfile);
   return (
     <AppBar elevation={0} sx={{ bgcolor: "transparent", boxShadow: "none" }}>
@@ -225,11 +228,11 @@ export default function HeaderEcom() {
             </IconButton>
             <IconButton
               color="inherit"
-              component={RouterLink}
-              href={paths.product.checkout}
+              onClick={checkout.onOpenCartPreview}
               sx={{ 
                 color: activeColor,
                 transition: "all 0.3s ease",
+                position: "relative",
                 "&:hover": {
                   color: theme.palette.success.main,
                   transform: "scale(1.1)",
@@ -242,12 +245,37 @@ export default function HeaderEcom() {
                 width={22}
                 sx={{ textShadow: activeShadow }}
               />
+              {checkout.totalItems > 0 && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: -2,
+                    right: -2,
+                    minWidth: 18,
+                    height: 18,
+                    borderRadius: "50%",
+                    backgroundColor: "error.main",
+                    color: "white",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    lineHeight: 1,
+                  }}
+                >
+                  {checkout.totalItems > 99 ? "99+" : checkout.totalItems}
+                </Box>
+              )}
             </IconButton>
           </Stack>
         </Container>
       </Toolbar>
 
       {offsetTop && <HeaderShadow />}
+
+      {/* Cart Preview Drawer */}
+      <CartPreviewDrawer />
     </AppBar>
   );
 }

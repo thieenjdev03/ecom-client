@@ -27,7 +27,7 @@ export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
 };
 
 // ----------------------------------------------------------------------
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+const apiUrl =  "http://localhost:3000"; // Use relative API routes for Next.js app
 export const endpoints = {
   chat: "/api/chat",
   kanban: "/api/kanban",

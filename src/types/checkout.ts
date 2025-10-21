@@ -40,6 +40,8 @@ export type ICheckoutValue = {
   totalItems: number;
   items: ICheckoutItem[];
   billing: IAddressItem | null;
+  // Cart preview state
+  cartPreviewOpen: boolean;
 };
 
 export type CheckoutContextProps = ICheckoutValue & {
@@ -61,4 +63,7 @@ export type CheckoutContextProps = ICheckoutValue & {
   //
   canReset: boolean;
   onReset: VoidFunction;
+  // Cart preview functions
+  onOpenCartPreview: VoidFunction;
+  onCloseCartPreview: VoidFunction;
 };

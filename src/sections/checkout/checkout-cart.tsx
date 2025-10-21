@@ -48,7 +48,7 @@ export default function CheckoutCart() {
     <Grid container spacing={4}>
       <Grid xs={12} md={8}>
         <Stack spacing={3}>
-          <CheckoutContactForm />
+          {/* <CheckoutContactForm /> */}
           <CheckoutShippingForm />
         </Stack>
       </Grid>

@@ -28,6 +28,8 @@ const initialState = {
   shipping: 0,
   billing: null,
   totalItems: 0,
+  // Cart preview state
+  cartPreviewOpen: false,
 };
 
 type Props = {
@@ -192,6 +194,15 @@ export function CheckoutProvider({ children }: Props) {
     }
   }, [completed, reset, router]);
 
+  // Cart preview functions
+  const onOpenCartPreview = useCallback(() => {
+    update("cartPreviewOpen", true);
+  }, [update]);
+
+  const onCloseCartPreview = useCallback(() => {
+    update("cartPreviewOpen", false);
+  }, [update]);
+
   const memoizedValue = useMemo(
     () => ({
       ...state,
@@ -212,6 +223,9 @@ export function CheckoutProvider({ children }: Props) {
       onGotoStep,
       //
       onReset,
+      // Cart preview functions
+      onOpenCartPreview,
+      onCloseCartPreview,
     }),
     [
       completed,
@@ -226,6 +240,8 @@ export function CheckoutProvider({ children }: Props) {
       onIncreaseQuantity,
       onNextStep,
       onReset,
+      onOpenCartPreview,
+      onCloseCartPreview,
       state,
     ],
   );

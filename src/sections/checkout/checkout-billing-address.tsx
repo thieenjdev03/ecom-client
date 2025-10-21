@@ -75,6 +75,7 @@ export default function CheckoutBillingAddress() {
 
         <Grid xs={12} md={4}>
           <CheckoutSummary
+            items={checkout.items}
             total={checkout.total}
             subTotal={checkout.subTotal}
             discount={checkout.discount}

@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "next dev -p 8082",
     "start": "next start -p 8082",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "build": "next build",
     "prettier": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "rm:all": "rm -rf node_modules .next out dist build",
@@ -43,6 +44,7 @@
     "@mui/system": "^5.14.20",
     "@mui/x-data-grid": "^6.18.4",
     "@mui/x-date-pickers": "^6.18.4",
+    "@paypal/react-paypal-js": "^8.9.2",
     "@react-pdf/renderer": "^3.1.14",
     "@supabase/supabase-js": "^2.39.0",
     "apexcharts": "^3.44.2",

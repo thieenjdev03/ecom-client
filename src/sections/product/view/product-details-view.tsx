@@ -120,6 +120,39 @@ export default function ProductDetailsView({ id }: Props) {
 
         <Grid xs={12} md={6} lg={5}>
           <ProductDetailsSummary disabledActions product={product} />
+
+          {/* Quick product info aligned with backend fields */}
+          <Card sx={{ mt: 3, p: 2 }}>
+            <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: 700 }}>
+              Thông tin sản phẩm
+            </Typography>
+            <Box sx={{ display: 'grid', rowGap: 1, columnGap: 2, gridTemplateColumns: 'auto 1fr' }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>SKU</Typography>
+              <Typography variant="body2">{product.sku || '-'}</Typography>
+
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>Danh mục</Typography>
+              <Typography variant="body2">{product.category || '-'}</Typography>
+
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>Tồn kho</Typography>
+              <Typography variant="body2">{product.quantity ?? 0}</Typography>
+
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>Trạng thái</Typography>
+              <Typography variant="body2">{product.inventoryType}</Typography>
+
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>Tags</Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {(product.tags || []).length ? (
+                  product.tags.map((t) => (
+                    <Box key={t} sx={{ px: 1, py: 0.25, borderRadius: 1, bgcolor: 'background.neutral', fontSize: 12 }}>
+                      {t}
+                    </Box>
+                  ))
+                ) : (
+                  <Typography variant="body2">-</Typography>
+                )}
+              </Box>
+            </Box>
+          </Card>
         </Grid>
       </Grid>
 

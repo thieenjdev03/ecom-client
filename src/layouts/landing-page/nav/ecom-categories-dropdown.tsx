@@ -144,7 +144,7 @@ export default function EcomCategoriesDropdown({
                   {g.title}
                 </Typography>
                 <List dense disablePadding>
-                  {g.items.map((it) => (
+                  {g.items.map((it: { label: string; href: string }) => (
                     <ListItemButton
                       key={it.label}
                       component={RouterLink}

@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import axios, { fetcher, endpoints } from "src/utils/axios";
 
 import { IProductItem } from "src/types/product";
-import { ProductDto } from "src/types/product-dto";
+import { Product, ProductListResponse } from "src/types/product-dto";
 import { adaptProductDtoToItem } from "src/utils/product-adapter";
 
 // ----------------------------------------------------------------------
@@ -19,14 +19,14 @@ export function useGetProducts(params?: { page?: number; limit?: number }) {
   const memoizedValue = useMemo(
     () => ({
       products: Array.isArray(data)
-        ? (data as ProductDto[]).map(adaptProductDtoToItem)
-        : (data?.data?.data as ProductDto[] | undefined)?.map(
+        ? (data as Product[]).map(adaptProductDtoToItem)
+        : (data?.data?.data as Product[] | undefined)?.map(
             adaptProductDtoToItem,
           ) || [],
       productsLoading: isLoading,
       productsError: error,
       productsValidating: isValidating,
-      meta: (data?.data?.meta as any) || (data?.meta as any) || undefined,
+      meta: (data?.data?.meta as ProductListResponse["meta"]) || (data?.meta as ProductListResponse["meta"]) || undefined,
       productsEmpty:
         !isLoading &&
         ((Array.isArray(data) && data.length === 0) ||
@@ -50,7 +50,7 @@ export function useGetProduct(productId: string) {
     () => ({
       product: data
         ? adaptProductDtoToItem(
-            (data?.data as ProductDto) ?? (data as ProductDto),
+            (data?.data as Product) ?? (data as Product),
           )
         : (undefined as unknown as IProductItem),
       productLoading: isLoading,

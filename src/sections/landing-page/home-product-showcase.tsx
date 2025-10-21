@@ -5,6 +5,7 @@ import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
+import Skeleton from "@mui/material/Skeleton";
 
 import { useTheme } from "@mui/material/styles";
 
@@ -16,14 +17,8 @@ import Carousel, {
   CarouselArrows,
 } from "src/components/carousel";
 import { fCurrency } from "src/utils/format-number";
-
-type MinimalProduct = {
-  id: string;
-  name: string;
-  price: number;
-  priceSale?: number | null;
-  image: string;
-};
+import { useGetProducts } from "src/api/product";
+import { IProductItem } from "src/types/product";
 
 export default function HomeProductShowcase({
   priceBottom,
@@ -34,83 +29,38 @@ export default function HomeProductShowcase({
 }) {
   const theme = useTheme();
 
-  const products: MinimalProduct[] = useMemo(
-    () => [
-      {
-        id: "p1",
-        name: "Goxx 02",
-        price: 580,
-        priceSale: null,
-        image: "/assets/images/home/products/product-1.avif",
-      },
-      {
-        id: "p2",
-        name: "Hypnosis A02",
-        price: 500,
-        priceSale: 560,
-        image: "/assets/images/home/products/product-2.avif",
-      },
-      {
-        id: "p3",
-        name: "Paranoyd 02",
-        price: 450,
-        priceSale: null,
-        image: "/assets/images/home/products/product-3.avif",
-      },
-      {
-        id: "p4",
-        name: "Species MSV2",
-        price: 555,
-        priceSale: 590,
-        image: "/assets/images/home/products/product-1.avif",
-      },
-      {
-        id: "p5",
-        name: "Lumé A1",
-        price: 399,
-        priceSale: null,
-        image: "/assets/images/home/products/product-1.avif",
-      },
-      {
-        id: "p6",
-        name: "Lumé A2",
-        price: 420,
-        priceSale: 460,
-        image: "/assets/images/home/products/product-2.avif",
-      },
-      {
-        id: "p7",
-        name: "Lumé A3",
-        price: 480,
-        priceSale: null,
-        image: "/assets/images/home/products/product-3.avif",
-      },
-      {
-        id: "p8",
-        name: "Lumé A4",
-        price: 520,
-        priceSale: 560,
-        image: "/assets/images/home/products/product-1.avif",
-      },
-      {
-        id: "p9",
-        name: "Lumé A5",
-        price: 610,
-        priceSale: null,
-        image: "/assets/images/home/products/product-2.avif",
-      },
-      {
-        id: "p10",
-        name: "Lumé A6",
-        price: 650,
-        priceSale: 690,
-        image: "/assets/images/home/products/product-3.avif",
-      },
-    ],
-    [],
-  );
+  // Fetch real products from API
+  const { products, productsLoading, productsError } = useGetProducts({
+    page: 1,
+    limit: 10,
+  });
+  console.log('products', products);
+  // Convert IProductItem to MinimalProduct format for carousel
+  const minimalProducts = useMemo(() => {
+    if (!products || products.length === 0) return [];
 
-  const thumbnails = products.map((p) => p.image);
+    return products.map((product: IProductItem) => ({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      priceSale: product.priceSale,
+      image: product.coverUrl || product.images?.[0] || "/assets/placeholder.svg",
+      isFeatured: product.isFeatured,
+      isNew: product.is_new,
+      isSale: product.is_sale,
+      totalRatings: product.totalRatings,
+      totalReviews: product.totalReviews,
+      // Additional fields for better card display
+      category: product.category,
+      inStock: product.inventoryType !== "out_of_stock" && product.quantity > 0,
+      discountPercent:
+        product.priceSale && product.priceSale < product.price
+          ? Math.round(((product.price - (product.priceSale || 0)) / product.price) * 100)
+          : 0,
+    }));
+  }, [products]);
+
+  const thumbnails = minimalProducts.map((p) => p.image);
 
   const carousel = useCarousel({
     dots: true,
@@ -180,6 +130,89 @@ export default function HomeProductShowcase({
   const effectiveLayout: "image-left" | "price-bottom" =
     layout ?? (priceBottom ? "price-bottom" : "image-left");
 
+  // Show loading skeleton
+  if (productsLoading) {
+    return (
+      <Container
+        maxWidth={false}
+        sx={{
+          px: { xs: 6, md: 8 },
+          py: { xs: 6, md: 8 },
+          mx: "auto",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <Skeleton variant="text" width={300} height={60} sx={{ mb: 3 }} />
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: 2,
+          }}
+        >
+          {[...Array(4)].map((_, index) => (
+            <Box key={index} sx={{ p: 2 }}>
+              <Skeleton variant="rectangular" height={200} sx={{ mb: 2 }} />
+              <Skeleton variant="text" width="80%" height={24} />
+              <Skeleton variant="text" width="60%" height={20} />
+            </Box>
+          ))}
+        </Box>
+      </Container>
+    );
+  }
+
+  // Show error state
+  if (productsError) {
+    return (
+      <Container
+        maxWidth={false}
+        sx={{
+          px: { xs: 6, md: 8 },
+          py: { xs: 6, md: 8 },
+          mx: "auto",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+        }}
+      >
+        <Typography variant="h3" sx={{ mb: 3, fontWeight: 700 }}>
+          SẢN PHẨM NỔI BẬT
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Không thể tải sản phẩm. Vui lòng thử lại sau.
+        </Typography>
+      </Container>
+    );
+  }
+
+  // Show empty state
+  if (minimalProducts.length === 0) {
+    return (
+      <Container
+        maxWidth={false}
+        sx={{
+          px: { xs: 6, md: 8 },
+          py: { xs: 6, md: 8 },
+          mx: "auto",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+        }}
+      >
+        <Typography variant="h3" sx={{ mb: 3, fontWeight: 700 }}>
+          SẢN PHẨM NỔI BẬT
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Chưa có sản phẩm nào.
+        </Typography>
+      </Container>
+    );
+  }
+
   return (
     <Container
       maxWidth={false}
@@ -187,7 +220,6 @@ export default function HomeProductShowcase({
         px: { xs: 6, md: 8 },
         py: { xs: 6, md: 8 },
         mx: "auto",
-        // minHeight: priceBottom ? '' : '100vh',
         display: "flex",
         flexDirection: "column",
       }}
@@ -196,7 +228,7 @@ export default function HomeProductShowcase({
         variant="h3"
         sx={{ mb: 3, textAlign: "left", fontWeight: 700, flex: "0 0 auto" }}
       >
-        NO NAME'S NEW ARRIVAL
+        SẢN PHẨM NỔI BẬT
       </Typography>
 
       <Box
@@ -218,7 +250,7 @@ export default function HomeProductShowcase({
           sx={{ height: 1 }}
         >
           <Carousel ref={carousel.carouselRef} {...carousel.carouselSettings}>
-            {products.map((p) => (
+            {minimalProducts.map((p) => (
               <ProductCard key={p.id} product={p} layout={effectiveLayout} />
             ))}
           </Carousel>
@@ -227,6 +259,22 @@ export default function HomeProductShowcase({
     </Container>
   );
 }
+
+type MinimalProduct = {
+  id: string;
+  name: string;
+  price: number;
+  priceSale?: number | null;
+  image: string;
+  isFeatured?: boolean;
+  isNew?: boolean;
+  isSale?: boolean;
+  totalRatings?: number;
+  totalReviews?: number;
+  category?: string;
+  inStock?: boolean;
+  discountPercent?: number;
+};
 
 type ProductCardLayout = "image-left" | "price-bottom";
 
@@ -237,7 +285,7 @@ type CardProps = {
 
 function ProductCard({ product, layout = "image-left" }: CardProps) {
   const isPriceBottom = layout === "price-bottom";
-
+  console.log('product  ', product);
   return (
     <Box sx={{ px: 1, height: "100%" }}>
       <Box
@@ -247,8 +295,99 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
           flexDirection: isPriceBottom ? "column-reverse" : "row",
           p: isPriceBottom ? 2 : 0,
           height: "100%",
+          position: "relative",
         }}
       >
+        {/* Product Labels */}
+        <Stack
+          direction="row"
+          spacing={0.5}
+          sx={{
+            position: "absolute",
+            top: isPriceBottom ? 8 : 8,
+            left: isPriceBottom ? 8 : 8,
+            zIndex: 2,
+          }}
+        >
+          {/* Discount percent label */}
+          {product.discountPercent && product.discountPercent > 0 && (
+            <Box
+              sx={{
+                px: 1,
+                py: 0.5,
+                bgcolor: "error.main",
+                color: "white",
+                borderRadius: 0.5,
+                fontSize: "0.75rem",
+                fontWeight: 600,
+              }}
+            >
+              -{product.discountPercent}%
+            </Box>
+          )}
+          {product.isNew && (
+            <Box
+              sx={{
+                px: 1,
+                py: 0.5,
+                bgcolor: "success.main",
+                color: "white",
+                borderRadius: 0.5,
+                fontSize: "0.75rem",
+                fontWeight: 600,
+              }}
+            >
+              MỚI
+            </Box>
+          )}
+          {product.isSale && !product.discountPercent && (
+            <Box
+              sx={{
+                px: 1,
+                py: 0.5,
+                bgcolor: "error.main",
+                color: "white",
+                borderRadius: 0.5,
+                fontSize: "0.75rem",
+                fontWeight: 600,
+              }}
+            >
+              SALE
+            </Box>
+          )}
+          {product.isFeatured && (
+            <Box
+              sx={{
+                px: 1,
+                py: 0.5,
+                bgcolor: "warning.main",
+                color: "white",
+                borderRadius: 0.5,
+                fontSize: "0.75rem",
+                fontWeight: 600,
+              }}
+            >
+              HOT
+            </Box>
+          )}
+          {/* Stock label */}
+          {product.inStock === false && (
+            <Box
+              sx={{
+                px: 1,
+                py: 0.5,
+                bgcolor: "text.disabled",
+                color: "white",
+                borderRadius: 0.5,
+                fontSize: "0.75rem",
+                fontWeight: 600,
+              }}
+            >
+              HẾT HÀNG
+            </Box>
+          )}
+        </Stack>
+
         <Stack
           spacing={1}
           sx={{
@@ -261,8 +400,28 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
             flexShrink: 0,
           }}
         >
-          <Typography variant="subtitle1">{product.name}</Typography>
-          <Stack direction="row" spacing={1}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            {product.name}
+          </Typography>
+
+          {/* Category */}
+          {product.category && (
+            <Typography variant="caption" sx={{ color: "text.secondary" }}>
+              {product.category}
+            </Typography>
+          )}
+          
+          {/* Rating */}
+          {product.totalRatings && product.totalReviews && (
+            <Stack direction="row" alignItems="center" spacing={0.5}>
+              <Iconify icon="solar:star-bold" width={16} sx={{ color: "warning.main" }} />
+              <Typography variant="caption" color="text.secondary">
+                {product.totalRatings.toFixed(1)} ({product.totalReviews} đánh giá)
+              </Typography>
+            </Stack>
+          )}
+
+          <Stack direction="row" spacing={1} alignItems="center">
             {product.priceSale && (
               <Typography
                 variant="body2"
@@ -271,10 +430,11 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
                 {fCurrency(product.priceSale)}
               </Typography>
             )}
-            <Typography variant="subtitle2">
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "primary.main" }}>
               {fCurrency(product.price)}
             </Typography>
           </Stack>
+
           <Link
             color="inherit"
             underline="always"
@@ -283,9 +443,13 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
               display: "inline-flex",
               alignItems: "center",
               gap: 0.5,
+              fontSize: "0.875rem",
+              "&:hover": {
+                color: "primary.main",
+              },
             }}
           >
-            <Iconify icon="solar:heart-linear" width={18} /> Add to wishlist
+            <Iconify icon="solar:heart-linear" width={18} /> Thêm vào yêu thích
           </Link>
         </Stack>
 
@@ -296,10 +460,14 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
             ratio={isPriceBottom ? "3/4" : undefined}
             loading="lazy"
             height={"100%"}
-            sx={{ borderRadius: 0 }}
+            sx={{ borderRadius: 1 }}
             imgSx={{
-              objectPosition: isPriceBottom ? "center" : "center",
-              objectFit: isPriceBottom ? "cover" : "cover",
+              objectPosition: "center",
+              objectFit: "cover",
+              transition: "transform 0.3s ease",
+              "&:hover": {
+                transform: "scale(1.05)",
+              },
             }}
           />
         </Box>

@@ -130,6 +130,7 @@ export default function CheckoutPayment() {
           />
 
           <CheckoutSummary
+            items={checkout.items}
             total={checkout.total}
             subTotal={checkout.subTotal}
             discount={checkout.discount}

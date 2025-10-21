@@ -133,7 +133,7 @@ export default function ProductListView() {
   const handleDeleteRow = useCallback(
     async (id: string) => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`, {
+        const res = await fetch(`/api/products/${id}`, {
           method: 'DELETE',
         });
         if (!res.ok) throw new Error('Failed to delete');
@@ -151,7 +151,7 @@ export default function ProductListView() {
       await Promise.all(
         tableData
           .filter((row) => selectedRowIds.includes(row.id))
-          .map((row) => fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${row.id}`, { method: 'DELETE' })),
+          .map((row) => fetch(`/api/products/${row.id}`, { method: 'DELETE' })),
       );
       enqueueSnackbar("Delete success!");
       await mutateProducts?.();
@@ -344,7 +344,7 @@ export default function ProductListView() {
             loading={productsLoading}
             getRowHeight={() => "auto"}
             paginationMode="server"
-            rowCount={meta?.totalItems ?? 0}
+            rowCount={meta?.total ?? 0}
             paginationModel={paginationModel}
             onPaginationModelChange={setPaginationModel}
             pageSizeOptions={[5, 10, 25]}
