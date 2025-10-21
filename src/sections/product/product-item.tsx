@@ -22,6 +22,7 @@ import { IProductItem, IApiProductItem } from "src/types/product";
 import { useCheckoutContext } from "../checkout/context";
 import { useWishlistContext } from "../wishlist/context";
 import { ProductVariantDto } from "src/types/product-dto";
+import { ICheckoutItem } from "src/types/checkout";
 
 // ----------------------------------------------------------------------
 
@@ -150,24 +151,20 @@ export default function ProductItem({ product }: Props) {
   };
 
   const handleAddCart = async () => {
-    const newProduct = {
+    const newProduct: ICheckoutItem = {
       id,
       name,
       coverUrl: images?.[0] || coverUrl,
       available: available ? 1 : 0,
       price: price,
-      productPrice: price,
       colors: [colors[0]],
       size: sizes[0],
       quantity: 1,
-      stock_quantity,
-      category: category?.name || '',
+      category: category.name,
+      variants: variants,
+      subTotal: price * 1,
     };
-    try {
-      onAddToCart(newProduct);
-    } catch (error) {
-      console.error(error);
-    }
+    onAddToCart(newProduct);
   };
 
   const renderLabels = (newLabel.enabled || saleLabel.enabled) && (

@@ -41,7 +41,7 @@ export default function CheckoutSummary({
       <Stack spacing={3}>
         {/* Product Details */}
         {items.length > 0 ? (
-          items.map((item, index) => (
+          items.map((item: ICheckoutItem, index: number) => (
             <Stack key={item.id || index} direction="row" spacing={2}>
               <Avatar
                 src={item.coverUrl || "/assets/images/product/product_1.jpg"}

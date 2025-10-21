@@ -1,10 +1,12 @@
 import { IAddressItem } from "./address";
+import { ProductVariantDto } from "./product-dto";
 
 // ----------------------------------------------------------------------
 
 export type ICheckoutItem = {
   id: string;
   name: string;
+  variants: ProductVariantDto[];
   coverUrl: string;
   available: number;
   price: number;
@@ -12,6 +14,7 @@ export type ICheckoutItem = {
   size: string;
   quantity: number;
   subTotal: number;
+  category: string;
 };
 
 export type ICheckoutDeliveryOption = {

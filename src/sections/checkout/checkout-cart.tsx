@@ -34,6 +34,8 @@ export default function CheckoutCart() {
       checkout.onAddToCart({
         id: sampleProduct.id,
         name: sampleProduct.name,
+        variants: sampleProduct.variants,
+        category: "",
         coverUrl: sampleProduct.coverUrl,
         available: sampleProduct.available,
         price: sampleProduct.price,

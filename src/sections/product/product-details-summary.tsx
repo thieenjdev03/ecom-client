@@ -106,6 +106,8 @@ export default function ProductDetailsSummary({
       if (!existProduct) {
         onAddCart?.({
           ...data,
+          variants: [],
+          category: "",
           colors: [values.colors],
           subTotal: data.price * data.quantity,
         });
@@ -121,6 +123,8 @@ export default function ProductDetailsSummary({
     try {
       onAddCart?.({
         ...values,
+        variants: [],
+        category: "",
         colors: [values.colors],
         subTotal: values.price * values.quantity,
       });
