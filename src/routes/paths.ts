@@ -59,6 +59,24 @@ export const paths = {
     demo: {
       details: `/product/${MOCK_ID}`,
     },
+    categories: {
+      root: `${ROOTS.DASHBOARD}/categories`,
+      details: (slug: string) => `${ROOTS.DASHBOARD}/categories/${slug}`,
+    },
+    adminCategories: {
+      root: `${ROOTS.DASHBOARD}/categories`,
+    },
+  },
+  checkout: {
+    root: `/checkout`,
+    success: `/checkout/success`,
+    error: `/checkout/error`,
+  },
+  orders: {
+    root: `/orders`,
+  },
+  paypalTest: {
+    root: `/paypal-test`,
   },
   categories: {
     root: `/categories`,
@@ -157,6 +175,9 @@ export const paths = {
         details: `${ROOTS.DASHBOARD}/product/${MOCK_ID}`,
         edit: `${ROOTS.DASHBOARD}/product/${MOCK_ID}/edit`,
       },
+    },
+    categories: {
+      root: `${ROOTS.DASHBOARD}/categories`,
     },
     invoice: {
       root: `${ROOTS.DASHBOARD}/invoice`,

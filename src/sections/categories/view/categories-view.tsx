@@ -4,10 +4,18 @@ import { Grid, Card, CardContent, Typography, Box, Chip } from "@mui/material";
 import { RouterLink } from "src/routes/components";
 import { paths } from "src/routes/paths";
 import { useGetCategories } from "src/api/reference";
+import AdminCategoriesView from "./admin-categories-view";
 
 // ----------------------------------------------------------------------
 
 export default function CategoriesView() {
+  // Check if we're in admin dashboard context
+  const isAdminContext = typeof window !== 'undefined' && window.location.pathname.includes('/dashboard/categories');
+  
+  if (isAdminContext) {
+    return <AdminCategoriesView />;
+  }
+
   const { categories, categoriesLoading, categoriesError } = useGetCategories();
 
   if (categoriesLoading) {

@@ -25,9 +25,11 @@ const StyledIconButton = styled(IconButton, {
     borderRadius: theme.shape.borderRadius * 1.5,
   }),
   ...(!filled && {
-    opacity: 0.48,
+    opacity: 0.7,
+    backgroundColor: "transparent",
     "&:hover": {
       opacity: 1,
+      backgroundColor: "transparent",
     },
   }),
   ...(filled && {

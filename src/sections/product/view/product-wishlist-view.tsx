@@ -23,7 +23,6 @@ import {
   PRODUCT_RATING_OPTIONS,
   PRODUCT_CATEGORY_OPTIONS,
 } from "src/_mock";
-import { SAMPLE_PRODUCTS } from "src/_mock/_product-items";
 
 import Iconify from "src/components/iconify";
 import EmptyContent from "src/components/empty-content";

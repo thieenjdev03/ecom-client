@@ -184,7 +184,7 @@ export default function ProductDetailsView({ id }: Props) {
         ))}
       </Box>
 
-      <Card>
+      {/* <Card>
         <Tabs
           value={currentTab}
           onChange={handleChangeTab}
@@ -220,7 +220,7 @@ export default function ProductDetailsView({ id }: Props) {
             totalReviews={product.totalReviews}
           />
         )}
-      </Card>
+      </Card> */}
     </>
   );
 

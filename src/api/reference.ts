@@ -1,4 +1,4 @@
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { useMemo } from "react";
 import axios, { fetcher, endpoints } from "src/utils/axios";
 
@@ -37,7 +37,6 @@ export function useGetSizes(categoryId?: string) {
     ? [endpoints.refs.sizes, { params: { categoryId } }]
     : endpoints.refs.sizes;
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
-  console.log('data', data);
   const memoized = useMemo(
     () => ({
       sizes: (Array.isArray(data?.data) ? data.data : data) || [],
@@ -52,10 +51,42 @@ export function useGetSizes(categoryId?: string) {
 
 // ----------------------------------------------------------------------
 
-export async function createCategory(payload: { name: string }) {
+// Category CRUD operations
+export async function createCategory(payload: { 
+  name: string; 
+  slug: string; 
+  description?: string;
+  image_url?: string;
+  parent_id?: number | null;
+  display_order?: number;
+  is_active?: boolean;
+}) {
   const res = await axios.post(endpoints.refs.categories, payload);
+  mutate(endpoints.refs.categories); // Revalidate SWR cache
   return res.data;
 }
+
+export async function updateCategory({ id, ...payload }: { 
+  id: string; 
+  name: string; 
+  slug: string; 
+  description?: string;
+  image_url?: string;
+  parent_id?: number | null;
+  display_order?: number;
+  is_active?: boolean;
+}) {
+  const res = await axios.patch(`${endpoints.refs.categories}/${id}`, payload);
+  mutate(endpoints.refs.categories); // Revalidate SWR cache
+  return res.data;
+}
+
+export async function deleteCategory(id: string) {
+  const res = await axios.delete(`${endpoints.refs.categories}/${id}`);
+  mutate(endpoints.refs.categories); // Revalidate SWR cache
+  return res.data;
+}
+
 
 export async function createColor(payload: { name: string; hexCode?: string }) {
   const res = await axios.post(endpoints.refs.colors, payload);

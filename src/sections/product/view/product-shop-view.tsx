@@ -13,7 +13,6 @@ import { paths } from "src/routes/paths";
 import { useBoolean } from "src/hooks/use-boolean";
 import { useDebounce } from "src/hooks/use-debounce";
 
-// Using local sample data for styling instead of API hooks
 import {
   PRODUCT_SORT_OPTIONS,
   PRODUCT_COLOR_OPTIONS,
@@ -21,7 +20,6 @@ import {
   PRODUCT_RATING_OPTIONS,
   PRODUCT_CATEGORY_OPTIONS,
 } from "src/_mock";
-import { SAMPLE_PRODUCTS } from "src/_mock/_product-items";
 
 import EmptyContent from "src/components/empty-content";
 import { useSettingsContext } from "src/components/settings";
@@ -68,12 +66,11 @@ export default function ProductShopView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   // ------------------------------------------------------------------
-  // Local sample products for layout styling
-  // Import shared sample products
-
-  const products = SAMPLE_PRODUCTS;
-  const productsLoading = false;
-  const productsEmpty = products.length === 0;
+  // Use real API data instead of mockup
+  const { products, productsLoading, productsEmpty } = useGetProducts({
+    page: 1,
+    limit: 20,
+  });
 
   const searchResults = debouncedQuery
     ? products.filter((p) =>

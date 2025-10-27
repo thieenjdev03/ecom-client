@@ -1,5 +1,4 @@
 # Product Management System - NestJS + PostgreSQL
-
 ## 1. Tổng quan hệ thống
 
 **Tech Stack:**
@@ -7,6 +6,7 @@
 - Database: PostgreSQL
 - ORM: TypeORM / Prisma (recommend TypeORM cho NestJS)
 - Validation: class-validator, class-transformer
+- Ngôn ngữ cho UI 100% tiếng anh và có thể sử dụng i18n để dịch tiếng việt 
 
 ## 2. Cấu trúc Project NestJS
 

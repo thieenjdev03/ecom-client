@@ -64,14 +64,12 @@ export default function LandingPageView() {
       <Box
         sx={{
           scrollSnapAlign: "start",
-          minHeight: "100vh",
           position: "relative",
           bgcolor: "background.default",
         }}
       >
-        <HomeProductShowcase />
+        <HomeProductShowcase priceBottom={true} />
       </Box>
-
       <Box
         sx={{
           scrollSnapAlign: "start",

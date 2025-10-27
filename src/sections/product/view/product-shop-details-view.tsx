@@ -15,7 +15,7 @@ import Typography from "@mui/material/Typography";
 import { paths } from "src/routes/paths";
 import { RouterLink } from "src/routes/components";
 
-// Using local sample data for styling instead of API hook
+import { useGetProduct } from "src/api/product";
 
 import Iconify from "src/components/iconify";
 import EmptyContent from "src/components/empty-content";
@@ -30,7 +30,6 @@ import ProductDetailsSummary from "../product-details-summary";
 import ProductDetailsCarousel from "../product-details-carousel";
 import ProductDetailsDescription from "../product-details-description";
 import HomeProductShowcase from "src/sections/landing-page/home-product-showcase";
-import { SAMPLE_PRODUCTS } from "src/_mock/_product-items";
 
 // ----------------------------------------------------------------------
 
@@ -66,13 +65,8 @@ export default function ProductShopDetailsView({ id }: Props) {
   const [currentTab, setCurrentTab] = useState("description");
 
   // ------------------------------------------------------------------
-  // Local sample products for layout styling
-  // Import shared sample products
-
-  const product =
-    SAMPLE_PRODUCTS.find((p) => p.id === id) || SAMPLE_PRODUCTS[0];
-  const productLoading = false;
-  const productError = null as unknown as Error | null;
+  // Use real API data instead of mockup
+  const { product, productLoading, productError } = useGetProduct(id);
   const handleChangeTab = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {
       setCurrentTab(newValue);
@@ -141,7 +135,7 @@ export default function ProductShopDetailsView({ id }: Props) {
         ))}
       </Box> */}
 
-      <Card>
+      {/* <Card>
         <Tabs
           value={currentTab}
           onChange={handleChangeTab}
@@ -177,7 +171,7 @@ export default function ProductShopDetailsView({ id }: Props) {
             totalReviews={product.totalReviews}
           />
         )}
-      </Card>
+      </Card> */}
     </>
   );
 

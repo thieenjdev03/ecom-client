@@ -9,6 +9,9 @@ import Skeleton from "@mui/material/Skeleton";
 
 import { useTheme } from "@mui/material/styles";
 
+import { paths } from "src/routes/paths";
+import { RouterLink } from "src/routes/components";
+
 import Iconify from "src/components/iconify";
 import Image from "src/components/image";
 import Carousel, {
@@ -27,15 +30,12 @@ export default function HomeProductShowcase({
   priceBottom?: boolean;
   layout?: "image-left" | "price-bottom";
 }) {
-  const theme = useTheme();
-
   // Fetch real products from API
   const { products, productsLoading, productsError } = useGetProducts({
     page: 1,
     limit: 10,
   });
-  console.log('products', products);
-  // Convert IProductItem to MinimalProduct format for carousel
+
   const minimalProducts = useMemo(() => {
     if (!products || products.length === 0) return [];
 
@@ -286,31 +286,55 @@ type CardProps = {
 function ProductCard({ product, layout = "image-left" }: CardProps) {
   const isPriceBottom = layout === "price-bottom";
   console.log('product  ', product);
+  
+  const linkTo = paths.product.details(product.id);
+  
   return (
     <Box sx={{ px: 1, height: "100%" }}>
-      <Box
+      <Link
+        component={RouterLink}
+        href={linkTo}
         sx={{
-          display: "flex",
-          alignItems: "stretch",
-          flexDirection: isPriceBottom ? "column-reverse" : "row",
-          p: isPriceBottom ? 2 : 0,
+          display: "block",
           height: "100%",
-          position: "relative",
+          textDecoration: "none",
+          "&:hover": {
+            textDecoration: "none",
+          },
         }}
       >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "stretch",
+            flexDirection: isPriceBottom ? "column-reverse" : "row",
+            p: isPriceBottom ? 2 : 0,
+            height: "100%",
+            position: "relative",
+            cursor: "pointer",
+            transition: (theme) =>
+              theme.transitions.create("all", {
+                easing: theme.transitions.easing.easeInOut,
+                duration: theme.transitions.duration.shorter,
+              }),
+            "&:hover": {
+              transform: "translateY(-2px)",
+            },
+          }}
+        >
         {/* Product Labels */}
         <Stack
           direction="row"
           spacing={0.5}
           sx={{
             position: "absolute",
-            top: isPriceBottom ? 8 : 8,
-            left: isPriceBottom ? 8 : 8,
+            top: isPriceBottom ? 20 : 20,
+            right: isPriceBottom ? 24 : 24,
             zIndex: 2,
           }}
         >
           {/* Discount percent label */}
-          {product.discountPercent && product.discountPercent > 0 && (
+          {/* {product.discountPercent && product.discountPercent > 0 && (
             <Box
               sx={{
                 px: 1,
@@ -324,7 +348,7 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
             >
               -{product.discountPercent}%
             </Box>
-          )}
+          )} */}
           {product.isNew && (
             <Box
               sx={{
@@ -412,14 +436,14 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
           )}
           
           {/* Rating */}
-          {product.totalRatings && product.totalReviews && (
+          {/* {product.totalRatings && product.totalReviews && (
             <Stack direction="row" alignItems="center" spacing={0.5}>
               <Iconify icon="solar:star-bold" width={16} sx={{ color: "warning.main" }} />
               <Typography variant="caption" color="text.secondary">
                 {product.totalRatings.toFixed(1)} ({product.totalReviews} đánh giá)
               </Typography>
             </Stack>
-          )}
+          )} */}
 
           <Stack direction="row" spacing={1} alignItems="center">
             {product.priceSale && (
@@ -438,6 +462,7 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
           <Link
             color="inherit"
             underline="always"
+            onClick={(e) => e.stopPropagation()}
             sx={{
               cursor: "pointer",
               display: "inline-flex",
@@ -471,7 +496,8 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
             }}
           />
         </Box>
-      </Box>
+        </Box>
+      </Link>
     </Box>
   );
 }

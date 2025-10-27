@@ -3,7 +3,6 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { Theme, styled, SxProps, useTheme } from "@mui/material/styles";
 
-import { bgBlur } from "src/theme/css";
 
 import { IconifyProps } from "../iconify";
 import { LeftIcon, RightIcon } from "./arrow-icons";
@@ -11,10 +10,6 @@ import { LeftIcon, RightIcon } from "./arrow-icons";
 // ----------------------------------------------------------------------
 
 const StyledRoot = styled(Box)(({ theme }) => ({
-  ...bgBlur({
-    opacity: 0.48,
-    color: theme.palette.grey[900],
-  }),
   zIndex: 9,
   display: "inline-flex",
   alignItems: "center",
@@ -22,17 +17,21 @@ const StyledRoot = styled(Box)(({ theme }) => ({
   bottom: theme.spacing(2),
   right: theme.spacing(2),
   padding: theme.spacing(0.25),
-  color: theme.palette.common.white,
+  color: theme.palette.text.primary,
   borderRadius: theme.shape.borderRadius,
 }));
 
-const StyledIconButton = styled(IconButton)({
+const StyledIconButton = styled(IconButton)(({ theme }) => ({
   width: 28,
   height: 28,
   padding: 0,
-  opacity: 0.48,
-  "&:hover": { opacity: 1 },
-});
+  opacity: 0.7,
+  backgroundColor: "transparent",
+  "&:hover": { 
+    opacity: 1,
+    backgroundColor: "transparent",
+  },
+}));
 
 // ----------------------------------------------------------------------
 
