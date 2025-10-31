@@ -49,6 +49,12 @@ export default function UserTableRow({
     phoneNumber,
     addresses,
     createdAt,
+    country,
+    city,
+    state,
+    address,
+    zipCode,
+    company,
   } = row;
 
   const confirm = useBoolean();
@@ -78,15 +84,25 @@ export default function UserTableRow({
 
         <TableCell sx={{ whiteSpace: "nowrap" }}>{email}</TableCell>
 
+        <TableCell sx={{ whiteSpace: "nowrap" }}>
+          <Tooltip title={`${country || ""} ${city ? `- ${city}` : ""}`.trim()}>
+            <span>{country || "-"}</span>
+          </Tooltip>
+        </TableCell>
+        
         <TableCell sx={{ whiteSpace: "nowrap" }}>{phoneNumber}</TableCell>
 
-        <TableCell sx={{ whiteSpace: "nowrap" }}>{role}</TableCell>
+        <TableCell sx={{ whiteSpace: "nowrap", textTransform: "capitalize" }}>{role}</TableCell>
+        
 
         <TableCell sx={{ whiteSpace: "nowrap" }}>
           <Tooltip
             title={(() => {
               const def = addresses?.find((a) => a.isDefault);
-              if (!def) return "";
+              if (!def) {
+                // Fallback to general address fields if available
+                return address || city || state ? [address, city, state, zipCode].filter(Boolean).join(", ") : "";
+              }
               const parts = [
                 def.streetLine1,
                 def.streetLine2,

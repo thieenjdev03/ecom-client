@@ -12,7 +12,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import { RouterLink } from "src/routes/components";
 import { paths } from "src/routes/paths";
-import { useGetCategories } from "src/api/reference";
+import { useGetCategoryTree } from "src/api/reference";
 
 type Props = {
   label: string;
@@ -21,13 +21,10 @@ type Props = {
 };
 
 interface Category {
-  id: string;
+  id: number;
   name: string;
   slug: string;
-  parent?: Category | null;
   children?: Category[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 export default function EcomCategoriesDropdown({
@@ -39,8 +36,8 @@ export default function EcomCategoriesDropdown({
   const anchorRef = useRef<HTMLDivElement | null>(null);
   const timerRef = useRef<number | null>(null);
 
-  const { categories, categoriesLoading, categoriesError } = useGetCategories();
-
+  const { categoryTree, categoryTreeLoading, categoryTreeError } = useGetCategoryTree();
+  console.log('useGetCategoryTree', categoryTree, categoryTreeLoading, categoryTreeError);
   const handleOpen = () => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
     setOpen(true);
@@ -50,49 +47,17 @@ export default function EcomCategoriesDropdown({
     timerRef.current = window.setTimeout(() => setOpen(false), 120);
   };
 
-  // Group categories by parent/child relationship
-  const groupedCategories = categories.reduce((acc: any, category: Category) => {
-    if (!category.parent) {
-      // This is a parent category
-      if (!acc.parents) acc.parents = [];
-      acc.parents.push(category);
-    } else {
-      // This is a child category
-      if (!acc.children) acc.children = [];
-      acc.children.push(category);
-    }
-    return acc;
-  }, {});
+  // Use tree response directly
+  const parents: Category[] = Array.isArray(categoryTree) ? (categoryTree as Category[]) : [];
 
-  // Create groups for dropdown
-  const createGroups = () => {
-    const groups = [];
-    
-    if (groupedCategories.parents && groupedCategories.parents.length > 0) {
-      groups.push({
-        title: "Danh mục chính",
-        items: groupedCategories.parents.map((category: Category) => ({
-          label: category.name,
-          href: paths.categories.details(category.slug),
-        })),
-      });
-    }
-
-    if (groupedCategories.children && groupedCategories.children.length > 0) {
-      groups.push({
-        title: "Danh mục con",
-        items: groupedCategories.children.map((category: Category) => ({
-          label: category.name,
-          href: paths.categories.details(category.slug),
-        })),
-      });
-    }
-
-    return groups;
-  };
-
-  const groups = createGroups();
-
+  // Create parent -> children groups for dropdown
+  const groups = parents.map((p) => ({
+    parent: p,
+    children: (p.children && p.children.length > 0 ? p.children : []).slice().sort((a, b) => a.name.localeCompare(b.name)),
+  }));
+  console.log('groups', groups);
+  const parentGroupsWithChildren = groups.filter((g) => g.children.length > 0);
+  const parentsWithoutChildren = groups.filter((g) => g.children.length === 0).map((g) => g.parent);
   return (
     <Box
       onMouseEnter={handleOpen}
@@ -128,28 +93,56 @@ export default function EcomCategoriesDropdown({
         transformOrigin={{ vertical: "top", horizontal: "left" }}
         PaperProps={{ sx: { mt: 1, p: 2 } }}
       >
-        {categoriesLoading ? (
+        {categoryTreeLoading ? (
           <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
             <CircularProgress />
           </Box>
-        ) : categoriesError ? (
+        ) : categoryTreeError ? (
           <Typography variant="body2" color="error" sx={{ p: 2 }}>
             Lỗi tải danh mục
           </Typography>
         ) : groups.length > 0 ? (
-          <Stack direction="row" spacing={4} sx={{ minWidth: 400 }}>
-            {groups.map((g) => (
-              <Box key={g.title} sx={{ minWidth: 160 }}>
+          <Stack direction="row" spacing={4} sx={{ minWidth: 480 }}>
+            {parentGroupsWithChildren.map((g) => (
+              <Box key={g.parent.id} sx={{ minWidth: 180 }}>
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  {g.title}
+                  {g.parent.name}
+                </Typography>
+                {g.children.length > 0 ? (
+                  <List dense disablePadding>
+                    {g.children.map((child) => (
+                      <ListItemButton
+                        key={child.id}
+                        component={RouterLink}
+                        href={paths.categories.details(child.slug)}
+                        sx={{
+                          px: 1,
+                          transition: "all 0.2s ease",
+                          "&:hover": {
+                            backgroundColor: "primary.lighter",
+                            transform: "translateX(4px)",
+                          },
+                        }}
+                      >
+                        {child.name}
+                      </ListItemButton>
+                    ))}
+                  </List>
+                ) : null}
+              </Box>
+            ))}
+            {parentsWithoutChildren.length > 0 && (
+              <Box key="another" sx={{ minWidth: 180 }}>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                  Another
                 </Typography>
                 <List dense disablePadding>
-                  {g.items.map((it: { label: string; href: string }) => (
+                  {parentsWithoutChildren.map((p) => (
                     <ListItemButton
-                      key={it.label}
+                      key={p.id}
                       component={RouterLink}
-                      href={it.href}
-                      sx={{ 
+                      href={paths.categories.details(p.slug)}
+                      sx={{
                         px: 1,
                         transition: "all 0.2s ease",
                         "&:hover": {
@@ -158,12 +151,12 @@ export default function EcomCategoriesDropdown({
                         },
                       }}
                     >
-                      {it.label}
+                      {p.name}
                     </ListItemButton>
                   ))}
                 </List>
               </Box>
-            ))}
+            )}
           </Stack>
         ) : (
           <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>

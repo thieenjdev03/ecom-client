@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   Box,
   Card,
@@ -67,7 +67,6 @@ export default function AdminCategoriesView() {
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
 
   const { categories, categoriesLoading, categoriesError } = useGetCategories();
-
   const {
     control,
     handleSubmit,
@@ -88,13 +87,24 @@ export default function AdminCategoriesView() {
   });
 
   // Filter categories based on search query
-  const filteredCategories = categories?.filter((category: any) =>
+  const filteredCategories = categories && categories.length > 0 ? categories?.filter((category: any) =>
     category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     category.slug.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  ) : [];
 
-  // Get parent categories for dropdown
-  const parentCategories = categories?.filter((category: any) => !category.parent) || [];
+  // Get parent categories for dropdown (flat response uses parent_id)
+  const parentCategories = categories && categories.length > 0 ? categories?.filter((category: any) => !category.parent_id) : [];
+
+  // Precompute children count by parent id when API does not provide children_count
+  const childrenCountByParentId = useMemo(() => {
+    const map = new Map<number, number>();
+    (categories && categories.length > 0 ? categories : []).forEach((c: any) => {
+      if (c.parent_id) {
+        map.set(c.parent_id, (map.get(c.parent_id) || 0) + 1);
+      }
+    });
+    return map;
+  }, [categories]);
 
   const handleOpenAddModal = () => {
     reset();
@@ -112,7 +122,7 @@ export default function AdminCategoriesView() {
     setValue("slug", category.slug);
     setValue("description", category.description || "");
     setValue("image_url", category.image_url || "");
-    setValue("parent_id", category.parent?.id || "");
+    setValue("parent_id", category.parent_id ?? "");
     setValue("display_order", category.display_order || 0);
     setValue("is_active", category.is_active ?? true);
     setOpenEditModal(true);
@@ -303,12 +313,12 @@ export default function AdminCategoriesView() {
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      {category.parent ? (
-                        <Chip label={category.parent.name} size="small" variant="outlined" />
+                      {category.parent_name ? (
+                        <Chip label={category.parent_name} size="small" variant="outlined" />
+                      ) : !category.parent_id ? (
+                        <Typography variant="body2" color="text.secondary">Root Category</Typography>
                       ) : (
-                        <Typography variant="body2" color="text.secondary">
-                          Root Category
-                        </Typography>
+                        <Chip label={`Parent #${category.parent_id}`} size="small" variant="outlined" />
                       )}
                     </TableCell>
                     <TableCell>
@@ -326,12 +336,12 @@ export default function AdminCategoriesView() {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2">
-                        {category.children?.length || 0}
+                        {category.children_count ?? childrenCountByParentId.get(category.id) ?? 0}
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" color="text.secondary">
-                        {new Date(category.createdAt).toLocaleDateString()}
+                        {category.created_at ? new Date(category.created_at).toLocaleDateString() : "-"}
                       </Typography>
                     </TableCell>
                     <TableCell align="right">

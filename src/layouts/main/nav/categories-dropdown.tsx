@@ -14,7 +14,7 @@ import { useActiveLink } from "src/routes/hooks/use-active-link";
 import { paths } from "src/routes/paths";
 
 import { paper } from "src/theme/css";
-import { useGetCategories } from "src/api/reference";
+import { useGetCategoryTree } from "src/api/reference";
 
 import { HEADER } from "../../config-layout";
 import { NavItem } from "./desktop/nav-item";
@@ -22,13 +22,10 @@ import { NavItem } from "./desktop/nav-item";
 // ----------------------------------------------------------------------
 
 interface Category {
-  id: string;
+  id: number;
   name: string;
   slug: string;
-  parent?: Category | null;
   children?: Category[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface CategoriesDropdownProps {
@@ -41,21 +38,10 @@ export default function CategoriesDropdown({ onMouseEnter, onMouseLeave, open }:
   const theme = useTheme();
   const pathname = usePathname();
   
-  const { categories, categoriesLoading, categoriesError } = useGetCategories();
-
-  // Group categories by parent/child relationship
-  const groupedCategories = categories.reduce((acc: any, category: Category) => {
-    if (!category.parent) {
-      // This is a parent category
-      if (!acc.parents) acc.parents = [];
-      acc.parents.push(category);
-    } else {
-      // This is a child category
-      if (!acc.children) acc.children = [];
-      acc.children.push(category);
-    }
-    return acc;
-  }, {});
+  const { categoryTree, categoryTreeLoading, categoryTreeError } = useGetCategoryTree();
+  const parents: Category[] = Array.isArray(categoryTree) ? (categoryTree as Category[]) : [];
+  const parentsWithChildren = parents.filter((p) => (p.children || []).length > 0);
+  const parentsWithoutChildren = parents.filter((p) => !p.children || p.children.length === 0);
 
   // Create navigation items for categories
   const createCategoryItems = (categoryList: Category[]) => {
@@ -65,7 +51,7 @@ export default function CategoriesDropdown({ onMouseEnter, onMouseLeave, open }:
     }));
   };
 
-  if (categoriesLoading) {
+  if (categoryTreeLoading) {
     return (
       <Portal>
         <Fade in={open}>
@@ -97,7 +83,7 @@ export default function CategoriesDropdown({ onMouseEnter, onMouseLeave, open }:
     );
   }
 
-  if (categoriesError || !categories.length) {
+  if (categoryTreeError || !parents.length) {
     return null;
   }
 
@@ -122,67 +108,54 @@ export default function CategoriesDropdown({ onMouseEnter, onMouseLeave, open }:
             boxShadow: theme.customShadows.dropdown,
           }}
         >
-          {groupedCategories.parents && groupedCategories.parents.length > 0 && (
-            <Stack
-              spacing={2}
-              flexGrow={1}
-              alignItems="flex-start"
-              sx={{ pb: 2 }}
+          <Stack spacing={2} flexGrow={1} alignItems="flex-start" sx={{ pb: 2 }}>
+            <ListSubheader
+              disableSticky
+              sx={{ p: 0, typography: "overline", fontSize: 11, color: "text.primary" }}
             >
-              <ListSubheader
-                disableSticky
-                sx={{
-                  p: 0,
-                  typography: "overline",
-                  fontSize: 11,
-                  color: "text.primary",
-                }}
-              >
-                Danh mục chính
-              </ListSubheader>
+              Danh mục
+            </ListSubheader>
 
-              {createCategoryItems(groupedCategories.parents).map((item) => (
+            {parentsWithChildren.map((parent) => (
+              <Box key={parent.id} sx={{ width: 1 }}>
                 <NavItem
-                  key={item.title}
-                  title={item.title}
-                  path={item.path}
-                  active={pathname === item.path || pathname === `${item.path}/`}
-                  subItem
+                  title={parent.name}
+                  path={paths.categories.details(parent.slug)}
+                  active={pathname === paths.categories.details(parent.slug) || pathname === `${paths.categories.details(parent.slug)}/`}
+                  subItem={false}
                 />
-              ))}
-            </Stack>
-          )}
+                {(parent.children || []).map((child) => (
+                  <NavItem
+                    key={child.id}
+                    title={child.name}
+                    path={paths.categories.details(child.slug)}
+                    active={pathname === paths.categories.details(child.slug) || pathname === `${paths.categories.details(child.slug)}/`}
+                    subItem
+                  />
+                ))}
+              </Box>
+            ))}
 
-          {groupedCategories.children && groupedCategories.children.length > 0 && (
-            <Stack
-              spacing={2}
-              flexGrow={1}
-              alignItems="flex-start"
-              sx={{ pb: 2 }}
-            >
-              <ListSubheader
-                disableSticky
-                sx={{
-                  p: 0,
-                  typography: "overline",
-                  fontSize: 11,
-                  color: "text.primary",
-                }}
-              >
-                Danh mục con
-              </ListSubheader>
-
-              {createCategoryItems(groupedCategories.children).map((item) => (
-                <NavItem
-                  key={item.title}
-                  title={item.title}
-                  path={item.path}
-                  active={pathname === item.path || pathname === `${item.path}/`}
-                  subItem
-                />
-              ))}
-            </Stack>
-          )}
+            {parentsWithoutChildren.length > 0 && (
+              <>
+                <ListSubheader
+                  disableSticky
+                  sx={{ p: 0, typography: "overline", fontSize: 11, color: "text.primary", mt: 1 }}
+                >
+                  Another
+                </ListSubheader>
+                {parentsWithoutChildren.map((parent) => (
+                  <NavItem
+                    key={`another-${parent.id}`}
+                    title={parent.name}
+                    path={paths.categories.details(parent.slug)}
+                    active={pathname === paths.categories.details(parent.slug) || pathname === `${paths.categories.details(parent.slug)}/`}
+                    subItem
+                  />
+                ))}
+              </>
+            )}
+          </Stack>
         </Paper>
       </Fade>
     </Portal>

@@ -1,12 +1,22 @@
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 
 import Iconify from "src/components/iconify";
+import { useRouter } from "src/routes/hooks";
+import { paths } from "src/routes/paths";
 
 // ----------------------------------------------------------------------
 
 export default function CartPreviewEmpty() {
+  const router = useRouter();
+
+  const handleContinueShopping = () => {
+    // Navigate users back to the product listing
+    router.push(paths.product.root);
+  };
+
   return (
     <Box
       sx={{
@@ -43,6 +53,17 @@ export default function CartPreviewEmpty() {
         <Typography variant="body2" color="text.disabled" textAlign="center">
           Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm
         </Typography>
+
+        <Button
+          variant="contained"
+          size="large"
+          startIcon={<Iconify icon="solar:bag-5-bold" width={20} />}
+          onClick={handleContinueShopping}
+          sx={{ mt: 0.5 }}
+          aria-label="Continue shopping"
+        >
+          Tiếp tục mua sắm
+        </Button>
       </Stack>
     </Box>
   );

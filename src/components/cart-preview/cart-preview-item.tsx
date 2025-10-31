@@ -3,6 +3,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Avatar from "@mui/material/Avatar";
+import Checkbox from "@mui/material/Checkbox";
 import { alpha } from "@mui/material/styles";
 
 import { fCurrency } from "src/utils/format-number";
@@ -17,6 +18,9 @@ type Props = {
   onDelete: VoidFunction;
   onIncrease: VoidFunction;
   onDecrease: VoidFunction;
+  // Optional selection props for bulk actions
+  selected?: boolean;
+  onToggleSelect?: VoidFunction;
 };
 
 export default function CartPreviewItem({
@@ -24,6 +28,8 @@ export default function CartPreviewItem({
   onDelete,
   onIncrease,
   onDecrease,
+  selected,
+  onToggleSelect,
 }: Props) {
   const { name, coverUrl, price, quantity, colors, size, subTotal } = item;
 
@@ -33,7 +39,7 @@ export default function CartPreviewItem({
         p: 2,
         borderRadius: 1.5,
         border: (theme) => `1px solid ${alpha(theme.palette.grey[500], 0.2)}`,
-        backgroundColor: "background.neutral",
+        backgroundColor: "#fff",
         transition: "all 0.2s ease-in-out",
         "&:hover": {
           borderColor: "primary.main",
@@ -41,112 +47,115 @@ export default function CartPreviewItem({
         },
       }}
     >
-      <Stack direction="row" spacing={2}>
-        {/* Product Image */}
-        <Avatar
-          src={coverUrl}
-          variant="rounded"
-          sx={{
-            width: 64,
-            height: 64,
-            flexShrink: 0,
-          }}
-        />
+      <Stack direction="row" spacing={2} alignItems="flex-start">
+        {onToggleSelect && (
+          <Checkbox
+            checked={!!selected}
+            onChange={onToggleSelect}
+            inputProps={{ "aria-label": "Select cart item" }}
+            sx={{ p: 0.5, alignSelf: "center" }}
+          />
+        )}
 
-        {/* Product Details */}
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography
-            variant="subtitle2"
+        {/* Left: Product Image + Info */}
+        <Stack direction="row" spacing={2} sx={{ flex: 1, minWidth: 0 }}>
+          <Avatar
+            src={coverUrl}
+            variant="rounded"
             sx={{
-              mb: 0.5,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
+              width: 88,
+              height: 88,
+              flexShrink: 0,
+              boxShadow: (theme) => theme.customShadows.z8,
             }}
-          >
-            {name}
-          </Typography>
+          />
 
-          {/* Variant Info */}
-          <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-            {colors && colors.length > 0 && (
-              <Typography variant="caption" color="text.secondary">
-                Màu: {colors.join(", ")}
-              </Typography>
-            )}
-            {size && (
-              <Typography variant="caption" color="text.secondary">
-                Size: {size}
-              </Typography>
-            )}
-          </Stack>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                mb: 0.5,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+              title={name}
+            >
+              {name}
+            </Typography>
 
-          {/* Price */}
-          <Typography variant="subtitle2" color="primary.main" sx={{ mb: 1 }}>
-            {fCurrency(price)}
-          </Typography>
+            <Stack direction="column" spacing={1} sx={{ mb: 1 }}>
+              {colors && colors.length > 0 && (
+                <Typography variant="caption" color="text.secondary">
+                  Màu: {colors.join(", ")}
+                </Typography>
+              )}
+              
+              {size && (
+                <Typography variant="caption" color="text.secondary">
+                  Size: {size}
+                </Typography>
+              )}
+            </Stack>
 
-          {/* Quantity Controls */}
-          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography variant="subtitle2" color="primary.main" sx={{ fontWeight: 600 }}>
+              {fCurrency(price)}
+            </Typography>
+          </Box>
+        </Stack>
+
+        {/* Right: Quantity + Subtotal + Delete */}
+        <Stack spacing={1} alignItems="flex-end" justifyContent="space-between">
+          <Stack direction="row" alignItems="center" spacing={0.5}>
             <IconButton
-              size="small"
               onClick={onDecrease}
               disabled={quantity <= 1}
+              aria-label="Decrease quantity"
               sx={{
-                width: 28,
-                height: 28,
+                width: 30,
+                height: 30,
                 border: (theme) => `1px solid ${theme.palette.divider}`,
-                "&:hover": {
-                  backgroundColor: "action.hover",
-                },
+                "&:hover": { backgroundColor: "action.hover" },
               }}
             >
-              <Iconify icon="solar:minus-bold" width={16} />
+              <Iconify icon="ic:round-remove" width={20} sx={{ color: "text.primary" }} />
             </IconButton>
 
-            <Typography variant="body2" sx={{ minWidth: 24, textAlign: "center" }}>
+            <Typography variant="body2" sx={{ minWidth: 28, textAlign: "center" }}>
               {quantity}
             </Typography>
 
             <IconButton
-              size="small"
               onClick={onIncrease}
+              aria-label="Increase quantity"
               sx={{
-                width: 28,
-                height: 28,
+                width: 30,
+                height: 30,
                 border: (theme) => `1px solid ${theme.palette.divider}`,
-                "&:hover": {
-                  backgroundColor: "action.hover",
-                },
+                "&:hover": { backgroundColor: "action.hover" },
               }}
             >
-              <Iconify icon="solar:add-bold" width={16} />
+              <Iconify icon="ic:round-add" width={20} sx={{ color: "text.primary" }} />
             </IconButton>
-
-            {/* Subtotal */}
-            <Typography
-              variant="subtitle2"
-              color="primary.main"
-              sx={{ ml: "auto", fontWeight: 600 }}
-            >
-              {fCurrency(subTotal)}
-            </Typography>
           </Stack>
-        </Box>
 
-        {/* Remove Button */}
-        <IconButton
-          size="small"
-          onClick={onDelete}
-          sx={{
-            color: "error.main",
-            "&:hover": {
-              backgroundColor: (theme) => alpha(theme.palette.error.main, 0.08),
-            },
-          }}
-        >
-          <Iconify icon="solar:trash-bin-trash-bold" width={18} />
-        </IconButton>
+          <Typography variant="subtitle2" color="primary.main" sx={{ fontWeight: 700 }}>
+            {fCurrency(subTotal)}
+          </Typography>
+
+          <IconButton
+            onClick={onDelete}
+            aria-label="Remove item from cart"
+            sx={{
+              color: "error.main",
+              "&:hover": {
+                backgroundColor: (theme) => alpha(theme.palette.error.main, 0.08),
+              },
+            }}
+          >
+            <Iconify icon="solar:trash-bin-trash-bold" width={18} />
+          </IconButton>
+        </Stack>
       </Stack>
     </Box>
   );

@@ -28,6 +28,7 @@ export default function CartPreviewHeader({ onClose }: Props) {
 
       <IconButton
         onClick={onClose}
+        aria-label="Close cart preview"
         sx={{
           p: 1,
           "&:hover": {

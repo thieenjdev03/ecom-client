@@ -105,6 +105,7 @@ export const typography = {
     fontWeight: 600,
     lineHeight: 1.5,
     fontSize: pxToRem(16),
+    color: "#000000",
   },
   subtitle2: {
     fontWeight: 600,

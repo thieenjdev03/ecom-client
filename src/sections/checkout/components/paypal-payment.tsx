@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import axios from "axios";
 
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -10,6 +11,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useRouter } from "next/navigation";
 import { PAYPAL_CONFIG } from "src/config/paypal";
 import { paypalApiService } from "src/services/paypal-api";
+import { orderApi, type CreateOrderRequest, type OrderItem, type OrderSummary } from "src/api/order";
 
 // ----------------------------------------------------------------------
 
@@ -23,6 +25,13 @@ interface PayPalPaymentProps {
   helperText?: string;
   orderItems?: any[];
   customerName?: string;
+  // New props for the updated flow
+  userId?: string;
+  items?: OrderItem[];
+  summary?: OrderSummary;
+  shippingAddressId?: string;
+  billingAddressId?: string;
+  notes?: string;
 }
 
 export default function PayPalPayment({
@@ -35,13 +44,74 @@ export default function PayPalPayment({
   helperText,
   orderItems = [],
   customerName = "",
+  // New props
+  userId,
+  items,
+  summary,
+  shippingAddressId,
+  billingAddressId,
+  notes,
 }: PayPalPaymentProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'creating' | 'approving' | 'capturing'>('idle');
+  // Determine which flow to use (new flow if new props are provided)
+  const useNewFlow = !!(userId && items && summary);
 
-  // Handle PayPal order creation - calls backend API
-  const handlePayPalCreateOrder = async (data: any, actions: any) => {
+  // New flow: Create order first, then PayPal order
+  const handleNewPayPalFlow = async () => {
+    try {
+      setIsLoading(true);
+      setPaymentStatus('creating');
+
+      // Step 1: Create order first
+      const orderData: CreateOrderRequest = {
+        userId: userId!,
+        items: items!,
+        summary: summary!,
+        shippingAddressId,
+        billingAddressId,
+        notes,
+      };
+
+      const order = await orderApi.create(orderData);
+      console.log('Order created:', order);
+
+      if (!order || !order.id) {
+        throw new Error('Failed to create order');
+      }
+
+      // Step 2: Create PayPal order
+      const paypalOrder = await paypalApiService.createPayPalOrder({
+        value: summary!.total.toString(),
+        currency: summary!.currency,
+        description: `Order #${order.id}`,
+      });
+
+      if (!paypalOrder.success || !paypalOrder.data) {
+        throw new Error(paypalOrder.error || 'Failed to create PayPal order');
+      }
+
+      // Step 3: Store order IDs and redirect
+      localStorage.setItem('pendingOrderId', order.id);
+      localStorage.setItem('paypalOrderId', paypalOrder.data.orderId);
+
+      // Redirect to PayPal
+      window.location.href = paypalOrder.data.approveUrl;
+
+    } catch (error) {
+      console.error('New PayPal flow error:', error);
+      // const paymentError = parsePaymentError(error);
+      // errorHandler.handleError(paymentError);
+      onPaymentError(error);
+    } finally {
+      setIsLoading(false);
+      setPaymentStatus('idle');
+    }
+  };
+
+  // Handle PayPal order creation - calls backend API proxy
+  const handlePayPalCreateOrder = async () => {
     try {
       setPaymentStatus('creating');
       setIsLoading(true);
@@ -54,55 +124,25 @@ export default function PayPalPayment({
         customerEmail: paypalEmail,
         customerName,
       });
-
-      const result = await paypalApiService.createOrder({
-        amount: totalAmount,
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+      const res = await axios.post(`${baseUrl}/paypal/create-order`, {
+        value: totalAmount.toString(),
         currency: PAYPAL_CONFIG.currency,
         description: 'E-commerce order',
-        items: orderItems,
-        customerEmail: paypalEmail,
-        customerName,
       });
 
-      console.log('PayPal order creation result:', result);
+      console.log('PayPal order creation result:', res.data);
 
-      if (!result.success) {
-        console.warn('Backend API failed, using PayPal client-side order creation');
-        // Fallback to PayPal client-side order creation
-        return actions.order.create({
-          purchase_units: [
-            {
-              amount: {
-                value: totalAmount.toString(),
-                currency_code: PAYPAL_CONFIG.currency,
-              },
-              description: 'E-commerce order',
-              items: orderItems.map(item => ({
-                name: item.name,
-                quantity: item.quantity.toString(),
-                unit_amount: {
-                  value: item.unit_amount.value,
-                  currency_code: item.unit_amount.currency_code,
-                },
-              })),
-            },
-          ],
-        });
-      }
-
-      if (!result.data || !result.data.id) {
-        console.error('Invalid order response from server:', result);
-        throw new Error('Invalid order response from server');
+      if (!res.data.orderId) {
+        throw new Error('Failed to create PayPal order');
       }
 
       setIsLoading(false);
       setPaymentStatus('idle');
       
-      console.log('Returning PayPal order ID:', result.data.id);
-      console.log('Order ID type:', typeof result.data.id);
-      console.log('Order ID length:', result.data.id?.length);
+      console.log('Returning PayPal order ID:', res.data.orderId);
       
-      return result.data.id; // Return PayPal order ID
+      return res.data.orderId; // Return PayPal order ID
     } catch (error) {
       console.error('Error creating PayPal order:', error);
       setIsLoading(false);
@@ -213,6 +253,8 @@ export default function PayPalPayment({
         You'll be redirected to PayPal to complete your payment securely.
       </Typography>
 
+      {/* Error Display */}
+
       {isLoading && (
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <CircularProgress size={20} sx={{ mr: 1 }} />
@@ -223,27 +265,55 @@ export default function PayPalPayment({
         </Box>
       )}
 
-      <PayPalScriptProvider
-        options={{
-          clientId: PAYPAL_CONFIG.clientId,
-          currency: PAYPAL_CONFIG.currency,
-          intent: PAYPAL_CONFIG.intent,
-        }}
-      >
-        <PayPalButtons
-          style={{ 
-            layout: "vertical", 
-            color: "blue",
-            shape: "rect",
-            height: 45,
+      {/* Use new flow if new props are provided */}
+      {useNewFlow ? (
+        <Box sx={{ textAlign: 'center' }}>
+          <button
+            onClick={handleNewPayPalFlow}
+            disabled={isLoading || !paypalEmail}
+            style={{
+              backgroundColor: '#0070ba',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              padding: '12px 24px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              cursor: isLoading || !paypalEmail ? 'not-allowed' : 'pointer',
+              opacity: isLoading || !paypalEmail ? 0.6 : 1,
+              width: '100%',
+              height: '50px',
+            }}
+          >
+            {isLoading ? 'Processing...' : 'Pay with PayPal'}
+          </button>
+          <Typography variant="caption" sx={{ display: 'block', mt: 1 }}>
+            Total: {summary?.currency} {summary?.total.toFixed(2)}
+          </Typography>
+        </Box>
+      ) : (
+        <PayPalScriptProvider
+          options={{
+            clientId: PAYPAL_CONFIG.clientId,
+            currency: PAYPAL_CONFIG.currency,
+            intent: PAYPAL_CONFIG.intent,
           }}
-          createOrder={handlePayPalCreateOrder}
-          onApprove={handlePayPalApprove}
-          onError={handlePayPalError}
-          onCancel={handlePayPalCancel}
-          disabled={isLoading || !paypalEmail}
-        />
-      </PayPalScriptProvider>
+        >
+          <PayPalButtons
+            style={{ 
+              layout: "vertical", 
+              color: "blue",
+              shape: "rect",
+              height: 45,
+            }}
+            createOrder={handlePayPalCreateOrder}
+            onApprove={handlePayPalApprove}
+            onError={handlePayPalError}
+            onCancel={handlePayPalCancel}
+            disabled={isLoading || !paypalEmail}
+          />
+        </PayPalScriptProvider>
+      )}
     </Box>
   );
 }

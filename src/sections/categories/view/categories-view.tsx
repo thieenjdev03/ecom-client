@@ -1,6 +1,7 @@
 "use client";
 
 import { Grid, Card, CardContent, Typography, Box, Chip } from "@mui/material";
+import EmptyContent from "src/components/empty-content";
 import { RouterLink } from "src/routes/components";
 import { paths } from "src/routes/paths";
 import { useGetCategories } from "src/api/reference";
@@ -142,10 +143,12 @@ export default function CategoriesView() {
       )}
 
       {categories.length === 0 && (
-        <Box sx={{ textAlign: "center", py: 4 }}>
-          <Typography variant="h6" color="text.secondary">
-            Chưa có danh mục nào
-          </Typography>
+        <Box sx={{ py: 4 }}>
+          <EmptyContent
+            filled
+            title="Chưa có danh mục nào"
+            description="Hiện tại chưa có dữ liệu danh mục để hiển thị."
+          />
         </Box>
       )}
     </Box>

@@ -59,6 +59,7 @@ export const endpoints = {
   },
   refs: {
     categories: `${apiUrl}/categories`,
+    categoryTree: `${apiUrl}/categories/tree?active=true`,
     colors: `${apiUrl}/colors`,
     sizes: `${apiUrl}/sizes`,
   },

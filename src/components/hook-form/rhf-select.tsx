@@ -126,6 +126,11 @@ export function RHFMultiSelect({
 
           <Select
             {...field}
+            value={Array.isArray(field.value) ? field.value : []}
+            onChange={(e) => {
+              const { value } = e.target as { value: string | string[] };
+              field.onChange(Array.isArray(value) ? value : value.split(","));
+            }}
             multiple
             displayEmpty={!!placeholder}
             id={`multiple-${name}`}
@@ -134,7 +139,7 @@ export function RHFMultiSelect({
             renderValue={renderValues}
           >
             {options.map((option) => {
-              const selected = field.value.includes(option.value);
+              const selected = field.value?.includes(option.value);
 
               return (
                 <MenuItem key={option.value} value={option.value}>

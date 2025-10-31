@@ -9,6 +9,21 @@ interface ApiResponse<T = any> {
   message?: string;
 }
 
+// Updated interfaces based on the documentation flow
+interface CreatePayPalOrderRequest {
+  value: string;
+  currency: string;
+  description: string;
+}
+
+interface CreatePayPalOrderResponse {
+  success: boolean;
+  orderId: string;
+  approveUrl: string;
+  status: string;
+}
+
+// Legacy interfaces for backward compatibility
 interface CreateOrderRequest {
   amount: number;
   currency: string;
@@ -134,7 +149,39 @@ class PayPalApiService {
     };
   }
 
-  // Create PayPal order
+  // Create PayPal order (new flow from documentation)
+  async createPayPalOrder(request: CreatePayPalOrderRequest): Promise<ApiResponse<CreatePayPalOrderResponse>> {
+    try {
+      console.log('API Service: Creating PayPal order with request:', request);
+      
+      const response = await fetch(PAYPAL_CONFIG.apiEndpoints.createOrder, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(request),
+      });
+
+      console.log('API Service: Response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Service: Error response:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+
+      const responseData = await response.json();
+      console.log('API Service: Response data:', responseData);
+      
+      return { success: true, data: responseData };
+    } catch (error) {
+      console.error('API Service: Error creating PayPal order:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to create PayPal order' 
+      };
+    }
+  }
+
+  // Legacy create order method (for backward compatibility)
   async createOrder(request: CreateOrderRequest): Promise<ApiResponse<CreateOrderResponse>> {
     try {
       console.log('API Service: Creating PayPal order with request:', request);
@@ -324,6 +371,8 @@ export const paypalApiService = new PayPalApiService();
 // Export types for use in components
 export type {
   ApiResponse,
+  CreatePayPalOrderRequest,
+  CreatePayPalOrderResponse,
   CreateOrderRequest,
   CreateOrderResponse,
   CaptureOrderResponse,

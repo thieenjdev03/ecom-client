@@ -153,6 +153,25 @@ export default function LandingHero() {
     getScroll();
   }, [getScroll]);
 
+  // Ensure videos in the hero autoplay on initial page load across browsers
+  useEffect(() => {
+    const root = heroRef.current;
+    if (!root) return;
+    const videos = root.querySelectorAll<HTMLVideoElement>("video");
+    videos.forEach((video) => {
+      video.muted = true;
+      // Some browsers require setting attributes directly for inline playback
+      video.setAttribute("muted", "");
+      video.setAttribute("playsinline", "");
+      const result = video.play();
+      if (result && typeof (result as Promise<void>).catch === "function") {
+        (result as Promise<void>).catch(() => {
+          // Swallow autoplay rejections; user interaction will resume playback
+        });
+      }
+    });
+  }, []);
+
   const transition = {
     repeatType: "loop",
     ease: "linear",
@@ -168,10 +187,15 @@ export default function LandingHero() {
   const textTranslateY = Math.min(60, percent * 0.6);
   const textOpacity = Math.max(0, 1 - percent * 0.012);
 
-  const slides = [
-    { id: 1, img: "/assets/images/home/hero/bg-banner.jpg" },
-    { id: 2, img: "/assets/images/home/hero/bg-banner-1.avif" },
-    { id: 3, img: "/assets/images/home/hero/bg-banner-2.jpg" },
+  // Slides can be either image or video. Provide `type` and `src`.
+  // For video slides, ensure the file is placed under `public/` and is optimized for web playback.
+  const slides: Array<
+    | { id: number; type: "image"; src: string }
+    | { id: number; type: "video"; src: string; poster?: string }
+  > = [
+    { id: 1, type: "video", src: "/assets/images/home/hero/banner-video.mp4", poster: "/assets/images/home/hero/bg-banner.jpg" },
+    { id: 2, type: "image", src: "/assets/images/home/hero/bg-banner.jpg" },
+    { id: 3, type: "image", src: "/assets/images/home/hero/bg-banner-1.avif" },
   ];
 
   const carousel = useCarousel({
@@ -224,7 +248,7 @@ export default function LandingHero() {
       >
         <Box sx={{ position: "absolute", inset: 0 }}>
           <Carousel ref={carousel.carouselRef} {...carousel.carouselSettings}>
-            {slides.map((slide, index) => (
+            {slides.map((slide) => (
               <Box
                 key={slide.id}
                 onClick={carousel.onNext}
@@ -232,11 +256,34 @@ export default function LandingHero() {
                   height: "100vh",
                   cursor: "pointer",
                   position: "relative",
-                  backgroundImage: `url(${slide.img})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
+                  ...(slide.type === "image" && {
+                    backgroundImage: `url(${slide.src})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }),
                 }}
               >
+                {slide.type === "video" && (
+                  <Box
+                    component="video"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    poster={(slide as { poster?: string }).poster}
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      width: 1,
+                      height: 1,
+                      objectFit: "cover",
+                    }}
+                  >
+                    {/* Use a single MP4 source or multiple sources for broader compatibility */}
+                    <source src={(slide as { src: string }).src} type="video/mp4" />
+                  </Box>
+                )}
                 <Container sx={{ height: 1 }}>
                   <Stack
                     alignItems="center"
@@ -250,17 +297,6 @@ export default function LandingHero() {
                         filter: `blur(${textBlurPx}px)`,
                       }}
                     >
-                      <Typography
-                        variant="h1"
-                        sx={{
-                          color: "common.white",
-                          fontWeight: 700,
-                          letterSpacing: 2,
-                          mb: 3,
-                        }}
-                      >
-                        "SOLUNA"
-                      </Typography>
                     </m.div>
                     <m.div
                       style={{
@@ -276,6 +312,7 @@ export default function LandingHero() {
                           sx={{
                             color: "common.white",
                             borderColor: "common.white",
+                            fontSize: "22px",
                           }}
                         >
                           Shop Now

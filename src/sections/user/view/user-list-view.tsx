@@ -53,6 +53,7 @@ import UserTableFiltersResult from "../user-table-filters-result";
 const TABLE_HEAD = [
   { id: "name", label: "Name", width: 300 },
   { id: "email", label: "Email", width: 240 },
+  { id: "country", label: "Country", width: 240 },
   { id: "phoneNumber", label: "Phone Number", width: 160 },
   { id: "role", label: "Role", width: 120 },
   { id: "addresses", label: "Addresses", width: 140 },

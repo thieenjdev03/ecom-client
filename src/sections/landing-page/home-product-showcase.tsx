@@ -62,15 +62,42 @@ export default function HomeProductShowcase({
 
   const thumbnails = minimalProducts.map((p) => p.image);
 
+  const effectiveLayout: "image-left" | "price-bottom" =
+    layout ?? (priceBottom ? "price-bottom" : "image-left");
+
   const carousel = useCarousel({
     dots: true,
     arrows: false,
     autoplay: false,
-    slidesToShow:
-      (layout ?? (priceBottom ? "price-bottom" : "image-left")) ===
-      "price-bottom"
-        ? 4
-        : 2,
+    slidesToShow: effectiveLayout === "price-bottom" ? 5 : 4,
+    slidesToScroll: 1,
+    infinite: false,
+    responsive: [
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: effectiveLayout === "price-bottom" ? 4 : 3,
+        },
+      },
+      {
+        breakpoint: 900,
+        settings: {
+          slidesToShow: effectiveLayout === "price-bottom" ? 3 : 2,
+        },
+      },
+      {
+        breakpoint: 600,
+        settings: {
+          slidesToShow: 2,
+        },
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+        },
+      },
+    ],
     appendDots: (dots: React.ReactNode) => (
       <Box
         component="div"
@@ -126,9 +153,6 @@ export default function HomeProductShowcase({
       </Box>
     ),
   });
-
-  const effectiveLayout: "image-left" | "price-bottom" =
-    layout ?? (priceBottom ? "price-bottom" : "image-left");
 
   // Show loading skeleton
   if (productsLoading) {
@@ -237,9 +261,18 @@ export default function HomeProductShowcase({
           minHeight: 0,
           position: "relative",
           "--thumb-h": { xs: "56px", md: "72px" },
-          "& .slick-list": { height: "calc(100% - var(--thumb-h))" },
-          "& .slick-track": { height: "100%" },
-          "& .slick-slide > div": { height: "100%" },
+          "& .slick-list": { 
+            height: "calc(100% - var(--thumb-h))",
+          },
+          "& .slick-track": { 
+            height: "100%",
+            display: "flex",
+            alignItems: "stretch",
+          },
+          "& .slick-slide": {
+            height: "auto",
+            "& > div": { height: "100%" },
+          },
           "& .slick-dots": { position: "static", mb: 0, mt: 2 },
         }}
       >
@@ -285,7 +318,6 @@ type CardProps = {
 
 function ProductCard({ product, layout = "image-left" }: CardProps) {
   const isPriceBottom = layout === "price-bottom";
-  console.log('product  ', product);
   
   const linkTo = paths.product.details(product.id);
   
@@ -415,8 +447,8 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
         <Stack
           spacing={1}
           sx={{
-            width: { xs: 140, md: 200 },
-            minWidth: { xs: 140, md: 200 },
+            width: { xs: 240, md: 260 },
+            minWidth: { xs: 240, md: 260 },
             pr: isPriceBottom ? 0 : 2,
             pt: isPriceBottom ? 2 : 1,
             pb: 1,

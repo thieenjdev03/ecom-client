@@ -179,6 +179,12 @@ export const paths = {
     categories: {
       root: `${ROOTS.DASHBOARD}/categories`,
     },
+    colors: {
+      root: `${ROOTS.DASHBOARD}/colors`,
+    },
+    sizes: {
+      root: `${ROOTS.DASHBOARD}/sizes`,
+    },
     invoice: {
       root: `${ROOTS.DASHBOARD}/invoice`,
       new: `${ROOTS.DASHBOARD}/invoice/new`,

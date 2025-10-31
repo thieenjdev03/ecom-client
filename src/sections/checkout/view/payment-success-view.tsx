@@ -18,70 +18,81 @@ import { RouterLink } from "src/routes/components";
 import { paths } from "src/routes/paths";
 
 import { fCurrency } from "src/utils/format-number";
-import { paypalApiService } from "src/services/paypal-api";
+import { orderApi, type Order } from "src/api/order";
+import { checkPendingOrderStatus, pollOrderStatusWithRetry } from "src/hooks/use-order-status";
 
 // ----------------------------------------------------------------------
-
-interface PaymentDetails {
-  orderId: string;
-  status: string;
-  amount: number;
-  customerEmail: string;
-  customerName: string;
-  items: any[];
-  timestamp: string;
-}
 
 export default function PaymentSuccessView() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
+  const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isPolling, setIsPolling] = useState(false);
 
   useEffect(() => {
-    // Get payment details from localStorage or URL params
-    const token = searchParams.get('token');
-    
-    if (token) {
-      // If we have a token from PayPal redirect, fetch order details
-      fetchOrderDetails(token);
-    } else {
-      // Try to get from localStorage
-      const storedDetails = localStorage.getItem('paymentDetails');
-      if (storedDetails) {
-        try {
-          setPaymentDetails(JSON.parse(storedDetails));
-          setIsLoading(false);
-        } catch (err) {
-          setError('Invalid payment details');
+    handlePaymentReturn();
+  }, []);
+
+  const handlePaymentReturn = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Check for pending order from localStorage
+      const result = await checkPendingOrderStatus();
+      
+      if (result.success && result.order) {
+        // Payment was successful
+        setOrder(result.order);
+        setIsLoading(false);
+      } else if (result.orderId) {
+        // Order exists but payment is still pending, start polling
+        setIsPolling(true);
+        await pollOrderStatus(result.orderId);
+      } else {
+        // No pending order found, check URL params
+        const token = searchParams.get('token');
+        if (token) {
+          await fetchOrderDetails(token);
+        } else {
+          setError('No payment information found');
           setIsLoading(false);
         }
+      }
+    } catch (err) {
+      console.error('Error handling payment return:', err);
+      setError('Failed to process payment return');
+      setIsLoading(false);
+    }
+  };
+
+  const pollOrderStatus = async (orderId: string) => {
+    try {
+      const result = await pollOrderStatusWithRetry(orderId, 30, 10000);
+      
+      if (result.success && result.order) {
+        setOrder(result.order);
+        setIsPolling(false);
+        setIsLoading(false);
       } else {
-        setError('No payment details found');
+        setError('Payment is taking longer than expected. Please contact support.');
+        setIsPolling(false);
         setIsLoading(false);
       }
+    } catch (err) {
+      console.error('Error polling order status:', err);
+      setError('Failed to check payment status');
+      setIsPolling(false);
+      setIsLoading(false);
     }
-  }, [searchParams]);
+  };
 
   const fetchOrderDetails = async (orderId: string) => {
     try {
-      const result = await paypalApiService.getOrderDetails(orderId);
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to fetch order details');
-      }
-
-      const orderData = result.data!;
-      setPaymentDetails({
-        orderId,
-        status: orderData.status,
-        amount: parseFloat(orderData.purchase_units?.[0]?.amount?.value || '0'),
-        customerEmail: orderData.payer?.email_address || '',
-        customerName: `${orderData.payer?.name?.given_name || ''} ${orderData.payer?.name?.surname || ''}`.trim(),
-        items: orderData.purchase_units?.[0]?.items || [],
-        timestamp: new Date().toISOString(),
-      });
+      const orderData = await orderApi.getById(orderId);
+      setOrder(orderData);
       setIsLoading(false);
     } catch (err) {
       console.error('Error fetching order details:', err);
@@ -91,30 +102,31 @@ export default function PaymentSuccessView() {
   };
 
   const handleDownloadReceipt = () => {
-    if (!paymentDetails) return;
+    if (!order) return;
     
     // Create a simple receipt text
     const receipt = `
 ORDER RECEIPT
 =============
-Order ID: ${paymentDetails.orderId}
-Date: ${new Date(paymentDetails.timestamp).toLocaleDateString()}
-Status: ${paymentDetails.status}
-
-Customer: ${paymentDetails.customerName}
-Email: ${paymentDetails.customerEmail}
+Order ID: ${order.id}
+Date: ${new Date(order.createdAt).toLocaleDateString()}
+Status: ${order.status}
 
 Items:
-${paymentDetails.items.map(item => `- ${item.name} x${item.quantity} - ${fCurrency(parseFloat(item.unit_amount?.value || '0'))}`).join('\n')}
+${order.items.map(item => `- ${item.productName} x${item.quantity} - ${fCurrency(item.totalPrice)}`).join('\n')}
 
-Total: ${fCurrency(paymentDetails.amount)}
+Subtotal: ${fCurrency(order.summary.subtotal)}
+Shipping: ${fCurrency(order.summary.shipping)}
+Tax: ${fCurrency(order.summary.tax)}
+Discount: ${fCurrency(order.summary.discount)}
+Total: ${fCurrency(order.summary.total)}
     `;
 
     const blob = new Blob([receipt], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `receipt-${paymentDetails.orderId}.txt`;
+    a.download = `receipt-${order.id}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -123,7 +135,8 @@ Total: ${fCurrency(paymentDetails.amount)}
 
   const handleContinueShopping = () => {
     // Clear payment details from localStorage
-    localStorage.removeItem('paymentDetails');
+    localStorage.removeItem('pendingOrderId');
+    localStorage.removeItem('paypalOrderId');
     router.push(paths.product.root);
   };
 
@@ -132,17 +145,19 @@ Total: ${fCurrency(paymentDetails.amount)}
       <Container maxWidth="md" sx={{ py: 8 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
           <CircularProgress size={40} />
-          <Typography variant="body1">Loading payment details...</Typography>
+          <Typography variant="body1">
+            {isPolling ? 'Checking payment status...' : 'Loading payment details...'}
+          </Typography>
         </Box>
       </Container>
     );
   }
 
-  if (error || !paymentDetails) {
+  if (error || !order) {
     return (
       <Container maxWidth="md" sx={{ py: 8 }}>
         <Alert severity="error" sx={{ mb: 3 }}>
-          {error || 'Payment details not found'}
+          {error || 'Order details not found'}
         </Alert>
         <Button
           variant="contained"
@@ -165,22 +180,28 @@ Total: ${fCurrency(paymentDetails.amount)}
             width: 80,
             height: 80,
             borderRadius: '50%',
-            bgcolor: 'success.main',
+            bgcolor: order.status === 'PAID' ? 'success.main' : 'warning.main',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Iconify icon="eva:checkmark-fill" sx={{ color: 'white', fontSize: 40 }} />
+          <Iconify 
+            icon={order.status === 'PAID' ? "eva:checkmark-fill" : "eva:clock-fill"} 
+            sx={{ color: 'white', fontSize: 40 }} 
+          />
         </Box>
 
         {/* Success Message */}
         <Stack spacing={1} alignItems="center">
-          <Typography variant="h4" sx={{ fontWeight: 600, color: 'success.main' }}>
-            Payment Successful!
+          <Typography variant="h4" sx={{ fontWeight: 600, color: order.status === 'PAID' ? 'success.main' : 'warning.main' }}>
+            {order.status === 'PAID' ? 'Payment Successful!' : 'Payment Processing...'}
           </Typography>
           <Typography variant="body1" sx={{ color: 'text.secondary', textAlign: 'center' }}>
-            Thank you for your order. A confirmation email has been sent to {paymentDetails.customerEmail}
+            {order.status === 'PAID' 
+              ? 'Thank you for your order. A confirmation email has been sent.'
+              : 'Your payment is being processed. You will receive a confirmation email once completed.'
+            }
           </Typography>
         </Stack>
 
@@ -197,7 +218,7 @@ Total: ${fCurrency(paymentDetails.amount)}
                   Order ID:
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  {paymentDetails.orderId}
+                  {order.id}
                 </Typography>
               </Stack>
 
@@ -206,7 +227,7 @@ Total: ${fCurrency(paymentDetails.amount)}
                   Date:
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  {new Date(paymentDetails.timestamp).toLocaleDateString()}
+                  {new Date(order.createdAt).toLocaleDateString()}
                 </Typography>
               </Stack>
 
@@ -214,8 +235,8 @@ Total: ${fCurrency(paymentDetails.amount)}
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                   Status:
                 </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'success.main' }}>
-                  {paymentDetails.status}
+                <Typography variant="body2" sx={{ fontWeight: 500, color: order.status === 'PAID' ? 'success.main' : 'warning.main' }}>
+                  {order.status}
                 </Typography>
               </Stack>
 
@@ -224,7 +245,7 @@ Total: ${fCurrency(paymentDetails.amount)}
                   Total Amount:
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {fCurrency(paymentDetails.amount)}
+                  {fCurrency(order.summary.total)}
                 </Typography>
               </Stack>
             </Stack>
@@ -232,23 +253,73 @@ Total: ${fCurrency(paymentDetails.amount)}
             <Divider />
 
             {/* Order Items */}
-            {paymentDetails.items.length > 0 && (
+            {order.items.length > 0 && (
               <Stack spacing={2}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                   Items Ordered:
                 </Typography>
-                {paymentDetails.items.map((item, index) => (
+                {order.items.map((item, index) => (
                   <Stack key={index} direction="row" justifyContent="space-between">
                     <Typography variant="body2">
-                      {item.name} x{item.quantity}
+                      {item.productName} x{item.quantity}
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                      {fCurrency(parseFloat(item.unit_amount?.value || '0') * item.quantity)}
+                      {fCurrency(item.totalPrice)}
                     </Typography>
                   </Stack>
                 ))}
               </Stack>
             )}
+
+            {/* Order Summary */}
+            <Stack spacing={1}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                Order Summary:
+              </Typography>
+              <Stack direction="row" justifyContent="space-between">
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Subtotal:
+                </Typography>
+                <Typography variant="body2">
+                  {fCurrency(order.summary.subtotal)}
+                </Typography>
+              </Stack>
+              <Stack direction="row" justifyContent="space-between">
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Shipping:
+                </Typography>
+                <Typography variant="body2">
+                  {fCurrency(order.summary.shipping)}
+                </Typography>
+              </Stack>
+              <Stack direction="row" justifyContent="space-between">
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Tax:
+                </Typography>
+                <Typography variant="body2">
+                  {fCurrency(order.summary.tax)}
+                </Typography>
+              </Stack>
+              {order.summary.discount > 0 && (
+                <Stack direction="row" justifyContent="space-between">
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    Discount:
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'success.main' }}>
+                    -{fCurrency(order.summary.discount)}
+                  </Typography>
+                </Stack>
+              )}
+              <Divider />
+              <Stack direction="row" justifyContent="space-between">
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  Total:
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  {fCurrency(order.summary.total)}
+                </Typography>
+              </Stack>
+            </Stack>
           </Stack>
         </Card>
 
@@ -273,10 +344,12 @@ Total: ${fCurrency(paymentDetails.amount)}
         </Stack>
 
         {/* Additional Info */}
-        <Alert severity="info" sx={{ width: '100%', maxWidth: 500 }}>
+        <Alert severity={order.status === 'PAID' ? 'success' : 'info'} sx={{ width: '100%', maxWidth: 500 }}>
           <Typography variant="body2">
-            You will receive a detailed confirmation email shortly. If you have any questions about your order, 
-            please contact our customer service team.
+            {order.status === 'PAID' 
+              ? 'You will receive a detailed confirmation email shortly. If you have any questions about your order, please contact our customer service team.'
+              : 'Your payment is being processed. This may take a few minutes. You will receive an email confirmation once the payment is completed.'
+            }
           </Typography>
         </Alert>
       </Stack>

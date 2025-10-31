@@ -1,35 +1,52 @@
+import { useEffect, useState } from "react";
+
 import { _mock } from "src/_mock";
 
-// TO GET THE USER FROM THE AUTHCONTEXT, YOU CAN USE
-
-// CHANGE:
-// import { useMockedUser } from 'src/hooks/use-mocked-user';
-// const { user } = useMockedUser();
-
-// TO:
-// import { useAuthContext } from 'src/auth/hooks';
-// const { user } = useAuthContext();
+import { useAuthContext } from "src/auth/hooks";
 
 // ----------------------------------------------------------------------
 
 export function useMockedUser() {
-  const user = {
-    id: "8864c717-587d-472a-929a-8e5f298024da-0",
-    displayName: "Jaydon Frankie",
-    email: "demo@minimals.cc",
-    password: "demo1234",
-    photoURL: _mock.image.avatar(24),
-    phoneNumber: "+40 777666555",
-    country: "United States",
-    address: "90210 Broadway Blvd",
-    state: "California",
-    city: "San Francisco",
-    zipCode: "94116",
-    about:
-      "Praesent turpis. Phasellus viverra nulla ut metus varius laoreet. Phasellus tempus.",
-    role: "admin",
-    isPublic: true,
-  };
+  const { user: authUser } = useAuthContext();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Try to get user from sessionStorage first
+    try {
+      const sessionUser = sessionStorage.getItem("user");
+      if (sessionUser) {
+        const parsedUser = JSON.parse(sessionUser);
+        
+        // Extract first address if available
+        const firstAddress = parsedUser.addresses?.[0] || {};
+        
+        // Transform API user data to UI format
+        setUser({
+          id: parsedUser.id,
+          displayName: parsedUser.profile || parsedUser.email?.split("@")[0] || "User",
+          email: parsedUser.email,
+          phoneNumber: parsedUser.phoneNumber,
+          photoURL: _mock.image.avatar(24),
+          country: firstAddress.country || "",
+          address: firstAddress.address || "",
+          state: firstAddress.state || "",
+          city: firstAddress.city || "",
+          zipCode: firstAddress.zipCode || "",
+          about: "",
+          role: parsedUser.role?.toLowerCase() || "user",
+          isPublic: true,
+        });
+      } else if (authUser) {
+        // Fallback to AuthContext user
+        setUser(authUser);
+      }
+    } catch (error) {
+      console.error("Error parsing user from session:", error);
+      if (authUser) {
+        setUser(authUser);
+      }
+    }
+  }, [authUser]);
 
   return { user };
 }

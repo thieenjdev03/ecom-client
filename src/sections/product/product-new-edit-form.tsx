@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { useFieldArray } from "react-hook-form";
@@ -24,6 +24,10 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Paper from "@mui/material/Paper";
+import Collapse from "@mui/material/Collapse";
+import IconButton from "@mui/material/IconButton";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
 import { paths } from "src/routes/paths";
 import { useRouter } from "src/routes/hooks";
@@ -31,13 +35,6 @@ import { useRouter } from "src/routes/hooks";
 import { useResponsive } from "src/hooks/use-responsive";
 import { useDebounce } from "src/hooks/use-debounce";
 
-import {
-  _tags,
-  PRODUCT_SIZE_OPTIONS,
-  PRODUCT_GENDER_OPTIONS,
-  PRODUCT_COLOR_NAME_OPTIONS,
-  PRODUCT_CATEGORY_GROUP_OPTIONS,
-} from "src/_mock";
 
 import { useSnackbar } from "src/components/snackbar";
 import FormProvider, {
@@ -71,6 +68,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
   const { enqueueSnackbar } = useSnackbar();
 
   const [includeTaxes, setIncludeTaxes] = useState(false);
+  const [openAttributes, setOpenAttributes] = useState(true);
 
   const NewProductSchema = Yup.object().shape({
     status: Yup.string().oneOf(["active", "draft", "out_of_stock", "discontinued"]).required("Status is required"),
@@ -80,7 +78,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       .nullable()
       .typeError("Sale price must be a number")
       .min(0)
-      .test("lte-price", "Sale price must be less than or equal to price", function (value) {
+      .test("lte-price", "Sale price cannot be greater than regular price", function (value) {
         const { price } = this.parent as any;
         if (value == null) return true;
         return Number(value) <= Number(price || 0);
@@ -93,8 +91,6 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
     productSku: Yup.string().nullable(),
     categoryId: Yup.string().required("Category is required"),
     quantity: Yup.number().min(0).required("Quantity is required"),
-    tags: Yup.array().of(Yup.string()),
-    gender: Yup.array().of(Yup.string()),
     saleLabel: Yup.string().nullable(),
     newLabel: Yup.string().nullable(),
     isSale: Yup.boolean(),
@@ -159,8 +155,6 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       productSku: "",
       categoryId: "",
       quantity: 0,
-      tags: [] as string[],
-      gender: [] as string[],
       saleLabel: "",
       newLabel: "",
       isSale: false,
@@ -255,7 +249,8 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
 
   const { categories } = useGetCategories();
   const { colors } = useGetColors();
-  const { sizes } = useGetSizes(values.categoryId);
+  // Fetch all sizes (unfiltered) so size lists always show every size
+  const { sizes } = useGetSizes();
 
   const [openCreateCategory, setOpenCreateCategory] = useState(false);
   const [openCreateColor, setOpenCreateColor] = useState(false);
@@ -275,36 +270,41 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      const payload = {
+      // Build payload with snake_case keys to match sample and mock API
+      const payload: any = {
         name: data.name,
         slug: data.slug,
         description: data.description || undefined,
         short_description: data.shortDescription || undefined,
         images: (data.images as string[])?.slice(0, 5) || [],
-        productSku: data.manageVariants ? undefined : data.productSku || undefined,
-        category_id: data.categoryId,
-        quantity: Number(data.quantity) || 0,
-        sku: data.manageVariants ? undefined : data.sku,
-        stockQuantity: data.manageVariants ? undefined : Number(data.stockQuantity) || 0,
         price: Number(data.price) || 0,
         sale_price: data.salePrice != null ? Number(data.salePrice) : undefined,
-        tags: data.tags || [],
-        saleLabel: data.saleLabel || undefined,
-        newLabel: data.newLabel || undefined,
-        isNew: !!data.isNew,
+        // Optional fields if present in the form (map to snake_case)
+        cost_price: (data as any).costPrice != null ? Number((data as any).costPrice) : undefined,
+        barcode: (data as any).barcode || undefined,
         status: data.status,
-        isFeatured: !!data.isFeatured,
-        variants: data.manageVariants
-          ? (data.variants || []).map((v: any) => ({
-              name: v.name,
-              sku: v.sku,
-              price: Number(v.price) || 0,
-              stock: Number(v.stock) || 0,
-              color_id: v.colorId,
-              size_id: v.sizeId,
-            }))
-          : undefined,
+        is_featured: !!data.isFeatured,
+        meta_title: (data as any).metaTitle || undefined,
+        meta_description: (data as any).metaDescription || undefined,
+        weight: (data as any).weight != null ? Number((data as any).weight) : undefined,
+        // Keep category for backend linkage if available
+        category_id: data.categoryId || undefined,
       };
+
+      if (data.manageVariants) {
+        payload.variants = (data.variants || []).map((v: any) => ({
+          name: v.name,
+          sku: v.sku,
+          price: Number(v.price) || 0,
+          stock: Number(v.stock) || 0,
+          color_id: v.colorId,
+          size_id: v.sizeId,
+        }));
+      } else {
+        // Simple product: include base sku and stock quantity
+        payload.sku = data.sku || undefined;
+        payload.stock_quantity = Number(data.stockQuantity) || 0;
+      }
 
       const created = await createProduct(payload);
       enqueueSnackbar("Create success!");
@@ -358,7 +358,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
             Details
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            Title, short description, image...
+            Title, short description, images
           </Typography>
         </Grid>
       )}
@@ -368,9 +368,9 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
           {!mdUp && <CardHeader title="Details" />}
 
           <Stack spacing={3} sx={{ p: 3 }}>
-            <RHFTextField name="name" label="Name" />
-            <RHFTextField name="slug" label="Slug" helperText="Slug được dùng cho SEO. Tự động tạo từ tên và có thể chỉnh sửa." />
-            <RHFTextField name="shortDescription" label="Short Description" multiline minRows={2} />
+            <RHFTextField name="name" label="Name" placeholder="Enter product name" />
+            <RHFTextField name="slug" label="Slug" helperText="Slug is used for SEO. Auto-generated from name and editable." placeholder="auto-generated-from-name" />
+            <RHFTextField name="shortDescription" label="Short Description" placeholder="A short summary shown in listings" multiline minRows={2} />
             <RHFEditor name="description" />
             <Stack spacing={1}>
               <Typography variant="subtitle2">Images (URLs)</Typography>
@@ -395,11 +395,11 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                 }
               />
               <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                Tối đa 5 ảnh. Dán URL ảnh và nhấn Enter để thêm.
+                Up to 5 images. Paste an image URL and press Enter to add.
               </Typography>
             </Stack>
-            <RHFTextField name="productCode" label="Product Code" />
-            <RHFTextField name="productSku" label="Product SKU" />
+            <RHFTextField name="productCode" label="Product Code" placeholder="Enter internal product code" />
+            <RHFTextField name="productSku" label="Product SKU" placeholder="Enter SKU code" />
           </Stack>
         </Card>
       </Grid>
@@ -411,171 +411,42 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       {mdUp && (
         <Grid md={4}>
           <Typography variant="h6" sx={{ mb: 0.5 }}>
-            Properties
+            Product Meta
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            Additional functions and attributes...
+            Category, status
           </Typography>
         </Grid>
       )}
 
       <Grid xs={12} md={8}>
         <Card>
-          {!mdUp && <CardHeader title="Properties" />}
+          {!mdUp && <CardHeader title="Product Meta" />}
 
           <Stack spacing={3} sx={{ p: 3 }}>
-            <Box
-              columnGap={2}
-              rowGap={3}
-              display="grid"
-              gridTemplateColumns={{
-                xs: "repeat(1, 1fr)",
-                md: "repeat(2, 1fr)",
-              }}
-            >
-              <RHFTextField
-                name="quantity"
-                label="Quantity"
-                placeholder="0"
-                type="number"
-                InputLabelProps={{ shrink: true }}
-              />
+            <Box columnGap={2} rowGap={3} display="grid" gridTemplateColumns={{ xs: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <RHFSelect native name="categoryId" label="Category" InputLabelProps={{ shrink: true }}>
+                  <option value="" />
+                  {categories.map((c: any) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </RHFSelect>
+                <IconButton size="small" color="primary" onClick={() => setOpenCreateCategory(true)} aria-label="add category">
+                  +
+                </IconButton>
+              </Box>
 
-              <RHFSelect
-                native
-                name="categoryId"
-                label="Category"
-                InputLabelProps={{ shrink: true }}
-              >
-                <option value="" />
-                {categories.map((c: any) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </RHFSelect>
-              <Button size="small" variant="outlined" onClick={() => setOpenCreateCategory(true)}>+ New Category</Button>
-
-              <RHFSelect
-                native
-                name="status"
-                label="Status"
-                InputLabelProps={{ shrink: true }}
-              >
+              <RHFSelect native name="status" label="Status" InputLabelProps={{ shrink: true }}>
                 <option value="active">active</option>
                 <option value="draft">draft</option>
                 <option value="out_of_stock">out_of_stock</option>
                 <option value="discontinued">discontinued</option>
               </RHFSelect>
 
-              <RHFMultiSelect
-                checkbox
-                name="colorIds"
-                label="Colors"
-                options={colors.map((c: any) => ({
-                  label: c.name,
-                  value: c.id,
-                }))}
-              />
-              <Button size="small" variant="outlined" onClick={() => setOpenCreateColor(true)}>+ New Color</Button>
-
-              <RHFMultiSelect
-                checkbox
-                name="sizeIds"
-                label="Sizes"
-                options={sizes.map((s: any) => ({
-                  label: s.name,
-                  value: s.id,
-                }))}
-              />
-              <Button size="small" variant="outlined" onClick={() => setOpenCreateSize(true)}>+ New Size</Button>
             </Box>
-
-            <RHFAutocomplete
-              name="tags"
-              label="Tags"
-              placeholder="+ Tags"
-              multiple
-              freeSolo
-              options={_tags.map((option) => option)}
-              getOptionLabel={(option) => option}
-              renderOption={(props, option) => (
-                <li {...props} key={option}>
-                  {option}
-                </li>
-              )}
-              renderTags={(selected, getTagProps) =>
-                selected.map((option, index) => (
-                  <Chip
-                    {...getTagProps({ index })}
-                    key={option}
-                    label={option}
-                    size="small"
-                    color="info"
-                    variant="soft"
-                  />
-                ))
-              }
-            />
-
-            <Stack spacing={1}>
-              <Typography variant="subtitle2">Gender</Typography>
-              <RHFMultiCheckbox
-                row
-                name="gender"
-                spacing={2}
-                options={PRODUCT_GENDER_OPTIONS}
-              />
-            </Stack>
-
-            <Divider sx={{ borderStyle: "dashed" }} />
-
-            <Stack spacing={2}>
-              <Typography variant="subtitle2">Stock Management</Typography>
-              <FormControlLabel
-                control={<Switch checked={values.manageVariants} onChange={(e) => setValue("manageVariants", e.target.checked)} />}
-                label="Quản lý theo biến thể"
-              />
-
-              {!values.manageVariants && (
-                <Box
-                  columnGap={2}
-                  rowGap={3}
-                  display="grid"
-                  gridTemplateColumns={{ xs: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}
-                >
-                  <RHFTextField name="sku" label="SKU" />
-                  <RHFTextField name="stockQuantity" label="Stock quantity" type="number" InputLabelProps={{ shrink: true }} />
-                </Box>
-              )}
-
-              {values.manageVariants && (
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  Biến thể sẽ được cấu hình sau khi tạo sản phẩm.
-                </Typography>
-              )}
-            </Stack>
-
-            <Stack direction="row" alignItems="center" spacing={3}>
-              <FormControlLabel control={<Switch checked={values.isFeatured} onChange={(e) => setValue("isFeatured", e.target.checked)} />} label="Featured" />
-              <RHFSwitch name="isSale" label={null} sx={{ m: 0 }} />
-              <RHFTextField
-                name="saleLabel"
-                label="Sale Label"
-                fullWidth
-                disabled={!values.isSale}
-              />
-            </Stack>
-
-            <Stack direction="row" alignItems="center" spacing={3}>
-              <RHFSwitch name="isNew" label={null} sx={{ m: 0 }} />
-              <RHFTextField
-                name="newLabel"
-                label="New Label"
-                fullWidth
-                disabled={!values.isNew}
-              />
-            </Stack>
           </Stack>
         </Card>
       </Grid>
@@ -764,6 +635,104 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
         {renderProperties}
 
         {renderPricing}
+        {/* Attributes (collapsible) */}
+        <Grid xs={12} md={4}>
+          <Typography variant="h6" sx={{ mb: 0.5 }}>
+            Attributes
+          </Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            Colors, sizes and labels
+          </Typography>
+        </Grid>
+        <Grid xs={12} md={8}>
+          <Card>
+            <Stack sx={{ p: 1, borderBottom: '1px solid', borderColor: 'divider' }} direction="row" alignItems="center" justifyContent="space-between">
+              <Typography variant="subtitle1" sx={{ pl: 2 }}>Attributes</Typography>
+              <Button size="small" onClick={() => setOpenAttributes((v) => !v)}>{openAttributes ? 'Hide' : 'Show'}</Button>
+            </Stack>
+            <Collapse in={openAttributes} timeout="auto" unmountOnExit>
+              <Stack spacing={3} sx={{ p: 3 }}>
+                <Box columnGap={2} rowGap={3} display="grid" gridTemplateColumns={{ xs: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}>
+                   <Stack direction="row" spacing={2} width="100%" alignItems="center">  
+                   <RHFMultiSelect
+                      sx={{ width: "80%" }}
+                      checkbox
+                      name="colorIds"
+                      label="Colors"
+                      options={colors.map((c: any) => ({ label: c.name, value: c.id }))}
+                    />
+                    <IconButton sx={{ width: "30px", height: "30px" }} size="small" color="primary" onClick={() => setOpenCreateColor(true)} aria-label="add color">
+                      +
+                    </IconButton>
+                   </Stack>
+                   <Stack direction="row" spacing={2} width="100%" alignItems="center">
+                   <RHFMultiSelect
+                      sx={{ width: "80%" }}
+                      checkbox
+                      name="sizeIds"
+                      label="Sizes"
+                      options={sizes.map((s: any) => ({ label: s.name, value: s.id }))}
+                    />
+                    <IconButton size="small" color="primary" onClick={() => setOpenCreateSize(true)} aria-label="add size">
+                      +
+                    </IconButton>
+                   </Stack>
+                </Box>
+              </Stack>
+            </Collapse>
+          </Card>
+        </Grid>
+
+        {/* Inventory */}
+        <Grid md={4} sx={{ display: { xs: 'none', md: 'block' } }} />
+        <Grid xs={12} md={8}>
+          <Card sx={{ mt: 3 }}>
+            <CardHeader title="Inventory" />
+            <Stack spacing={3} sx={{ p: 3 }}>
+              <Stack spacing={2}>
+                <Typography variant="subtitle2">Stock Management</Typography>
+                <FormControlLabel
+                  control={<Switch checked={values.manageVariants} onChange={(e) => setValue("manageVariants", e.target.checked)} />}
+                  label="Enable variant-based stock tracking"
+                />
+              </Stack>
+
+              {!values.manageVariants && (
+                <Box columnGap={2} rowGap={3} display="grid" gridTemplateColumns={{ xs: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}>
+                  <RHFTextField name="sku" label="SKU" placeholder="Enter SKU or leave blank to auto-generate" />
+                  <RHFTextField name="stockQuantity" label="Stock quantity" type="number" InputLabelProps={{ shrink: true }} />
+                </Box>
+              )}
+
+              <RHFTextField name="quantity" label="Quantity" placeholder="0" type="number" InputLabelProps={{ shrink: true }} />
+            </Stack>
+          </Card>
+        </Grid>
+
+        {/* Marketing */}
+        <Grid md={4} sx={{ display: { xs: 'none', md: 'block' } }} />
+        <Grid xs={12} md={8}>
+          <Card sx={{ mt: 3 }}>
+            <CardHeader title="Marketing Options" />
+            <Stack spacing={3} sx={{ p: 3 }}>
+              <FormControlLabel control={<Switch checked={values.isFeatured} onChange={(e) => setValue("isFeatured", e.target.checked)} />} label="Featured product – shown on homepage" />
+
+              <Stack spacing={1}>
+                <FormControlLabel control={<RHFSwitch name="isSale" label={null} sx={{ m: 0 }} />} label="Enable Sale Label" />
+                {values.isSale && (
+                  <RHFTextField name="saleLabel" label="Sale Label" fullWidth />
+                )}
+              </Stack>
+
+              <Stack spacing={1}>
+                <FormControlLabel control={<RHFSwitch name="isNew" label={null} sx={{ m: 0 }} />} label="Enable Custom Label" />
+                {values.isNew && (
+                  <RHFTextField name="newLabel" label="Custom Label" fullWidth />
+                )}
+              </Stack>
+            </Stack>
+          </Card>
+        </Grid>
 
         {renderVariants}
 
@@ -782,7 +751,14 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
             variant="contained"
             onClick={async () => {
               if (!newCategoryName.trim()) return;
-              const created = await createCategory({ name: newCategoryName.trim() });
+              // Create category via API, then refresh category list
+              const slugFromName = newCategoryName
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9\s-]/g, "")
+                .replace(/\s+/g, "-")
+                .replace(/-+/g, "-");
+              await createCategory({ name: newCategoryName.trim(), slug: slugFromName });
               await mutate(endpoints.refs.categories);
               setNewCategoryName("");
               setOpenCreateCategory(false);

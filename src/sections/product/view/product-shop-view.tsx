@@ -12,6 +12,7 @@ import { paths } from "src/routes/paths";
 
 import { useBoolean } from "src/hooks/use-boolean";
 import { useDebounce } from "src/hooks/use-debounce";
+import { useGetProducts } from "src/api/product";
 
 import {
   PRODUCT_SORT_OPTIONS,

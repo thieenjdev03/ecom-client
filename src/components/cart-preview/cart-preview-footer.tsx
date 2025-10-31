@@ -69,10 +69,29 @@ export default function CartPreviewFooter({ onClose }: Props) {
         <Stack spacing={1.5}>
           <Button
             fullWidth
+            variant="contained"
+            size="large"
+            startIcon={<Iconify icon="solar:card-2-bold" width={20} />}
+            onClick={handleCheckout}
+            autoFocus
+            aria-label="Proceed to checkout"
+            sx={{
+              py: 1.5,
+              fontWeight: 700,
+              backgroundColor: "#111",
+              "&:hover": { backgroundColor: "#000" },
+            }}
+          >
+            Thanh toán
+          </Button>
+
+          <Button
+            fullWidth
             variant="outlined"
             size="large"
             startIcon={<Iconify icon="solar:cart-3-bold" width={20} />}
             onClick={handleViewCart}
+            aria-label="View cart details"
             sx={{
               py: 1.5,
               borderColor: "primary.main",
@@ -86,19 +105,16 @@ export default function CartPreviewFooter({ onClose }: Props) {
             Xem giỏ hàng
           </Button>
 
-          <Button
-            fullWidth
-            variant="contained"
-            size="large"
-            startIcon={<Iconify icon="solar:card-2-bold" width={20} />}
-            onClick={handleCheckout}
-            sx={{
-              py: 1.5,
-              fontWeight: 600,
-            }}
-          >
-            Thanh toán
-          </Button>
+          <Stack spacing={0.5} alignItems="center" sx={{ pt: 0.5 }}>
+            <Typography variant="caption" color="text.secondary">
+              Bạn có thể thanh toán an toàn qua PayPal hoặc thẻ Visa.
+            </Typography>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Iconify icon="logos:paypal" width={32} />
+              <Iconify icon="logos:visa" width={36} />
+              <Iconify icon="logos:mastercard" width={28} />
+            </Stack>
+          </Stack>
         </Stack>
       </Stack>
     </Box>

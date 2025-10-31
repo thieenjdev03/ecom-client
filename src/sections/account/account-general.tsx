@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
@@ -11,6 +11,8 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
+
+import { useMockedUser } from "src/hooks/use-mocked-user";
 
 import { useSnackbar } from "src/components/snackbar";
 import FormProvider, { RHFTextField, RHFSelect } from "src/components/hook-form";
@@ -34,6 +36,7 @@ interface FormValuesProps {
 
 export default function AccountGeneral() {
   const { enqueueSnackbar } = useSnackbar();
+  const { user } = useMockedUser();
 
   const [coordinates, setCoordinates] = useState<{ lat: number; lon: number } | undefined>();
 
@@ -50,15 +53,15 @@ export default function AccountGeneral() {
   });
 
   const defaultValues = {
-    displayName: "Jayvion Simon",
-    email: "demo@minimals.cc",
-    phoneNumber: "+84 234 567 890",
-    country: "Vietnam",
-    address: "123 Lý Thường Kiệt, Quận 1",
-    state: "Ho Chi Minh City",
-    city: "Ho Chi Minh City",
-    zipCode: "700000",
-    about: "Hello there, my name is Jayvion Simon. I am a creative graphic designer with passion for designing digital experiences.",
+    displayName: user?.displayName || "",
+    email: user?.email || "",
+    phoneNumber: user?.phoneNumber || "",
+    country: user?.country || "",
+    address: user?.address || "",
+    state: user?.state || "",
+    city: user?.city || "",
+    zipCode: user?.zipCode || "",
+    about: user?.about || "",
   };
 
   const methods = useForm<FormValuesProps>({
@@ -75,6 +78,23 @@ export default function AccountGeneral() {
   } = methods;
 
   const values = watch();
+
+  // Update form values when user data is loaded
+  useEffect(() => {
+    if (user) {
+      reset({
+        displayName: user?.displayName || "",
+        email: user?.email || "",
+        phoneNumber: user?.phoneNumber || "",
+        country: user?.country || "",
+        address: user?.address || "",
+        state: user?.state || "",
+        city: user?.city || "",
+        zipCode: user?.zipCode || "",
+        about: user?.about || "",
+      });
+    }
+  }, [user, reset]);
 
   const onSubmit = handleSubmit(async (data) => {
     try {

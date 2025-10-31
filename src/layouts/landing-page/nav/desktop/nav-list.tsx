@@ -27,6 +27,9 @@ export default function NavList({ data }: NavListProps) {
 
   const [openMenu, setOpenMenu] = useState(false);
 
+  // Flatten children groups into a single list to display parent title as main header
+  const flattenedItems = data.children?.flatMap((list) => list.items) || [];
+
   useEffect(() => {
     if (openMenu) {
       handleCloseMenu();
@@ -81,13 +84,7 @@ export default function NavList({ data }: NavListProps) {
                 boxShadow: theme.customShadows.dropdown,
               }}
             >
-              {data.children.map((list) => (
-                <NavSubList
-                  key={list.subheader}
-                  subheader={list.subheader}
-                  data={list.items}
-                />
-              ))}
+              <NavSubList subheader={data.title} data={flattenedItems} />
             </Paper>
           </Fade>
         </Portal>

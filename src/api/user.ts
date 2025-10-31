@@ -1,5 +1,28 @@
 import axios, { endpoints } from "src/utils/axios";
 
+export type IUserAddress = {
+  id: string;
+  userId?: string;
+  recipientName: string;
+  recipientPhone: string;
+  label?: string;
+  countryCode?: string;
+  province?: string;
+  district?: string;
+  ward?: string;
+  streetLine1: string;
+  streetLine2?: string | null;
+  postalCode?: string;
+  latitude?: string | null;
+  longitude?: string | null;
+  isShipping?: boolean;
+  isBilling?: boolean;
+  isDefault?: boolean;
+  note?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type CreateUserRequest = {
   email: string;
   password: string;
@@ -24,6 +47,15 @@ export type User = {
   status?: string;
   createdAt?: string;
   updatedAt?: string;
+  // Additional fields from API
+  addresses?: IUserAddress[];
+  avatarUrl?: string;
+  city?: string;
+  state?: string;
+  address?: string;
+  country?: string;
+  zipCode?: string;
+  isVerified?: boolean;
 };
 
 export type UserListResponse = {
@@ -41,11 +73,18 @@ export const usersApi = {
     return res.data;
   },
   async list(params: Record<string, any>) {
-    const res = await axios.get(`${base}`, { params });
+    // Add include params to get more detailed data
+    const queryParams = {
+      ...params,
+      // include: params.include || "addresses,profile",
+    };
+    const res = await axios.get(`${base}`, { params: queryParams });
     return res.data;
   },
   async getById(id: number | string) {
-    const res = await axios.get(`${base}/${id}`);
+    const res = await axios.get(`${base}/${id}`, {
+      params: { include: "addresses,profile" },
+    });
     return res.data;
   },
   async update(id: number | string, data: UpdateUserRequest) {

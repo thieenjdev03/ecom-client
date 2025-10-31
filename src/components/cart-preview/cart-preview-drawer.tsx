@@ -2,6 +2,7 @@ import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 import { useCheckoutContext } from "src/sections/checkout/context/checkout-context";
 
@@ -15,12 +16,14 @@ import CartPreviewEmpty from "./cart-preview-empty";
 export default function CartPreviewDrawer() {
   const theme = useTheme();
   const checkout = useCheckoutContext();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const isEmpty = !checkout.items.length;
 
   return (
     <Drawer
-      anchor="right"
+      // Use bottom drawer on mobile for better reachability
+      anchor={isMobile ? "bottom" : "right"}
       open={checkout.cartPreviewOpen}
       onClose={checkout.onCloseCartPreview}
       slotProps={{
@@ -33,13 +36,14 @@ export default function CartPreviewDrawer() {
       }}
       PaperProps={{
         sx: {
-          width: {
-            xs: 1, // Full width on mobile
-            sm: 400, // 400px on desktop
-          },
-          height: 1,
+          width: isMobile ? 1 : 400,
+          height: isMobile ? "75vh" : 1,
           display: "flex",
           flexDirection: "column",
+          borderTopLeftRadius: isMobile ? 16 : 0,
+          borderTopRightRadius: isMobile ? 16 : 0,
+          boxShadow: theme.customShadows.dialog,
+          overflow: "hidden",
         },
       }}
       sx={{
