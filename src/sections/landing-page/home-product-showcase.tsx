@@ -355,7 +355,7 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
           }}
         >
         {/* Product Labels */}
-        <Stack
+        {/* <Stack
           direction="row"
           spacing={0.5}
           sx={{
@@ -364,7 +364,7 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
             right: isPriceBottom ? 24 : 24,
             zIndex: 2,
           }}
-        >
+        > */}
           {/* Discount percent label */}
           {/* {product.discountPercent && product.discountPercent > 0 && (
             <Box
@@ -381,7 +381,7 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
               -{product.discountPercent}%
             </Box>
           )} */}
-          {product.isNew && (
+          {/* {product.isNew && (
             <Box
               sx={{
                 px: 1,
@@ -395,8 +395,8 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
             >
               MỚI
             </Box>
-          )}
-          {product.isSale && !product.discountPercent && (
+          )} */}
+          {/* {product.isSale && !product.discountPercent && (
             <Box
               sx={{
                 px: 1,
@@ -410,8 +410,8 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
             >
               SALE
             </Box>
-          )}
-          {product.isFeatured && (
+          )} */}
+          {/* {product.isFeatured && (
             <Box
               sx={{
                 px: 1,
@@ -425,9 +425,9 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
             >
               HOT
             </Box>
-          )}
+          )} */}
           {/* Stock label */}
-          {product.inStock === false && (
+          {/* {product.inStock === false && (
             <Box
               sx={{
                 px: 1,
@@ -441,8 +441,8 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
             >
               HẾT HÀNG
             </Box>
-          )}
-        </Stack>
+          )} */}
+        {/* </Stack> */}
 
         <Stack
           spacing={1}

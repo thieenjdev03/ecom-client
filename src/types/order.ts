@@ -1,12 +1,14 @@
 // ----------------------------------------------------------------------
 
-export type IOrderTableFilterValue = string | Date | null;
+export type IOrderTableFilterValue = string | Date | string[] | null;
 
 export type IOrderTableFilters = {
   name: string;
   status: string;
   startDate: Date | null;
   endDate: Date | null;
+  paymentMethod: string[];
+  country: string;
 };
 
 // ----------------------------------------------------------------------
@@ -44,6 +46,9 @@ export type IOrderCustomer = {
   email: string;
   avatarUrl: string;
   ipAddress: string;
+  country?: string;
+  firstName?: string;
+  lastName?: string;
 };
 
 export type IOrderProductItem = {
@@ -53,6 +58,10 @@ export type IOrderProductItem = {
   price: number;
   coverUrl: string;
   quantity: number;
+  variantName?: string;
+  productSlug?: string;
+  productId?: number;
+  variantId?: string;
 };
 
 export type IOrderItem = {
@@ -70,4 +79,14 @@ export type IOrderItem = {
   delivery: IOrderDelivery;
   items: IOrderProductItem[];
   createdAt: Date;
+  // New fields
+  paymentMethod?: "PAYPAL" | "STRIPE" | "COD";
+  paidAt?: Date | null;
+  currency?: string;
+  carrier?: string | null;
+  trackingNumber?: string | null;
+  notes?: string | null;
+  internalNotes?: string | null;
+  shippingAddress?: any;
+  billingAddress?: any;
 };

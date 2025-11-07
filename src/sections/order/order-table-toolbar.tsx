@@ -1,15 +1,22 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 
 import Stack from "@mui/material/Stack";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
+import FormControl from "@mui/material/FormControl";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { formHelperTextClasses } from "@mui/material/FormHelperText";
 
+import { useDebounce } from "src/hooks/use-debounce";
+
 import Iconify from "src/components/iconify";
 import CustomPopover, { usePopover } from "src/components/custom-popover";
+import CountrySelect from "src/components/country-select";
+import { countries } from "src/assets/data";
 
 import { IOrderTableFilters, IOrderTableFilterValue } from "src/types/order";
 
@@ -22,18 +29,33 @@ type Props = {
   dateError: boolean;
 };
 
+const PAYMENT_METHOD_OPTIONS = [
+  { value: "PAYPAL", label: "PayPal" },
+  { value: "STRIPE", label: "Stripe" },
+  { value: "COD", label: "COD" },
+];
+
 export default function OrderTableToolbar({
   filters,
   onFilters,
   dateError,
 }: Props) {
   const popover = usePopover();
+  const [search, setSearch] = useState<string>(filters.name || "");
+  const debouncedSearch = useDebounce(search, 300);
+
+  // Update filters when debounced search changes
+  useEffect(() => {
+    if (debouncedSearch !== (filters.name || "")) {
+      onFilters("name", debouncedSearch);
+    }
+  }, [debouncedSearch, filters.name, onFilters]);
 
   const handleFilterName = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      onFilters("name", event.target.value);
+      setSearch(event.target.value);
     },
-    [onFilters],
+    [],
   );
 
   const handleFilterStartDate = useCallback(
@@ -46,6 +68,26 @@ export default function OrderTableToolbar({
   const handleFilterEndDate = useCallback(
     (newValue: Date | null) => {
       onFilters("endDate", newValue);
+    },
+    [onFilters],
+  );
+
+  const handleFilterPaymentMethod = useCallback(
+    (event: SelectChangeEvent<string[]>) => {
+      const {
+        target: { value },
+      } = event;
+      onFilters(
+        "paymentMethod",
+        typeof value === "string" ? value.split(",") : value,
+      );
+    },
+    [onFilters],
+  );
+
+  const handleFilterCountry = useCallback(
+    (newValue: string | null) => {
+      onFilters("country", newValue || "");
     },
     [onFilters],
   );
@@ -98,6 +140,53 @@ export default function OrderTableToolbar({
           }}
         />
 
+        <FormControl sx={{ minWidth: 150, maxWidth: { md: 200 } }}>
+          <InputLabel>Status</InputLabel>
+          <Select
+            value={filters.status}
+            label="Status"
+            onChange={(e) => onFilters("status", e.target.value)}
+          >
+            <MenuItem value="all">All</MenuItem>
+            <MenuItem value="pending">Pending</MenuItem>
+            <MenuItem value="completed">Completed</MenuItem>
+            <MenuItem value="cancelled">Cancelled</MenuItem>
+            <MenuItem value="refunded">Refunded</MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ minWidth: 150, maxWidth: { md: 200 } }}>
+          <InputLabel>Payment Method</InputLabel>
+          <Select
+            multiple
+            value={filters.paymentMethod || []}
+            label="Payment Method"
+            onChange={handleFilterPaymentMethod}
+            renderValue={(selected) => {
+              if (selected.length === 0) return "All";
+              if (selected.length === 1) {
+                return PAYMENT_METHOD_OPTIONS.find((opt) => opt.value === selected[0])?.label || selected[0];
+              }
+              return `${selected.length} selected`;
+            }}
+          >
+            {PAYMENT_METHOD_OPTIONS.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <CountrySelect
+          label="Country"
+          value={filters.country || null}
+          onChange={(event, newValue) => handleFilterCountry(newValue as string | null)}
+          options={countries.map((c) => c.label)}
+          getOptionLabel={(option) => option}
+          sx={{ minWidth: 150, maxWidth: { md: 200 } }}
+        />
+
         <Stack
           direction="row"
           alignItems="center"
@@ -107,9 +196,9 @@ export default function OrderTableToolbar({
         >
           <TextField
             fullWidth
-            value={filters.name}
+            value={search}
             onChange={handleFilterName}
-            placeholder="Search customer or order number..."
+            placeholder="Search order number, email, tracking, product..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

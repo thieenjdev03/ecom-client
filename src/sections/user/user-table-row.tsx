@@ -124,7 +124,7 @@ export default function UserTableRow({
           {createdAt ? fDateTime(createdAt) : "-"}
         </TableCell>
 
-        <TableCell>
+        {/* <TableCell>
           <Label
             variant="soft"
             color={
@@ -136,7 +136,7 @@ export default function UserTableRow({
           >
             {status}
           </Label>
-        </TableCell>
+        </TableCell> */}
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: "nowrap" }}>
           <Tooltip title="Quick Edit" placement="top" arrow>

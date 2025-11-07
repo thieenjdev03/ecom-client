@@ -248,7 +248,7 @@ export const checkPendingOrderStatus = async (): Promise<{
     return { success: false, orderId: pendingOrderId, status: order.status, order };
   } catch (error) {
     console.error('Error checking pending order status:', error);
-    return { success: false, error };
+    return { success: false };
   }
 };
 
@@ -289,11 +289,11 @@ export const pollOrderStatusWithRetry = async (
         await new Promise(resolve => setTimeout(resolve, interval));
         return poll();
       } else {
-        return { success: false, orderId, status: 'TIMEOUT', order };
+        return { success: false, orderId};
       }
     } catch (error) {
       console.error('Error polling order status:', error);
-      return { success: false, error };
+      return { success: false };
     }
   };
   

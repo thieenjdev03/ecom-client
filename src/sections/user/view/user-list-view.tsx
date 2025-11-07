@@ -58,7 +58,7 @@ const TABLE_HEAD = [
   { id: "role", label: "Role", width: 120 },
   { id: "addresses", label: "Addresses", width: 140 },
   { id: "createdAt", label: "Created", width: 180 },
-  { id: "status", label: "Status", width: 100 },
+  // { id: "status", label: "Status", width: 100 },
   { id: "", width: 88 },
 ];
 

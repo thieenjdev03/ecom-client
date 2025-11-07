@@ -22,6 +22,12 @@ type Props = StackProps & {
   results: number;
 };
 
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  PAYPAL: "PayPal",
+  STRIPE: "Stripe",
+  COD: "COD",
+};
+
 export default function OrderTableFiltersResult({
   filters,
   onFilters,
@@ -44,6 +50,19 @@ export default function OrderTableFiltersResult({
   const handleRemoveDate = useCallback(() => {
     onFilters("startDate", null);
     onFilters("endDate", null);
+  }, [onFilters]);
+
+  const handleRemovePaymentMethod = useCallback(
+    (method: string) => {
+      const currentMethods = filters.paymentMethod || [];
+      const newMethods = currentMethods.filter((m) => m !== method);
+      onFilters("paymentMethod", newMethods);
+    },
+    [filters.paymentMethod, onFilters],
+  );
+
+  const handleRemoveCountry = useCallback(() => {
+    onFilters("country", "");
   }, [onFilters]);
 
   return (
@@ -75,6 +94,29 @@ export default function OrderTableFiltersResult({
         {filters.startDate && filters.endDate && (
           <Block label="Date:">
             <Chip size="small" label={shortLabel} onDelete={handleRemoveDate} />
+          </Block>
+        )}
+
+        {filters.paymentMethod && filters.paymentMethod.length > 0 && (
+          <Block label="Payment Method:">
+            {filters.paymentMethod.map((method) => (
+              <Chip
+                key={method}
+                size="small"
+                label={PAYMENT_METHOD_LABELS[method] || method}
+                onDelete={() => handleRemovePaymentMethod(method)}
+              />
+            ))}
+          </Block>
+        )}
+
+        {filters.country && (
+          <Block label="Country:">
+            <Chip
+              size="small"
+              label={filters.country}
+              onDelete={handleRemoveCountry}
+            />
           </Block>
         )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
@@ -13,6 +13,9 @@ import Container from "@mui/material/Container";
 import TableBody from "@mui/material/TableBody";
 import IconButton from "@mui/material/IconButton";
 import TableContainer from "@mui/material/TableContainer";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
 import { paths } from "src/routes/paths";
 import { useRouter } from "src/routes/hooks";
@@ -21,7 +24,7 @@ import { useBoolean } from "src/hooks/use-boolean";
 
 import { isAfter, isBetween } from "src/utils/format-time";
 
-import { _orders, ORDER_STATUS_OPTIONS } from "src/_mock";
+import { ORDER_STATUS_OPTIONS } from "src/_mock";
 
 import Label from "src/components/label";
 import Iconify from "src/components/iconify";
@@ -45,7 +48,12 @@ import {
   IOrderItem,
   IOrderTableFilters,
   IOrderTableFilterValue,
+  IOrderCustomer,
+  IOrderProductItem,
 } from "src/types/order";
+
+import { useGetOrders, orderApi } from "src/api/order";
+import { Order } from "src/api/order";
 
 import OrderTableRow from "../order-table-row";
 import OrderTableToolbar from "../order-table-toolbar";
@@ -59,12 +67,15 @@ const STATUS_OPTIONS = [
 ];
 
 const TABLE_HEAD = [
-  { id: "orderNumber", label: "Order", width: 116 },
-  { id: "name", label: "Customer" },
-  { id: "createdAt", label: "Date", width: 140 },
-  { id: "totalQuantity", label: "Items", width: 120, align: "center" },
-  { id: "totalAmount", label: "Price", width: 140 },
-  { id: "status", label: "Status", width: 110 },
+  { id: "orderNumber", label: "Order No.", width: 140 },
+  { id: "createdAt", label: "Created At", width: 160 },
+  { id: "customer", label: "Customer", width: 200 },
+  { id: "totalAmount", label: "Total", width: 120, align: "right" },
+  { id: "paymentMethod", label: "Payment", width: 150 },
+  { id: "status", label: "Status", width: 120 },
+  { id: "products", label: "Products", width: 200 },
+  { id: "shipping", label: "Shipping", width: 150 },
+  { id: "notes", label: "Notes", width: 80, align: "center" },
   { id: "", width: 88 },
 ];
 
@@ -73,9 +84,102 @@ const defaultFilters: IOrderTableFilters = {
   status: "all",
   startDate: null,
   endDate: null,
+  paymentMethod: [],
+  country: "",
 };
 
 // ----------------------------------------------------------------------
+
+// Transform API Order to UI IOrderItem
+function transformOrderToIOrderItem(order: Order): IOrderItem {
+  const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
+  const subTotal = parseFloat(order.summary.total);
+  const shipping = parseFloat(order.summary.shipping);
+  const tax = parseFloat(order.summary.tax || "0");
+  const discount = parseFloat(order.summary.discount);
+  
+  // Transform customer - handle firstName/lastName if available
+  const customer: IOrderCustomer = order.user ? {
+    id: order.user.id,
+    name: order.user.name || `${(order as any).user?.firstName || ''} ${(order as any).user?.lastName || ''}`.trim() || "Unknown",
+    email: order.user.email,
+    avatarUrl: order.user.avatarUrl || "",
+    ipAddress: "",
+    country: (order as any).user?.country || "",
+    firstName: (order as any).user?.firstName,
+    lastName: (order as any).user?.lastName,
+  } : {
+    id: order.userId,
+    name: "Unknown Customer",
+    email: "unknown@example.com",
+    avatarUrl: "",
+    ipAddress: "",
+  };
+
+  // Transform items
+  const productItems: IOrderProductItem[] = order.items.map((item, index) => ({
+    id: item.variantId || item.productId.toString() || index.toString(),
+    sku: item.sku || `${item.productId}-${item.variantId || 'default'}`,
+    name: item.productName,
+    price: parseFloat(item.unitPrice),
+    coverUrl: "", // API doesn't provide this, may need to fetch from product
+    quantity: item.quantity,
+    variantName: item.variantName,
+    productSlug: item.productSlug,
+    productId: item.productId,
+    variantId: item.variantId,
+  }));
+
+  return {
+    id: order.id,
+    taxes: tax,
+    status: order.status.toLowerCase(),
+    shipping: shipping,
+    discount: discount,
+    subTotal: subTotal - discount,
+    orderNumber: order.orderNumber,
+    totalAmount: subTotal,
+    totalQuantity: totalQuantity,
+    history: {
+      orderTime: new Date(order.createdAt),
+      paymentTime: order.paidAt ? new Date(order.paidAt) : new Date(order.createdAt),
+      deliveryTime: new Date(order.createdAt),
+      completionTime: new Date(order.updatedAt),
+      timeline: [
+        {
+          title: "Order placed",
+          time: new Date(order.createdAt),
+        },
+        ...(order.paidAt ? [{
+          title: "Payment completed",
+          time: new Date(order.paidAt),
+        }] : []),
+        {
+          title: "Order updated",
+          time: new Date(order.updatedAt),
+        },
+      ],
+    },
+    customer: customer,
+    delivery: {
+      shipBy: (order as any).carrier || "",
+      speedy: "",
+      trackingNumber: (order as any).trackingNumber || "",
+    },
+    items: productItems,
+    createdAt: new Date(order.createdAt),
+    // New fields
+    paymentMethod: order.paymentMethod,
+    paidAt: order.paidAt ? new Date(order.paidAt) : null,
+    currency: order.summary.currency || "USD",
+    carrier: (order as any).carrier || null,
+    trackingNumber: (order as any).trackingNumber || null,
+    notes: order.notes || null,
+    internalNotes: (order as any).internalNotes || null,
+    shippingAddress: order.shippingAddress || null,
+    billingAddress: order.billingAddress || null,
+  };
+}
 
 export default function OrderListView() {
   const { enqueueSnackbar } = useSnackbar();
@@ -88,11 +192,19 @@ export default function OrderListView() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState<IOrderItem[]>(_orders);
-
   const [filters, setFilters] = useState(defaultFilters);
 
+  // Fetch orders from API
+  const { orders, ordersLoading, ordersError, mutateOrders } = useGetOrders({
+    status: filters.status !== "all" ? filters.status : undefined,
+  });
+
   const dateError = isAfter(filters.startDate, filters.endDate);
+
+  // Transform API orders to UI format
+  const tableData = useMemo(() => {
+    return orders.map(transformOrderToIOrderItem);
+  }, [orders]);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -111,7 +223,9 @@ export default function OrderListView() {
   const canReset =
     !!filters.name ||
     filters.status !== "all" ||
-    (!!filters.startDate && !!filters.endDate);
+    (!!filters.startDate && !!filters.endDate) ||
+    (filters.paymentMethod && filters.paymentMethod.length > 0) ||
+    !!filters.country;
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -131,37 +245,41 @@ export default function OrderListView() {
   }, []);
 
   const handleDeleteRow = useCallback(
-    (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      enqueueSnackbar("Delete success!");
-
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+    async (id: string) => {
+      try {
+        await orderApi.delete(id);
+        enqueueSnackbar("Delete success!");
+        mutateOrders(); // Refresh data
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (error) {
+        console.error("Error deleting order:", error);
+        enqueueSnackbar("Failed to delete order", { variant: "error" });
+      }
     },
-    [dataInPage.length, enqueueSnackbar, table, tableData],
+    [dataInPage.length, enqueueSnackbar, table, mutateOrders],
   );
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter(
-      (row) => !table.selected.includes(row.id),
-    );
-
-    enqueueSnackbar("Delete success!");
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
+  const handleDeleteRows = useCallback(async () => {
+    try {
+      await Promise.all(
+        table.selected.map((id) => orderApi.delete(id))
+      );
+      enqueueSnackbar("Delete success!");
+      mutateOrders(); // Refresh data
+      table.onUpdatePageDeleteRows({
+        totalRowsInPage: dataInPage.length,
+        totalRowsFiltered: dataFiltered.length,
+      });
+    } catch (error) {
+      console.error("Error deleting orders:", error);
+      enqueueSnackbar("Failed to delete orders", { variant: "error" });
+    }
   }, [
     dataFiltered.length,
     dataInPage.length,
     enqueueSnackbar,
     table,
-    tableData,
+    mutateOrders,
   ]);
 
   const handleViewRow = useCallback(
@@ -232,7 +350,7 @@ export default function OrderListView() {
                     {["completed", "pending", "cancelled", "refunded"].includes(
                       tab.value,
                     )
-                      ? tableData.filter((user) => user.status === tab.value)
+                      ? tableData.filter((order) => order.status === tab.value)
                           .length
                       : tableData.length}
                   </Label>
@@ -261,75 +379,89 @@ export default function OrderListView() {
           )}
 
           <TableContainer sx={{ position: "relative", overflow: "unset" }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  dataFiltered.map((row) => row.id),
-                )
-              }
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
-            />
-
-            <Scrollbar>
-              <Table
-                size={table.dense ? "small" : "medium"}
-                sx={{ minWidth: 960 }}
-              >
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
+            {ordersLoading ? (
+              <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
+                <CircularProgress />
+              </Box>
+            ) : ordersError ? (
+              <Box sx={{ p: 3, textAlign: "center" }}>
+                <Typography variant="body2" color="error">
+                  Failed to load orders. Please try again.
+                </Typography>
+              </Box>
+            ) : (
+              <>
+                <TableSelectedAction
+                  dense={table.dense}
                   numSelected={table.selected.length}
-                  onSort={table.onSort}
+                  rowCount={dataFiltered.length}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
                       dataFiltered.map((row) => row.id),
                     )
                   }
+                  action={
+                    <Tooltip title="Delete">
+                      <IconButton color="primary" onClick={confirm.onTrue}>
+                        <Iconify icon="solar:trash-bin-trash-bold" />
+                      </IconButton>
+                    </Tooltip>
+                  }
                 />
 
-                <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage,
-                    )
-                    .map((row) => (
-                      <OrderTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onViewRow={() => handleViewRow(row.id)}
+                <Scrollbar>
+                  <Table
+                    size={table.dense ? "small" : "medium"}
+                    sx={{ minWidth: 960 }}
+                  >
+                    <TableHeadCustom
+                      order={table.order}
+                      orderBy={table.orderBy}
+                      headLabel={TABLE_HEAD}
+                      rowCount={dataFiltered.length}
+                      numSelected={table.selected.length}
+                      onSort={table.onSort}
+                      onSelectAllRows={(checked) =>
+                        table.onSelectAllRows(
+                          checked,
+                          dataFiltered.map((row) => row.id),
+                        )
+                      }
+                    />
+
+                    <TableBody>
+                      {dataFiltered
+                        .slice(
+                          table.page * table.rowsPerPage,
+                          table.page * table.rowsPerPage + table.rowsPerPage,
+                        )
+                        .map((row) => (
+                          <OrderTableRow
+                            key={row.id}
+                            row={row}
+                            selected={table.selected.includes(row.id)}
+                            onSelectRow={() => table.onSelectRow(row.id)}
+                            onDeleteRow={() => handleDeleteRow(row.id)}
+                            onViewRow={() => handleViewRow(row.id)}
+                          />
+                        ))}
+
+                      <TableEmptyRows
+                        height={denseHeight}
+                        emptyRows={emptyRows(
+                          table.page,
+                          table.rowsPerPage,
+                          dataFiltered.length,
+                        )}
                       />
-                    ))}
 
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(
-                      table.page,
-                      table.rowsPerPage,
-                      dataFiltered.length,
-                    )}
-                  />
-
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
+                      <TableNoData notFound={notFound} />
+                    </TableBody>
+                  </Table>
+                </Scrollbar>
+              </>
+            )}
           </TableContainer>
 
           <TablePaginationCustom
@@ -385,7 +517,7 @@ function applyFilter({
   filters: IOrderTableFilters;
   dateError: boolean;
 }) {
-  const { status, name, startDate, endDate } = filters;
+  const { status, name, startDate, endDate, paymentMethod, country } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
@@ -397,19 +529,42 @@ function applyFilter({
 
   inputData = stabilizedThis.map((el) => el[0]);
 
+  // Search filter - search in orderNumber, email, trackingNumber, productName
   if (name) {
-    inputData = inputData.filter(
-      (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1,
-    );
+    inputData = inputData.filter((order) => {
+      const searchLower = name.toLowerCase();
+      const orderNumberMatch = order.orderNumber.toLowerCase().indexOf(searchLower) !== -1;
+      const emailMatch = order.customer.email.toLowerCase().indexOf(searchLower) !== -1;
+      const trackingMatch = order.trackingNumber?.toLowerCase().indexOf(searchLower) !== -1;
+      const productMatch = order.items.some((item) =>
+        item.name.toLowerCase().indexOf(searchLower) !== -1
+      );
+      const customerNameMatch = order.customer.name.toLowerCase().indexOf(searchLower) !== -1;
+      
+      return orderNumberMatch || emailMatch || trackingMatch || productMatch || customerNameMatch;
+    });
   }
 
+  // Status filter
   if (status !== "all") {
     inputData = inputData.filter((order) => order.status === status);
   }
 
+  // Payment method filter (multi-select)
+  if (paymentMethod && paymentMethod.length > 0) {
+    inputData = inputData.filter((order) =>
+      order.paymentMethod && paymentMethod.includes(order.paymentMethod.toUpperCase())
+    );
+  }
+
+  // Country filter
+  if (country) {
+    inputData = inputData.filter((order) =>
+      order.customer.country?.toLowerCase() === country.toLowerCase()
+    );
+  }
+
+  // Date range filter
   if (!dateError) {
     if (startDate && endDate) {
       inputData = inputData.filter((order) =>

@@ -152,7 +152,7 @@ Frontend có thể gọi API kiểm tra trạng thái đơn hàng sau vài giây
 
 ```ts
 const checkPaymentStatus = async (orderId: string) => {
-  const res = await axios.get(`/api/orders/${orderId}/status`);
+  const res = await axios.get(`/orders/${orderId}/status`);
   if (res.data.status === "PAID") alert("✅ Payment verified!");
 };
 ```

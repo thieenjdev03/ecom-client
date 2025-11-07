@@ -14,7 +14,7 @@ interface PaymentStatusResponse {
 
 export const checkPaymentStatus = async (orderId: string): Promise<PaymentStatusResponse | null> => {
   try {
-    const res = await axios.get(`/api/orders/${orderId}/status`);
+    const res = await axios.get(`/orders/${orderId}/status`);
     
     if (res.data.status === "PAID") {
       console.log("✅ Payment verified!");

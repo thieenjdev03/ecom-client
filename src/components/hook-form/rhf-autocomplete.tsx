@@ -56,6 +56,10 @@ export default function RHFAutocomplete<
               onChange={(event, newValue) =>
                 setValue(name, newValue, { shouldValidate: true })
               }
+              getOptionLabel={(option: any) => {
+                const country = getCountry(option as string);
+                return country.code || option || "";
+              }}
               renderOption={(props, option) => {
                 const country = getCountry(option as string);
 
@@ -70,12 +74,12 @@ export default function RHFAutocomplete<
                       icon={`circle-flags:${country.code?.toLowerCase()}`}
                       sx={{ mr: 1 }}
                     />
-                    {country.label} ({country.code}) +{country.phone}
+                    {country.code} (+{country.phone})
                   </li>
                 );
               }}
               renderInput={(params) => {
-                const country = getCountry(params.inputProps.value as string);
+                const country = getCountry(field.value as string);
 
                 const baseField = {
                   ...params,
@@ -96,6 +100,17 @@ export default function RHFAutocomplete<
                 return (
                   <TextField
                     {...baseField}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "&:hover fieldset": {
+                          borderColor: "#2563eb",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#2563eb",
+                          borderWidth: 2,
+                        },
+                      },
+                    }}
                     InputProps={{
                       ...params.InputProps,
                       startAdornment: (

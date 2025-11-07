@@ -1,8 +1,8 @@
 "use client";
 
 import * as Yup from "yup";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
@@ -28,8 +28,9 @@ import {
 
 import Iconify from "src/components/iconify";
 import FormProvider, { RHFTextField } from "src/components/hook-form";
-import RHFAutocomplete from "src/components/hook-form/rhf-autocomplete";
+import RHFAutocomplete, { getCountry } from "src/components/hook-form/rhf-autocomplete";
 import { countries } from "src/assets/data";
+import TextField from "@mui/material/TextField";
 
 // ----------------------------------------------------------------------
 
@@ -42,7 +43,7 @@ export default function JwtRegisterView() {
 
   const searchParams = useSearchParams();
 
-  const returnTo = searchParams.get("returnTo");
+  const returnTo = searchParams?.get("returnTo");
 
   const password = useBoolean();
 
@@ -74,8 +75,36 @@ export default function JwtRegisterView() {
   const {
     reset,
     handleSubmit,
-    formState: { isSubmitting },
+    setValue,
+    control,
+    getValues,
+    formState: { isSubmitting, isValid },
   } = methods;
+
+  // Watch country field to get phone code
+  const selectedCountry = useWatch({
+    control: methods.control,
+    name: "country",
+  });
+
+  // Get country phone code
+  const countryInfo = selectedCountry ? getCountry(selectedCountry) : null;
+  const countryPhoneCode = countryInfo?.phone ? `+${countryInfo.phone}` : "";
+
+  // Update phone number format when country changes
+  useEffect(() => {
+    const currentPhone = getValues("phoneNumber");
+    if (countryPhoneCode && currentPhone) {
+      // Remove existing country code if present
+      const phoneWithoutCode = currentPhone.replace(/^\+\d{1,4}\s*/, "").trim();
+      // Update with new country code
+      if (phoneWithoutCode) {
+        setValue("phoneNumber", `${countryPhoneCode} ${phoneWithoutCode}`, {
+          shouldValidate: false,
+        });
+      }
+    }
+  }, [countryPhoneCode, setValue, getValues]);
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -137,30 +166,170 @@ export default function JwtRegisterView() {
     </Typography>
   );
 
+
   const renderForm = (
     <Stack spacing={2.5}>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-        <RHFTextField name="firstName" label="First name" />
-        <RHFTextField name="lastName" label="Last name" />
+        <RHFTextField
+          name="firstName"
+          label="First name"
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              "&:hover fieldset": {
+                borderColor: "#2563eb",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#2563eb",
+                borderWidth: 2,
+              },
+            },
+          }}
+        />
+        <RHFTextField
+          name="lastName"
+          label="Last name"
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              "&:hover fieldset": {
+                borderColor: "#2563eb",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#2563eb",
+                borderWidth: 2,
+              },
+            },
+          }}
+        />
       </Stack>
 
-      <RHFTextField name="email" label="Email address" />
-
-      <RHFTextField name="phoneNumber" label="Phone number" />
-
-      <RHFAutocomplete
-        name="country"
-        type="country"
-        label="Country"
-        placeholder="Choose a country"
-        options={countries.map((option) => option.label)}
-        getOptionLabel={(option) => option}
+      <RHFTextField
+        name="email"
+        label="Email address"
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            "&:hover fieldset": {
+              borderColor: "#2563eb",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "#2563eb",
+              borderWidth: 2,
+            },
+          },
+        }}
       />
+
+      {/* Combined Country and Phone Number */}
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={2}
+        sx={{ alignItems: { xs: "stretch", sm: "flex-start" } }}
+      >
+        <Box sx={{ width: { xs: "100%", sm: "40%" } }}>
+          <RHFAutocomplete
+            name="country"
+            type="country"
+            label="Country"
+            placeholder="Choose a country"
+            options={countries.map((option) => option.label)}
+          />
+        </Box>
+        <Box sx={{ width: { xs: "100%", sm: "60%" } }}>
+          <Controller
+            name="phoneNumber"
+            control={control}
+            render={({ field, fieldState: { error } }) => {
+              // Extract phone number without country code for display
+              const displayValue = field.value
+                ? field.value.replace(/^\+\d{1,4}\s*/, "")
+                : "";
+
+              return (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Phone number"
+                  placeholder={
+                    countryPhoneCode
+                      ? "Enter your phone number"
+                      : "Select country first"
+                  }
+                  value={displayValue}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    // If country is selected, prepend country code
+                    if (countryPhoneCode) {
+                      if (inputValue) {
+                        field.onChange(`${countryPhoneCode} ${inputValue}`);
+                      } else {
+                        // Clear the field if input is empty
+                        field.onChange("");
+                      }
+                    } else {
+                      // Store without country code if country not selected
+                      field.onChange(inputValue);
+                    }
+                  }}
+                  error={!!error}
+                  helperText={error ? error?.message : undefined}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      "&:hover fieldset": {
+                        borderColor: "#2563eb",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#2563eb",
+                        borderWidth: 2,
+                      },
+                    },
+                  }}
+                  inputProps={{
+                    autoComplete: "off",
+                  }}
+                  InputProps={{
+                    startAdornment: countryPhoneCode ? (
+                      <InputAdornment
+                        position="start"
+                        sx={{
+                          padding: 1,
+                          borderRight: "2px solid",
+                          borderColor: "divider",
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: "text.secondary",
+                            fontWeight: 500,
+                            userSelect: "none",
+                          }}
+                        >
+                          {countryPhoneCode}
+                        </Typography>
+                      </InputAdornment>
+                    ) : undefined,
+                  }}
+                />
+              );
+            }}
+          />
+        </Box>
+      </Stack>
 
       <RHFTextField
         name="password"
         label="Password"
         type={password.value ? "text" : "password"}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            "&:hover fieldset": {
+              borderColor: "#2563eb",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "#2563eb",
+              borderWidth: 2,
+            },
+          },
+        }}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -183,6 +352,14 @@ export default function JwtRegisterView() {
         type="submit"
         variant="contained"
         loading={isSubmitting}
+        disabled={!isValid || isSubmitting}
+        sx={{
+          mt: 1,
+          "&:disabled": {
+            backgroundColor: "action.disabledBackground",
+            color: "action.disabled",
+          },
+        }}
       >
         Create account
       </LoadingButton>
@@ -192,7 +369,7 @@ export default function JwtRegisterView() {
   return (
     <Box
       sx={{
-        maxWidth: 400,
+        maxWidth: 600,
         backgroundColor: "white",
         padding: 0.5,
         borderRadius: 1,

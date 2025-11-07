@@ -10,9 +10,14 @@ import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
 
 import { paths } from "src/routes/paths";
 import { useRouter } from "src/routes/hooks";
+
+import { useBoolean } from "src/hooks/use-boolean";
 
 import { fCurrency, fShortenNumber } from "src/utils/format-number";
 
@@ -47,6 +52,7 @@ export default function ProductDetailsSummary({
   const router = useRouter();
   const [openDetails, setOpenDetails] = useState(false);
   const [openAdditional, setOpenAdditional] = useState(false);
+  const sizeGuideDialog = useBoolean();
 
   const {
     id,
@@ -54,6 +60,7 @@ export default function ProductDetailsSummary({
     sizes,
     price,
     coverUrl,
+    images,
     colors,
     newLabel,
     available,
@@ -218,7 +225,21 @@ export default function ProductDetailsSummary({
           mt: 1,
         }}
       >
-        <Link underline="always">Size Guide</Link>
+        <Link
+          underline="always"
+          component="button"
+          onClick={sizeGuideDialog.onTrue}
+          sx={{
+            cursor: "pointer",
+            border: "none",
+            background: "none",
+            padding: 0,
+            font: "inherit",
+            color: "inherit",
+          }}
+        >
+          Size Guide
+        </Link>
         <Typography
           variant="caption"
           sx={{
@@ -231,6 +252,45 @@ export default function ProductDetailsSummary({
           {modelHeight || "N/A"}
         </Typography>
       </Box>
+
+      <Dialog
+        open={sizeGuideDialog.value}
+        onClose={sizeGuideDialog.onFalse}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Size Guide
+          <IconButton
+            aria-label="close"
+            onClick={sizeGuideDialog.onFalse}
+            sx={{
+              position: "absolute",
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <Iconify icon="eva:close-fill" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Box
+            component="img"
+            src={
+              images && images.length > 0
+                ? images[images.length - 1]
+                : "https://placehold.co/600x400"
+            }
+            alt="Size Guide"
+            sx={{
+              width: "100%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </Stack>
   );
 

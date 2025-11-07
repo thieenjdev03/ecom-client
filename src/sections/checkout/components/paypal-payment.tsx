@@ -72,6 +72,7 @@ export default function PayPalPayment({
         shippingAddressId,
         billingAddressId,
         notes,
+        paymentMethod: "PAYPAL",
       };
 
       const order = await orderApi.create(orderData);
@@ -288,7 +289,7 @@ export default function PayPalPayment({
             {isLoading ? 'Processing...' : 'Pay with PayPal'}
           </button>
           <Typography variant="caption" sx={{ display: 'block', mt: 1 }}>
-            Total: {summary?.currency} {summary?.total.toFixed(2)}
+            Total: {summary?.currency} {10000}
           </Typography>
         </Box>
       ) : (

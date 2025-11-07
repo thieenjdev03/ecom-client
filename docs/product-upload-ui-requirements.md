@@ -1,7 +1,3 @@
-Tuyệt vời — bạn đã có document FE rất bài bản 🎨
-Mình sẽ merge hai bên (FE + BE) thành bản tài liệu hợp nhất FE–BE: vừa giữ nguyên định hướng UI/UX, vừa đảm bảo truyền đúng payload, key–value và rule từ backend.
-
-⸻
 
 🧾 Product Upload – Full FE–BE Integration & UI/UX Specification
 

@@ -53,7 +53,7 @@ export default function PaymentSuccessView() {
         await pollOrderStatus(result.orderId);
       } else {
         // No pending order found, check URL params
-        const token = searchParams.get('token');
+        const token = searchParams?.get('token') || '';
         if (token) {
           await fetchOrderDetails(token);
         } else {

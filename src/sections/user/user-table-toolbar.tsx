@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 
 import Stack from "@mui/material/Stack";
 import MenuItem from "@mui/material/MenuItem";
@@ -10,6 +10,8 @@ import FormControl from "@mui/material/FormControl";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import InputAdornment from "@mui/material/InputAdornment";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
+
+import { useDebounce } from "src/hooks/use-debounce";
 
 import Iconify from "src/components/iconify";
 import CustomPopover, { usePopover } from "src/components/custom-popover";
@@ -32,12 +34,26 @@ export default function UserTableToolbar({
   roleOptions,
 }: Props) {
   const popover = usePopover();
+  const [search, setSearch] = useState<string>(filters.name || "");
+  const debouncedSearch = useDebounce(search, 300);
+
+  // Sync local state when filters.name changes externally (e.g., reset filters)
+  useEffect(() => {
+    setSearch(filters.name || "");
+  }, [filters.name]);
+
+  // Update filters when debounced search changes
+  useEffect(() => {
+    if (debouncedSearch !== (filters.name || "")) {
+      onFilters("name", debouncedSearch);
+    }
+  }, [debouncedSearch, filters.name, onFilters]);
 
   const handleFilterName = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      onFilters("name", event.target.value);
+      setSearch(event.target.value);
     },
-    [onFilters],
+    [],
   );
 
   const handleFilterRole = useCallback(
@@ -110,7 +126,7 @@ export default function UserTableToolbar({
         >
           <TextField
             fullWidth
-            value={filters.name}
+            value={search}
             onChange={handleFilterName}
             placeholder="Search..."
             InputProps={{

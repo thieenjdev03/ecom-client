@@ -120,7 +120,7 @@ export default function OrderHistory({ customerEmail }: OrderHistoryProps) {
 
   const handleDownloadInvoice = async (orderId: string) => {
     try {
-      const response = await fetch(`/api/orders/${orderId}/invoice`, {
+      const response = await fetch(`/orders/${orderId}/invoice`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,

@@ -63,4 +63,11 @@ export const endpoints = {
     colors: `${apiUrl}/colors`,
     sizes: `${apiUrl}/sizes`,
   },
+  files: {
+    upload: `${apiUrl}/files/upload`,
+    uploadMultiple: `${apiUrl}/files/upload-multiple`,
+    delete: (publicId: string) => `${apiUrl}/files/${publicId}`,
+    thumbnail: (publicId: string) => `${apiUrl}/files/thumbnail/${publicId}`,
+    generateUrl: `${apiUrl}/files/generate-url`,
+  },
 };

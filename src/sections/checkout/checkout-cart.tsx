@@ -24,12 +24,15 @@ import PayPalPayment from "./components/paypal-payment";
 import FileUploadModal from "./components/file-upload-modal";
 import { PAYPAL_CONFIG } from "src/config/paypal";
 import { useGetProducts } from "src/api/product";
+import { useAuthContext } from "src/auth/hooks/use-auth-context";
+import { orderApi, type OrderItem, type OrderSummary } from "src/api/order";
 
 // ----------------------------------------------------------------------
 
 export default function CheckoutCart() {
   const checkout = useCheckoutContext();
   const { products } = useGetProducts({ page: 1, limit: 1 });
+  const { user } = useAuthContext();
 
   const empty = !checkout.items.length;
   
@@ -39,6 +42,8 @@ export default function CheckoutCart() {
   const [emailHelperText, setEmailHelperText] = useState("");
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [shippingAddressId, setShippingAddressId] = useState<string | undefined>();
+  const [billingAddressId, setBillingAddressId] = useState<string | undefined>();
 
   // Add sample product to cart if empty (for demo purposes)
   React.useEffect(() => {
@@ -91,8 +96,38 @@ export default function CheckoutCart() {
     console.error("File upload error:", error);
   };
 
-  // Prepare order items for PayPal
-  const orderItems = checkout.items.map(item => ({
+  // Helper function to format number to string with 2 decimal places
+  const formatCurrency = (value: number): string => {
+    return value.toFixed(2);
+  };
+
+  // Prepare order items for API (with string currency values)
+  const orderItems: OrderItem[] = checkout.items.map((item, index) => ({
+    productId: parseInt(item.id, 10) || 0,
+    productName: item.name,
+    productSlug: item.name.toLowerCase().replace(/\s+/g, '-'),
+    variantId: (item.variants?.[0] as any)?.id?.toString() || `${item.id}-variant-${index}`,
+    variantName: `${item.colors.join(', ')} - ${item.size}`,
+    quantity: item.quantity,
+    unitPrice: formatCurrency(item.price),
+    totalPrice: formatCurrency(item.price * item.quantity),
+    sku: `${item.id}-${item.size}`,
+  }));
+
+  // Calculate summary with string values for API
+  const shipping = 8; // Fixed shipping cost
+  const tax = parseFloat((checkout.subTotal * 0.1).toFixed(2)); // 10% tax
+  const orderSummary: OrderSummary = {
+    subtotal: formatCurrency(checkout.subTotal),
+    shipping: formatCurrency(shipping),
+    tax: formatCurrency(tax),
+    discount: formatCurrency(checkout.discount),
+    total: formatCurrency(checkout.subTotal - checkout.discount + shipping + tax),
+    currency: PAYPAL_CONFIG.currency,
+  };
+
+  // Prepare order items for PayPal (legacy format)
+  const paypalOrderItems = checkout.items.map(item => ({
     id: item.id,
     name: item.name,
     quantity: item.quantity,
@@ -124,17 +159,24 @@ export default function CheckoutCart() {
             <PayPalPayment
               paypalEmail={paypalEmail}
               onEmailChange={handleEmailChange}
-              totalAmount={checkout.total + 8} // Include shipping
+              totalAmount={checkout.subTotal - checkout.discount + shipping + tax}
               onPaymentSuccess={handlePaymentSuccess}
               onPaymentError={handlePaymentError}
               error={emailError}
               helperText={emailHelperText}
-              orderItems={orderItems}
-              customerName="Customer" // You can get this from user context
+              orderItems={paypalOrderItems}
+              customerName={user?.displayName || user?.name || "Customer"}
+              // New props for updated flow
+              userId={user?.id || "local-dev"}
+              items={orderItems}
+              summary={orderSummary}
+              shippingAddressId={shippingAddressId}
+              billingAddressId={billingAddressId}
+              notes=""
             />
             
             {/* Optional File Upload */}
-            <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+            {/* <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
               <Button
                 variant="outlined"
                 startIcon={<Iconify icon="eva:upload-fill" />}
@@ -142,12 +184,12 @@ export default function CheckoutCart() {
               >
                 Upload Receipt (Optional)
               </Button>
-            </Stack>
+            </Stack> */}
           </Card>
         </Stack>
       </Grid>
 
-      <Grid xs={12} md={4}>
+      {/* <Grid xs={12} md={4}>
         <CheckoutSummary
           total={checkout.total}
           discount={checkout.discount}
@@ -155,10 +197,10 @@ export default function CheckoutCart() {
           items={checkout.items}
           onApplyDiscount={checkout.onApplyDiscount}
         />
-      </Grid>
+      </Grid> */}
 
       {/* File Upload Modal */}
-      <FileUploadModal
+      {/* <FileUploadModal
         open={showFileUpload}
         onClose={() => setShowFileUpload(false)}
         orderId="pending"
@@ -168,7 +210,7 @@ export default function CheckoutCart() {
         maxFileSize={PAYPAL_CONFIG.fileUpload.maxFileSize / (1024 * 1024)} // Convert to MB
         onUploadSuccess={handleFileUploadSuccess}
         onUploadError={handleFileUploadError}
-      />
+      /> */}
     </Grid>
   );
 }

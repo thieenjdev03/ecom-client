@@ -1,4 +1,9 @@
 import { useState } from "react";
+import { PAYPAL_CONFIG } from "src/config/paypal";
+import { useCheckoutContext } from "../context";
+import { useAuthContext } from "src/auth/hooks/use-auth-context";
+import { orderApi, type OrderItem, type OrderSummary, type CreateOrderRequest } from "src/api/order";
+import { paypalApiService } from "src/services/paypal-api";
 
 // ----------------------------------------------------------------------
 
@@ -34,7 +39,9 @@ export function useCheckoutForm() {
   const [newsletterChecked, setNewsletterChecked] = useState(false);
   const [addressError, setAddressError] = useState(false);
   const [paymentError, setPaymentError] = useState(false);
-  const [totalAmount] = useState(99.99); // This should come from cart/order context
+  const checkout = useCheckoutContext();
+  const { user } = useAuthContext();
+  const [totalAmount] = useState(checkout.subTotal - checkout.discount + checkout.shipping); // derived from checkout
 
   const handleChange = (field: string) => (event: any) => {
     setFormData({
@@ -109,14 +116,92 @@ export function useCheckoutForm() {
     return isValid;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
       return;
     }
 
-    // Here you would typically proceed with the checkout process
-    console.log("Form data:", formData);
-    // Add your checkout logic here
+    try {
+      // Persist user checkout info locally for later steps
+      const userInfo = {
+        country: formData.country,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        address: formData.address,
+        apartment: formData.apartment,
+        city: formData.city,
+        postalCode: formData.postalCode,
+        phone: formData.phone,
+        paymentMethod: formData.paymentMethod,
+        paypalEmail: formData.paypalEmail,
+        coordinates: formData.addressCoordinates,
+      };
+      try {
+        localStorage.setItem("checkoutUserInfo", JSON.stringify(userInfo));
+      } catch (_) {
+        // ignore localStorage errors
+      }
+
+      // Prepare order items with string currency values
+      const formatCurrency = (value: number): string => value.toFixed(2);
+      const items: OrderItem[] = checkout.items.map((item, index) => ({
+        productId: parseInt(item.id, 10) || 0,
+        productName: item.name,
+        productSlug: item.name.toLowerCase().replace(/\s+/g, "-"),
+        variantId: (item.variants?.[0] as any)?.id?.toString() || `${item.id}-variant-${index}`,
+        variantName: `${item.colors.join(", ")} - ${item.size}`,
+        quantity: item.quantity,
+        unitPrice: formatCurrency(item.price),
+        totalPrice: formatCurrency(item.price * item.quantity),
+        sku: `${item.id}-${item.size}`,
+      }));
+
+      // Compute summary (backend will recalc for safety)
+      const tax = parseFloat((checkout.subTotal * 0.1).toFixed(2));
+      const shipping = checkout.shipping || 8;
+      const summary: OrderSummary = {
+        subtotal: formatCurrency(checkout.subTotal),
+        shipping: formatCurrency(shipping),
+        tax: formatCurrency(tax),
+        discount: formatCurrency(checkout.discount),
+        total: formatCurrency(checkout.subTotal - checkout.discount + shipping + tax),
+        currency: PAYPAL_CONFIG.currency,
+      };
+
+      // Create order first
+      const payload: CreateOrderRequest = {
+        userId: user?.id || "local-dev",
+        items,
+        summary,
+        notes: "Checkout via PayPal",
+        paymentMethod: "PAYPAL",
+      };
+
+      const order = await orderApi.create(payload);
+      if (!order?.id) throw new Error("Failed to create order");
+
+      // Create PayPal order and redirect to approval URL
+      const pp = await paypalApiService.createPayPalOrder({
+        value: summary.total,
+        currency: summary.currency,
+        description: `Order #${order.orderNumber || order.id}`,
+      });
+      if (!pp.success || !pp.data?.approveUrl) throw new Error(pp.error || "Failed to create PayPal order");
+
+      // Store pending IDs for success page reconciliation
+      try {
+        localStorage.setItem("pendingOrderId", order.id);
+        localStorage.setItem("paypalOrderId", pp.data.orderId);
+      } catch (_) {
+        // ignore localStorage errors
+      }
+
+      // Redirect to PayPal
+      window.location.href = pp.data.approveUrl;
+    } catch (error) {
+      console.error("Checkout submit error:", error);
+      setPaymentError(true);
+    }
   };
 
   return {
