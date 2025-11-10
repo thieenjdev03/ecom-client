@@ -31,7 +31,14 @@ export default function CartPreviewItem({
   selected,
   onToggleSelect,
 }: Props) {
-  const { name, coverUrl, price, quantity, colors, size, subTotal } = item;
+  const { name, coverUrl, price, quantity, variantName, colors, size, subTotal, sku, color, sizeObj } = item;
+
+  // Display variant info - use new color and size objects for better display
+  const colorName = color?.name || (colors?.length > 0 ? colors[0] : null);
+  const sizeName = sizeObj?.name || size;
+  const displayVariantInfo = variantName || 
+    (colorName && sizeName ? `${colorName} / ${sizeName}` : 
+     colorName || sizeName || "");
 
   return (
     <Box
@@ -84,19 +91,31 @@ export default function CartPreviewItem({
               {name}
             </Typography>
 
-            <Stack direction="column" spacing={1} sx={{ mb: 1 }}>
-              {colors && colors.length > 0 && (
+            {displayVariantInfo && (
+              <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mb: 0.5 }}>
+                {color?.hexCode && (
+                  <Box
+                    sx={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: "50%",
+                      bgcolor: color.hexCode,
+                      border: (theme) => `1px solid ${theme.palette.divider}`,
+                      flexShrink: 0,
+                    }}
+                  />
+                )}
                 <Typography variant="caption" color="text.secondary">
-                  Màu: {colors.join(", ")}
+                  {displayVariantInfo}
                 </Typography>
-              )}
-              
-              {size && (
-                <Typography variant="caption" color="text.secondary">
-                  Size: {size}
-                </Typography>
-              )}
-            </Stack>
+              </Stack>
+            )}
+
+            {sku && (
+              <Typography variant="caption" color="text.disabled" sx={{ display: "block", mb: 0.5, fontSize: "0.7rem" }}>
+                SKU: {sku}
+              </Typography>
+            )}
 
             <Typography variant="subtitle2" color="primary.main" sx={{ fontWeight: 600 }}>
               {fCurrency(price)}

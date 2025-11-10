@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 
 import Iconify from "src/components/iconify";
+import { useTranslate } from "src/locales";
 
 // ----------------------------------------------------------------------
 
@@ -12,6 +13,8 @@ type Props = {
 };
 
 export default function CartPreviewHeader({ onClose }: Props) {
+  const { t } = useTranslate();
+
   return (
     <Box
       sx={{
@@ -23,7 +26,7 @@ export default function CartPreviewHeader({ onClose }: Props) {
       }}
     >
       <Typography variant="h6" sx={{ fontWeight: 600 }}>
-        Giỏ hàng của bạn
+        {t("cart.title")}
       </Typography>
 
       <IconButton

@@ -54,8 +54,19 @@ export default function AddressAutocomplete({
   const debouncedInputValue = useDebounce(inputValue, 300);
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // Update input value when external value changes
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
+  // Clear input and options when country changes
+  useEffect(() => {
+    setOptions([]);
+    // Don't clear input here - let parent component handle it if needed
+  }, [countryCode]);
+
   // Fetch address suggestions from Geoapify API
-  const fetchAddressSuggestions = useCallback(async (query: string) => {
+  const fetchAddressSuggestions = useCallback(async (query: string, country: string) => {
     if (!query || query.length < 2) {
       setOptions([]);
       return;
@@ -75,16 +86,24 @@ export default function AddressAutocomplete({
       const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_KEY;
       if (!apiKey) {
         console.error("Geoapify API key not found");
+        setOptions([]);
         return;
       }
+
+      // Determine language based on country
+      const lang = country === "vn" ? "vi" : "en";
 
       const params = new URLSearchParams({
         text: query,
         apiKey,
-        lang: "vi",
+        lang,
         limit: "5",
-        countryCodes: countryCode,
       });
+
+      // Only add countryCode filter if it's specified
+      if (country && country.length > 0) {
+        params.append("filter", `countrycode:${country}`);
+      }
 
       const response = await fetch(
         `https://api.geoapify.com/v1/geocode/autocomplete?${params}`,
@@ -124,14 +143,14 @@ export default function AddressAutocomplete({
     }
   }, []);
 
-  // Debounced search effect
+  // Debounced search effect - refetch when country or search term changes
   useEffect(() => {
     if (debouncedInputValue) {
-      fetchAddressSuggestions(debouncedInputValue);
+      fetchAddressSuggestions(debouncedInputValue, countryCode);
     } else {
       setOptions([]);
     }
-  }, [debouncedInputValue, fetchAddressSuggestions]);
+  }, [debouncedInputValue, countryCode, fetchAddressSuggestions]);
 
   // Cleanup on unmount
   useEffect(() => {

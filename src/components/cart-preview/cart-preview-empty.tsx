@@ -6,10 +6,12 @@ import Button from "@mui/material/Button";
 import Iconify from "src/components/iconify";
 import { useRouter } from "src/routes/hooks";
 import { paths } from "src/routes/paths";
+import { useTranslate } from "src/locales";
 
 // ----------------------------------------------------------------------
 
 export default function CartPreviewEmpty() {
+  const { t } = useTranslate();
   const router = useRouter();
 
   const handleContinueShopping = () => {
@@ -47,11 +49,11 @@ export default function CartPreviewEmpty() {
         </Box>
 
         <Typography variant="h6" color="text.secondary" textAlign="center">
-          Giỏ hàng của bạn đang trống
+          {t("cart.empty.title")}
         </Typography>
 
         <Typography variant="body2" color="text.disabled" textAlign="center">
-          Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm
+          {t("cart.empty.description")}
         </Typography>
 
         <Button
@@ -62,7 +64,7 @@ export default function CartPreviewEmpty() {
           sx={{ mt: 0.5 }}
           aria-label="Continue shopping"
         >
-          Tiếp tục mua sắm
+          {t("cart.empty.continueShopping")}
         </Button>
       </Stack>
     </Box>

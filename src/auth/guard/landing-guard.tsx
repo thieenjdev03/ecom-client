@@ -32,25 +32,10 @@ function Container({ children }: Props) {
 
   const check = useCallback(() => {
     if (authenticated) {
-      // Check if this is a development auto-login (localStorage token)
-      const localToken = localStorage.getItem("accessToken");
-      const isDevelopmentAutoLogin = localToken && window.location.hostname === 'localhost';
-      
-      if (isDevelopmentAutoLogin) {
-        // For development, allow access to landing page even with auto-login
-        // You can remove this check if you want to always redirect authenticated users
-        console.log("Development mode: Auto-login detected, allowing landing page access");
-        setChecked(true);
-        return;
-      }
-      
-      // Only redirect admin users to dashboard
-      if (user?.role === "admin") {
-        router.replace(paths.dashboard.root);
-      } else {
-        // Allow non-admin users (customers) to access landing page
-        setChecked(true);
-      }
+      // Allow all authenticated users to access landing page
+      // Admin can access both landing page and dashboard
+      // User role can only access landing page (will be blocked from dashboard by DashboardGuard)
+      setChecked(true);
     } else {
       setChecked(true);
     }

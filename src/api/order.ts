@@ -6,7 +6,7 @@ import axios, { endpoints, fetcher } from "src/utils/axios";
 // ----------------------------------------------------------------------
 
 export type OrderItem = {
-  productId: number;
+  productId: string;
   productName: string;
   productSlug: string;
   variantId?: string;
@@ -26,11 +26,21 @@ export type OrderSummary = {
   currency: string;
 };
 
+export type ShippingAddress = {
+  full_name: string;
+  phone: string;
+  address_line: string;
+  ward?: string;
+  district?: string;
+  city: string;
+};
+
 export type CreateOrderRequest = {
   userId: string;
   items: OrderItem[];
   summary: OrderSummary;
-  shippingAddressId?: string;
+  shipping_address?: ShippingAddress;
+  shippingAddressId?: string; // Legacy support
   billingAddressId?: string;
   notes?: string;
   paymentMethod?: "PAYPAL" | "STRIPE" | "COD";
@@ -88,66 +98,113 @@ export type CaptureOrderResponse = {
 
 // ----------------------------------------------------------------------
 
+// Helper function to get token from session (sessionStorage first, then localStorage)
+const getAuthToken = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  
+  // Try sessionStorage first (preferred for security)
+  const sessionToken = sessionStorage.getItem("accessToken");
+  if (sessionToken) return sessionToken;
+  
+  // Fallback to localStorage
+  const localToken = localStorage.getItem("accessToken");
+  if (localToken) return localToken;
+  
+  return null;
+};
+
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+  const token = getAuthToken();
+  return {
+    "Content-Type": "application/json",
+    ...(token && { "Authorization": `Bearer ${token}` }),
+  };
+};
+
 const base = `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000"}/orders`;
 
 export const orderApi = {
   // Create a new order
   async create(data: CreateOrderRequest) {
-    const res = await axios.post(`${base}`, data);
+    const res = await axios.post(`${base}`, data, {
+      headers: getAuthHeaders(),
+    });
     return res.data;
   },
 
   // Get all orders (Admin only)
   async getAll(params?: { userId?: string; status?: string; page?: number; limit?: number }) {
-    const res = await axios.get(`${base}`, { params });
+    const res = await axios.get(`${base}`, {
+      params,
+      headers: getAuthHeaders(),
+    });
     return res.data;
   },
 
   // Get my orders (authenticated user)
   async getMyOrders(params?: { status?: string; page?: number; limit?: number }) {
-    const res = await axios.get(`${base}/my-orders`, { params });
+    const res = await axios.get(`${base}/my-orders`, {
+      params,
+      headers: getAuthHeaders(),
+    });
     return res.data;
   },
 
   // Get order by ID
   async getById(id: string) {
-    const res = await axios.get(`${base}/${id}`);
+    const res = await axios.get(`${base}/${id}`, {
+      headers: getAuthHeaders(),
+    });
     return res.data;
   },
 
   // Get order by order number
   async getByOrderNumber(orderNumber: string) {
-    const res = await axios.get(`${base}/number/${orderNumber}`);
+    const res = await axios.get(`${base}/number/${orderNumber}`, {
+      headers: getAuthHeaders(),
+    });
     return res.data;
   },
 
   // Get order history for user (legacy, use getMyOrders instead)
   async getHistory(params?: Record<string, any>) {
-    const res = await axios.get(`${base}/history`, { params });
+    const res = await axios.get(`${base}/history`, {
+      params,
+      headers: getAuthHeaders(),
+    });
     return res.data;
   },
 
   // Update order (Admin only)
   async update(id: string, data: { status?: Order['status']; trackingNumber?: string; carrier?: string; internalNotes?: string }) {
-    const res = await axios.patch(`${base}/${id}`, data);
+    const res = await axios.patch(`${base}/${id}`, data, {
+      headers: getAuthHeaders(),
+    });
     return res.data;
   },
 
   // Update order status (legacy)
   async updateStatus(id: string, status: Order['status']) {
-    const res = await axios.patch(`${base}/${id}/status`, { status });
+    const res = await axios.patch(`${base}/${id}/status`, { status }, {
+      headers: getAuthHeaders(),
+    });
     return res.data;
   },
 
   // Cancel order
   async cancel(id: string, reason?: string) {
-    const res = await axios.patch(`${base}/${id}/cancel`, { reason });
+    const res = await axios.patch(`${base}/${id}/cancel`, { reason }, {
+      headers: getAuthHeaders(),
+    });
     return res.data;
   },
 
   // Delete order (Admin only)
   async delete(id: string) {
-    const res = await axios.delete(`${base}/${id}`);
+    const res = await axios.delete(`${base}/${id}`, {
+      headers: getAuthHeaders(),
+    });
     return res.data;
   },
 };

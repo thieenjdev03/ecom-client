@@ -74,7 +74,7 @@ export async function createCategory(payload: {
   slug: string; 
   description?: string;
   image_url?: string;
-  parent_id?: number | null;
+  parent_id?: string | null;
   display_order?: number;
   is_active?: boolean;
 }) {

@@ -9,6 +9,7 @@ import { paths } from "src/routes/paths";
 
 import { fCurrency } from "src/utils/format-number";
 import { useCheckoutContext } from "src/sections/checkout/context/checkout-context";
+import { useTranslate } from "src/locales";
 
 import Iconify from "src/components/iconify";
 
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export default function CartPreviewFooter({ onClose }: Props) {
+  const { t } = useTranslate();
   const router = useRouter();
   const checkout = useCheckoutContext();
 
@@ -44,10 +46,10 @@ export default function CartPreviewFooter({ onClose }: Props) {
             sx={{ mb: 1 }}
           >
             <Typography variant="body2" color="text.secondary">
-              Tổng sản phẩm:
+              {t("cart.footer.totalProducts")}
             </Typography>
             <Typography variant="body2" fontWeight={600}>
-              {checkout.totalItems} sản phẩm
+              {checkout.totalItems} {t("cart.footer.products")}
             </Typography>
           </Stack>
 
@@ -56,7 +58,7 @@ export default function CartPreviewFooter({ onClose }: Props) {
             justifyContent="space-between"
             alignItems="center"
           >
-            <Typography variant="h6">Tổng tiền:</Typography>
+            <Typography variant="h6">{t("cart.footer.totalAmount")}</Typography>
             <Typography variant="h6" color="primary.main">
               {fCurrency(checkout.total)}
             </Typography>
@@ -82,7 +84,7 @@ export default function CartPreviewFooter({ onClose }: Props) {
               "&:hover": { backgroundColor: "#000" },
             }}
           >
-            Thanh toán
+            {t("cart.footer.checkout")}
           </Button>
 
           <Button
@@ -102,12 +104,12 @@ export default function CartPreviewFooter({ onClose }: Props) {
               },
             }}
           >
-            Xem giỏ hàng
+            {t("cart.footer.viewCart")}
           </Button>
 
           <Stack spacing={0.5} alignItems="center" sx={{ pt: 0.5 }}>
             <Typography variant="caption" color="text.secondary">
-              Bạn có thể thanh toán an toàn qua PayPal hoặc thẻ Visa.
+              {t("cart.footer.securePayment")}
             </Typography>
             <Stack direction="row" spacing={1} alignItems="center">
               <Iconify icon="logos:paypal" width={32} />
