@@ -94,7 +94,6 @@ export default function AdminCategoriesView() {
 
   // Get parent categories for dropdown (flat response uses parent_id)
   const parentCategories = categories && categories.length > 0 ? categories?.filter((category: any) => !category.parent_id) : [];
-
   // Precompute children count by parent id when API does not provide children_count
   const childrenCountByParentId = useMemo(() => {
     const map = new Map<number, number>();
@@ -151,7 +150,7 @@ export default function AdminCategoriesView() {
         slug: data.slug,
         description: data.description,
         image_url: data.image_url,
-        parent_id: data.parent_id ? parseInt(data.parent_id) : null,
+        parent_id: data.parent_id,
         display_order: data.display_order,
         is_active: data.is_active,
       });
@@ -296,7 +295,6 @@ export default function AdminCategoriesView() {
                   <TableCell>Parent</TableCell>
                   <TableCell>Display Order</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell>Children Count</TableCell>
                   <TableCell>Created At</TableCell>
                   <TableCell align="right">Actions</TableCell>
                 </TableRow>
@@ -333,11 +331,6 @@ export default function AdminCategoriesView() {
                         color={category.is_active ? "success" : "default"}
                         variant="outlined"
                       />
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">
-                        {category.children_count ?? childrenCountByParentId.get(category.id) ?? 0}
-                      </Typography>
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" color="text.secondary">

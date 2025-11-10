@@ -301,7 +301,7 @@ export default function ProductListView() {
         }}
       >
         <CustomBreadcrumbs
-          heading="Danh sách sản phẩm"
+          heading={`Product List`}
           links={[
             { name: "Dashboard", href: paths.dashboard.root },
             {

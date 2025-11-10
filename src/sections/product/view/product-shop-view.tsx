@@ -33,7 +33,6 @@ import {
 
 import ProductList from "../product-list";
 import ProductSort from "../product-sort";
-import CartIcon from "../common/cart-icon";
 import ProductSearch from "../product-search";
 import ProductFilters from "../product-filters";
 import { useCheckoutContext } from "../../checkout/context";
@@ -178,8 +177,6 @@ export default function ProductShopView() {
         mt: "80px",
       }}
     >
-      <CartIcon totalItems={checkout.totalItems} />
-
       <Typography
         variant="h4"
         sx={{

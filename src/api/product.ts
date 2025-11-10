@@ -90,3 +90,10 @@ export async function searchProducts(query: string) {
   const res = await axios.get(endpoints.product.list, { params: { query } });
   return res.data;
 }
+
+// Get product by ID (for validation)
+export async function getProductById(productId: string) {
+  const res = await axios.get(endpoints.product.details(productId));
+  const product = res.data?.data || res.data;
+  return product ? adaptProductDtoToItem(product as Product) : null;
+}

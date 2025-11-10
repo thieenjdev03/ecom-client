@@ -80,7 +80,7 @@ export function RenderCellStatus({ params }: ParamsProps) {
   }
   if (inventoryType === "out of stock") {
     color = "error";
-    label = "out_of_stock";
+    label = "Out of Stock";
   }
 
   return (
@@ -91,7 +91,6 @@ export function RenderCellStatus({ params }: ParamsProps) {
 }
 
 export function RenderCellProduct({ params }: ParamsProps) {
-  console.log('params', params);
   return (
     <Stack direction="row" alignItems="center" sx={{ py: 2, width: 1 }}>
       <Avatar

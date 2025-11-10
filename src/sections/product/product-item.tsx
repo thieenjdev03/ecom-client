@@ -151,8 +151,12 @@ export default function ProductItem({ product }: Props) {
   };
 
   const handleAddCart = async () => {
+    // Note: This is a quick add without variant selection
+    // For proper variant selection, user should go to product details page
     const newProduct: ICheckoutItem = {
       id,
+      productId: id,
+      variantId: `${id}-default`,
       name,
       coverUrl: images?.[0] || coverUrl,
       available: available ? 1 : 0,
@@ -160,9 +164,11 @@ export default function ProductItem({ product }: Props) {
       colors: [colors[0]],
       size: sizes[0],
       quantity: 1,
-      category: category.name,
-      variants: variants,
+      category: category?.name || '',
+      variants: variants || [],
       subTotal: price * 1,
+      // color and sizeObj are undefined for quick add
+      // They will be set when adding from product details with variant selection
     };
     onAddToCart(newProduct);
   };

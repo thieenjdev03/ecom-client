@@ -5,7 +5,7 @@ import orderBy from "lodash/orderBy";
 import isEqual from "lodash/isEqual";
 import { useState, useCallback } from "react";
 
-import { Typography, Box, Grid, Card, CardContent, Chip, Stack, Container } from "@mui/material";
+import { Typography, Box, Chip, Stack, Container, Divider } from "@mui/material";
 import { RouterLink } from "src/routes/components";
 import { paths } from "src/routes/paths";
 import { useGetCategories } from "src/api/reference";
@@ -15,6 +15,11 @@ import { useBoolean } from "src/hooks/use-boolean";
 import { useDebounce } from "src/hooks/use-debounce";
 import { useSettingsContext } from "src/components/settings";
 import { useCheckoutContext } from "src/sections/checkout/context";
+import { useTranslate } from "src/locales";
+
+import Iconify from "src/components/iconify";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
+import { LoadingScreen } from "src/components/loading-screen";
 
 import {
   PRODUCT_SORT_OPTIONS,
@@ -27,7 +32,6 @@ import {
 import EmptyContent from "src/components/empty-content";
 import ProductList from "src/sections/product/product-list";
 import ProductSort from "src/sections/product/product-sort";
-import CartIcon from "src/sections/product/common/cart-icon";
 import ProductSearch from "src/sections/product/product-search";
 import ProductFilters from "src/sections/product/product-filters";
 import ProductFiltersResult from "src/sections/product/product-filters-result";
@@ -55,6 +59,7 @@ interface CategoryDetailsViewProps {
 }
 
 export default function CategoryDetailsView({ slug }: CategoryDetailsViewProps) {
+  const { t } = useTranslate();
   const settings = useSettingsContext();
   const checkout = useCheckoutContext();
   const openFilters = useBoolean();
@@ -91,18 +96,34 @@ export default function CategoryDetailsView({ slug }: CategoryDetailsViewProps) 
 
   // Early returns after all hooks
   if (categoriesLoading || productsLoading) {
-    return <div>Loading...</div>;
+    return <LoadingScreen />;
   }
 
   if (categoriesError || productsError) {
-    return <div>Error loading data</div>;
+    return (
+      <Container sx={{ py: 4 }}>
+        <EmptyContent
+          filled
+          title={t("categories.categoryDetails.errorLoading")}
+          description={categoriesError?.message || productsError?.message || ""}
+        />
+      </Container>
+    );
   }
 
   // Find category by slug
   const category = categories.find((cat: any) => cat.slug === slug);
 
   if (!category) {
-    return <div>Category not found</div>;
+    return (
+      <Container sx={{ py: 2 }}>
+        <EmptyContent
+          filled
+          title={t("categories.categoryDetails.notFound")}
+          description=""
+        />
+      </Container>
+    );
   }
 
   // Filter products by category
@@ -186,7 +207,12 @@ export default function CategoryDetailsView({ slug }: CategoryDetailsViewProps) 
   );
 
   const renderNotFound = (
-    <EmptyContent filled title="No Data" sx={{ py: 10 }} />
+    <EmptyContent
+      filled
+      title={t("categories.categoryDetails.noData")}
+      description={t("categories.categoryDetails.noProducts")}
+      sx={{ py: 4 }}
+    />
   );
 
   return (
@@ -197,23 +223,14 @@ export default function CategoryDetailsView({ slug }: CategoryDetailsViewProps) 
         mt: "80px",
       }}
     >
-      <CartIcon totalItems={checkout.totalItems} />
-
-      {/* Category Header */}
-      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
-        <Typography variant="h4">
-          {category.name}
-        </Typography>
-        <Chip
-          label={category.slug}
-          variant="outlined"
-          color="primary"
-        />
-      </Stack>
-
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        {categoryProducts.length} sản phẩm trong danh mục này
-      </Typography>
+      {/* Breadcrumbs */}
+      <CustomBreadcrumbs
+        links={[
+          { name: t("categories.title"), href: paths.categories.root },
+          { name: category.name },
+        ]}
+        sx={{ mb: 3 }}
+      />
 
       <Stack
         spacing={2.5}

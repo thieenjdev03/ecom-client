@@ -5,11 +5,14 @@ import EmptyContent from "src/components/empty-content";
 import { RouterLink } from "src/routes/components";
 import { paths } from "src/routes/paths";
 import { useGetCategories } from "src/api/reference";
+import { useTranslate } from "src/locales";
 import AdminCategoriesView from "./admin-categories-view";
 
 // ----------------------------------------------------------------------
 
 export default function CategoriesView() {
+  const { t } = useTranslate();
+
   // Check if we're in admin dashboard context
   const isAdminContext = typeof window !== 'undefined' && window.location.pathname.includes('/dashboard/categories');
   
@@ -20,11 +23,11 @@ export default function CategoriesView() {
   const { categories, categoriesLoading, categoriesError } = useGetCategories();
 
   if (categoriesLoading) {
-    return <div>Loading categories...</div>;
+    return <div>{t("categories.loading")}</div>;
   }
 
   if (categoriesError) {
-    return <div>Error loading categories: {categoriesError.message}</div>;
+    return <div>{t("categories.errorLoading")}{categoriesError.message}</div>;
   }
 
   // Group categories by parent/child relationship
@@ -44,13 +47,13 @@ export default function CategoriesView() {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Danh mục sản phẩm ({categories.length})
+        {t("categories.title")} ({categories.length})
       </Typography>
 
       {groupedCategories.parents && groupedCategories.parents.length > 0 && (
         <Box sx={{ mb: 4 }}>
           <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
-            Danh mục chính
+            {t("categories.mainCategories")}
           </Typography>
           <Grid container spacing={3}>
             {groupedCategories.parents.map((category: any) => (
@@ -77,13 +80,13 @@ export default function CategoriesView() {
                     {category.children && category.children.length > 0 && (
                       <Box sx={{ mt: 1 }}>
                         <Typography variant="caption" color="text.secondary">
-                          {category.children.length} danh mục con
+                          {category.children.length} {t("categories.subCategoriesCount")}
                         </Typography>
                       </Box>
                     )}
                     <Box sx={{ mt: 2 }}>
                       <Chip
-                        label="Xem chi tiết"
+                        label={t("categories.viewDetails")}
                         size="small"
                         color="primary"
                         variant="outlined"
@@ -100,7 +103,7 @@ export default function CategoriesView() {
       {groupedCategories.children && groupedCategories.children.length > 0 && (
         <Box>
           <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
-            Danh mục con
+            {t("categories.subCategories")}
           </Typography>
           <Grid container spacing={2}>
             {groupedCategories.children.map((category: any) => (
@@ -118,16 +121,10 @@ export default function CategoriesView() {
                   }}
                 >
                   <CardContent>
-                    <Typography variant="subtitle1" gutterBottom>
-                      {category.name}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" paragraph>
-                      {category.slug}
-                    </Typography>
                     {category.parent && (
                       <Box sx={{ mt: 1 }}>
                         <Chip
-                          label={`Thuộc: ${category.parent.name}`}
+                          label={`${t("categories.belongsTo")}${category.parent.name}`}
                           size="small"
                           variant="outlined"
                           color="secondary"
@@ -146,8 +143,8 @@ export default function CategoriesView() {
         <Box sx={{ py: 4 }}>
           <EmptyContent
             filled
-            title="Chưa có danh mục nào"
-            description="Hiện tại chưa có dữ liệu danh mục để hiển thị."
+            title={t("categories.noCategories")}
+            description={t("categories.noCategoriesDescription")}
           />
         </Box>
       )}
