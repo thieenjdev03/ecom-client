@@ -69,6 +69,7 @@ const STATUS_OPTIONS = [
 const TABLE_HEAD = [
   { id: "orderNumber", label: "Order No.", width: 140 },
   { id: "createdAt", label: "Created At", width: 160 },
+  { id: "updatedAt", label: "Updated At", width: 160 },
   { id: "customer", label: "Customer", width: 200 },
   { id: "totalAmount", label: "Total", width: 120, align: "right" },
   { id: "paymentMethod", label: "Payment", width: 150 },
@@ -126,7 +127,7 @@ function transformOrderToIOrderItem(order: Order): IOrderItem {
     quantity: item.quantity,
     variantName: item.variantName,
     productSlug: item.productSlug,
-    productId: item.productId,
+    productId: typeof item.productId === 'string' ? parseInt(item.productId, 10) : item.productId,
     variantId: item.variantId,
   }));
 
@@ -168,6 +169,7 @@ function transformOrderToIOrderItem(order: Order): IOrderItem {
     },
     items: productItems,
     createdAt: new Date(order.createdAt),
+    updatedAt: new Date(order.updatedAt),
     // New fields
     paymentMethod: order.paymentMethod,
     paidAt: order.paidAt ? new Date(order.paidAt) : null,
@@ -184,7 +186,7 @@ function transformOrderToIOrderItem(order: Order): IOrderItem {
 export default function OrderListView() {
   const { enqueueSnackbar } = useSnackbar();
 
-  const table = useTable({ defaultOrderBy: "orderNumber" });
+  const table = useTable({ defaultOrderBy: "updatedAt", defaultOrder: "desc" });
 
   const settings = useSettingsContext();
 

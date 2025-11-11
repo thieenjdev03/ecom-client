@@ -1,9 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as Yup from "yup";
+import { useRouter } from "next/navigation";
 
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
@@ -13,194 +10,229 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import Chip from "@mui/material/Chip";
-import IconButton from "@mui/material/IconButton";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
+import CircularProgress from "@mui/material/CircularProgress";
+
+import { fDate, fTime } from "src/utils/format-time";
+import { paths } from "src/routes/paths";
 
 import Iconify from "src/components/iconify";
-import { useSnackbar } from "src/components/snackbar";
-import FormProvider, { RHFTextField, RHFSelect } from "src/components/hook-form";
-import { AddressAutocomplete } from "src/components/address-autocomplete";
+import Label from "src/components/label";
+import EmptyContent from "src/components/empty-content";
 
-// ----------------------------------------------------------------------
-
-interface AddressBook {
-  id: string;
-  primary: boolean;
-  name: string;
-  phoneNumber: string;
-  fullAddress: string;
-  addressType: string;
-}
-
-interface FormValuesProps {
-  name: string;
-  phoneNumber: string;
-  address: string;
-  addressType: string;
-}
+import { useGetMyOrders, Order } from "src/api/order";
 
 // ----------------------------------------------------------------------
 
 interface AccountBillingProps {
-  plans: any[];
-  cards: any[];
-  invoices: any[];
-  addressBook: AddressBook[];
+  plans?: any[];
+  cards?: any[];
+  invoices?: any[];
+  addressBook?: any[];
 }
 
-export default function AccountBilling({ addressBook }: AccountBillingProps) {
-  const { enqueueSnackbar } = useSnackbar();
-  const [open, setOpen] = useState(false);
-  const [coordinates, setCoordinates] = useState<{ lat: number; lon: number } | undefined>();
-
-  const AddressSchema = Yup.object().shape({
-    name: Yup.string().required("Name is required"),
-    phoneNumber: Yup.string().required("Phone number is required"),
-    address: Yup.string().required("Address is required"),
-    addressType: Yup.string().required("Address type is required"),
-  });
-
-  const defaultValues = {
-    name: "",
-    phoneNumber: "",
-    address: "",
-    addressType: "Home",
+// Helper function to get status color
+function getStatusColor(status: Order["status"]) {
+  const colors: Record<string, "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning"> = {
+    PENDING: "warning",
+    PAID: "info",
+    PROCESSING: "primary",
+    SHIPPED: "secondary",
+    DELIVERED: "success",
+    CANCELLED: "error",
+    FAILED: "error",
+    REFUNDED: "error",
   };
+  return colors[status] || "default";
+}
 
-  const methods = useForm<FormValuesProps>({
-    resolver: yupResolver(AddressSchema),
-    defaultValues,
-  });
-
-  const {
-    reset,
-    watch,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
-
-  const values = watch();
-
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      enqueueSnackbar("Address added successfully!");
-      console.log("ADDRESS DATA", data);
-      console.log("COORDINATES", coordinates);
-      reset();
-      setOpen(false);
-    } catch (error) {
-      console.error(error);
-    }
-  });
-
-  const handleAddressChange = (address: string, coords?: { lat: number; lon: number }) => {
-    methods.setValue("address", address);
-    setCoordinates(coords);
+// Helper function to format status text
+function formatStatus(status: Order["status"]) {
+  const statusMap: Record<string, string> = {
+    PENDING: "Pending",
+    PAID: "Paid",
+    PROCESSING: "Processing",
+    SHIPPED: "Shipped",
+    DELIVERED: "Delivered",
+    CANCELLED: "Cancelled",
+    FAILED: "Failed",
+    REFUNDED: "Refunded",
   };
+  return statusMap[status] || status;
+}
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
+// Helper function to format payment method
+function formatPaymentMethod(method?: string) {
+  if (!method) return "N/A";
+  return method.charAt(0) + method.slice(1).toLowerCase();
+}
 
-  const handleClose = () => {
-    setOpen(false);
-    reset();
+// Helper function to format currency with specific currency code
+function formatCurrencyWithCode(amount: string | number, currency: string = "USD"): string {
+  const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency || "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+  return formatter.format(numAmount);
+}
+
+export default function AccountBilling(_props: AccountBillingProps) {
+  const router = useRouter();
+
+  // Fetch orders from API
+  const { orders, ordersLoading, ordersError, ordersEmpty } = useGetMyOrders();
+
+  const handleViewOrder = (orderId: string) => {
+    router.push(paths.orders.details(orderId));
   };
 
   return (
-    <>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Card sx={{ p: 3 }}>
-            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
-              <Typography variant="h6">Address Book</Typography>
-              <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpen}>
-                Add Address
-              </Button>
-            </Stack>
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Card sx={{ p: 3 }}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
+            <Typography variant="h6">Order History</Typography>
+          </Stack>
 
+          {ordersLoading && (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
+              <CircularProgress />
+            </Box>
+          )}
+
+          {ordersError && (
+            <Box sx={{ py: 5 }}>
+              <EmptyContent
+                title="Error loading orders"
+                description={ordersError.message || "Failed to load order history. Please try again later."}
+                imgUrl="/assets/illustrations/illustration-empty.svg"
+              />
+            </Box>
+          )}
+
+          {!ordersLoading && !ordersError && ordersEmpty && (
+            <Box sx={{ py: 5 }}>
+              <EmptyContent
+                title="No orders yet"
+                description="You haven't placed any orders yet. Start shopping to see your order history here."
+                imgUrl="/assets/illustrations/illustration-empty.svg"
+              />
+            </Box>
+          )}
+
+          {!ordersLoading && !ordersError && !ordersEmpty && (
             <Stack spacing={2}>
-              {addressBook.map((address) => (
-                <Card key={address.id} variant="outlined" sx={{ p: 2 }}>
-                  <Stack direction="row" alignItems="flex-start" justifyContent="space-between">
-                    <Box sx={{ flex: 1 }}>
-                      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                        <Typography variant="subtitle2">{address.name}</Typography>
-                        {address.primary && (
-                          <Chip label="Primary" size="small" color="primary" />
-                        )}
-                        <Chip label={address.addressType} size="small" variant="outlined" />
+              {orders.map((order) => (
+                <Card key={order.id} variant="outlined" sx={{ p: 2.5 }}>
+                  <Stack spacing={2}>
+                    {/* Header: Order Number, Date, Status */}
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      flexWrap="wrap"
+                      gap={2}
+                    >
+                      <Stack direction="row" alignItems="center" spacing={2}>
+                        <Box>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
+                            {order.orderNumber}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {fDate(order.createdAt, "dd MMM yyyy")} at {fTime(order.createdAt, "h:mm a")}
+                          </Typography>
+                        </Box>
                       </Stack>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                        {address.phoneNumber}
+                      <Label variant="soft" color={getStatusColor(order.status)}>
+                        {formatStatus(order.status)}
+                      </Label>
+                    </Stack>
+
+                    <Divider />
+
+                    {/* Order Items */}
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block" }}>
+                        Items ({order.items.length})
                       </Typography>
-                      <Typography variant="body2">{address.fullAddress}</Typography>
+                      <Stack spacing={1}>
+                        {order.items.slice(0, 3).map((item, index) => (
+                          <Stack
+                            key={index}
+                            direction="row"
+                            alignItems="center"
+                            justifyContent="space-between"
+                            sx={{ py: 0.5 }}
+                          >
+                            <Typography variant="body2">
+                              {item.productName}
+                              {item.variantName && (
+                                <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                                  ({item.variantName})
+                                </Typography>
+                              )}
+                              <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                                × {item.quantity}
+                              </Typography>
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                              {formatCurrencyWithCode(item.totalPrice, order.summary.currency)}
+                            </Typography>
+                          </Stack>
+                        ))}
+                        {order.items.length > 3 && (
+                          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                            +{order.items.length - 3} more item{order.items.length - 3 > 1 ? "s" : ""}
+                          </Typography>
+                        )}
+                      </Stack>
                     </Box>
-                    <Stack direction="row" spacing={1}>
-                      <IconButton size="small">
-                        <Iconify icon="eva:edit-fill" />
-                      </IconButton>
-                      <IconButton size="small" color="error">
-                        <Iconify icon="eva:trash-2-fill" />
-                      </IconButton>
+
+                    <Divider />
+
+                    {/* Order Summary */}
+                    <Stack direction="row" alignItems="center" justifyContent="space-between">
+                      <Stack spacing={0.5}>
+                        <Typography variant="caption" color="text.secondary">
+                          Payment Method
+                        </Typography>
+                        <Chip
+                          label={formatPaymentMethod(order.paymentMethod)}
+                          size="small"
+                          variant="outlined"
+                          sx={{ width: "fit-content" }}
+                        />
+                      </Stack>
+                      <Box sx={{ textAlign: "right" }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.5 }}>
+                          Total Amount
+                        </Typography>
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                          {formatCurrencyWithCode(order.summary.total, order.summary.currency)}
+                        </Typography>
+                      </Box>
+                    </Stack>
+
+                    {/* Actions */}
+                    <Stack direction="row" justifyContent="flex-end" spacing={1}>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        startIcon={<Iconify icon="solar:eye-bold" />}
+                        onClick={() => handleViewOrder(order.id)}
+                      >
+                        View Details
+                      </Button>
                     </Stack>
                   </Stack>
                 </Card>
               ))}
             </Stack>
-          </Card>
-        </Grid>
+          )}
+        </Card>
       </Grid>
-
-      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <FormProvider methods={methods} onSubmit={onSubmit}>
-          <DialogTitle>Add New Address</DialogTitle>
-          <DialogContent>
-            <Box sx={{ pt: 1 }}>
-              <Stack spacing={3}>
-                <RHFTextField name="name" label="Full Name" />
-
-                <RHFTextField name="phoneNumber" label="Phone Number" />
-
-                <AddressAutocomplete
-                  value={values.address}
-                  onChange={handleAddressChange}
-                  label="Address"
-                  placeholder="Nhập địa chỉ giao hàng..."
-                  required
-                />
-
-                <RHFSelect native name="addressType" label="Address Type">
-                  <option value="Home">Home</option>
-                  <option value="Office">Office</option>
-                  <option value="Other">Other</option>
-                </RHFSelect>
-
-                {coordinates && (
-                  <Box sx={{ p: 2, bgcolor: "grey.100", borderRadius: 1 }}>
-                    <Typography variant="caption" color="text.secondary">
-                      Coordinates detected:
-                    </Typography>
-                    <Typography variant="body2">
-                      Lat: {coordinates.lat.toFixed(6)}, Lon: {coordinates.lon.toFixed(6)}
-                    </Typography>
-                  </Box>
-                )}
-              </Stack>
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button type="submit" variant="contained" disabled={isSubmitting}>
-              {isSubmitting ? "Adding..." : "Add Address"}
-            </Button>
-          </DialogActions>
-        </FormProvider>
-      </Dialog>
-    </>
+    </Grid>
   );
 }

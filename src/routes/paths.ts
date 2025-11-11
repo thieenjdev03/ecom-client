@@ -74,6 +74,7 @@ export const paths = {
   },
   orders: {
     root: `/orders`,
+    details: (id: string) => `/orders/${id}`,
   },
   paypalTest: {
     root: `/paypal-test`,

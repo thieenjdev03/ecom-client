@@ -92,7 +92,7 @@ Tìm kiếm	/products/search?q=	GET	None	Cho search bar
   "is_featured": false
 }
 
-🧩 B. Product có biến thể
+🧩 B. Product có biến thể (với hình ảnh variant)
 
 {
   "name": "Premium Polo Shirt",
@@ -105,7 +105,8 @@ Tìm kiếm	/products/search?q=	GET	None	Cho search bar
       "price": 399000,
       "stock": 10,
       "color_id": "1",
-      "size_id": "1"
+      "size_id": "1",
+      "image_url": "https://res.cloudinary.com/shop/image/upload/v1/polo-m-black.jpg"
     },
     {
       "name": "L - Black",
@@ -113,7 +114,8 @@ Tìm kiếm	/products/search?q=	GET	None	Cho search bar
       "price": 399000,
       "stock": 5,
       "color_id": "1",
-      "size_id": "2"
+      "size_id": "2",
+      "image_url": "https://res.cloudinary.com/shop/image/upload/v1/polo-l-black.jpg"
     }
   ],
   "category_id": 1,
@@ -158,13 +160,22 @@ Stock cannot be negative	Red border + inline text “Không thể nhập số â
 	•	Stock Quantity: number ≥ 0
 	•	Variants table:
 
-Field	Key	Type
-Name	name	string
-SKU	sku	string
-Price	price	number
-Stock	stock	number
-Color	color_id	string
-Size	size_id	string
+Field	Key	Type	Note
+Name	name	string	Required
+SKU	sku	string	Required, unique
+Price	price	number	Required, ≥0
+Stock	stock	number	Required, ≥0
+Color	color_id	string	Optional UUID
+Size	size_id	string	Optional UUID
+Image	image_url	string	Optional URL (uploaded to Cloudinary)
+
+**Variant Image Upload Features** (Implemented in FE):
+- Individual upload: Click upload button on each variant card to select image(s)
+- Multi-file upload: Select multiple images at once, they fill current + subsequent variants
+- Bulk upload: "Bulk Upload Variant Images" button uploads multiple images and auto-assigns to all variants (prioritizes empty slots)
+- Image preview with delete button on each variant card
+- Images uploaded to Cloudinary via `/api/upload-images` endpoint
+- Auto-save to localStorage to preserve variant images during editing
 
 
 
@@ -185,15 +196,19 @@ product.category_label, product.status_active, product.featured_toggle, v.v.
 
 ✅ Summary of FE Tasks (Synced with BE)
 
-Task	Priority	Type
-Group fields theo 4 card (Meta / Attributes / Inventory / Marketing)	🔥 High	UI
-Validate sale_price ≤ price	🔥 High	Logic
-Disable SKU & StockQuantity khi có variants	🔥 High	Logic
-Inline error hiển thị theo message BE	🔥 High	UX
-Bổ sung Tooltip cho switch & field quan trọng	⚡ Medium	UI
-Auto generate slug từ name (slugify)	⚡ Medium	Logic
-Async dropdown categories	⚡ Medium	Data
-Variant Table update stock qua API riêng	⚡ Medium	Integration
+Task	Priority	Type	Status
+Group fields theo 4 card (Meta / Attributes / Inventory / Marketing)	🔥 High	UI	✅ Done
+Validate sale_price ≤ price	🔥 High	Logic	✅ Done
+Disable SKU & StockQuantity khi có variants	🔥 High	Logic	✅ Done
+Inline error hiển thị theo message BE	🔥 High	UX	✅ Done
+Bổ sung Tooltip cho switch & field quan trọng	⚡ Medium	UI	✅ Done
+Auto generate slug từ name (slugify)	⚡ Medium	Logic	✅ Done
+Async dropdown categories	⚡ Medium	Data	✅ Done
+Variant Table update stock qua API riêng	⚡ Medium	Integration	⚠️ Pending BE
+**Variant individual image upload**	🔥 High	Feature	✅ Done (FE only)
+**Variant bulk image upload**	🔥 High	Feature	✅ Done (FE only)
+**Auto-save variant images to localStorage**	⚡ Medium	Feature	✅ Done
+**Backend add image_url to ProductVariant**	🔥 High	Backend	⚠️ **Pending**
 
 
 ⸻

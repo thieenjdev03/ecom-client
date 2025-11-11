@@ -3,15 +3,38 @@ import { ProductVariantDto } from "./product-dto";
 
 // ----------------------------------------------------------------------
 
-export type ICheckoutItem = {
+export type ColorType = {
   id: string;
   name: string;
-  variants: ProductVariantDto[];
+  hexCode: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type SizeType = {
+  id: string;
+  name: string;
+  sortOrder?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  category?: any;
+};
+
+export type ICheckoutItem = {
+  id: string; // Cart item ID (for backend API)
+  productId: string; // Product ID
+  variantId: string; // Variant ID - QUAN TRỌNG để phân biệt variant
+  name: string; // Product name
+  variantName?: string; // "Red / Size M" - for display
+  variants: ProductVariantDto[]; // Keep for backward compatibility
   coverUrl: string;
   available: number;
   price: number;
-  colors: string[];
-  size: string;
+  sku?: string; // Variant SKU
+  colors: string[]; // Keep for backward compatibility - color IDs
+  size: string; // Keep for backward compatibility - size ID
+  color?: ColorType; // Full color object
+  sizeObj?: SizeType; // Full size object
   quantity: number;
   subTotal: number;
   category: string;
@@ -43,8 +66,20 @@ export type ICheckoutValue = {
   totalItems: number;
   items: ICheckoutItem[];
   billing: IAddressItem | null;
+  // Order ID for 2-step checkout flow
+  orderId: string | null;
   // Cart preview state
   cartPreviewOpen: boolean;
+};
+
+export type CartValidationResult = {
+  isValid: boolean;
+  errors: Array<{
+    itemId: string;
+    productName: string;
+    reason: string;
+  }>;
+  updatedItems?: ICheckoutItem[];
 };
 
 export type CheckoutContextProps = ICheckoutValue & {
@@ -66,7 +101,12 @@ export type CheckoutContextProps = ICheckoutValue & {
   //
   canReset: boolean;
   onReset: VoidFunction;
+  // Order ID management
+  onSetOrderId: (orderId: string) => void;
+  onClearOrderId: VoidFunction;
   // Cart preview functions
   onOpenCartPreview: VoidFunction;
   onCloseCartPreview: VoidFunction;
+  // Validate and refresh cart items before checkout
+  onValidateAndRefreshCart: () => Promise<CartValidationResult>;
 };

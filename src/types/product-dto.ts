@@ -21,7 +21,7 @@ export interface Product {
   meta_title?: string | null;
   meta_description?: string | null;
   weight?: number | null;
-  dimensions?: string | null;
+  dimensions?: { length?: number; width?: number; height?: number } | null;
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
@@ -34,6 +34,8 @@ export interface ProductVariantDto {
   stock: number;
   size_id?: string | null;
   color_id?: string | null;
+  barcode?: string | null;
+  image_url?: string | null; // Variant-specific image URL (Cloudinary or CDN)
 }
 
 export interface ProductVariant extends ProductVariantDto {

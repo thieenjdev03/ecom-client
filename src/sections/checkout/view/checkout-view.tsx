@@ -51,7 +51,7 @@ export default function CheckoutView() {
           {checkout.activeStep === 0 && <CheckoutCart />}
 
           {/* {checkout.activeStep === 0 && <CheckoutBillingAddress />} */}
-
+        
           {checkout.activeStep === 1 && <CheckoutPayment />}
         </>
       )}

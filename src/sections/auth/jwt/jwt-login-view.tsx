@@ -66,6 +66,14 @@ export default function JwtLoginView() {
   const onSubmit = handleSubmit(async (data) => {
     try {
       const result: any = await login?.(data.email, data.password);
+      
+      // If returnTo is provided, redirect to that path (e.g., checkout page)
+      if (returnTo) {
+        router.push(returnTo);
+        return;
+      }
+      
+      // Otherwise, redirect based on user role
       if (result?.user?.role === "admin") {
         router.push(paths.dashboard.root);
         return;

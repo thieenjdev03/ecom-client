@@ -20,6 +20,7 @@ import { useResponsive } from "src/hooks/use-responsive";
 
 import { HEADER } from "../config-layout";
 import HeaderShadow from "../common/header-shadow";
+import LanguagePopover from "../common/language-popover";
 import EcomDropdown from "../main/nav/ecom-dropdown";
 import EcomCategoriesDropdown from "./nav/ecom-categories-dropdown";
 import { PRODUCT_CATEGORY_GROUP_OPTIONS } from "src/_mock";
@@ -168,6 +169,24 @@ export default function HeaderEcom() {
             spacing={1.5}
             sx={{ flex: 1, justifyContent: "flex-end" }}
           >
+            <Box
+              sx={{
+                "& .MuiIconButton-root": {
+                  color: activeColor,
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    color: theme.palette.primary.main,
+                    transform: "scale(1.1)",
+                    backgroundColor: "rgba(0, 0, 0, 0.05)",
+                  },
+                },
+                "& .MuiIconButton-root svg": {
+                  textShadow: activeShadow,
+                },
+              }}
+            >
+              <LanguagePopover />
+            </Box>
             <IconButton 
               color="inherit" 
               sx={{ 

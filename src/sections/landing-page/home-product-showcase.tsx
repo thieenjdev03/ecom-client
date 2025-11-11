@@ -3,9 +3,11 @@ import { useMemo } from "react";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Skeleton from "@mui/material/Skeleton";
+import IconButton from "@mui/material/IconButton";
 
 import { useTheme } from "@mui/material/styles";
 
@@ -14,6 +16,7 @@ import { RouterLink } from "src/routes/components";
 
 import Iconify from "src/components/iconify";
 import Image from "src/components/image";
+import { useSnackbar } from "src/components/snackbar";
 import Carousel, {
   useCarousel,
   CarouselDots,
@@ -22,13 +25,18 @@ import Carousel, {
 import { fCurrency } from "src/utils/format-number";
 import { useGetProducts } from "src/api/product";
 import { IProductItem } from "src/types/product";
+import { useCheckoutContext } from "src/sections/checkout/context";
+import { useWishlistContext } from "src/sections/wishlist/context";
+import { ICheckoutItem } from "src/types/checkout";
 
 export default function HomeProductShowcase({
   priceBottom,
   layout,
+  showAddToCart,
 }: {
   priceBottom?: boolean;
   layout?: "image-left" | "price-bottom";
+  showAddToCart?: boolean;
 }) {
   // Fetch real products from API
   const { products, productsLoading, productsError } = useGetProducts({
@@ -52,7 +60,7 @@ export default function HomeProductShowcase({
       totalReviews: product.totalReviews,
       // Additional fields for better card display
       category: product.category,
-      inStock: product.inventoryType !== "out_of_stock" && product.quantity > 0,
+      inStock: product.inventoryType !== "Out of Stock" && product.quantity > 0,
       discountPercent:
         product.priceSale && product.priceSale < product.price
           ? Math.round(((product.price - (product.priceSale || 0)) / product.price) * 100)
@@ -284,7 +292,12 @@ export default function HomeProductShowcase({
         >
           <Carousel ref={carousel.carouselRef} {...carousel.carouselSettings}>
             {minimalProducts.map((p) => (
-              <ProductCard key={p.id} product={p} layout={effectiveLayout} />
+              <ProductCard 
+                key={p.id} 
+                product={p} 
+                layout={effectiveLayout} 
+                showAddToCart={showAddToCart}
+              />
             ))}
           </Carousel>
         </CarouselArrows>
@@ -314,12 +327,116 @@ type ProductCardLayout = "image-left" | "price-bottom";
 type CardProps = {
   product: MinimalProduct;
   layout?: ProductCardLayout;
+  showAddToCart?: boolean;
 };
 
-function ProductCard({ product, layout = "image-left" }: CardProps) {
-  const isPriceBottom = layout === "price-bottom";
+function ProductCard({ product, layout = "image-left", showAddToCart }: CardProps) {
+  const { enqueueSnackbar } = useSnackbar();
+  const checkout = useCheckoutContext();
+  const wishlist = useWishlistContext();
   
+  const isPriceBottom = layout === "price-bottom";
   const linkTo = paths.product.details(product.id);
+  const isInWishlist = wishlist.isInWishlist(product.id);
+  
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      // Convert MinimalProduct to ICheckoutItem
+      const cartItem: ICheckoutItem = {
+        id: product.id,
+        productId: product.id,
+        variantId: `${product.id}-default`,
+        name: product.name,
+        variantName: undefined,
+        coverUrl: product.image,
+        available: product.inStock ? 1 : 0,
+        price: product.priceSale || product.price,
+        sku: product.id,
+        quantity: 1,
+        subTotal: product.priceSale || product.price,
+        category: product.category || "",
+        variants: [],
+        colors: [],
+        size: "",
+      };
+      
+      checkout.onAddToCart(cartItem);
+      enqueueSnackbar(`Đã thêm "${product.name}" vào giỏ hàng`, {
+        variant: "success",
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      enqueueSnackbar("Có lỗi xảy ra khi thêm vào giỏ hàng", {
+        variant: "error",
+      });
+    }
+  };
+  
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      if (isInWishlist) {
+        wishlist.onRemoveFromWishlist(product.id);
+        enqueueSnackbar(`Đã xóa "${product.name}" khỏi yêu thích`, {
+          variant: "info",
+        });
+      } else {
+        // Convert MinimalProduct to IProductItem for wishlist
+        const wishlistProduct: IProductItem = {
+          id: product.id,
+          name: product.name,
+          sku: product.id,
+          modelHeight: 0,
+          modelSize: 0,
+          code: "",
+          price: product.price,
+          taxes: 0,
+          tags: [],
+          gender: "unisex",
+          sizes: ["S", "M", "L", "XL"],
+          publish: "published",
+          coverUrl: product.image,
+          images: [product.image],
+          colors: ["#000000"],
+          quantity: product.inStock ? 1 : 0,
+          category: product.category || "",
+          available: product.inStock ? 1 : 0,
+          totalSold: 0,
+          description: "",
+          totalRatings: product.totalRatings || 0,
+          productPrice: product.price,
+          totalReviews: product.totalReviews || 0,
+          inventoryType: product.inStock ? "infinite" : "out_of_stock",
+          subDescription: "",
+          isFeatured: product.isFeatured || false,
+          is_new: product.isNew || false,
+          is_sale: product.isSale || false,
+          priceSale: product.priceSale || null,
+          reviews: [],
+          createdAt: new Date(),
+          ratings: [],
+          saleLabel: { enabled: !!product.priceSale, content: "Sale" },
+          newLabel: { enabled: product.isNew || false, content: "New" },
+          variants: [],
+        };
+        
+        wishlist.onAddToWishlist(wishlistProduct);
+        enqueueSnackbar(`Đã thêm "${product.name}" vào yêu thích`, {
+          variant: "success",
+        });
+      }
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+      enqueueSnackbar("Có lỗi xảy ra khi thêm vào yêu thích", {
+        variant: "error",
+      });
+    }
+  };
   
   return (
     <Box sx={{ px: 1, height: "100%" }}>
@@ -486,28 +603,48 @@ function ProductCard({ product, layout = "image-left" }: CardProps) {
                 {fCurrency(product.priceSale)}
               </Typography>
             )}
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "primary.main" }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
               {fCurrency(product.price)}
             </Typography>
           </Stack>
 
-          <Link
-            color="inherit"
-            underline="always"
-            onClick={(e) => e.stopPropagation()}
-            sx={{
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 0.5,
-              fontSize: "0.875rem",
-              "&:hover": {
-                color: "primary.main",
-              },
-            }}
-          >
-            <Iconify icon="solar:heart-linear" width={18} /> Thêm vào yêu thích
-          </Link>
+          <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+            {showAddToCart && (
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleAddToCart}
+                startIcon={<Iconify icon="solar:cart-3-bold" width={16} />}
+                sx={{
+                  flex: 1,
+                  textTransform: "none",
+                  fontSize: "0.75rem",
+                  py: 0.75,
+                }}
+              >
+                Thêm vào giỏ
+              </Button>
+            )}
+            
+            <IconButton
+              size="small"
+              onClick={handleToggleWishlist}
+              sx={{
+                border: 1,
+                borderColor: "divider",
+                color: isInWishlist ? "error.main" : "text.secondary",
+                "&:hover": {
+                  borderColor: "error.main",
+                  bgcolor: "error.lighter",
+                },
+              }}
+            >
+              <Iconify 
+                icon={isInWishlist ? "solar:heart-bold" : "solar:heart-linear"} 
+                width={18} 
+              />
+            </IconButton>
+          </Stack>
         </Stack>
 
         <Box sx={{ flex: 1, minHeight: 0 }}>

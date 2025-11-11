@@ -11,6 +11,7 @@ interface ApiResponse<T = any> {
 
 // Updated interfaces based on the documentation flow
 interface CreatePayPalOrderRequest {
+  order_id?: string; // Order ID from Step 1
   value: string;
   currency: string;
   description: string;
@@ -116,8 +117,23 @@ interface FileUploadResponse {
 // ----------------------------------------------------------------------
 
 class PayPalApiService {
+  // Helper function to get token from session (sessionStorage first, then localStorage)
+  private getAuthToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    
+    // Try sessionStorage first (preferred for security)
+    const sessionToken = sessionStorage.getItem("accessToken");
+    if (sessionToken) return sessionToken;
+    
+    // Fallback to localStorage
+    const localToken = localStorage.getItem("accessToken");
+    if (localToken) return localToken;
+    
+    return null;
+  }
+
   private getAuthHeaders() {
-    const token = localStorage.getItem('accessToken');
+    const token = this.getAuthToken();
     return {
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -143,7 +159,7 @@ class PayPalApiService {
   }
 
   private getFileUploadHeaders() {
-    const token = localStorage.getItem('accessToken');
+    const token = this.getAuthToken();
     return {
       ...(token && { 'Authorization': `Bearer ${token}` }),
     };

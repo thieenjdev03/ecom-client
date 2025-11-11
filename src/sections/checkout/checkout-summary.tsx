@@ -6,11 +6,13 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import InputAdornment from "@mui/material/InputAdornment";
 import Avatar from "@mui/material/Avatar";
+import Chip from "@mui/material/Chip";
 
 import { fCurrency } from "src/utils/format-number";
 
 import Iconify from "src/components/iconify";
 import { ICheckoutItem } from "src/types/checkout";
+import { calculateShipping, calculateTax, getCountryConfig } from "src/config/shipping";
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -19,6 +21,7 @@ type Props = {
   subTotal: number;
   shipping?: number;
   items: ICheckoutItem[];
+  countryCode?: string;
   //
   onEdit?: VoidFunction;
   onApplyDiscount?: (discount: number) => void;
@@ -30,43 +33,79 @@ export default function CheckoutSummary({
   subTotal,
   shipping,
   items,
+  countryCode,
   //
   onEdit,
   onApplyDiscount,
 }: Props) {
-  const displayShipping = shipping !== null ? "Free" : "Calculated at next step";
+  // Calculate shipping and tax based on country (all in USD)
+  const country = countryCode ? getCountryConfig(countryCode) : null;
+  const shippingInfo = countryCode ? calculateShipping(countryCode, subTotal) : { cost: 0, isFree: false, currency: "USD" };
+  const tax = countryCode ? calculateTax(countryCode, subTotal) : 0;
+  
+  const displayShipping = shippingInfo.isFree 
+    ? "Free" 
+    : fCurrency(shippingInfo.cost);
+  
+  const calculatedTotal = subTotal - (discount || 0) + shippingInfo.cost + tax;
 
   return (
     <Box sx={{ mb: 3 }}>
       <Stack spacing={3}>
         {/* Product Details */}
         {items.length > 0 ? (
-          items.map((item: ICheckoutItem, index: number) => (
-            <Stack key={item.id || index} direction="row" spacing={2}>
-              <Avatar
-                src={item.coverUrl || "/assets/images/product/product_1.jpg"}
-                variant="rounded"
-                sx={{ width: 60, height: 60 }}
-              />
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600, textTransform: "uppercase" }}>
-                  {item.name}
+          items.map((item: ICheckoutItem, index: number) => {
+            // Use new color and size objects for better display
+            const colorName = item.color?.name || (item.colors?.length > 0 ? item.colors[0] : null);
+            const sizeName = item.sizeObj?.name || item.size;
+            const variantDisplay = item.variantName || 
+              (colorName && sizeName ? `${colorName} / ${sizeName}` : 
+               colorName || sizeName || "Standard");
+
+            return (
+              <Stack key={item.variantId || item.id || index} direction="row" spacing={2}>
+                <Avatar
+                  src={item.coverUrl || "/assets/images/product/product_1.jpg"}
+                  variant="rounded"
+                  sx={{ width: 64, height: 64, boxShadow: 1 }}
+                />
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                    {item.name}
+                  </Typography>
+                  {variantDisplay && (
+                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+                      {item.color?.hexCode && (
+                        <Box
+                          sx={{
+                            width: 16,
+                            height: 16,
+                            borderRadius: "50%",
+                            bgcolor: item.color.hexCode,
+                            border: (theme) => `1px solid ${theme.palette.divider}`,
+                          }}
+                        />
+                      )}
+                      <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                        {variantDisplay}
+                      </Typography>
+                    </Stack>
+                  )}
+                  {item.sku && (
+                    <Typography variant="caption" sx={{ color: "text.disabled", display: "block", mb: 0.5 }}>
+                      SKU: {item.sku}
+                    </Typography>
+                  )}
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    Qty: {item.quantity} × {fCurrency(item.price)}
+                  </Typography>
+                </Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  {fCurrency(item.price * item.quantity)}
                 </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
-                  Variant: {item.category || "Product"}
-                </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  Size: {item.size || "One Size"}
-                </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  Quantity x {item.quantity}
-                </Typography>
-              </Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                {fCurrency(item.price * item.quantity)}
-              </Typography>
-            </Stack>
-          ))
+              </Stack>
+            );
+          })
         ) : (
           <Stack direction="row" spacing={2}>
             <Avatar
@@ -125,36 +164,64 @@ export default function CheckoutSummary({
             <Typography variant="body2">{fCurrency(subTotal)}</Typography>
           </Stack>
 
-          <Stack direction="row" justifyContent="space-between">
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              Shipping
-            </Typography>
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Shipping
+              </Typography>
+              {shippingInfo.isFree && (
+                <Chip label="FREE" size="small" color="success" sx={{ height: 18, fontSize: "0.65rem" }} />
+              )}
+            </Stack>
+            <Typography variant="body2" sx={{ color: shippingInfo.isFree ? "success.main" : "text.secondary", fontWeight: shippingInfo.isFree ? 600 : 400 }}>
               {displayShipping}
             </Typography>
           </Stack>
 
-          <Stack direction="row" justifyContent="space-between">
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              Direct Signature Required
+          {country && country.freeShippingThreshold && !shippingInfo.isFree && subTotal < country.freeShippingThreshold && (
+            <Typography variant="caption" sx={{ color: "info.main", fontSize: "0.7rem" }}>
+              Add {fCurrency(country.freeShippingThreshold - subTotal)} more for free shipping!
             </Typography>
-            <Typography variant="body2">$8</Typography>
-          </Stack>
+          )}
+
+          {tax > 0 && (
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Tax ({country?.taxRate}%)
+              </Typography>
+              <Typography variant="body2">{fCurrency(tax)}</Typography>
+            </Stack>
+          )}
+
+          {discount && discount > 0 && (
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Discount
+              </Typography>
+              <Typography variant="body2" sx={{ color: "error.main" }}>
+                -{fCurrency(discount)}
+              </Typography>
+            </Stack>
+          )}
 
           <Divider />
 
-          <Stack direction="row" justifyContent="space-between">
-            <Typography variant="h6" sx={{ fontWeight: 600, textTransform: "uppercase" }}>
-              Total
-            </Typography>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography variant="h6" sx={{ fontWeight: 600, textTransform: "uppercase" }}>
+                Total (USD)
+              </Typography>
+            </Stack>
             <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              {fCurrency(total + 8)}
+              {fCurrency(calculatedTotal)}
             </Typography>
           </Stack>
 
-          <Typography variant="caption" sx={{ color: "text.secondary", fontStyle: "italic" }}>
-            *Tax excluded, where applicable
-          </Typography>
+          {country && (
+            <Typography variant="caption" sx={{ color: "text.secondary", fontStyle: "italic" }}>
+              *Tax included • Shipping to {country.flag} {country.label}
+            </Typography>
+          )}
         </Stack>
       </Stack>
     </Box>

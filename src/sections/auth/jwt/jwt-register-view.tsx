@@ -128,7 +128,7 @@ export default function JwtRegisterView() {
 
   const renderHead = (
     <Stack spacing={2} sx={{ mb: 5, position: "relative" }}>
-      <Typography variant="h4">Get started absolutely free</Typography>
+      <Typography variant="h4">Create an account</Typography>
 
       <Stack direction="row" spacing={0.5}>
         <Typography variant="body2"> Already have an account? </Typography>
@@ -168,7 +168,7 @@ export default function JwtRegisterView() {
 
 
   const renderForm = (
-    <Stack spacing={2.5}>
+    <Stack spacing={2}>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
         <RHFTextField
           name="firstName"
@@ -369,10 +369,11 @@ export default function JwtRegisterView() {
   return (
     <Box
       sx={{
-        maxWidth: 600,
         backgroundColor: "white",
-        padding: 0.5,
+        padding: 0,
         borderRadius: 1,
+        width: "100%",
+        maxWidth: 650,
       }}
     >
       {renderHead}

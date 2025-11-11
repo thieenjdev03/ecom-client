@@ -32,7 +32,14 @@ export default function CheckoutCartProduct({
   onDecrease,
   onIncrease,
 }: Props) {
-  const { name, size, price, colors, coverUrl, quantity, available } = row;
+  const { name, size, price, colors, coverUrl, quantity, available, color, sizeObj, variantName, sku } = row;
+
+  // Use new color and size objects for better display
+  const colorName = color?.name || (colors?.length > 0 ? colors[0] : null);
+  const sizeName = sizeObj?.name || size;
+  const displayVariantInfo = variantName || 
+    (colorName && sizeName ? `${colorName} / ${sizeName}` : 
+     colorName || sizeName || "");
 
   return (
     <TableRow>
@@ -49,15 +56,30 @@ export default function CheckoutCartProduct({
             {name}
           </Typography>
 
-          <Stack
-            direction="row"
-            alignItems="center"
-            sx={{ typography: "body2", color: "text.secondary" }}
-          >
-            size: <Label sx={{ ml: 0.5 }}> {size} </Label>
-            <Divider orientation="vertical" sx={{ mx: 1, height: 16 }} />
-            <ColorPreview colors={colors} />
-          </Stack>
+          {displayVariantInfo && (
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              {color?.hexCode && (
+                <Box
+                  sx={{
+                    width: 14,
+                    height: 14,
+                    borderRadius: "50%",
+                    bgcolor: color.hexCode,
+                    border: (theme) => `1px solid ${theme.palette.divider}`,
+                  }}
+                />
+              )}
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                {displayVariantInfo}
+              </Typography>
+            </Stack>
+          )}
+
+          {sku && (
+            <Typography variant="caption" sx={{ color: "text.disabled" }}>
+              SKU: {sku}
+            </Typography>
+          )}
         </Stack>
       </TableCell>
 

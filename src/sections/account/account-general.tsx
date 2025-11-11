@@ -11,8 +11,10 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
+import Chip from "@mui/material/Chip";
 
 import { useMockedUser } from "src/hooks/use-mocked-user";
+import { IUserAddress } from "src/api/user";
 
 import { useSnackbar } from "src/components/snackbar";
 import FormProvider, { RHFTextField, RHFSelect } from "src/components/hook-form";
@@ -72,7 +74,6 @@ export default function AccountGeneral() {
   const {
     reset,
     watch,
-    control,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
@@ -111,6 +112,34 @@ export default function AccountGeneral() {
     methods.setValue("address", address);
     setCoordinates(coords);
   };
+
+  // Helper function to format full address from API address fields
+  const formatAddressFromAPI = (address: IUserAddress): string => {
+    const parts = [
+      address.streetLine1,
+      address.streetLine2,
+      address.ward,
+      address.district,
+      address.province,
+    ].filter(Boolean);
+    return parts.join(", ");
+  };
+
+  // Get all addresses from user data
+  const addresses = (user?.addresses as IUserAddress[]) || [];
+
+  // Set coordinates from default address when form loads
+  useEffect(() => {
+    if (user?.addresses && user.addresses.length > 0) {
+      const defaultAddress = user.addresses.find((addr: IUserAddress) => addr.isDefault) || user.addresses[0];
+      if (defaultAddress.latitude && defaultAddress.longitude) {
+        setCoordinates({
+          lat: parseFloat(defaultAddress.latitude),
+          lon: parseFloat(defaultAddress.longitude),
+        });
+      }
+    }
+  }, [user]);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -172,31 +201,96 @@ export default function AccountGeneral() {
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Card sx={{ p: 3 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Address Information
-            </Typography>
-            <Stack spacing={2}>
-              <Box>
-                <Typography variant="caption" color="text.secondary">
-                  Full Address
+          <Stack spacing={3}>
+            {addresses.length > 0 ? (
+              addresses.map((address, index) => (
+                <Card key={address.id} sx={{ p: 3 }}>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+                    <Typography variant="h6">
+                      Address {index + 1}
+                    </Typography>
+                    {address.isDefault && (
+                      <Chip label="Default" size="small" color="primary" variant="soft" />
+                    )}
+                  </Stack>
+                  <Stack spacing={2}>
+                    {address.label && (
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">
+                          Label
+                        </Typography>
+                        <Typography variant="body2">{address.label}</Typography>
+                      </Box>
+                    )}
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">
+                        Full Address
+                      </Typography>
+                      <Typography variant="body2">{formatAddressFromAPI(address)}</Typography>
+                    </Box>
+                    {address.recipientName && (
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">
+                          Recipient Name
+                        </Typography>
+                        <Typography variant="body2">{address.recipientName}</Typography>
+                      </Box>
+                    )}
+                    {address.recipientPhone && (
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">
+                          Phone Number
+                        </Typography>
+                        <Typography variant="body2">{address.recipientPhone}</Typography>
+                      </Box>
+                    )}
+                    {address.latitude && address.longitude && (
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">
+                          Coordinates
+                        </Typography>
+                        <Typography variant="body2">
+                          Lat: {parseFloat(address.latitude).toFixed(6)}, Lon: {parseFloat(address.longitude).toFixed(6)}
+                        </Typography>
+                      </Box>
+                    )}
+                    {address.note && (
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">
+                          Note
+                        </Typography>
+                        <Typography variant="body2">{address.note}</Typography>
+                      </Box>
+                    )}
+                  </Stack>
+                </Card>
+              ))
+            ) : (
+              <Card sx={{ p: 3 }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                  Address Information
                 </Typography>
-                <Typography variant="body2">{values.address || "No address entered"}</Typography>
-              </Box>
-              {coordinates && (
-                <>
+                <Stack spacing={2}>
                   <Box>
                     <Typography variant="caption" color="text.secondary">
-                      Coordinates
+                      Full Address
                     </Typography>
-                    <Typography variant="body2">
-                      Lat: {coordinates.lat.toFixed(6)}, Lon: {coordinates.lon.toFixed(6)}
-                    </Typography>
+                    <Typography variant="body2">{values.address || "No address entered"}</Typography>
                   </Box>
-                </>
-              )}
-            </Stack>
-          </Card>
+                  {coordinates && (
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">
+                        Coordinates
+                      </Typography>
+                      <Typography variant="body2">
+                        Lat: {coordinates.lat.toFixed(6)}, Lon: {coordinates.lon.toFixed(6)}
+                      </Typography>
+                    </Box>
+                  )}
+                </Stack>
+              </Card>
+            )}
+          </Stack>
         </Grid>
       </Grid>
     </FormProvider>

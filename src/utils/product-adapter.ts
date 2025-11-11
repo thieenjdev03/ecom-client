@@ -28,7 +28,7 @@ export function adaptProductDtoToItem(dto: Product): IProductItem {
     description: dto.description ?? "",
     totalRatings: 0,
     totalReviews: 0,
-    inventoryType: (dto.stock_quantity ?? 0) > 0 ? "in_stock" : "out_of_stock",
+    inventoryType: (dto.stock_quantity ?? 0) > 0 ? "In Stock" : "Out of Stock",
     subDescription: "",
     priceSale: dto.sale_price ? Number(dto.sale_price) : null,
     reviews: [],

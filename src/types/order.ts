@@ -54,13 +54,13 @@ export type IOrderCustomer = {
 export type IOrderProductItem = {
   id: string;
   sku: string;
+  productId: string;
   name: string;
   price: number;
   coverUrl: string;
   quantity: number;
   variantName?: string;
   productSlug?: string;
-  productId?: number;
   variantId?: string;
 };
 
@@ -79,6 +79,7 @@ export type IOrderItem = {
   delivery: IOrderDelivery;
   items: IOrderProductItem[];
   createdAt: Date;
+  updatedAt: Date;
   // New fields
   paymentMethod?: "PAYPAL" | "STRIPE" | "COD";
   paidAt?: Date | null;

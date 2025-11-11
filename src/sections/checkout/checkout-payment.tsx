@@ -1,117 +1,193 @@
-import * as Yup from "yup";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Unstable_Grid2";
-import LoadingButton from "@mui/lab/LoadingButton";
+import Card from "@mui/material/Card";
+import Typography from "@mui/material/Typography";
+import Alert from "@mui/material/Alert";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
+
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 import Iconify from "src/components/iconify";
-import FormProvider from "src/components/hook-form";
-
-import {
-  ICheckoutCardOption,
-  ICheckoutPaymentOption,
-  ICheckoutDeliveryOption,
-} from "src/types/checkout";
 
 import { useCheckoutContext } from "./context";
 import CheckoutSummary from "./checkout-summary";
-import CheckoutDelivery from "./checkout-delivery";
-import CheckoutBillingInfo from "./checkout-billing-info";
-import CheckoutPaymentMethods from "./checkout-payment-methods";
+import { PAYPAL_CONFIG } from "src/config/paypal";
+import { paypalApiService } from "src/services/paypal-api";
+import { orderApi } from "src/api/order";
 
 // ----------------------------------------------------------------------
 
-const DELIVERY_OPTIONS: ICheckoutDeliveryOption[] = [
-  {
-    value: 0,
-    label: "Free",
-    description: "5-7 Days delivery",
-  },
-  {
-    value: 10,
-    label: "Standard",
-    description: "3-5 Days delivery",
-  },
-  {
-    value: 20,
-    label: "Express",
-    description: "2-3 Days delivery",
-  },
-];
-
-const PAYMENT_OPTIONS: ICheckoutPaymentOption[] = [
-  {
-    value: "paypal",
-    label: "Pay with Paypal",
-    description:
-      "You will be redirected to PayPal website to complete your purchase securely.",
-  },
-  {
-    value: "credit",
-    label: "Credit / Debit Card",
-    description: "We support Mastercard, Visa, Discover and Stripe.",
-  },
-  {
-    value: "cash",
-    label: "Cash",
-    description: "Pay with cash when your order is delivered.",
-  },
-];
-
-const CARDS_OPTIONS: ICheckoutCardOption[] = [
-  { value: "ViSa1", label: "**** **** **** 1212 - Jimmy Holland" },
-  { value: "ViSa2", label: "**** **** **** 2424 - Shawn Stokes" },
-  { value: "MasterCard", label: "**** **** **** 4545 - Cole Armstrong" },
-];
-
 export default function CheckoutPayment() {
   const checkout = useCheckoutContext();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [order, setOrder] = useState<any>(null);
 
-  const PaymentSchema = Yup.object().shape({
-    payment: Yup.string().required("Payment is required"),
-  });
+  // Load order details if order_id exists
+  useEffect(() => {
+    const loadOrder = async () => {
+      if (checkout.orderId) {
+        try {
+          const response = await orderApi.getById(checkout.orderId);
+          // Handle response structure: { data: { id: ... }, success: true } or direct { id: ... }
+          const orderData = response?.data || response;
+          setOrder(orderData);
+        } catch (err) {
+          console.error("Error loading order:", err);
+          setError("Failed to load order details");
+        }
+      } else {
+        // If no order_id, redirect back to Step 1
+        checkout.onGotoStep(0);
+      }
+    };
 
-  const defaultValues = {
-    delivery: checkout.shipping,
-    payment: "",
+    loadOrder();
+  }, [checkout.orderId]);
+
+  // Handle PayPal order creation - Step 2
+  const handlePayPalCreateOrder = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      if (!checkout.orderId) {
+        throw new Error("Order ID is missing");
+      }
+
+      // Get order details to get total amount
+      let orderData = order;
+      if (!orderData) {
+        const response = await orderApi.getById(checkout.orderId);
+        // Handle response structure: { data: { id: ... }, success: true } or direct { id: ... }
+        orderData = response?.data || response;
+      }
+      
+      if (!orderData?.summary) {
+        throw new Error("Order data is invalid");
+      }
+      
+      // Create PayPal order with order_id
+      const paypalOrder = await paypalApiService.createPayPalOrder({
+        order_id: checkout.orderId,
+        value: orderData.summary.total,
+        currency: orderData.summary.currency,
+        description: `Order #${orderData.orderNumber || checkout.orderId}`,
+      });
+
+      if (!paypalOrder.success || !paypalOrder.data?.orderId) {
+        throw new Error(paypalOrder.error || "Failed to create PayPal order");
+      }
+
+      // Store PayPal order ID for capture
+      localStorage.setItem("paypalOrderId", paypalOrder.data.orderId);
+      
+      return paypalOrder.data.orderId;
+    } catch (err: any) {
+      console.error("Error creating PayPal order:", err);
+      setError(err.message || "Failed to create PayPal order");
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const methods = useForm({
-    resolver: yupResolver(PaymentSchema),
-    defaultValues,
-  });
-
-  const {
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
-
-  const onSubmit = handleSubmit(async (data) => {
+  // Handle PayPal order approval and capture
+  const handlePayPalApprove = async (data: any, actions: any) => {
     try {
-      checkout.onNextStep();
+      setIsLoading(true);
+      setError(null);
+
+      const paypalOrderId = data.orderID;
+      
+      // Capture PayPal order
+      const captureResult = await paypalApiService.captureOrder(paypalOrderId);
+      
+      if (!captureResult.success || !captureResult.data) {
+        throw new Error(captureResult.error || "Failed to capture payment");
+      }
+
+      // Clear cart and redirect to success page
       checkout.onReset();
-      console.info("DATA", data);
-    } catch (error) {
-      console.error(error);
+      router.push("/checkout/success");
+    } catch (err: any) {
+      console.error("Error capturing PayPal order:", err);
+      setError(err.message || "Payment failed. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-  });
+  };
+
+  const handlePayPalError = (err: any) => {
+    console.error("PayPal error:", err);
+    setError(err.message || "PayPal payment error occurred");
+    setIsLoading(false);
+  };
+
+  const handlePayPalCancel = () => {
+    console.log("Payment cancelled");
+    setIsLoading(false);
+  };
+
+  if (!checkout.orderId) {
+    return null; // Will redirect to Step 1
+  }
 
   return (
-    <FormProvider methods={methods} onSubmit={onSubmit}>
-      <Grid container spacing={3}>
-        <Grid xs={12} md={8}>
-          {/* <CheckoutDelivery
-            onApplyShipping={checkout.onApplyShipping}
-            options={DELIVERY_OPTIONS}
-          /> */}
+    <Grid container spacing={3}>
+      <Grid xs={12} md={8}>
+        <Card sx={{ p: 3 }}>
+          <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, textTransform: "uppercase" }}>
+            Payment Method
+          </Typography>
 
-          <CheckoutPaymentMethods
-            cardOptions={CARDS_OPTIONS}
-            options={PAYMENT_OPTIONS}
-            sx={{ my: 3 }}
-          />
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          {isLoading && (
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+              <CircularProgress size={20} sx={{ mr: 1 }} />
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Processing payment...
+              </Typography>
+            </Box>
+          )}
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+              Complete your payment securely with PayPal
+            </Typography>
+
+            <PayPalScriptProvider
+              options={{
+                clientId: PAYPAL_CONFIG.clientId,
+                currency: PAYPAL_CONFIG.currency,
+                intent: PAYPAL_CONFIG.intent,
+              }}
+            >
+              <PayPalButtons
+                style={{
+                  layout: "vertical",
+                  color: "blue",
+                  shape: "rect",
+                  height: 45,
+                }}
+                createOrder={handlePayPalCreateOrder}
+                onApprove={handlePayPalApprove}
+                onError={handlePayPalError}
+                onCancel={handlePayPalCancel}
+                disabled={isLoading}
+              />
+            </PayPalScriptProvider>
+          </Box>
 
           <Button
             size="small"
@@ -121,34 +197,19 @@ export default function CheckoutPayment() {
           >
             Back
           </Button>
-        </Grid>
-
-        <Grid xs={12} md={4}>
-          <CheckoutBillingInfo
-            billing={checkout.billing}
-            onBackStep={checkout.onBackStep}
-          />
-
-          <CheckoutSummary
-            items={checkout.items}
-            total={checkout.total}
-            subTotal={checkout.subTotal}
-            discount={checkout.discount}
-            shipping={checkout.shipping}
-            onEdit={() => checkout.onGotoStep(0)}
-          />
-
-          <LoadingButton
-            fullWidth
-            size="large"
-            type="submit"
-            variant="contained"
-            loading={isSubmitting}
-          >
-            Complete Order
-          </LoadingButton>
-        </Grid>
+        </Card>
       </Grid>
-    </FormProvider>
+
+      <Grid xs={12} md={4}>
+        <CheckoutSummary
+          items={checkout.items}
+          total={checkout.total}
+          subTotal={checkout.subTotal}
+          discount={checkout.discount}
+          shipping={checkout.shipping}
+          onEdit={() => checkout.onGotoStep(0)}
+        />
+      </Grid>
+    </Grid>
   );
 }

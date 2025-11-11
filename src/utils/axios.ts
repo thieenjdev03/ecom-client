@@ -70,4 +70,8 @@ export const endpoints = {
     thumbnail: (publicId: string) => `${apiUrl}/files/thumbnail/${publicId}`,
     generateUrl: `${apiUrl}/files/generate-url`,
   },
+  cart: {
+    base: `${apiUrl}/cart`,
+    item: (itemId: string) => `${apiUrl}/cart/${itemId}`,
+  },
 };

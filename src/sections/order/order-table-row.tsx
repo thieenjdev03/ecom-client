@@ -81,6 +81,7 @@ export default function OrderTableRow({
     status,
     orderNumber,
     createdAt,
+    updatedAt,
     customer,
     totalAmount,
     paymentMethod,
@@ -100,7 +101,6 @@ export default function OrderTableRow({
   const confirm = useBoolean();
   const collapse = useBoolean();
   const popover = usePopover();
-  const hoverPopover = usePopover();
   const rowRef = useRef<HTMLTableRowElement>(null);
 
   // Get payment badge color
@@ -134,14 +134,18 @@ export default function OrderTableRow({
 
   const hasNotes = !!(notes || internalNotes);
 
-  const handleMouseEnter = () => {
-    if (rowRef.current) {
-      hoverPopover.setOpen(rowRef.current);
+  const handleRowClick = (e: React.MouseEvent) => {
+    // Don't toggle if clicking on checkbox, action buttons, or links
+    const target = e.target as HTMLElement;
+    if (
+      target.closest('input[type="checkbox"]') ||
+      target.closest('button') ||
+      target.closest('a') ||
+      target.closest('[role="button"]')
+    ) {
+      return;
     }
-  };
-
-  const handleMouseLeave = () => {
-    hoverPopover.onClose();
+    collapse.onToggle();
   };
 
   const renderPrimary = (
@@ -149,9 +153,11 @@ export default function OrderTableRow({
       ref={rowRef}
       hover 
       selected={selected}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      sx={{ position: "relative" }}
+      onClick={handleRowClick}
+      sx={{ 
+        position: "relative",
+        cursor: "pointer",
+      }}
     >
       <TableCell padding="checkbox">
         <Checkbox checked={selected} onClick={onSelectRow} />
@@ -160,7 +166,10 @@ export default function OrderTableRow({
       {/* Order No. - Bold, clickable */}
       <TableCell>
         <Box
-          onClick={onViewRow}
+          onClick={(e) => {
+            e.stopPropagation();
+            onViewRow();
+          }}
           sx={{
             cursor: "pointer",
             fontWeight: 600,
@@ -177,6 +186,13 @@ export default function OrderTableRow({
       <TableCell>
         <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
           {formatDateTime(createdAt)}
+        </Typography>
+      </TableCell>
+
+      {/* Updated At - Format: 04 Nov 2025 – 8:47 AM */}
+      <TableCell>
+        <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
+          {formatDateTime(updatedAt)}
         </Typography>
       </TableCell>
 
@@ -234,28 +250,15 @@ export default function OrderTableRow({
         </Label>
       </TableCell>
 
-      {/* Products - Simple text display, click to expand */}
+      {/* Products - Simple text display */}
       <TableCell>
-        <Box
-          onClick={(e) => {
-            e.stopPropagation();
-            collapse.onToggle();
-          }}
-          sx={{
-            cursor: "pointer",
-            "&:hover": {
-              color: "primary.main",
-            },
-          }}
-        >
-          <Typography variant="body2">
-            {items.length === 0
-              ? "No products"
-              : items.length === 1
-                ? `${items[0].name} (x${items[0].quantity})`
-                : `${items[0].name} (x${items[0].quantity})${items.length > 1 ? ` +${items.length - 1} more` : ""}`}
-          </Typography>
-        </Box>
+        <Typography variant="body2">
+          {items.length === 0
+            ? "No products"
+            : items.length === 1
+              ? `${items[0].name} (x${items[0].quantity})`
+              : `${items[0].name} (x${items[0].quantity})${items.length > 1 ? ` +${items.length - 1} more` : ""}`}
+        </Typography>
       </TableCell>
 
       {/* Shipping - Carrier and trackingNumber if available */}
@@ -299,11 +302,16 @@ export default function OrderTableRow({
       <TableCell align="right" sx={{ px: 1, whiteSpace: "nowrap" }}>
         <IconButton
           color={collapse.value ? "inherit" : "default"}
-          onClick={collapse.onToggle}
+          onClick={(e) => {
+            e.stopPropagation();
+            collapse.onToggle();
+          }}
           sx={{
             ...(collapse.value && {
               bgcolor: "action.hover",
             }),
+            transform: collapse.value ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 0.2s",
           }}
         >
           <Iconify icon="eva:arrow-ios-downward-fill" />
@@ -311,7 +319,10 @@ export default function OrderTableRow({
 
         <IconButton
           color={popover.open ? "inherit" : "default"}
-          onClick={popover.onOpen}
+          onClick={(e) => {
+            e.stopPropagation();
+            popover.onOpen(e);
+          }}
         >
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
@@ -319,206 +330,192 @@ export default function OrderTableRow({
     </TableRow>
   );
 
-  // Hover panel showing detailed info
-  const renderHoverPanel = hoverPopover.open ? (
-    <CustomPopover
-      open={hoverPopover.open}
-      onClose={hoverPopover.onClose}
-      arrow="left-top"
-      disableRestoreFocus
-      sx={{ width: 400, maxWidth: "90vw", pointerEvents: "none" }}
-      slotProps={{
-        paper: {
-          onMouseEnter: () => {
-            if (rowRef.current) hoverPopover.setOpen(rowRef.current);
-          },
-          onMouseLeave: () => hoverPopover.onClose(),
-          sx: { pointerEvents: "auto" },
-        },
-      }}
-    >
-      <Paper sx={{ p: 2 }}>
-        <Stack spacing={2}>
-          {/* Shipping Info */}
-          <Box>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Shipping Info
-            </Typography>
-            {carrier && (
-              <Typography variant="body2" sx={{ mb: 0.5 }}>
-                <strong>Carrier:</strong> {carrier}
-              </Typography>
-            )}
-            {trackingNumber && (
-              <Typography variant="body2" sx={{ mb: 0.5 }}>
-                <strong>Tracking:</strong> {trackingNumber}
-              </Typography>
-            )}
-            {shippingAddress && (
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                <strong>Address:</strong>{" "}
-                {typeof shippingAddress === "string"
-                  ? shippingAddress
-                  : JSON.stringify(shippingAddress)}
-              </Typography>
-            )}
-          </Box>
-
-          {/* Billing Info */}
-          {billingAddress && (
-            <Box>
-              <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                Billing Info
-              </Typography>
-              <Typography variant="body2">
-                {typeof billingAddress === "string"
-                  ? billingAddress
-                  : JSON.stringify(billingAddress)}
-              </Typography>
-            </Box>
-          )}
-
-          {/* Payment Info */}
-          <Box>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Payment Info
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 0.5 }}>
-              <strong>Method:</strong> {paymentMethod || "N/A"}
-            </Typography>
-            {paidAt && (
-              <Typography variant="body2">
-                <strong>Paid At:</strong> {formatDateTime(paidAt)}
-              </Typography>
-            )}
-          </Box>
-
-          {/* Product Details */}
-          <Box>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Products ({items.length})
-            </Typography>
-            <Stack spacing={1}>
-              {items.map((item) => (
-                <Box
-                  key={item.id}
-                  sx={{
-                    p: 1,
-                    borderRadius: 1,
-                    bgcolor: "background.neutral",
-                  }}
-                >
-                  <OrderProductItem item={item} currency={currency} showFullDetails />
-                  {item.productSlug && (
-                    <Link
-                      component={RouterLink}
-                      href={paths.product.details(item.productSlug)}
-                      sx={{
-                        mt: 0.5,
-                        display: "inline-flex",
-                        alignItems: "center",
-                        fontSize: "0.75rem",
-                        color: "primary.main",
-                        textDecoration: "none",
-                        "&:hover": {
-                          textDecoration: "underline",
-                        },
-                      }}
-                    >
-                      View Product <Iconify icon="eva:external-link-fill" width={14} sx={{ ml: 0.5 }} />
-                    </Link>
-                  )}
-                </Box>
-              ))}
-            </Stack>
-          </Box>
-
-          {/* Order Summary */}
-          <Box>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Order Summary
-            </Typography>
-            <Stack spacing={0.5}>
-              <Stack direction="row" justifyContent="space-between">
-                <Typography variant="body2">Subtotal:</Typography>
-                <Typography variant="body2">{formatCurrencyWithCode(subTotal, currency)}</Typography>
-              </Stack>
-              {shipping > 0 && (
-                <Stack direction="row" justifyContent="space-between">
-                  <Typography variant="body2">Shipping:</Typography>
-                  <Typography variant="body2">{formatCurrencyWithCode(shipping, currency)}</Typography>
-                </Stack>
-              )}
-              {discount > 0 && (
-                <Stack direction="row" justifyContent="space-between">
-                  <Typography variant="body2">Discount:</Typography>
-                  <Typography variant="body2" sx={{ color: "success.main" }}>
-                    -{formatCurrencyWithCode(discount, currency)}
-                  </Typography>
-                </Stack>
-              )}
-              <Stack direction="row" justifyContent="space-between" sx={{ pt: 1, borderTop: 1, borderColor: "divider" }}>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>Total:</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {formatCurrencyWithCode(totalAmount, currency)}
-                </Typography>
-              </Stack>
-            </Stack>
-          </Box>
-        </Stack>
-      </Paper>
-    </CustomPopover>
-  ) : null;
-
   const renderSecondary = (
     <TableRow>
-      <TableCell sx={{ p: 0, border: "none" }} colSpan={10}>
+      <TableCell sx={{ p: 0, border: "none" }} colSpan={11}>
         <Collapse
           in={collapse.value}
           timeout="auto"
           unmountOnExit
           sx={{ bgcolor: "background.neutral" }}
         >
-          <Stack component={Paper} sx={{ m: 1.5, p: 2 }}>
-            <Typography variant="subtitle2" sx={{ mb: 2 }}>
-              All Products ({items.length})
-            </Typography>
-            <Stack spacing={2}>
-              {items.map((item) => (
-                <Box
-                  key={item.id}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 1,
-                    border: 1,
-                    borderColor: "divider",
-                    bgcolor: "background.paper",
-                  }}
-                >
-                  <OrderProductItem item={item} currency={currency} showFullDetails />
-                  {item.productSlug && (
-                    <Link
-                      component={RouterLink}
-                      href={paths.product.details(item.productSlug)}
+          <Paper sx={{ m: 1.5, p: 3 }}>
+            <Stack spacing={3}>
+              {/* Shipping Info */}
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+                  Shipping Info
+                </Typography>
+                <Stack spacing={1}>
+                  {carrier && (
+                    <Typography variant="body2">
+                      <strong>Carrier:</strong> {carrier}
+                    </Typography>
+                  )}
+                  {trackingNumber && (
+                    <Typography variant="body2">
+                      <strong>Tracking Number:</strong> {trackingNumber}
+                    </Typography>
+                  )}
+                  {shippingAddress && (
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      <strong>Address:</strong>{" "}
+                      {typeof shippingAddress === "string"
+                        ? shippingAddress
+                        : JSON.stringify(shippingAddress)}
+                    </Typography>
+                  )}
+                  {!carrier && !trackingNumber && !shippingAddress && (
+                    <Typography variant="body2" sx={{ color: "text.disabled" }}>
+                      No shipping information available
+                    </Typography>
+                  )}
+                </Stack>
+              </Box>
+
+              {/* Billing Info */}
+              {billingAddress && (
+                <Box>
+                  <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+                    Billing Info
+                  </Typography>
+                  <Typography variant="body2">
+                    {typeof billingAddress === "string"
+                      ? billingAddress
+                      : JSON.stringify(billingAddress)}
+                  </Typography>
+                </Box>
+              )}
+
+              {/* Payment Info */}
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+                  Payment Info
+                </Typography>
+                <Stack spacing={1}>
+                  <Typography variant="body2">
+                    <strong>Method:</strong> {paymentMethod || "N/A"}
+                  </Typography>
+                  {paidAt && (
+                    <Typography variant="body2">
+                      <strong>Paid At:</strong> {formatDateTime(paidAt)}
+                    </Typography>
+                  )}
+                  {!paidAt && (
+                    <Typography variant="body2" sx={{ color: "text.disabled" }}>
+                      Payment pending
+                    </Typography>
+                  )}
+                </Stack>
+              </Box>
+
+              {/* Product Details */}
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+                  Products ({items.length})
+                </Typography>
+                <Stack spacing={2}>
+                  {items.map((item) => (
+                    <Box
+                      key={item.id}
                       sx={{
-                        mt: 1,
-                        display: "inline-flex",
-                        alignItems: "center",
-                        fontSize: "0.75rem",
-                        color: "primary.main",
-                        textDecoration: "none",
-                        "&:hover": {
-                          textDecoration: "underline",
-                        },
+                        p: 1.5,
+                        borderRadius: 1,
+                        border: 1,
+                        borderColor: "divider",
+                        bgcolor: "background.paper",
                       }}
                     >
-                      View Product <Iconify icon="eva:external-link-fill" width={14} sx={{ ml: 0.5 }} />
-                    </Link>
+                      <OrderProductItem item={item} currency={currency} showFullDetails />
+                      {item.productSlug && (
+                        <Link
+                          component={RouterLink}
+                          href={paths.product.details(item.productId || "")}
+                          sx={{
+                            mt: 1,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            fontSize: "0.75rem",
+                            color: "primary.main",
+                            textDecoration: "none",
+                            "&:hover": {
+                              textDecoration: "underline",
+                            },
+                          }}
+                        >
+                          View Product <Iconify icon="eva:external-link-fill" width={14} sx={{ ml: 0.5 }} />
+                        </Link>
+                      )}
+                    </Box>
+                  ))}
+                </Stack>
+              </Box>
+
+              {/* Order Summary */}
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+                  Order Summary
+                </Typography>
+                <Stack spacing={1}>
+                  <Stack direction="row" justifyContent="space-between">
+                    <Typography variant="body2">Subtotal:</Typography>
+                    <Typography variant="body2">{formatCurrencyWithCode(subTotal, currency)}</Typography>
+                  </Stack>
+                  {shipping > 0 && (
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2">Shipping:</Typography>
+                      <Typography variant="body2">{formatCurrencyWithCode(shipping, currency)}</Typography>
+                    </Stack>
                   )}
+                  {discount > 0 && (
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2">Discount:</Typography>
+                      <Typography variant="body2" sx={{ color: "success.main" }}>
+                        -{formatCurrencyWithCode(discount, currency)}
+                      </Typography>
+                    </Stack>
+                  )}
+                  <Stack 
+                    direction="row" 
+                    justifyContent="space-between" 
+                    sx={{ pt: 1, mt: 1, borderTop: 1, borderColor: "divider" }}
+                  >
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>Total:</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {formatCurrencyWithCode(totalAmount, currency)}
+                    </Typography>
+                  </Stack>
+                </Stack>
+              </Box>
+
+              {/* Notes */}
+              {(notes || internalNotes) && (
+                <Box>
+                  <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+                    Notes
+                  </Typography>
+                  <Stack spacing={1}>
+                    {notes && (
+                      <Box>
+                        <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mb: 0.5 }}>
+                          Customer Notes:
+                        </Typography>
+                        <Typography variant="body2">{notes}</Typography>
+                      </Box>
+                    )}
+                    {internalNotes && (
+                      <Box>
+                        <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mb: 0.5 }}>
+                          Internal Notes:
+                        </Typography>
+                        <Typography variant="body2">{internalNotes}</Typography>
+                      </Box>
+                    )}
+                  </Stack>
                 </Box>
-              ))}
+              )}
             </Stack>
-          </Stack>
+          </Paper>
         </Collapse>
       </TableCell>
     </TableRow>
@@ -528,7 +525,6 @@ export default function OrderTableRow({
     <>
       {renderPrimary}
       {renderSecondary}
-      {renderHoverPanel}
 
       <CustomPopover
         open={popover.open}
