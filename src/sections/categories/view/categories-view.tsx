@@ -16,11 +16,12 @@ export default function CategoriesView() {
   // Check if we're in admin dashboard context
   const isAdminContext = typeof window !== 'undefined' && window.location.pathname.includes('/dashboard/categories');
   
+  // Hooks must be called before any conditional returns
+  const { categories, categoriesLoading, categoriesError } = useGetCategories();
+  
   if (isAdminContext) {
     return <AdminCategoriesView />;
   }
-
-  const { categories, categoriesLoading, categoriesError } = useGetCategories();
 
   if (categoriesLoading) {
     return <div>{t("categories.loading")}</div>;

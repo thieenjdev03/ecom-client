@@ -25,9 +25,15 @@ module.exports = {
     '@typescript-eslint',
     'unused-imports',
   ],
+  globals: {
+    React: 'readonly',
+    JSX: 'readonly',
+  },
   rules: {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
+    'react/display-name': 'warn',
+    'no-undef': 'off', // TypeScript handles this
     '@typescript-eslint/no-unused-vars': 'off',
     'unused-imports/no-unused-imports': 'error',
     'unused-imports/no-unused-vars': [
@@ -39,6 +45,14 @@ module.exports = {
         argsIgnorePattern: '^_',
       },
     ],
+    'no-empty': 'warn',
+    'react/jsx-key': 'warn',
+    'react/no-children-prop': 'warn',
+    'no-extra-boolean-cast': 'warn',
+    'react/no-unescaped-entities': 'warn',
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn',
+    'no-redeclare': 'warn',
   },
   settings: {
     react: {

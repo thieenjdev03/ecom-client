@@ -6,11 +6,13 @@ import AdminSizesView from "./admin-sizes-view";
 
 export default function SizesView() {
   const isAdminContext = typeof window !== 'undefined' && window.location.pathname.includes('/dashboard/sizes');
+  
+  // Hooks must be called before any conditional returns
+  const { sizes, sizesLoading, sizesError } = useGetSizes();
+  
   if (isAdminContext) {
     return <AdminSizesView />;
   }
-
-  const { sizes, sizesLoading, sizesError } = useGetSizes();
 
   if (sizesLoading) return <div>Loading sizes...</div>;
   if (sizesError) return <div>Error loading sizes</div>;

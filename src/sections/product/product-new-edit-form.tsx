@@ -1,4 +1,3 @@
-import * as Yup from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMemo, useState, useEffect, useCallback, useRef, memo } from "react";
@@ -11,7 +10,6 @@ import Chip from "@mui/material/Chip";
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
-import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Unstable_Grid2";
 import CardHeader from "@mui/material/CardHeader";
 import Typography from "@mui/material/Typography";
@@ -26,8 +24,6 @@ import DialogActions from "@mui/material/DialogActions";
 import Paper from "@mui/material/Paper";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
-import ToggleButton from "@mui/material/ToggleButton";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
 import { paths } from "src/routes/paths";
 import { useRouter } from "src/routes/hooks";
@@ -43,12 +39,10 @@ import Iconify from "src/components/iconify";
 import FormProvider, {
   RHFSelect,
   RHFEditor,
-  RHFUpload,
   RHFSwitch,
   RHFTextField,
   RHFMultiSelect,
   RHFAutocomplete,
-  RHFMultiCheckbox,
 } from "src/components/hook-form";
 
 import { IProductItem } from "src/types/product";
@@ -60,8 +54,6 @@ import useSWR from "swr";
 
 import { useProductImages } from "./hooks/use-product-images";
 import { useProductDraft } from "./hooks/use-product-draft";
-import { generateSlugFromName } from "./utils/slug-utils";
-import { mapProductToFormValues, mapFormValuesToPayload } from "./utils/product-mapper";
 import { createProductValidationSchema, getDefaultProductFormValues } from "./schemas/product-validation.schema";
 
 type Props = {
@@ -320,14 +312,14 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const productImages = useProductImages();
+  const _productImages = useProductImages();
   const {
     saveDraftToLocalStorage,
     loadDraftFromLocalStorage,
     clearDraftFromLocalStorage,
   } = useProductDraft(currentProduct?.id);
 
-  const [includeTaxes, setIncludeTaxes] = useState(false);
+  const [_includeTaxes, _setIncludeTaxes] = useState(false);
   const [openAttributes, setOpenAttributes] = useState(true);
 
   const NewProductSchema = useMemo(() => createProductValidationSchema(t), [t]);
@@ -347,7 +339,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
     handleSubmit,
     setError,
     clearErrors,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting, errors: _errors },
   } = methods;
 
   const name = watch("name");
@@ -355,7 +347,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
   const prevNameRef = useRef<string>("");
   const debouncedSlug = useDebounce(slug || "", 500);
   
-  const debouncedFormValuesRef = useRef<any>(null);
+  const _debouncedFormValuesRef = useRef<any>(null);
   
   const [autoSaveTrigger, setAutoSaveTrigger] = useState(0);
   const debouncedAutoSaveTrigger = useDebounce(autoSaveTrigger.toString(), 1000);
@@ -387,7 +379,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
     return () => {
       active = false;
     };
-  }, [debouncedSlug, clearErrors, setError]);
+  }, [debouncedSlug, clearErrors, setError, t]);
 
   const { fields: variantFields, append: appendVariant, remove: removeVariant } = useFieldArray({
     control: (methods as any).control,
@@ -488,6 +480,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
         });
       }
     } catch (error) {
+      // Ignore localStorage errors
     }
   }, []);
 
@@ -501,10 +494,11 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       });
       localStorage.setItem(storageKey, JSON.stringify(mapping));
     } catch (error) {
+      // Ignore localStorage errors
     }
   }, []);
 
-  const getDraftStorageKey = useCallback(() => {
+  const _getDraftStorageKey = useCallback(() => {
     const key = productId ? `product_draft_${productId}` : 'product_draft_new';
     return key;
   }, [productId]);
@@ -841,7 +835,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
         });
       }
       
-      let imagesAssigned = 0;
+      let _imagesAssigned = 0;
       for (let i = 0; i < uploadedUrls.length; i++) {
         const targetIndex = variantIndex + i;
         if (targetIndex < updatedVariants.length) {
@@ -849,7 +843,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
             ...updatedVariants[targetIndex],
             imageUrl: uploadedUrls[i],
           };
-          imagesAssigned++;
+          _imagesAssigned++;
         }
       }
       
@@ -1146,6 +1140,9 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       const payload: any = {
         name: data.name,
         slug: data.slug,
+        productCode: data.productCode || undefined,
+        productSku: data.productSku || undefined,
+        quantity: data.quantity || 0,
         description: data.description || undefined,
         short_description: data.shortDescription || undefined,
         images: (data.images as string[])?.slice(0, 5) || [],
@@ -1197,7 +1194,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       }
 
       if (currentProduct?.id) {
-        const updated = await updateProduct(currentProduct.id, payload);
+        await updateProduct(currentProduct.id, payload);
         saveImageMapping(currentProduct.id);
         clearDraftFromLocalStorage();
         enqueueSnackbar(t("productForm.updateSuccess"));
@@ -1304,7 +1301,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                   }}
                 >
                   {(watch("images") as string[]).map((imageUrl, index) => {
-                    const publicId = imagePublicIdMapRef.current.get(imageUrl);
+                    const _publicId = imagePublicIdMapRef.current.get(imageUrl);
                     return (
                     <Box
                       key={`${imageUrl}-${index}`}
@@ -1976,7 +1973,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                 }
               }
               const normalizedHex = hex ? (hex.startsWith("#") ? hex : `#${hex}`).toUpperCase() : undefined;
-              const created = await createColor({ name: newColorName.trim(), hexCode: normalizedHex });
+              await createColor({ name: newColorName.trim(), hexCode: normalizedHex });
               await mutate(endpoints.refs.colors);
               setNewColorName("");
               setNewColorHex("");
@@ -2000,7 +1997,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
             onClick={async () => {
               if (!newSizeName.trim()) return;
               const currentCategoryId = getValues("categoryId");
-              const created = await createSize({ name: newSizeName.trim(), categoryId: currentCategoryId || undefined });
+              await createSize({ name: newSizeName.trim(), categoryId: currentCategoryId || undefined });
               await mutate([endpoints.refs.sizes, { params: { categoryId: currentCategoryId } }]);
               setNewSizeName("");
               setOpenCreateSize(false);
