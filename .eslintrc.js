@@ -34,8 +34,9 @@ module.exports = {
     'react/prop-types': 'off',
     'react/display-name': 'warn',
     'no-undef': 'off', // TypeScript handles this
+    'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
-    'unused-imports/no-unused-imports': 'error',
+    'unused-imports/no-unused-imports': 'warn',
     'unused-imports/no-unused-vars': [
       'warn',
       {

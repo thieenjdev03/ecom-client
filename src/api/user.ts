@@ -1,4 +1,4 @@
-import axios, { endpoints } from "src/utils/axios";
+import axios from "src/utils/axios";
 
 export type IUserAddress = {
   id: string;

@@ -7,8 +7,7 @@ import axios, { endpoints } from "src/utils/axios";
 import { AuthContext } from "./auth-context";
 import { setSession, isValidToken } from "./utils";
 import { AuthUserType, ActionMapType, AuthStateType } from "../../types";
-import { PATH_AFTER_LOGIN, PATH_AFTER_LOGIN_USER } from "src/config-global";
-import router from "next/router";
+import { PATH_AFTER_LOGIN } from "src/config-global";
 
 // ----------------------------------------------------------------------
 /**

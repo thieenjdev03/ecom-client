@@ -5,13 +5,13 @@ import { useGetColors } from "src/api/reference";
 import AdminColorsView from "./admin-colors-view";
 
 export default function ColorsView() {
+  const { colors, colorsLoading, colorsError } = useGetColors();
+
   // Detect admin dashboard context by pathname
   const isAdminContext = typeof window !== 'undefined' && window.location.pathname.includes('/dashboard/colors');
   if (isAdminContext) {
     return <AdminColorsView />;
   }
-
-  const { colors, colorsLoading, colorsError } = useGetColors();
 
   if (colorsLoading) return <div>Loading colors...</div>;
   if (colorsError) return <div>Error loading colors</div>;

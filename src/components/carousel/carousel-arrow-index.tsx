@@ -21,7 +21,7 @@ const StyledRoot = styled(Box)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
 }));
 
-const StyledIconButton = styled(IconButton)(({ theme }) => ({
+const StyledIconButton = styled(IconButton)(() => ({
   width: 28,
   height: 28,
   padding: 0,
