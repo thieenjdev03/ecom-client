@@ -14,7 +14,7 @@ type Props = {
 
 export default function MainLayout({ children }: Props) {
   const pathname = usePathname();
-  const isDashboardPage = pathname.includes("/dashboard");
+  const isDashboardPage = pathname?.includes("/dashboard");
   const homePage = pathname === "/" || !isDashboardPage;
 
   return (

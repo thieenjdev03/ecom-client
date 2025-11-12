@@ -215,7 +215,7 @@ export const OrderStatusDisplay = ({
             <div>Paid on: {new Date(order.paidAt).toLocaleDateString()}</div>
           )}
           <div>Order ID: {order.id}</div>
-          <div>Total: {order.summary.currency} {order.summary.total.toFixed(2)}</div>
+          <div>Total: {order.summary.currency} {Number(order.summary.total).toFixed(2)}</div>
         </div>
       )}
     </div>
