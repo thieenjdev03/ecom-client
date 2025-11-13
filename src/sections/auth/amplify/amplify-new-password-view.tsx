@@ -34,7 +34,7 @@ export default function AmplifyNewPasswordView() {
 
   const searchParams = useSearchParams();
 
-  const email = searchParams.get("email");
+  const email = searchParams?.get("email") || undefined;
 
   const password = useBoolean();
 

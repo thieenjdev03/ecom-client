@@ -34,9 +34,9 @@ export default function PaymentErrorView() {
 
   useEffect(() => {
     // Get error details from URL params or localStorage
-    const errorCode = searchParams.get('error_code');
-    const errorMessage = searchParams.get('error_message');
-    const orderId = searchParams.get('order_id');
+    const errorCode = searchParams?.get('error_code') || null;
+    const errorMessage = searchParams?.get('error_message') || null;
+    const orderId = searchParams?.get('order_id') || null;
     
     if (errorCode || errorMessage) {
       setErrorDetails({

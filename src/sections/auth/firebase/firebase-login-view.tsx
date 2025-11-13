@@ -38,7 +38,7 @@ export default function FirebaseLoginView() {
 
   const searchParams = useSearchParams();
 
-  const returnTo = searchParams.get("returnTo");
+  const returnTo = searchParams?.get("returnTo") || undefined;
 
   const password = useBoolean();
 

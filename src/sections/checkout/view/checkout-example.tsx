@@ -37,36 +37,36 @@ export default function CheckoutExample({ userId, onPaymentSuccess }: CheckoutEx
   // Example cart items
   const cartItems: OrderItem[] = [
     {
-      productId: 1,
+      productId: "1",
       productName: "Premium T-Shirt",
       productSlug: "premium-t-shirt",
       variantId: "variant-123",
       variantName: "Red - Large",
       quantity: 2,
-      unitPrice: 29.99,
-      totalPrice: 59.98,
+      unitPrice: "29.99",
+      totalPrice: "59.98",
       sku: "TSH-001-RED-L",
     },
     {
-      productId: 2,
+      productId: "2",
       productName: "Designer Jeans",
       productSlug: "designer-jeans",
       variantId: "variant-456",
       variantName: "Blue - Medium",
       quantity: 1,
-      unitPrice: 89.99,
-      totalPrice: 89.99,
+      unitPrice: "89.99",
+      totalPrice: "89.99",
       sku: "JNS-002-BLU-M",
     },
   ];
 
   // Example order summary
   const orderSummary: OrderSummary = {
-    subtotal: 149.97,
-    shipping: 5.99,
-    tax: 15.60,
-    discount: 10.00,
-    total: 161.56,
+    subtotal: "149.97",
+    shipping: "5.99",
+    tax: "15.60",
+    discount: "10.00",
+    total: "161.56",
     currency: "USD",
   };
 
@@ -197,7 +197,7 @@ export default function CheckoutExample({ userId, onPaymentSuccess }: CheckoutEx
                   {fCurrency(orderSummary.tax)}
                 </Typography>
               </Stack>
-              {orderSummary.discount > 0 && (
+              {parseFloat(orderSummary.discount) > 0 && (
                 <Stack direction="row" justifyContent="space-between">
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                     Discount:

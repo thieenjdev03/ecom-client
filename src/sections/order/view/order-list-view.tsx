@@ -127,7 +127,7 @@ function transformOrderToIOrderItem(order: Order): IOrderItem {
     quantity: item.quantity,
     variantName: item.variantName,
     productSlug: item.productSlug,
-    productId: typeof item.productId === 'string' ? parseInt(item.productId, 10) : item.productId,
+    productId: item.productId,
     variantId: item.variantId,
   }));
 

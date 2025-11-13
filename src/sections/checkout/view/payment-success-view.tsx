@@ -300,7 +300,7 @@ Total: ${fCurrency(order.summary.total)}
                   {fCurrency(order.summary.tax)}
                 </Typography>
               </Stack>
-              {order.summary.discount > 0 && (
+              {parseFloat(order.summary.discount) > 0 && (
                 <Stack direction="row" justifyContent="space-between">
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                     Discount:

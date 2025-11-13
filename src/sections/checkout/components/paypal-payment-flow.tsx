@@ -281,7 +281,7 @@ export default function PayPalPaymentFlow({
         </PayPalScriptProvider>
 
         <Typography variant="caption" sx={{ display: 'block', mt: 1, textAlign: 'center' }}>
-          Total: {PAYPAL_CONFIG.currency} {summary.total.toFixed(2)}
+          Total: {PAYPAL_CONFIG.currency} {summary.total}
         </Typography>
       </CardContent>
     </Card>

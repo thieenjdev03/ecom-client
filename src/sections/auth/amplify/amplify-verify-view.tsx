@@ -29,7 +29,7 @@ export default function AmplifyVerifyView() {
 
   const searchParams = useSearchParams();
 
-  const email = searchParams.get("email");
+  const email = searchParams?.get("email") || undefined;
 
   const { confirmRegister, resendCodeRegister } = useAuthContext();
 

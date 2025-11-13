@@ -145,7 +145,7 @@ export function useCheckoutForm() {
       // Prepare order items with string currency values
       const formatCurrency = (value: number): string => value.toFixed(2);
       const items: OrderItem[] = checkout.items.map((item, index) => ({
-        productId: parseInt(item.id, 10) || 0,
+        productId: item.id || `${index}`,
         productName: item.name,
         productSlug: item.name.toLowerCase().replace(/\s+/g, "-"),
         variantId: (item.variants?.[0] as any)?.id?.toString() || `${item.id}-variant-${index}`,

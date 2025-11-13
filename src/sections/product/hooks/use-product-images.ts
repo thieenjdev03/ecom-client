@@ -107,7 +107,7 @@ export function useProductImages() {
           formData.append('images', file);
         });
 
-        const response = await axios.post(endpoints.files.uploadImages, formData, {
+        const response = await axios.post(endpoints.files.uploadMultiple, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
 
@@ -139,7 +139,7 @@ export function useProductImages() {
       try {
         const publicId = imagePublicIdMapRef.current.get(imageUrl);
         if (publicId) {
-          await axios.delete(endpoints.files.deleteImage, {
+          await axios.delete(endpoints.files.delete(publicId), {
             data: { publicId },
           });
         }

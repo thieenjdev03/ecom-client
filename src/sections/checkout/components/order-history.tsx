@@ -32,7 +32,7 @@ interface OrderItem {
 
 interface Order {
   id: string;
-  status: 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'REFUNDED';
+  status: string;
   total: number;
   currency: string;
   items: OrderItem[];

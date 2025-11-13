@@ -18,7 +18,7 @@ import Iconify from "src/components/iconify";
 export default function SupabaseVerifyView() {
   const searchParams = useSearchParams();
 
-  const email = searchParams.get("email");
+  const email = searchParams?.get("email") || undefined;
 
   const renderHead = (
     <>

@@ -40,7 +40,7 @@ export default function ChatView() {
 
   const searchParams = useSearchParams();
 
-  const selectedConversationId = searchParams.get("id") || "";
+  const selectedConversationId = searchParams?.get("id") || "";
 
   const [recipients, setRecipients] = useState<IChatParticipant[]>([]);
 

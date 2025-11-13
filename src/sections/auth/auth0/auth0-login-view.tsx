@@ -19,7 +19,7 @@ export default function Auth0LoginView() {
 
   const searchParams = useSearchParams();
 
-  const returnTo = searchParams.get("returnTo");
+  const returnTo = searchParams?.get("returnTo") || undefined;
 
   const handleLoginWithPopup = useCallback(async () => {
     try {

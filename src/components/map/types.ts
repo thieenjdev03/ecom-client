@@ -2,7 +2,7 @@ import { MapProps, Projection } from "react-map-gl";
 
 // ----------------------------------------------------------------------
 
-export type MapBoxProps = Omit<MapProps, "fog" | "terrain"> & {
+export type MapBoxProps = Omit<MapProps, "fog" | "terrain" | "logoPosition"> & {
   projection?: Projection;
 };
 

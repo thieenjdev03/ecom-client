@@ -269,19 +269,18 @@ export default function FileUploadModal({
                           {file.status === 'uploading' && (
                             <LinearProgress 
                               variant="determinate" 
-                              value={file.progress || 0} 
-                              size="small"
+                              value={file.progress || 0}
                             />
                           )}
                           
                           {file.status === 'error' && (
-                            <Alert severity="error" size="small">
+                            <Alert severity="error">
                               {file.error}
                             </Alert>
                           )}
                           
                           {file.status === 'success' && (
-                            <Alert severity="success" size="small">
+                            <Alert severity="success">
                               Upload successful
                             </Alert>
                           )}

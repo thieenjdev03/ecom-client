@@ -33,9 +33,9 @@ export default function MailView() {
 
   const searchParams = useSearchParams();
 
-  const selectedLabelId = searchParams.get("label") || LABEL_INDEX;
+  const selectedLabelId = searchParams?.get("label") || LABEL_INDEX;
 
-  const selectedMailId = searchParams.get("id") || "";
+  const selectedMailId = searchParams?.get("id") || "";
 
   const mdUp = useResponsive("up", "md");
 

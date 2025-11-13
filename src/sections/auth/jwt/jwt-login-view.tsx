@@ -36,7 +36,7 @@ export default function JwtLoginView() {
 
   const searchParams = useSearchParams();
 
-  const returnTo = searchParams.get("returnTo");
+  const returnTo = searchParams?.get("returnTo") || undefined;
 
   const password = useBoolean();
 

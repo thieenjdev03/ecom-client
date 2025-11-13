@@ -96,7 +96,7 @@ function transformOrderForDetailView(order: Order) {
     quantity: item.quantity,
     variantName: item.variantName,
     productSlug: item.productSlug,
-    productId: typeof item.productId === "string" ? parseInt(item.productId, 10) : item.productId,
+    productId: item.productId,
     variantId: item.variantId,
   }));
 
