@@ -65,7 +65,7 @@ export type UserListResponse = {
   limit: number;
 };
 
-const base = `${"http://localhost:3000"}/users`;
+const base = `${process.env.NEXT_PUBLIC_API_BASE_URL}/users`;
 
 export const usersApi = {
   async create(data: CreateUserRequest) {
