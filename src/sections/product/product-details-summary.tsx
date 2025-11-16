@@ -106,7 +106,7 @@ export default function ProductDetailsSummary({
       .filter(Boolean);
   }, [variants, allColors]);
 
-  // Get all unique sizes from variants
+  // Get all unique sizes from variants, sorted by sortOrder (smallest to largest)
   const allAvailableSizes = useMemo(() => {
     if (!variants || variants.length === 0) return [];
     const sizeIds = Array.from(
@@ -116,9 +116,19 @@ export default function ProductDetailsSummary({
           .filter(Boolean),
       ),
     );
-    return sizeIds
+    const sizes = sizeIds
       .map((sizeId) => allSizes.find((s: any) => s.id === sizeId))
       .filter(Boolean);
+    
+    // Sort by sortOrder (ascending), then by name if sortOrder is the same
+    return sizes.sort((a: any, b: any) => {
+      const sortOrderA = a.sortOrder ?? 0;
+      const sortOrderB = b.sortOrder ?? 0;
+      if (sortOrderA !== sortOrderB) {
+        return sortOrderA - sortOrderB;
+      }
+      return (a.name || '').localeCompare(b.name || '');
+    });
   }, [variants, allSizes]);
 
   // Check if size is available for selected color
@@ -742,7 +752,7 @@ export default function ProductDetailsSummary({
       </Stack>
     );
   };
-  console.log('subDescription', subDescription);
+
   const renderSubDescription = subDescription ? (
     <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
       {subDescription}

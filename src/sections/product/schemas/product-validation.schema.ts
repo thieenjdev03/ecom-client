@@ -28,7 +28,6 @@ export const createProductValidationSchema = (t: any) =>
     description: Yup.string().nullable(),
     shortDescription: Yup.string().nullable(),
     productCode: Yup.string().required(t('productForm.productCodeRequired')),
-    sku: Yup.string().nullable(),
     categoryId: Yup.string().required(t('productForm.categoryRequired')),
     quantity: Yup.number().min(0).required(t('productForm.quantityRequired')),
     saleLabel: Yup.string().nullable(),
@@ -140,7 +139,6 @@ export const getDefaultProductFormValues = () => ({
     height: undefined as number | undefined,
   },
   manageVariants: false,
-  sku: '',
   stockQuantity: 0,
   variants: [] as {
     name: string;

@@ -146,6 +146,7 @@ export default function ProductItem({ product }: Props) {
         saleLabel: { enabled: !!priceSale, content: 'Sale' },
         newLabel: { enabled: false, content: 'New' },
         variants: variants,
+        dimensions: null,
       };
       onAddToWishlist(wishlistProduct);
     }

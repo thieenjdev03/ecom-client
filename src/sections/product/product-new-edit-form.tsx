@@ -578,7 +578,6 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       isNew: false,
       newLabel: "",
       productCode: "",
-      sku: product.sku || "",
       costPrice: product.cost_price ? Number(product.cost_price) : undefined,
       barcode: product.barcode || undefined,
       metaTitle: product.meta_title || undefined,

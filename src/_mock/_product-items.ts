@@ -48,5 +48,6 @@ export const SAMPLE_PRODUCTS: IProductItem[] = [
     ],
     saleLabel: { enabled: false, content: "" },
     newLabel: { enabled: true, content: "NEW" },
+    dimensions: null,
   }
 ];

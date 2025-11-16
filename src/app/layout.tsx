@@ -78,7 +78,7 @@ export default function RootLayout({ children }: Props) {
                 themeContrast: "default", // 'default' | 'bold'
                 themeLayout: "vertical", // 'vertical' | 'horizontal' | 'mini'
                 themeColorPresets: "blue", // 'default' | 'cyan' | 'purple' | 'blue' | 'orange' | 'red'
-                themeStretch: false,
+                themeStretch: true,
               }}
             >
               <ThemeProvider>

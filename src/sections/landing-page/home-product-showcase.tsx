@@ -433,6 +433,7 @@ function ProductCard({ product, layout = "image-left", showAddToCart }: CardProp
           },
           newLabel: { enabled: product.isNew || false, content: "New" },
           variants: [],
+          dimensions: null,
         };
         
         wishlist.onAddToWishlist(wishlistProduct);
