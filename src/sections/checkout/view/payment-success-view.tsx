@@ -40,7 +40,16 @@ export default function PaymentSuccessView() {
       setIsLoading(true);
       setError(null);
 
-      // Check for pending order from localStorage
+      // First, check URL params for orderId (from checkout-payment redirect)
+      const orderId = searchParams?.get('orderId') || '';
+      
+      if (orderId) {
+        // Fetch order details directly from orderId
+        await fetchOrderDetails(orderId);
+        return;
+      }
+
+      // Fallback: Check for pending order from localStorage
       const result = await checkPendingOrderStatus();
       
       if (result.success && result.order) {
@@ -52,7 +61,7 @@ export default function PaymentSuccessView() {
         setIsPolling(true);
         await pollOrderStatus(result.orderId);
       } else {
-        // No pending order found, check URL params
+        // No pending order found, check URL params for token
         const token = searchParams?.get('token') || '';
         if (token) {
           await fetchOrderDetails(token);
@@ -91,7 +100,9 @@ export default function PaymentSuccessView() {
 
   const fetchOrderDetails = async (orderId: string) => {
     try {
-      const orderData = await orderApi.getById(orderId);
+      const response = await orderApi.getById(orderId);
+      // Handle response structure: { data: { id: ... }, success: true } or direct { id: ... }
+      const orderData = response?.data || response;
       setOrder(orderData);
       setIsLoading(false);
     } catch (err) {
@@ -242,15 +253,90 @@ Total: ${fCurrency(order.summary.total)}
 
               <Stack direction="row" justifyContent="space-between">
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  Total Amount:
+                  Order Number:
                 </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {fCurrency(order.summary.total)}
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  {order.orderNumber || order.id}
+                </Typography>
+              </Stack>
+
+              <Stack direction="row" justifyContent="space-between">
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Payment Method:
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  {order.paymentMethod || 'PayPal'}
                 </Typography>
               </Stack>
             </Stack>
 
             <Divider />
+
+            {/* Payment Information */}
+            {(order.paypalTransactionId || order.paidAmount) && (
+              <Stack spacing={2}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  Payment Information:
+                </Typography>
+                {order.paypalTransactionId && (
+                  <Stack direction="row" justifyContent="space-between">
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      Transaction ID:
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 500, fontFamily: 'monospace' }}>
+                      {order.paypalTransactionId}
+                    </Typography>
+                  </Stack>
+                )}
+                {order.paidAmount && (
+                  <Stack direction="row" justifyContent="space-between">
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      Paid Amount:
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main' }}>
+                      {fCurrency(order.paidAmount)} {order.paidCurrency || order.summary.currency}
+                    </Typography>
+                  </Stack>
+                )}
+                {order.paidAt && (
+                  <Stack direction="row" justifyContent="space-between">
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      Paid At:
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {new Date(order.paidAt).toLocaleString()}
+                    </Typography>
+                  </Stack>
+                )}
+              </Stack>
+            )}
+
+            <Divider />
+
+            {/* Shipping Address */}
+            {order.shippingAddress && (
+              <Stack spacing={2}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  Shipping Address:
+                </Typography>
+                <Typography variant="body2">
+                  {order.shippingAddress.full_name}
+                </Typography>
+                {order.shippingAddress.phone && (
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    Phone: {order.shippingAddress.phone}
+                  </Typography>
+                )}
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  {order.shippingAddress.address_line}
+                  {order.shippingAddress.ward && `, ${order.shippingAddress.ward}`}
+                  {order.shippingAddress.district && `, ${order.shippingAddress.district}`}
+                  {order.shippingAddress.city && `, ${order.shippingAddress.city}`}
+                </Typography>
+              </Stack>
+            )}
+
+            {order.shippingAddress && <Divider />}
 
             {/* Order Items */}
             {order.items.length > 0 && (
@@ -315,8 +401,8 @@ Total: ${fCurrency(order.summary.total)}
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>
                   Total:
                 </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {fCurrency(order.summary.total)}
+                <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '1.1rem' }}>
+                  {fCurrency(order.summary.total)} {order.summary.currency}
                 </Typography>
               </Stack>
             </Stack>

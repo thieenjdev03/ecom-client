@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
@@ -14,6 +14,7 @@ import Carousel, {
 } from "src/components/carousel";
 
 import { IProductItem } from "src/types/product";
+import { ProductVariantDto } from "src/types/product-dto";
 
 // ----------------------------------------------------------------------
 
@@ -69,12 +70,22 @@ const StyledThumbnailsContainer = styled("div")<{ length: number }>(
 
 type Props = {
   product: IProductItem;
+  selectedVariant?: ProductVariantDto | null;
 };
 
-export default function ProductDetailsCarousel({ product }: Props) {
+export default function ProductDetailsCarousel({ product, selectedVariant }: Props) {
   const theme = useTheme();
 
-  const slides = product.images.map((img) => ({
+  // Use variant image if available, otherwise use product images
+  const imagesToDisplay = useMemo(() => {
+    if (selectedVariant?.image_url) {
+      // If variant has specific image, use it as primary image with product images as fallback
+      return [selectedVariant.image_url, ...product.images.filter(img => img !== selectedVariant.image_url)];
+    }
+    return product.images;
+  }, [product.images, selectedVariant]);
+
+  const slides = imagesToDisplay.map((img) => ({
     src: img,
   }));
 
@@ -100,6 +111,14 @@ export default function ProductDetailsCarousel({ product }: Props) {
     carouselLarge.onSetNav();
     carouselThumb.onSetNav();
   }, [carouselLarge, carouselThumb]);
+
+  // Reset carousel when variant changes
+  useEffect(() => {
+    if (selectedVariant) {
+      carouselLarge.onTogo(0);
+      carouselThumb.onTogo(0);
+    }
+  }, [selectedVariant, carouselLarge, carouselThumb]);
 
   useEffect(() => {
     if (lightbox.open) {

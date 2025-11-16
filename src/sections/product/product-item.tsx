@@ -88,10 +88,11 @@ export default function ProductItem({ product }: Props) {
   // Labels based on data
   const newLabel = { enabled: false, content: 'New' };
   const saleLabel = { 
-    enabled: !!priceSale && priceSale < price, 
-    content: 'Sale' 
+    enabled: Boolean(priceSale),
+    content: priceSale && price && Number(price) > 0
+      ? `${Math.round(((Number(price) - Number(priceSale)) / Number(price)) * 100)}%`
+      : ""
   };
-  
   const linkTo = paths.product.details(id);
 
   const handleImageHover = () => {

@@ -17,7 +17,6 @@ export const checkPaymentStatus = async (orderId: string): Promise<PaymentStatus
     const res = await axios.get(`/orders/${orderId}/status`);
     
     if (res.data.status === "PAID") {
-      console.log("✅ Payment verified!");
       return res.data;
     }
     

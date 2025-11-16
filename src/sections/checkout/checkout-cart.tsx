@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 
 import Card from "@mui/material/Card";
+import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Unstable_Grid2";
-import Typography from "@mui/material/Typography";
 import Alert from "@mui/material/Alert";
 import LoadingButton from "@mui/lab/LoadingButton";
-
+import Typography from "@mui/material/Typography";
 import EmptyContent from "src/components/empty-content";
 import { useSnackbar } from "src/components/snackbar";
 import { paths } from "src/routes/paths";
@@ -288,66 +288,78 @@ export default function CheckoutCart() {
   }
 
   return (
-    <Grid container spacing={4}>
-      <Grid xs={12} md={8}>
-        <Stack spacing={3}>
-          {/* Saved Order Banner */}
-          {savedOrderInfo && (
-            <SavedOrderBanner
-              orderInfo={savedOrderInfo}
-              onContinue={handleContinueSavedOrder}
-              onDismiss={handleDismissSavedOrder}
-            />
-          )}
-
-          {/* Only show form if no saved order */}
-          {!savedOrderInfo && (
-            <Card sx={{ p: 3 }}>
-              {error && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                  {error}
-                </Alert>
-              )}
-
-              <CheckoutShippingForm 
-                onShippingDataChange={setShippingFormData}
-                onSubmit={handleCreateOrder}
+    <Box
+      sx={{
+        width: "70%",
+        mx: "auto",
+        mt: 2,
+      }}
+    >
+      <Grid container spacing={4}>
+   
+        <Grid xs={12} md={8}>
+        <Typography variant="h4" align="left" sx={{ mb: 5 }}>
+        Lume Store - Checkout Cart
+      </Typography>
+          <Stack spacing={3}>
+            {/* Saved Order Banner */}
+            {savedOrderInfo && (
+              <SavedOrderBanner
+                orderInfo={savedOrderInfo}
+                onContinue={handleContinueSavedOrder}
+                onDismiss={handleDismissSavedOrder}
               />
+            )}
 
-              <LoadingButton
-                fullWidth
-                size="large"
-                variant="contained"
-                loading={isSubmitting || isValidating}
-                disabled={!shippingFormData || isSubmitting || isValidating}
-                onClick={handleCreateOrder}
-                sx={{
-                  mt: 3,
-                  backgroundColor: "#8B4513",
-                  "&:hover": {
-                    backgroundColor: "#A0522D",
-                  },
-                  textTransform: "uppercase",
-                  fontWeight: 600,
-                }}
-              >
-                {isValidating ? "Đang kiểm tra giỏ hàng..." : isSubmitting ? "Đang tạo đơn hàng..." : "Continue to Payment"}
-              </LoadingButton>
-            </Card>
-          )}
-        </Stack>
-      </Grid>
+            {/* Only show form if no saved order */}
+            {!savedOrderInfo && (
+              <Card sx={{ p: 3 }}>
+                {error && (
+                  <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                  </Alert>
+                )}
 
-      <Grid xs={12} md={4}>
-        <CheckoutSummary
-          total={checkout.total}
-          discount={checkout.discount}
-          subTotal={checkout.subTotal}
-          items={checkout.items}
-          onApplyDiscount={checkout.onApplyDiscount}
-          countryCode={shippingFormData?.country}
-        />
+                <CheckoutShippingForm 
+                  onShippingDataChange={setShippingFormData}
+                  onSubmit={handleCreateOrder}
+                />
+
+                <LoadingButton
+                  fullWidth
+                  size="large"
+                  variant="contained"
+                  loading={isSubmitting || isValidating}
+                  disabled={!shippingFormData || isSubmitting || isValidating}
+                  onClick={handleCreateOrder}
+                  sx={{
+                    mt: 3,
+                    backgroundColor: "#8B4513",
+                    "&:hover": {
+                      backgroundColor: "#A0522D",
+                    },
+                    textTransform: "uppercase",
+                    fontWeight: 600,
+                  }}
+                >
+                  {isValidating ? "Đang kiểm tra giỏ hàng..." : isSubmitting ? "Đang tạo đơn hàng..." : "Continue to Payment"}
+                </LoadingButton>
+              </Card>
+            )}
+          </Stack>
+        </Grid>
+
+        <Grid xs={12} md={4}>
+          <CheckoutSummary
+            total={checkout.total}
+            discount={checkout.discount}
+            subTotal={checkout.subTotal}
+            items={checkout.items}
+            onApplyDiscount={checkout.onApplyDiscount}
+            countryCode={shippingFormData?.country}
+          />
+        </Grid>
       </Grid>
-    </Grid>
+    </Box>
   );
 }

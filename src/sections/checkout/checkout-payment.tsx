@@ -48,6 +48,7 @@ export default function CheckoutPayment() {
     };
 
     loadOrder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkout.orderId]);
 
   // Handle PayPal order creation - Step 2
@@ -98,7 +99,7 @@ export default function CheckoutPayment() {
   };
 
   // Handle PayPal order approval and capture
-  const handlePayPalApprove = async (data: any, actions: any) => {
+  const handlePayPalApprove = async (data: any) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -112,9 +113,18 @@ export default function CheckoutPayment() {
         throw new Error(captureResult.error || "Failed to capture payment");
       }
 
-      // Clear cart and redirect to success page
+      // Get orderId from capture response if available, otherwise use checkout.orderId
+      // Type assertion needed because extractData may return any
+      const captureData = captureResult.data as any;
+      const orderId = captureData.orderId || checkout.orderId;
+      
+      if (!orderId) {
+        throw new Error("Order ID not found in capture response");
+      }
+
+      // Clear cart and redirect to success page with order ID
       checkout.onReset();
-      router.push("/checkout/success");
+      router.push(`/checkout/success?orderId=${orderId}`);
     } catch (err: any) {
       console.error("Error capturing PayPal order:", err);
       setError(err.message || "Payment failed. Please try again.");

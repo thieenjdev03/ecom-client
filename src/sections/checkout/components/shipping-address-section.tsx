@@ -7,13 +7,12 @@ import Checkbox from "@mui/material/Checkbox";
 import InputAdornment from "@mui/material/InputAdornment";
 import MenuItem from "@mui/material/MenuItem";
 import Alert from "@mui/material/Alert";
-import Chip from "@mui/material/Chip";
 import Button from "@mui/material/Button";
 
 import Iconify from "src/components/iconify";
 import AddressAutocomplete from "src/components/address-autocomplete/address-autocomplete";
 import { COUNTRIES, getCountryConfig } from "src/config/shipping";
-import { fCurrency } from "src/utils/format-number";
+import ShippingInfo from "./shipping-info";
 
 // ----------------------------------------------------------------------
 
@@ -116,13 +115,13 @@ export default function ShippingAddressSection({
         )}
       </Stack>
       <Stack spacing={3}>
-        {hasData && (
+        {/* {hasData && (
           <Alert severity="success" icon={<Iconify icon="solar:check-circle-bold" width={20} />}>
             <Typography variant="caption">
               Thông tin của bạn đã được lưu tự động
             </Typography>
           </Alert>
-        )}
+        )} */}
         <Box>
           <Typography variant="body2" sx={{ color: "text.secondary", mb: 1 }}>
             Please ensure your address is correct.
@@ -150,46 +149,8 @@ export default function ShippingAddressSection({
             ))}
           </TextField>
 
-          {/* Shipping Info Alert */}
-          {selectedCountry && (
-            <Alert 
-              severity="info" 
-              sx={{ mt: 2 }}
-              icon={<Iconify icon="solar:delivery-bold" width={24} />}
-            >
-              <Stack spacing={1}>
-                <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {selectedCountry.flag} {selectedCountry.label}
-                  </Typography>
-                  <Chip 
-                    label={selectedCountry.currency} 
-                    size="small" 
-                    color="primary" 
-                    sx={{ height: 20 }}
-                  />
-                </Stack>
-                
-                <Stack spacing={0.5}>
-                  <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                    <strong>Shipping Cost:</strong>{" "}
-                    {fCurrency(selectedCountry.shippingCost)}
-                  </Typography>
-                  
-                  {selectedCountry.freeShippingThreshold && (
-                    <Typography variant="caption" sx={{ color: "success.main", fontWeight: 500 }}>
-                      ✓ Free shipping on orders over{" "}
-                      {fCurrency(selectedCountry.freeShippingThreshold)}
-                    </Typography>
-                  )}
-                  
-                  <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                    <strong>Tax Rate:</strong> {selectedCountry.taxRate}%
-                  </Typography>
-                </Stack>
-              </Stack>
-            </Alert>
-          )}
+          {/* Shipping Info */}
+          {selectedCountry && <ShippingInfo selectedCountry={selectedCountry} />}
         </Box>
 
         <Stack direction="row" spacing={2}>
@@ -256,15 +217,6 @@ export default function ShippingAddressSection({
           }}
         />
 
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={newsletterChecked}
-              onChange={(e) => onNewsletterChange(e.target.checked)}
-            />
-          }
-          label="Text me with news and offers"
-        />
       </Stack>
     </Box>
   );

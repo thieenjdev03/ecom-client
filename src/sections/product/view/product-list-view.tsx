@@ -27,7 +27,7 @@ import { RouterLink } from "src/routes/components";
 
 import { useBoolean } from "src/hooks/use-boolean";
 
-import { useGetProducts } from "src/api/product";
+import { useGetProducts, deleteProduct } from "src/api/product";
 import { PRODUCT_STOCK_OPTIONS } from "src/_mock";
 
 import Iconify from "src/components/iconify";
@@ -133,10 +133,7 @@ export default function ProductListView() {
   const handleDeleteRow = useCallback(
     async (id: string) => {
       try {
-        const res = await fetch(`/api/products/${id}`, {
-          method: 'DELETE',
-        });
-        if (!res.ok) throw new Error('Failed to delete');
+        await deleteProduct(id);
         enqueueSnackbar("Delete success!");
         await mutateProducts?.();
       } catch (e) {
@@ -151,7 +148,7 @@ export default function ProductListView() {
       await Promise.all(
         tableData
           .filter((row) => selectedRowIds.includes(row.id))
-          .map((row) => fetch(`/api/products/${row.id}`, { method: 'DELETE' })),
+          .map((row) => deleteProduct(row.id)),
       );
       enqueueSnackbar("Delete success!");
       await mutateProducts?.();
@@ -317,7 +314,7 @@ export default function ProductListView() {
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-             Tạo sản phẩm
+             Add Product
             </Button>
           }
           sx={{

@@ -7,7 +7,7 @@ import Typography from "@mui/material/Typography";
 import InputAdornment from "@mui/material/InputAdornment";
 import Avatar from "@mui/material/Avatar";
 import Chip from "@mui/material/Chip";
-
+import Card from "@mui/material/Card";
 import { fCurrency } from "src/utils/format-number";
 
 import Iconify from "src/components/iconify";
@@ -50,7 +50,7 @@ export default function CheckoutSummary({
   const calculatedTotal = subTotal - (discount || 0) + shippingInfo.cost + tax;
 
   return (
-    <Box sx={{ mb: 3 }}>
+    <Card sx={{ mt: 10, p: 3 }}>
       <Stack spacing={3}>
         {/* Product Details */}
         {items.length > 0 ? (
@@ -224,6 +224,6 @@ export default function CheckoutSummary({
           )}
         </Stack>
       </Stack>
-    </Box>
+    </Card>
   );
 }

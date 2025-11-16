@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { ProductVariantDto } from "src/types/product-dto";
 
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -16,6 +17,8 @@ import { paths } from "src/routes/paths";
 import { RouterLink } from "src/routes/components";
 
 import { useGetProduct } from "src/api/product";
+
+import { useTranslate } from "src/locales";
 
 import Iconify from "src/components/iconify";
 import EmptyContent from "src/components/empty-content";
@@ -38,10 +41,12 @@ type Props = {
 
 export default function ProductShopDetailsView({ id }: Props) {
   const settings = useSettingsContext();
+  const { t } = useTranslate();
 
   const checkout = useCheckoutContext();
 
   const [currentTab, setCurrentTab] = useState("description");
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariantDto | null>(null);
 
   // ------------------------------------------------------------------
   // Use real API data instead of mockup
@@ -66,7 +71,7 @@ export default function ProductShopDetailsView({ id }: Props) {
           startIcon={<Iconify icon="eva:arrow-ios-back-fill" width={16} />}
           sx={{ mt: 3 }}
         >
-          Back to List
+          {t("product.list")}
         </Button>
       }
       sx={{ py: 10 }}
@@ -77,7 +82,7 @@ export default function ProductShopDetailsView({ id }: Props) {
     <>
       <Grid container spacing={{ xs: 3, md: 5, lg: 8 }}>
         <Grid xs={12} md={8} lg={8}>
-          <ProductDetailsCarousel product={product} />
+          <ProductDetailsCarousel product={product} selectedVariant={selectedVariant} />
         </Grid>
 
         <Grid xs={12} md={4} lg={4}>
@@ -86,6 +91,7 @@ export default function ProductShopDetailsView({ id }: Props) {
             items={checkout.items}
             onAddCart={checkout.onAddToCart}
             onGotoStep={checkout.onGotoStep}
+            onVariantChange={setSelectedVariant}
           />
         </Grid>
       </Grid>

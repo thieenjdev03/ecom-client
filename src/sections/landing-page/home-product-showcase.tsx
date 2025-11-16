@@ -9,8 +9,6 @@ import Typography from "@mui/material/Typography";
 import Skeleton from "@mui/material/Skeleton";
 import IconButton from "@mui/material/IconButton";
 
-import { useTheme } from "@mui/material/styles";
-
 import { paths } from "src/routes/paths";
 import { RouterLink } from "src/routes/components";
 
@@ -19,7 +17,6 @@ import Image from "src/components/image";
 import { useSnackbar } from "src/components/snackbar";
 import Carousel, {
   useCarousel,
-  CarouselDots,
   CarouselArrows,
 } from "src/components/carousel";
 import { fCurrency } from "src/utils/format-number";
@@ -28,16 +25,23 @@ import { IProductItem } from "src/types/product";
 import { useCheckoutContext } from "src/sections/checkout/context";
 import { useWishlistContext } from "src/sections/wishlist/context";
 import { ICheckoutItem } from "src/types/checkout";
+import { useTranslate } from "src/locales";
 
 export default function HomeProductShowcase({
   priceBottom,
   layout,
   showAddToCart,
+  title,
 }: {
   priceBottom?: boolean;
   layout?: "image-left" | "price-bottom";
   showAddToCart?: boolean;
+  title?: string;
 }) {
+  const { t } = useTranslate();
+  
+  const displayTitle = title || t("homeProductShowcase.title");
+  
   // Fetch real products from API
   const { products, productsLoading, productsError } = useGetProducts({
     page: 1,
@@ -211,10 +215,10 @@ export default function HomeProductShowcase({
         }}
       >
         <Typography variant="h3" sx={{ mb: 3, fontWeight: 700 }}>
-          SẢN PHẨM NỔI BẬT
+          {displayTitle}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Không thể tải sản phẩm. Vui lòng thử lại sau.
+          {t("homeProductShowcase.errorLoading")}
         </Typography>
       </Container>
     );
@@ -236,10 +240,10 @@ export default function HomeProductShowcase({
         }}
       >
         <Typography variant="h3" sx={{ mb: 3, fontWeight: 700 }}>
-          SẢN PHẨM NỔI BẬT
+          {displayTitle}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Chưa có sản phẩm nào.
+          {t("homeProductShowcase.noProducts")}
         </Typography>
       </Container>
     );
@@ -260,7 +264,7 @@ export default function HomeProductShowcase({
         variant="h3"
         sx={{ mb: 3, textAlign: "left", fontWeight: 700, flex: "0 0 auto" }}
       >
-        SẢN PHẨM NỔI BẬT
+        {displayTitle}
       </Typography>
 
       <Box
@@ -332,6 +336,7 @@ type CardProps = {
 
 function ProductCard({ product, layout = "image-left", showAddToCart }: CardProps) {
   const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslate();
   const checkout = useCheckoutContext();
   const wishlist = useWishlistContext();
   
@@ -364,12 +369,12 @@ function ProductCard({ product, layout = "image-left", showAddToCart }: CardProp
       };
       
       checkout.onAddToCart(cartItem);
-      enqueueSnackbar(`Đã thêm "${product.name}" vào giỏ hàng`, {
+      enqueueSnackbar(t("homeProductShowcase.addedToCart", { name: product.name }), {
         variant: "success",
       });
     } catch (error) {
       console.error("Error adding to cart:", error);
-      enqueueSnackbar("Có lỗi xảy ra khi thêm vào giỏ hàng", {
+      enqueueSnackbar(t("homeProductShowcase.errorAddingToCart"), {
         variant: "error",
       });
     }
@@ -382,7 +387,7 @@ function ProductCard({ product, layout = "image-left", showAddToCart }: CardProp
     try {
       if (isInWishlist) {
         wishlist.onRemoveFromWishlist(product.id);
-        enqueueSnackbar(`Đã xóa "${product.name}" khỏi yêu thích`, {
+        enqueueSnackbar(t("homeProductShowcase.removedFromWishlist", { name: product.name }), {
           variant: "info",
         });
       } else {
@@ -420,19 +425,24 @@ function ProductCard({ product, layout = "image-left", showAddToCart }: CardProp
           reviews: [],
           createdAt: new Date(),
           ratings: [],
-          saleLabel: { enabled: !!product.priceSale, content: "Sale" },
+          saleLabel: { 
+            enabled: Boolean(product.priceSale),
+            content: product.priceSale && product.price && Number(product.price) > 0
+              ? `${((Number(product.price) - Number(product.priceSale)) / Number(product.price)) * 100}%`
+              : ""
+          },
           newLabel: { enabled: product.isNew || false, content: "New" },
           variants: [],
         };
         
         wishlist.onAddToWishlist(wishlistProduct);
-        enqueueSnackbar(`Đã thêm "${product.name}" vào yêu thích`, {
+        enqueueSnackbar(t("homeProductShowcase.addedToWishlist", { name: product.name }), {
           variant: "success",
         });
       }
     } catch (error) {
       console.error("Error toggling wishlist:", error);
-      enqueueSnackbar("Có lỗi xảy ra khi thêm vào yêu thích", {
+      enqueueSnackbar(t("homeProductShowcase.errorAddingToWishlist"), {
         variant: "error",
       });
     }
@@ -622,7 +632,7 @@ function ProductCard({ product, layout = "image-left", showAddToCart }: CardProp
                   py: 0.75,
                 }}
               >
-                Thêm vào giỏ
+                {t("homeProductShowcase.addToCart")}
               </Button>
             )}
             

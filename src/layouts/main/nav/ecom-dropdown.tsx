@@ -82,7 +82,7 @@ export default function EcomDropdown({
           <Stack direction="row" spacing={4} sx={{ minWidth: 400 }}>
             {groups.map((g) => (
               <Box key={g.title} sx={{ minWidth: 160 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                <Typography variant="h6" sx={{ mb: 1, color: "text.primary", fontWeight: 600}}>
                   {g.title}
                 </Typography>
                 <List dense disablePadding>

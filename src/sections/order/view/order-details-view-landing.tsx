@@ -8,7 +8,6 @@ import Container from "@mui/material/Container";
 import Grid from "@mui/material/Unstable_Grid2";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 
 import { paths } from "src/routes/paths";
@@ -240,7 +239,13 @@ export default function OrderDetailsViewLanding({ id }: Props) {
   }
 
   return (
-    <Container maxWidth={settings.themeStretch ? false : "lg"}>
+    <Container 
+      maxWidth={settings.themeStretch ? false : "lg"} 
+      sx={{ 
+        py: { xs: 3, md: 5 },
+        px: { xs: 2, sm: 3, md: 4 },
+      }}
+    >
       {/* Simple toolbar for landing page - no status update */}
       <Stack
         spacing={3}
@@ -255,7 +260,7 @@ export default function OrderDetailsViewLanding({ id }: Props) {
           </IconButton>
 
           <Stack spacing={0.5}>
-            <Stack spacing={1} direction="row" alignItems="center">
+            <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
               <Typography variant="h4">Order {orderData.orderNumber}</Typography>
               <Label variant="soft" color={getStatusColor(orderData.status)}>
                 {orderData.status}
@@ -269,7 +274,7 @@ export default function OrderDetailsViewLanding({ id }: Props) {
         </Stack>
       </Stack>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={{ xs: 2, sm: 3, md: 3 }}>
         <Grid xs={12} md={8}>
           <Stack spacing={3} direction={{ xs: "column-reverse", md: "column" }}>
             <OrderDetailsItems

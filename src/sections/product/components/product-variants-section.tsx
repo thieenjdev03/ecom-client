@@ -109,6 +109,17 @@ const VariantItem = memo(
                     startAdornment: <InputAdornment position="start">₫</InputAdornment>,
                   }}
                 />
+                <RHFTextField
+                  required
+                  name={`variants[${index}].salePrice`}
+                  label={t("productForm.salePrice")}
+                  type="number"
+                  placeholder="0"
+                  size="small"
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">₫</InputAdornment>,
+                  }}
+                />
               </Box>
 
               <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={2}>

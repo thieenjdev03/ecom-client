@@ -13,7 +13,6 @@ export default function CheckoutPage() {
   };
 
   const handlePaymentCancel = (data: any) => {
-    console.log("Payment cancelled:", data);
     alert("Payment cancelled");
   };
 

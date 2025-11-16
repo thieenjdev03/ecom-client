@@ -47,14 +47,9 @@ export default function JwtLoginView() {
     password: Yup.string().required("Password is required"),
   });
 
-  const defaultValues = {
-    email: "demo@minimals.cc",
-    password: "Password@123",
-  };
 
   const methods = useForm({
-    resolver: yupResolver(LoginSchema),
-    defaultValues,
+    resolver: yupResolver(LoginSchema)
   });
 
   const {

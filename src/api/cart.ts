@@ -60,7 +60,7 @@ const getAuthHeaders = () => {
   };
 };
 
-const base = `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000"}/cart`;
+const base = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/cart`;
 
 export const cartApi = {
   // Add item to cart

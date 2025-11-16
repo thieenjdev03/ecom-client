@@ -105,18 +105,26 @@ export default function HeaderEcom() {
                 >
                   HOME
                 </Link>
-                <EcomDropdown
-                  label="SHOP"
-                  color={activeColorValue}
-                  textShadow={activeShadow}
-                  groups={PRODUCT_CATEGORY_GROUP_OPTIONS.map((g) => ({
-                    title: g.group,
-                    items: g.classify.map((c) => ({
-                      label: c,
-                      href: `${paths.product.root}?category=${encodeURIComponent(c)}`,
-                    })),
-                  }))}
-                />
+                <Link
+                  component={RouterLink}
+                  href="/"
+                  underline="none"
+                  color={activeColor}
+                  sx={{
+                    typography: "subtitle2",
+                    letterSpacing: 1,
+                    textShadow: activeShadow,
+                    transition: "all 0.3s ease",
+                    cursor: "pointer",
+                    "&:hover": {
+                      color: theme.palette.primary.main,
+                      transform: "translateY(-2px)",
+                      textShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+                    },
+                  }}
+                >
+                  Shop
+                </Link>
                 <EcomCategoriesDropdown
                   label="CATEGORIES"
                   color={activeColorValue}

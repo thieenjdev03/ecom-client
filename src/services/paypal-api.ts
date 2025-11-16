@@ -1,4 +1,5 @@
 import { PAYPAL_CONFIG } from "src/config/paypal";
+import type { CaptureOrderResponse as BackendCaptureOrderResponse } from "src/api/order";
 
 // ----------------------------------------------------------------------
 
@@ -235,7 +236,7 @@ class PayPalApiService {
   }
 
   // Capture PayPal order
-  async captureOrder(orderId: string): Promise<ApiResponse<CaptureOrderResponse>> {
+  async captureOrder(orderId: string): Promise<ApiResponse<BackendCaptureOrderResponse>> {
     try {
       console.log('API Service: Capturing PayPal order:', orderId);
       

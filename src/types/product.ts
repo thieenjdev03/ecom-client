@@ -59,6 +59,7 @@ export type IProductItem = {
   totalReviews: number;
   inventoryType: string;
   subDescription: string;
+  dimensions: { length?: number; width?: number; height?: number } | null;
   isFeatured: boolean;
   is_new: boolean;
   is_sale: boolean;

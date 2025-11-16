@@ -2,19 +2,12 @@
 
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Unstable_Grid2";
-import Typography from "@mui/material/Typography";
-
-import { PRODUCT_CHECKOUT_STEPS } from "src/_mock/_product";
-
 import { useSettingsContext } from "src/components/settings";
 
 import CheckoutCart from "../checkout-cart";
-import CheckoutSteps from "../checkout-steps";
 import { useCheckoutContext } from "../context";
 import CheckoutPayment from "../checkout-payment";
 import CheckoutOrderComplete from "../checkout-order-complete";
-import CheckoutBillingAddress from "../checkout-billing-address";
-
 // ----------------------------------------------------------------------
 
 export default function CheckoutView() {
@@ -24,9 +17,6 @@ export default function CheckoutView() {
 
   return (
     <Container maxWidth={settings.themeStretch ? false : "lg"} sx={{ mb: 10, mt: 10 }}>
-      <Typography variant="h4" sx={{ my: { xs: 3, md: 5 } }}>
-        Checkout
-      </Typography>
 
       <Grid
         container

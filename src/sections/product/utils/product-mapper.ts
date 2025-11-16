@@ -76,7 +76,7 @@ export function mapProductToFormValues(
 
     // Optional fields
     productCode: '',
-    productSku: product.sku || '',
+    sku: product.sku || '',
     costPrice: product.cost_price ? Number(product.cost_price) : undefined,
     barcode: product.barcode || undefined,
     metaTitle: product.meta_title || undefined,

@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import Container from "@mui/material/Container";
 
 import { paths } from "src/routes/paths";
+import { usePathname } from "src/routes/hooks";
 
 import {
   _userAbout,
@@ -39,16 +40,16 @@ const TABS = [
     label: "Billing",
     icon: <Iconify icon="solar:bill-list-bold" width={24} />,
   },
-  {
-    value: "notifications",
-    label: "Notifications",
-    icon: <Iconify icon="solar:bell-bing-bold" width={24} />,
-  },
-  {
-    value: "social",
-    label: "Social links",
-    icon: <Iconify icon="solar:share-bold" width={24} />,
-  },
+  // {
+  //   value: "notifications",
+  //   label: "Notifications",
+  //   icon: <Iconify icon="solar:bell-bing-bold" width={24} />,
+  // },
+  // {
+  //   value: "social",
+  //   label: "Social links",
+  //   icon: <Iconify icon="solar:share-bold" width={24} />,
+  // },
   {
     value: "security",
     label: "Security",
@@ -60,6 +61,7 @@ const TABS = [
 
 export default function AccountView() {
   const settings = useSettingsContext();
+  const pathname = usePathname();
 
   const [currentTab, setCurrentTab] = useState("general");
 
@@ -70,8 +72,23 @@ export default function AccountView() {
     [],
   );
 
+  // Determine if this is user view (not admin dashboard)
+  const isUserView = useMemo(() => {
+    return pathname?.startsWith("/user/") && !pathname?.startsWith("/dashboard/");
+  }, [pathname]);
+
   return (
-    <Container maxWidth={settings.themeStretch ? false : "lg"}>
+    <Container
+      maxWidth={isUserView ? false : (settings.themeStretch ? false : "lg")}
+      sx={
+        isUserView
+          ? {
+              px: { xs: 2, sm: 3, md: 4 },
+              py: { xs: 2, sm: 3 },
+            }
+          : undefined
+      }
+    >
       <CustomBreadcrumbs
         heading="Account"
         links={[
@@ -112,11 +129,11 @@ export default function AccountView() {
         />
       )}
 
-      {currentTab === "notifications" && <AccountNotifications />}
+      {/* {currentTab === "notifications" && <AccountNotifications />} */}
 
-      {currentTab === "social" && (
+      {/* {currentTab === "social" && (
         <AccountSocialLinks socialLinks={_userAbout.socialLinks} />
-      )}
+      )} */}
 
       {currentTab === "security" && <AccountChangePassword />}
     </Container>

@@ -90,10 +90,20 @@ export type CaptureOrderRequest = {
 export type CaptureOrderResponse = {
   success: boolean;
   status: string;
+  orderId?: string; // Order ID - required for frontend redirect
+  orderNumber?: string; // Order number for display
+  paypalOrderId?: string; // PayPal order ID
   paypalTransactionId: string;
   paidAmount: string;
   currency: string;
   paidAt: string;
+  payer?: {
+    email: string;
+    name: {
+      given_name: string;
+      surname: string;
+    };
+  };
 };
 
 // ----------------------------------------------------------------------
@@ -122,7 +132,7 @@ const getAuthHeaders = () => {
   };
 };
 
-const base = `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000"}/orders`;
+const base = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/orders`;
 
 export const orderApi = {
   // Create a new order

@@ -7,7 +7,7 @@ export function adaptProductDtoToItem(dto: Product): IProductItem {
     sku: dto.sku ?? "",
     name: dto.name ?? "",
     code: dto.sku ?? String(dto.id),
-    price: dto.sale_price ? Number(dto.sale_price) : Number(dto.price),
+    price: Number(dto.price),
     taxes: 0,
     tags: dto.tags ?? [],
     gender: "",
@@ -29,12 +29,18 @@ export function adaptProductDtoToItem(dto: Product): IProductItem {
     totalRatings: 0,
     totalReviews: 0,
     inventoryType: (dto.stock_quantity ?? 0) > 0 ? "In Stock" : "Out of Stock",
-    subDescription: "",
+    subDescription: dto.short_description ?? "",
+    dimensions: dto.dimensions ?? null,
     priceSale: dto.sale_price ? Number(dto.sale_price) : null,
     reviews: [],
     createdAt: dto.created_at ? new Date(dto.created_at) : new Date(),
     ratings: [],
-    saleLabel: { enabled: Boolean(dto.sale_price), content: "Sale" },
+    saleLabel: { 
+      enabled: Boolean(dto.sale_price),
+      content: dto.sale_price && dto.price && Number(dto.price) > 0
+        ? `${Math.round(((Number(dto.price) - Number(dto.sale_price)) / Number(dto.price)) * 100)}%`
+        : ""
+    },
     newLabel: { enabled: false, content: "New" },
     modelHeight: 0,
     modelSize: 0,

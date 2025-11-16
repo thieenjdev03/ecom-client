@@ -52,7 +52,6 @@ export default function PayPalCheckoutButton({
   };
 
   const handleApprove = async (data: any) => {
-    console.log("✅ Payment approved!", data);
     onPaymentSuccess?.(data);
   };
 
@@ -62,7 +61,6 @@ export default function PayPalCheckoutButton({
   };
 
   const handleCancel = (data: any) => {
-    console.log("Payment cancelled:", data);
     onPaymentCancel?.(data);
   };
 

@@ -25,6 +25,8 @@ import { useGetSizes } from "src/api/reference";
 
 import { fCurrency, fShortenNumber } from "src/utils/format-number";
 
+import { useTranslate } from "src/locales";
+
 import Label from "src/components/label";
 import Iconify from "src/components/iconify";
 import FormProvider from "src/components/hook-form";
@@ -44,6 +46,7 @@ type Props = {
   disabledActions?: boolean;
   onGotoStep?: (step: number) => void;
   onAddCart?: (cartItem: ICheckoutItem) => void;
+  onVariantChange?: (variant: ProductVariantDto | null) => void;
 };
 
 export default function ProductDetailsSummary({
@@ -52,10 +55,12 @@ export default function ProductDetailsSummary({
   onAddCart,
   onGotoStep,
   disabledActions,
+  onVariantChange,
   ...other
 }: Props) {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslate();
   const [openDetails, setOpenDetails] = useState(false);
   const [openAdditional, setOpenAdditional] = useState(false);
   const sizeGuideDialog = useBoolean();
@@ -85,6 +90,7 @@ export default function ProductDetailsSummary({
     variants,
     description,
     publish,
+    dimensions,
   } = product;
 
   // Variant selection state
@@ -133,6 +139,11 @@ export default function ProductDetailsSummary({
       (v) => v.color_id === selectedColorId && v.size_id === selectedSizeId,
     ) || null;
   }, [selectedColorId, selectedSizeId, variants]);
+
+  // Notify parent component when variant changes
+  useEffect(() => {
+    onVariantChange?.(selectedVariant);
+  }, [selectedVariant, onVariantChange]);
 
   // Auto-select first color if available
   useEffect(() => {
@@ -207,7 +218,7 @@ export default function ProductDetailsSummary({
       // Validate quantity
       const quantity = data.quantity || 1;
       if (quantity <= 0) {
-        enqueueSnackbar("Số lượng phải lớn hơn 0", {
+        enqueueSnackbar(t("productDetails.quantityMustBeGreaterThanZero"), {
           variant: "error",
         });
         return;
@@ -216,13 +227,13 @@ export default function ProductDetailsSummary({
       // Validate variant selection if product has variants
       if (variants && variants.length > 0) {
         if (!selectedColorId || !selectedSizeId) {
-          enqueueSnackbar("Vui lòng chọn màu và size trước khi thêm vào giỏ hàng", {
+          enqueueSnackbar(t("productDetails.pleaseSelectColorAndSize"), {
             variant: "warning",
           });
           return;
         }
         if (!selectedVariant) {
-          enqueueSnackbar("Variant không tồn tại. Vui lòng chọn lại màu và size.", {
+          enqueueSnackbar(t("productDetails.variantNotFound"), {
             variant: "error",
           });
           return;
@@ -231,7 +242,10 @@ export default function ProductDetailsSummary({
         // Validate stock for variant
         if (selectedVariant.stock < quantity) {
           enqueueSnackbar(
-            `Số lượng yêu cầu (${quantity}) vượt quá số lượng tồn kho (${selectedVariant.stock})`,
+            t("productDetails.quantityExceedsStock", {
+              quantity,
+              stock: selectedVariant.stock,
+            }),
             {
               variant: "error",
             }
@@ -242,7 +256,10 @@ export default function ProductDetailsSummary({
         // Validate stock for product without variants
         if (displayStock < quantity) {
           enqueueSnackbar(
-            `Số lượng yêu cầu (${quantity}) vượt quá số lượng tồn kho (${displayStock})`,
+            t("productDetails.quantityExceedsStock", {
+              quantity,
+              stock: displayStock,
+            }),
             {
               variant: "error",
             }
@@ -289,7 +306,7 @@ export default function ProductDetailsSummary({
 
         // Show success notification
         enqueueSnackbar(
-          `Đã thêm ${quantity} ${quantity > 1 ? 'sản phẩm' : 'sản phẩm'} vào giỏ hàng`,
+          t("productDetails.addedToCart", { quantity }),
           {
             variant: "success",
           }
@@ -299,7 +316,7 @@ export default function ProductDetailsSummary({
       router.push(paths.product.checkout);
     } catch (error) {
       console.error("Error submitting form:", error);
-      enqueueSnackbar("Có lỗi xảy ra khi thêm vào giỏ hàng", {
+      enqueueSnackbar(t("productDetails.errorAddingToCart"), {
         variant: "error",
       });
     }
@@ -310,7 +327,7 @@ export default function ProductDetailsSummary({
       // Validate quantity
       const quantity = values.quantity || 1;
       if (quantity <= 0) {
-        enqueueSnackbar("Số lượng phải lớn hơn 0", {
+        enqueueSnackbar(t("productDetails.quantityMustBeGreaterThanZero"), {
           variant: "error",
         });
         return;
@@ -319,13 +336,13 @@ export default function ProductDetailsSummary({
       // Validate variant selection if product has variants
       if (variants && variants.length > 0) {
         if (!selectedColorId || !selectedSizeId) {
-          enqueueSnackbar("Vui lòng chọn màu và size trước khi thêm vào giỏ hàng", {
+          enqueueSnackbar(t("productDetails.pleaseSelectColorAndSize"), {
             variant: "warning",
           });
           return;
         }
         if (!selectedVariant) {
-          enqueueSnackbar("Variant không tồn tại. Vui lòng chọn lại màu và size.", {
+          enqueueSnackbar(t("productDetails.variantNotFound"), {
             variant: "error",
           });
           return;
@@ -334,7 +351,10 @@ export default function ProductDetailsSummary({
         // Validate stock for variant
         if (selectedVariant.stock < quantity) {
           enqueueSnackbar(
-            `Số lượng yêu cầu (${quantity}) vượt quá số lượng tồn kho (${selectedVariant.stock})`,
+            t("productDetails.quantityExceedsStock", {
+              quantity,
+              stock: selectedVariant.stock,
+            }),
             {
               variant: "error",
             }
@@ -345,7 +365,10 @@ export default function ProductDetailsSummary({
         // Validate stock for product without variants
         if (displayStock < quantity) {
           enqueueSnackbar(
-            `Số lượng yêu cầu (${quantity}) vượt quá số lượng tồn kho (${displayStock})`,
+            t("productDetails.quantityExceedsStock", {
+              quantity,
+              stock: displayStock,
+            }),
             {
               variant: "error",
             }
@@ -394,14 +417,14 @@ export default function ProductDetailsSummary({
 
       // Show success notification
       enqueueSnackbar(
-        `Đã thêm ${quantity} ${quantity > 1 ? 'sản phẩm' : 'sản phẩm'} vào giỏ hàng`,
+        t("productDetails.addedToCart", { quantity }),
         {
           variant: "success",
         }
       );
     } catch (error) {
       console.error("Error adding to cart:", error);
-      enqueueSnackbar("Có lỗi xảy ra khi thêm vào giỏ hàng", {
+      enqueueSnackbar(t("productDetails.errorAddingToCart"), {
         variant: "error",
       });
     }
@@ -423,6 +446,7 @@ export default function ProductDetailsSummary({
     displayPrice,
     displayStock,
     enqueueSnackbar,
+    t,
   ]);
 
   const renderPrice = (
@@ -449,7 +473,7 @@ export default function ProductDetailsSummary({
   const renderColorOptions = (
     <Stack direction="column" spacing={1.5}>
       <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
-        Color
+        {t("productDetails.color")}
       </Typography>
       {availableColors.length > 0 ? (
         <Stack direction="row" spacing={1} flexWrap="wrap">
@@ -492,7 +516,7 @@ export default function ProductDetailsSummary({
         </Stack>
       ) : (
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          No colors available
+          {t("productDetails.noColorsAvailable")}
         </Typography>
       )}
     </Stack>
@@ -502,7 +526,7 @@ export default function ProductDetailsSummary({
     <Stack spacing={1.5}>
       <Stack direction="row">
         <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
-          Size
+          {t("productDetails.size")}
         </Typography>
       </Stack>
 
@@ -565,11 +589,11 @@ export default function ProductDetailsSummary({
         </Box>
       ) : variants && variants.length > 0 ? (
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          No sizes available
+          {t("productDetails.noSizesAvailable")}
         </Typography>
       ) : (
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Please select a color first
+          {t("productDetails.pleaseSelectColorFirst")}
         </Typography>
       )}
       <Box
@@ -595,7 +619,7 @@ export default function ProductDetailsSummary({
             color: "inherit",
           }}
         >
-          Size Guide
+          {t("productDetails.sizeGuide")}
         </Link>
         <Typography
           variant="caption"
@@ -605,8 +629,8 @@ export default function ProductDetailsSummary({
             whiteSpace: "nowrap",
           }}
         >
-          Model size: {modelSize || "N/A"} | Model height:{" "}
-          {modelHeight || "N/A"}
+          {t("productDetails.modelSize")}: {modelSize || t("productDetails.notAvailable")} | {t("productDetails.modelHeight")}:{" "}
+          {modelHeight || t("productDetails.notAvailable")}
         </Typography>
       </Box>
 
@@ -617,7 +641,7 @@ export default function ProductDetailsSummary({
         fullWidth
       >
         <DialogTitle>
-          Size Guide
+          {t("productDetails.sizeGuide")}
           <IconButton
             aria-label="close"
             onClick={sizeGuideDialog.onFalse}
@@ -639,7 +663,7 @@ export default function ProductDetailsSummary({
                 ? images[images.length - 1]
                 : "https://placehold.co/600x400"
             }
-            alt="Size Guide"
+            alt={t("productDetails.sizeGuide")}
             sx={{
               width: "100%",
               height: "auto",
@@ -654,7 +678,7 @@ export default function ProductDetailsSummary({
   const renderQuantity = (
     <Stack direction="row">
       <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
-        Quantity
+        {t("productDetails.quantity")}
       </Typography>
 
       <Stack spacing={1}>
@@ -670,7 +694,7 @@ export default function ProductDetailsSummary({
         <Stack spacing={0.5} sx={{ textAlign: "right" }}>
           {displaySku && (
             <Typography variant="caption" component="div">
-              SKU: {displaySku}
+              {t("productDetails.sku")}: {displaySku}
             </Typography>
           )}
           {/* <Typography variant="caption" component="div">
@@ -683,22 +707,22 @@ export default function ProductDetailsSummary({
 
   const renderActions = () => {
     // Determine button state and label
-    let buttonLabel = "Thêm vào giỏ";
+    let buttonLabel = t("productDetails.addToCart");
     let isDisabled = disabledActions || publish === "draft";
 
     // If product has variants, require variant selection
     if (variants && variants.length > 0) {
       if (!selectedVariant) {
-        buttonLabel = "Chọn màu & size";
+        buttonLabel = t("productDetails.selectColorAndSize");
         isDisabled = true;
       } else if (selectedVariant.stock === 0) {
-        buttonLabel = "Hết hàng";
+        buttonLabel = t("productDetails.outOfStock");
         isDisabled = true;
       }
     } else {
       // No variants, use product-level stock
       if (displayStock === 0) {
-        buttonLabel = "Hết hàng";
+        buttonLabel = t("productDetails.outOfStock");
         isDisabled = true;
       }
     }
@@ -718,13 +742,12 @@ export default function ProductDetailsSummary({
       </Stack>
     );
   };
-
-  const renderSubDescription = (
-    <Typography variant="body2" sx={{ color: "text.secondary" }}>
-      {subDescription ||
-        "Page layouts look better with something in each section. Web page designers, content writers, and layout artists use lorem ipsum, also known as placeholder copy, to distinguish which areas on a page will hold advertisements, editorials, and filler before the final written content and website designs receive client approval."}
+  console.log('subDescription', subDescription);
+  const renderSubDescription = subDescription ? (
+    <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+      {subDescription}
     </Typography>
-  );
+  ) : null;
 
   const renderDescription = description ? (
     <Box
@@ -753,7 +776,7 @@ export default function ProductDetailsSummary({
         readOnly
         sx={{ mr: 1 }}
       />
-      {`(${fShortenNumber(totalReviews)} reviews)`}
+      {`(${fShortenNumber(totalReviews)} ${t("productDetails.reviews")})`}
     </Stack>
   );
 
@@ -769,31 +792,31 @@ export default function ProductDetailsSummary({
     if (publish === "draft") {
       return (
         <Label color="default" variant="filled">
-          Ngừng kinh doanh
+          {t("productDetails.discontinued")}
         </Label>
       );
     }
     if (displayStock > 0) {
       return (
         <Label color="success" variant="filled">
-          In Stock
+          {t("productDetails.inStock")}
         </Label>
       );
     }
     return (
       <Label color="error" variant="filled">
-        Hết hàng
+        {t("productDetails.outOfStock")}
       </Label>
     );
   };
   const renderMoreDetailSection = (
     <Stack spacing={1.5}>
       <Stack alignItems="center" direction="row" justifyContent="space-between">
-        <Typography variant="h6">DETAILS</Typography>
+        <Typography variant="h6">{t("productDetails.details")}</Typography>
         <IconButton
           size="small"
           onClick={() => setOpenDetails((prev) => !prev)}
-          aria-label={openDetails ? "Collapse details" : "Expand details"}
+          aria-label={openDetails ? t("productDetails.collapseDetails") : t("productDetails.expandDetails")}
         >
           <Iconify
             icon="eva:arrow-ios-downward-fill"
@@ -807,19 +830,32 @@ export default function ProductDetailsSummary({
       </Stack>
       <Collapse in={openDetails} timeout="auto" unmountOnExit>
         <Stack spacing={1} sx={{ color: "text.secondary" }}>
+          {dimensions && (
+            <>
+              <Typography variant="body2">
+                {t("productForm.length")}: {dimensions.length ? `${dimensions.length} cm` : t("productDetails.notAvailable")}
+              </Typography>
+              <Typography variant="body2">
+                {t("productForm.width")}: {dimensions.width ? `${dimensions.width} cm` : t("productDetails.notAvailable")}
+              </Typography>
+              <Typography variant="body2">
+                {t("productForm.height")}: {dimensions.height ? `${dimensions.height} cm` : t("productDetails.notAvailable")}
+              </Typography>
+            </>
+          )}
           <Typography variant="body2">
-            Model size: {modelSize || "N/A"}
+            {t("productDetails.modelSize")}: {modelSize || t("productDetails.notAvailable")}
           </Typography>
           <Typography variant="body2">
-            Model height: {modelHeight || "N/A"}
+            {t("productDetails.modelHeight")}: {modelHeight || t("productDetails.notAvailable")}
           </Typography>
           <Typography variant="body2">
-            Fit: Regular fit with breathable upper
+            {t("productDetails.fit")}: {t("productDetails.regularFit")}
           </Typography>
           <Typography variant="body2">
-            Sole: Cushioned midsole for daily wear
+            {t("productDetails.sole")}: {t("productDetails.cushionedMidsole")}
           </Typography>
-          <Typography variant="body2">Origin: Designed locally</Typography>
+          <Typography variant="body2">{t("productDetails.origin")}: {t("productDetails.designedLocally")}</Typography>
         </Stack>
       </Collapse>
     </Stack>
@@ -827,14 +863,14 @@ export default function ProductDetailsSummary({
   const renderAdditionalInfoSection = (
     <Stack spacing={1.5}>
       <Stack alignItems="center" direction="row" justifyContent="space-between">
-        <Typography variant="h6">ADDITIONAL INFO</Typography>
+        <Typography variant="h6">{t("productDetails.additionalInfo")}</Typography>
         <IconButton
           size="small"
           onClick={() => setOpenAdditional((prev) => !prev)}
           aria-label={
             openAdditional
-              ? "Collapse additional info"
-              : "Expand additional info"
+              ? t("productDetails.collapseAdditionalInfo")
+              : t("productDetails.expandAdditionalInfo")
           }
         >
           <Iconify
@@ -850,20 +886,20 @@ export default function ProductDetailsSummary({
       <Collapse in={openAdditional} timeout="auto" unmountOnExit>
         <Stack spacing={1} sx={{ color: "text.secondary" }}>
           <Typography variant="body2">
-            Material: Mesh upper, rubber outsole
+            {t("productDetails.material")}: {t("productDetails.meshUpper")}
           </Typography>
           <Typography variant="body2">
-            Care: Spot clean with mild detergent
+            {t("productDetails.care")}: {t("productDetails.spotClean")}
           </Typography>
           <Typography variant="body2">
-            Warranty: 1 year limited warranty
+            {t("productDetails.warranty")}: {t("productDetails.oneYearWarranty")}
           </Typography>
           <Typography variant="body2">
-            Shipping: Free shipping on orders over $100
+            {t("productDetails.shipping")}: {t("productDetails.freeShippingOver100")}
           </Typography>
           {!!productSizes?.length && (
             <Typography variant="body2">
-              Available sizes: {productSizes.join(", ")}
+              {t("productDetails.availableSizes")}: {productSizes.join(", ")}
             </Typography>
           )}
         </Stack>
@@ -885,6 +921,12 @@ export default function ProductDetailsSummary({
           {/* {renderRating} */}
 
           {renderSubDescription}
+
+          {renderDescription && (
+            <Box sx={{ mt: 2 }}>
+              {renderDescription}
+            </Box>
+          )}
         </Stack>
 
         <Divider sx={{ borderStyle: "dashed" }} />

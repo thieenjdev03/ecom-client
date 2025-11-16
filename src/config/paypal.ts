@@ -1,4 +1,4 @@
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 // PayPal Configuration
 export const PAYPAL_CONFIG = {

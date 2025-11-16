@@ -55,7 +55,7 @@ export default function EcomCategoriesDropdown({
     parent: p,
     children: (p.children && p.children.length > 0 ? p.children : []).slice().sort((a, b) => a.name.localeCompare(b.name)),
   }));
-  console.log('groups', groups);
+
   const parentGroupsWithChildren = groups.filter((g) => g.children.length > 0);
   const parentsWithoutChildren = groups.filter((g) => g.children.length === 0).map((g) => g.parent);
   return (
@@ -105,7 +105,7 @@ export default function EcomCategoriesDropdown({
           <Stack direction="row" spacing={4} sx={{ minWidth: 480 }}>
             {parentGroupsWithChildren.map((g) => (
               <Box key={g.parent.id} sx={{ minWidth: 180 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                <Typography variant="h6" sx={{ mb: 1, color: "text.primary", fontWeight: 600}}>
                   {g.parent.name}
                 </Typography>
                 {g.children.length > 0 ? (
