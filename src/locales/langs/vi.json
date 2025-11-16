@@ -288,5 +288,31 @@
     "sale": "SALE",
     "hot": "HOT",
     "outOfStock": "HẾT HÀNG"
+  },
+  "header": {
+    "home": "TRANG CHỦ",
+    "shop": "Cửa hàng",
+    "categories": "DANH MỤC",
+    "collection": "BỘ SƯU TẬP",
+    "wishlist": "Yêu thích",
+    "account": "Tài khoản",
+    "login": "Đăng nhập",
+    "another": "Khác"
+  },
+  "footer": {
+    "weAre": "CHÚNG TÔI LÀ ...",
+    "ourStory": "Câu chuyện của chúng tôi",
+    "careers": "Tuyển dụng",
+    "contactUs": "LIÊN HỆ",
+    "email": "Email",
+    "policy": "CHÍNH SÁCH",
+    "shippingPolicy": "Chính sách vận chuyển",
+    "privacyPolicy": "Chính sách bảo mật",
+    "exchangePolicy": "Chính sách đổi trả",
+    "termsOfUse": "Điều khoản sử dụng",
+    "category": "DANH MỤC",
+    "bikini": "Bikini",
+    "followUs": "THEO DÕI CHÚNG TÔI",
+    "copyright": "© {{year}} NO NAME"
   }
 }

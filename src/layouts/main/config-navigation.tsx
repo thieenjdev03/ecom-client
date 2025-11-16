@@ -23,11 +23,11 @@ export const navConfig = [
     path: paths.categories.root,
     hasCategories: true, // Custom flag to identify categories menu
   },
-  {
-    title: "Collection",
-    icon: <Iconify icon="solar:folder-bold-duotone" />,
-    path: paths.collection,
-  },
+  // {
+  //   title: "Collection",
+  //   icon: <Iconify icon="solar:folder-bold-duotone" />,
+  //   path: paths.collection,
+  // },
   {
     title: "Components",
     icon: <Iconify icon="solar:atom-bold-duotone" />,

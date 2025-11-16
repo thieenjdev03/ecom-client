@@ -19,9 +19,9 @@ export function useGetProducts(params?: { page?: number; limit?: number }) {
   const memoizedValue = useMemo(
     () => ({
       products: Array.isArray(data)
-        ? (data as Product[]).map(adaptProductDtoToItem)
+        ? (data as Product[]).map((dto) => adaptProductDtoToItem(dto))
         : (data?.data?.data as Product[] | undefined)?.map(
-            adaptProductDtoToItem,
+            (dto) => adaptProductDtoToItem(dto),
           ) || [],
       productsLoading: isLoading,
       productsError: error,
@@ -41,8 +41,21 @@ export function useGetProducts(params?: { page?: number; limit?: number }) {
 
 // ----------------------------------------------------------------------
 
-export function useGetProduct(productId: string) {
-  const URL = productId ? endpoints.product.details(productId) : "";
+export function useGetProduct(productId: string, locale?: string) {
+  // Get locale from i18n if not provided
+  const getLocale = () => {
+    if (locale) return locale;
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("i18nextLng");
+      return stored || "en";
+    }
+    return "en";
+  };
+
+  const currentLocale = getLocale();
+  const URL = productId 
+    ? [endpoints.product.details(productId), { params: { locale: currentLocale } }]
+    : "";
 
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
 
@@ -51,13 +64,14 @@ export function useGetProduct(productId: string) {
       product: data
         ? adaptProductDtoToItem(
             (data?.data as Product) ?? (data as Product),
+            currentLocale,
           )
         : (undefined as unknown as IProductItem),
       productLoading: isLoading,
       productError: error,
       productValidating: isValidating,
     }),
-    [data, error, isLoading, isValidating],
+    [data, error, isLoading, isValidating, currentLocale],
   );
 
   return memoizedValue;
@@ -92,8 +106,11 @@ export async function searchProducts(query: string) {
 }
 
 // Get product by ID (for validation)
-export async function getProductById(productId: string) {
-  const res = await axios.get(endpoints.product.details(productId));
+export async function getProductById(productId: string, locale?: string) {
+  const currentLocale = locale || (typeof window !== "undefined" ? localStorage.getItem("i18nextLng") || "en" : "en");
+  const res = await axios.get(endpoints.product.details(productId), {
+    params: { locale: currentLocale },
+  });
   const product = res.data?.data || res.data;
-  return product ? adaptProductDtoToItem(product as Product) : null;
+  return product ? adaptProductDtoToItem(product as Product, currentLocale) : null;
 }

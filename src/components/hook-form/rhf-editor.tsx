@@ -11,7 +11,7 @@ interface Props extends EditorProps {
   name: string;
 }
 
-export default function RHFEditor({ name, helperText, ...other }: Props) {
+export default function RHFEditor({ name, helperText, id, ...other }: Props) {
   const {
     control,
     watch,
@@ -20,6 +20,10 @@ export default function RHFEditor({ name, helperText, ...other }: Props) {
   } = useFormContext();
 
   const values = watch();
+
+  // Generate a valid ID from name if id is not provided
+  // Replace dots with hyphens to make it a valid CSS selector
+  const editorId = id || name.replace(/\./g, "-");
 
   useEffect(() => {
     if (values[name] === "<p><br></p>") {
@@ -35,7 +39,7 @@ export default function RHFEditor({ name, helperText, ...other }: Props) {
       control={control}
       render={({ field, fieldState: { error } }) => (
         <Editor
-          id={name}
+          id={editorId}
           value={field.value}
           onChange={field.onChange}
           error={!!error}

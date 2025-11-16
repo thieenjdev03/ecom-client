@@ -60,10 +60,14 @@ type Props = {
 };
 
 export default function ProductDetailsView({ id }: Props) {
-  const { product, productLoading, productError } = useGetProduct(id);
-  console.log("product", product);
   const settings = useSettingsContext();
-  const { t } = useTranslate();
+  const { t, i18n } = useTranslate();
+  
+  // Get locale from i18n for multi-language support (admin view uses English by default)
+  const currentLocale = i18n.language || "en";
+  
+  const { product, productLoading, productError } = useGetProduct(id, currentLocale);
+  console.log("product", product);
 
   const [currentTab, setCurrentTab] = useState("description");
   const [selectedVariant, setSelectedVariant] = useState<ProductVariantDto | null>(null);

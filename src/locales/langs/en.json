@@ -288,5 +288,31 @@
     "sale": "SALE",
     "hot": "HOT",
     "outOfStock": "OUT OF STOCK"
+  },
+  "header": {
+    "home": "Home",
+    "shop": "Shop",
+    "categories": "Categories",
+    "collection": "COLLECTION",
+    "wishlist": "Wishlist",
+    "account": "Account",
+    "login": "Login",
+    "another": "Another"
+  },
+  "footer": {
+    "weAre": "WE ARE ...",
+    "ourStory": "Our Story",
+    "careers": "Careers",
+    "contactUs": "CONTACT US",
+    "email": "Email",
+    "policy": "POLICY",
+    "shippingPolicy": "Shipping policy",
+    "privacyPolicy": "Privacy Policy",
+    "exchangePolicy": "Exchange Policy",
+    "termsOfUse": "Terms of Use",
+    "category": "CATEGORY",
+    "bikini": "Bikini",
+    "followUs": "FOLLOW US",
+    "copyright": "© {{year}} NO NAME"
   }
 }

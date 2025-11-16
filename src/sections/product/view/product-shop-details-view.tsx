@@ -49,8 +49,12 @@ export default function ProductShopDetailsView({ id }: Props) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariantDto | null>(null);
 
   // ------------------------------------------------------------------
+  // Get locale from i18n for multi-language support
+  const { i18n } = useTranslate();
+  const currentLocale = i18n.language || "en";
+
   // Use real API data instead of mockup
-  const { product, productLoading, productError } = useGetProduct(id);
+  const { product, productLoading, productError } = useGetProduct(id, currentLocale);
   const handleChangeTab = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {
       setCurrentTab(newValue);

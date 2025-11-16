@@ -35,6 +35,7 @@ import { useSnackbar } from "src/components/snackbar";
 import { IProductItem } from "src/types/product";
 import { ICheckoutItem } from "src/types/checkout";
 import { ProductVariantDto } from "src/types/product-dto";
+import { t as tMultiLang } from "src/utils/multi-lang";
 
 import IncrementerButton from "./common/incrementer-button";
 
@@ -60,7 +61,8 @@ export default function ProductDetailsSummary({
 }: Props) {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
-  const { t } = useTranslate();
+  const { t, i18n } = useTranslate();
+  const currentLocale = i18n.language || "en";
   const [openDetails, setOpenDetails] = useState(false);
   const [openAdditional, setOpenAdditional] = useState(false);
   const sizeGuideDialog = useBoolean();
@@ -288,9 +290,11 @@ export default function ProductDetailsSummary({
         // Get variant name for display
         const selectedColor = allColors.find((c: any) => c.id === selectedColorId);
         const selectedSize = allSizes.find((s: any) => s.id === selectedSizeId);
+        const colorName = selectedColor ? tMultiLang(selectedColor.name, currentLocale) : "";
+        const sizeName = selectedSize ? tMultiLang(selectedSize.name, currentLocale) : "";
         const variantName = selectedColor && selectedSize
-          ? `${selectedColor.name} / ${selectedSize.name}`
-          : selectedVariant?.name || "";
+          ? `${colorName} / ${sizeName}`
+          : selectedVariant?.name ? tMultiLang(selectedVariant.name, currentLocale) : "";
 
         // Prepare cart item with all required fields
         const cartItem: ICheckoutItem = {
@@ -397,9 +401,11 @@ export default function ProductDetailsSummary({
       // Get variant name for display
       const selectedColor = allColors.find((c: any) => c.id === selectedColorId);
       const selectedSize = allSizes.find((s: any) => s.id === selectedSizeId);
+      const colorName = selectedColor ? tMultiLang(selectedColor.name, currentLocale) : "";
+      const sizeName = selectedSize ? tMultiLang(selectedSize.name, currentLocale) : "";
       const variantName = selectedColor && selectedSize
-        ? `${selectedColor.name} / ${selectedSize.name}`
-        : selectedVariant?.name || "";
+        ? `${colorName} / ${sizeName}`
+        : selectedVariant?.name ? tMultiLang(selectedVariant.name, currentLocale) : "";
 
       // Prepare cart item with all required fields
       const cartItem: ICheckoutItem = {

@@ -23,13 +23,32 @@ export const createProductValidationSchema = (t: any) =>
         if (value == null) return true;
         return Number(value) <= Number(price || 0);
       }),
-    name: Yup.string().required(t('productForm.nameRequired')),
-    slug: Yup.string().required(t('productForm.slugRequired')),
-    description: Yup.string().nullable(),
-    shortDescription: Yup.string().nullable(),
+    // Multi-language fields
+    name: Yup.object().shape({
+      en: Yup.string().required(t('productForm.nameRequired')),
+      vi: Yup.string().required(t('productForm.nameRequired')),
+    }).required(),
+    slug: Yup.object().shape({
+      en: Yup.string().required(t('productForm.slugRequired')),
+      vi: Yup.string().required(t('productForm.slugRequired')),
+    }).required(),
+    description: Yup.object().shape({
+      en: Yup.string().nullable(),
+      vi: Yup.string().nullable(),
+    }).nullable(),
+    shortDescription: Yup.object().shape({
+      en: Yup.string().nullable(),
+      vi: Yup.string().nullable(),
+    }).nullable(),
     productCode: Yup.string().required(t('productForm.productCodeRequired')),
-    categoryId: Yup.string().required(t('productForm.categoryRequired')),
-    quantity: Yup.number().min(0).required(t('productForm.quantityRequired')),
+    category: Yup.string().required(t('productForm.categoryRequired')),
+    quantity: Yup.number()
+      .min(0)
+      .when('manageVariants', {
+        is: true,
+        then: (schema) => schema.optional(),
+        otherwise: (schema) => schema.required(t('productForm.quantityRequired')),
+      }),
     saleLabel: Yup.string().nullable(),
     newLabel: Yup.string().nullable(),
     isSale: Yup.boolean(),
@@ -80,7 +99,26 @@ export const createProductValidationSchema = (t: any) =>
     variants: Yup.array()
       .of(
         Yup.object({
-          name: Yup.string().required(t('productForm.variantNameRequired')),
+          name: Yup.object()
+            .shape({
+              en: Yup.string().nullable(),
+              vi: Yup.string().nullable(),
+            })
+            .test('at-least-one-name', t('productForm.variantNameRequired'), function (value) {
+              // Allow null/undefined during form initialization
+              if (!value) return false;
+              if (typeof value !== 'object' || Array.isArray(value)) return false;
+              
+              const en = value.en || '';
+              const vi = value.vi || '';
+              
+              // At least one field must have a non-empty value
+              const hasEn = typeof en === 'string' && en.trim().length > 0;
+              const hasVi = typeof vi === 'string' && vi.trim().length > 0;
+              
+              return hasEn || hasVi;
+            })
+            .required(t('productForm.variantNameRequired')),
           sku: Yup.string().required(t('productForm.variantSkuRequired')),
           price: Yup.number()
             .typeError(t('productForm.priceMustBeNumber'))
@@ -117,13 +155,14 @@ export const getDefaultProductFormValues = () => ({
   isFeatured: false,
   price: 0,
   salePrice: undefined as number | undefined,
-  name: '',
-  slug: '',
-  description: '',
-  shortDescription: '',
+  // Multi-language fields
+  name: { en: '', vi: '' },
+  slug: { en: '', vi: '' },
+  description: { en: '', vi: '' },
+  shortDescription: { en: '', vi: '' },
   productCode: '',
   sku: '',
-  categoryId: '',
+  category: '',
   quantity: 0,
   saleLabel: '',
   newLabel: '',
@@ -140,8 +179,10 @@ export const getDefaultProductFormValues = () => ({
   },
   manageVariants: false,
   stockQuantity: 0,
+  barcode: undefined as string | undefined,
+  enable_sale_tag: false,
   variants: [] as {
-    name: string;
+    name: { en: string; vi: string };
     sku: string;
     price: number;
     stock: number;

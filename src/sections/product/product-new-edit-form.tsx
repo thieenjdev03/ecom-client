@@ -24,6 +24,8 @@ import DialogActions from "@mui/material/DialogActions";
 import Paper from "@mui/material/Paper";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
 
 import { paths } from "src/routes/paths";
 import { useRouter } from "src/routes/hooks";
@@ -71,6 +73,7 @@ const VariantItem = memo(({
   onUploadImage,
   onDeleteImage,
   onRemoveVariant,
+  langTab,
   t
 }: any) => {
   const variantImageUrl = variant?.imageUrl || "";
@@ -227,12 +230,22 @@ const VariantItem = memo(({
 
         <Box sx={{ flex: 1 }}>
           <Stack spacing={2}>
+            {/* Variant Name - Multi-language (based on selected language tab) */}
             <RHFTextField
               required
-              name={`variants[${index}].name`}
-              label={t("productForm.variantName")}
+              name={`variants[${index}].name.${langTab === 0 ? 'en' : 'vi'}`}
+              label={t("productForm.variantName") + ` (${langTab === 0 ? 'EN' : 'VI'})`}
               placeholder={t("productForm.variantNamePlaceholder")}
               size="small"
+              helperText={
+                langTab === 1 && 
+                variant?.name && 
+                typeof variant.name === "object" &&
+                !variant.name.vi && 
+                variant.name.en 
+                  ? `Auto-filled from EN: "${variant.name.en}"` 
+                  : undefined
+              }
             />
 
             <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
@@ -321,6 +334,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
 
   const [_includeTaxes, _setIncludeTaxes] = useState(false);
   const [openAttributes, setOpenAttributes] = useState(true);
+  const [langTab, setLangTab] = useState(0); // 0 = English, 1 = Vietnamese
 
   const NewProductSchema = useMemo(() => createProductValidationSchema(t), [t]);
 
@@ -345,7 +359,10 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
   const name = watch("name");
   const slug = watch("slug");
   const prevNameRef = useRef<string>("");
-  const debouncedSlug = useDebounce(slug || "", 500);
+  const debouncedSlug = useDebounce(
+    typeof slug === "object" ? slug?.en || "" : slug || "",
+    500
+  );
 
   const _debouncedFormValuesRef = useRef<any>(null);
 
@@ -357,7 +374,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
     const check = async () => {
       const s = (debouncedSlug || "").trim();
       if (!s) {
-        clearErrors("slug");
+        clearErrors("slug.en");
         return;
       }
       try {
@@ -366,13 +383,13 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
         const exists = Array.isArray(items) && items.length > 0;
         if (!active) return;
         if (exists) {
-          setError("slug", { type: "validate", message: t("productForm.slugAlreadyExists") });
+          setError("slug.en", { type: "validate", message: t("productForm.slugAlreadyExists") });
         } else {
-          clearErrors("slug");
+          clearErrors("slug.en");
         }
       } catch (e) {
         if (!active) return;
-        clearErrors("slug");
+        clearErrors("slug.en");
       }
     };
     check();
@@ -386,6 +403,136 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
     name: "variants",
   });
 
+  // Auto-clone EN → VI when creating new product
+  useEffect(() => {
+    if (!currentProduct) {
+      const nameEn = typeof name === "object" ? name?.en : "";
+      const nameVi = typeof name === "object" ? name?.vi : "";
+      if (nameEn && !nameVi) {
+        setValue("name.vi", nameEn);
+      }
+
+      const slugEn = typeof slug === "object" ? slug?.en : "";
+      const slugVi = typeof slug === "object" ? slug?.vi : "";
+      if (slugEn && !slugVi) {
+        setValue("slug.vi", slugEn);
+      }
+
+      const descEn = typeof watch("description") === "object" ? watch("description")?.en : "";
+      const descVi = typeof watch("description") === "object" ? watch("description")?.vi : "";
+      if (descEn && !descVi) {
+        setValue("description.vi", descEn);
+      }
+
+      const shortDescEn = typeof watch("shortDescription") === "object" ? watch("shortDescription")?.en : "";
+      const shortDescVi = typeof watch("shortDescription") === "object" ? watch("shortDescription")?.vi : "";
+      if (shortDescEn && !shortDescVi) {
+        setValue("shortDescription.vi", shortDescEn);
+      }
+
+      // Auto-clone variant names EN → VI
+      const variants = watch("variants") || [];
+      variants.forEach((variant: any, index: number) => {
+        if (variant?.name) {
+          const variantNameEn = typeof variant.name === "object" ? variant.name?.en : "";
+          const variantNameVi = typeof variant.name === "object" ? variant.name?.vi : "";
+          if (variantNameEn && !variantNameVi) {
+            setValue(`variants[${index}].name.vi`, variantNameEn);
+          }
+        }
+      });
+    }
+  }, [name, slug, watch, setValue, currentProduct]);
+
+  // Auto-fill VI fields from EN when switching to VI tab (if VI is empty)
+  useEffect(() => {
+    if (langTab === 1) {
+      // Get current values
+      const nameEn = typeof watch("name") === "object" ? watch("name")?.en : "";
+      const nameVi = typeof watch("name") === "object" ? watch("name")?.vi : "";
+      if (nameEn && !nameVi) {
+        setValue("name.vi", nameEn, { shouldValidate: false });
+      }
+
+      const slugEn = typeof watch("slug") === "object" ? watch("slug")?.en : "";
+      const slugVi = typeof watch("slug") === "object" ? watch("slug")?.vi : "";
+      if (slugEn && !slugVi) {
+        setValue("slug.vi", slugEn, { shouldValidate: false });
+      }
+
+      const descEn = typeof watch("description") === "object" ? watch("description")?.en : "";
+      const descVi = typeof watch("description") === "object" ? watch("description")?.vi : "";
+      if (descEn && !descVi) {
+        setValue("description.vi", descEn, { shouldValidate: false });
+      }
+
+      const shortDescEn = typeof watch("shortDescription") === "object" ? watch("shortDescription")?.en : "";
+      const shortDescVi = typeof watch("shortDescription") === "object" ? watch("shortDescription")?.vi : "";
+      if (shortDescEn && !shortDescVi) {
+        setValue("shortDescription.vi", shortDescEn, { shouldValidate: false });
+      }
+
+      const metaTitleEn = typeof watch("metaTitle") === "object" ? watch("metaTitle")?.en : "";
+      const metaTitleVi = typeof watch("metaTitle") === "object" ? watch("metaTitle")?.vi : "";
+      if (metaTitleEn && !metaTitleVi) {
+        setValue("metaTitle.vi", metaTitleEn, { shouldValidate: false });
+      }
+
+      const metaDescEn = typeof watch("metaDescription") === "object" ? watch("metaDescription")?.en : "";
+      const metaDescVi = typeof watch("metaDescription") === "object" ? watch("metaDescription")?.vi : "";
+      if (metaDescEn && !metaDescVi) {
+        setValue("metaDescription.vi", metaDescEn, { shouldValidate: false });
+      }
+
+      // Auto-fill variant names
+      const variants = watch("variants") || [];
+      variants.forEach((variant: any, index: number) => {
+        if (variant?.name) {
+          const variantNameEn = typeof variant.name === "object" ? variant.name?.en : "";
+          const variantNameVi = typeof variant.name === "object" ? variant.name?.vi : "";
+          if (variantNameEn && !variantNameVi) {
+            setValue(`variants[${index}].name.vi`, variantNameEn, { shouldValidate: false });
+          }
+        }
+      });
+    }
+  }, [langTab, watch, setValue]);
+
+  // Ensure variant name has correct format (object with en and vi)
+  const watchedVariantsForFormat = watch("variants");
+  useEffect(() => {
+    const variants = watchedVariantsForFormat || [];
+    variants.forEach((variant: any, index: number) => {
+      if (variant && (!variant.name || typeof variant.name !== "object" || Array.isArray(variant.name))) {
+        // Ensure name is always an object
+        setValue(`variants[${index}].name`, { en: "", vi: "" }, { shouldValidate: false });
+      } else if (variant?.name && typeof variant.name === "object") {
+        // Ensure both en and vi exist
+        const currentName = variant.name;
+        if (currentName.en === undefined) {
+          setValue(`variants[${index}].name.en`, "", { shouldValidate: false });
+        }
+        if (currentName.vi === undefined) {
+          setValue(`variants[${index}].name.vi`, "", { shouldValidate: false });
+        }
+      }
+    });
+  }, [watchedVariantsForFormat, setValue]);
+
+  // Auto-calculate quantity from variants when manageVariants is enabled
+  const manageVariantsValue = watch("manageVariants");
+  const watchedVariants = watch("variants");
+  
+  useEffect(() => {
+    if (manageVariantsValue && Array.isArray(watchedVariants)) {
+      const totalQuantity = watchedVariants.reduce((sum: number, variant: any) => {
+        const stock = typeof variant?.stock === "number" ? variant.stock : (typeof variant?.stock === "string" ? Number(variant.stock) : 0);
+        return sum + (isNaN(stock) ? 0 : stock);
+      }, 0);
+      setValue("quantity", totalQuantity, { shouldValidate: false, shouldDirty: false });
+    }
+  }, [manageVariantsValue, watchedVariants, setValue]);
+
   useEffect(() => {
     const generateSlug = (input: string) =>
       input
@@ -395,18 +542,21 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
         .replace(/\s+/g, "-")
         .replace(/-+/g, "-");
 
+    const nameEn = typeof name === "object" ? name?.en || "" : name || "";
+    const slugEn = typeof slug === "object" ? slug?.en || "" : slug || "";
     const prevName = prevNameRef.current;
-    const nameSlug = generateSlug(name || "");
+    const nameSlug = generateSlug(nameEn);
+
     const prevNameSlug = generateSlug(prevName || "");
 
-    const slugWasDerivedFromPrevName = slug === prevNameSlug;
-    const shouldDerive = !slug || slugWasDerivedFromPrevName;
+    const slugWasDerivedFromPrevName = slugEn === prevNameSlug;
+    const shouldDerive = !slugEn || slugWasDerivedFromPrevName;
 
-    if (shouldDerive && slug !== nameSlug) {
-      setValue("slug", nameSlug);
+    if (shouldDerive && slugEn !== nameSlug) {
+      setValue("slug.en", nameSlug);
     }
 
-    prevNameRef.current = name || "";
+    prevNameRef.current = nameEn;
   }, [name, slug, setValue]);
 
   const { categories } = useGetCategories();
@@ -545,17 +695,31 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       });
     }
 
+    // Handle multi-language fields - convert string to object format or use existing object
+    const getMultiLangField = (field: any): { en: string; vi: string } => {
+      if (typeof field === "string") {
+        return { en: field || "", vi: "" };
+      }
+      if (typeof field === "object" && field !== null && !Array.isArray(field)) {
+        return {
+          en: field.en || "",
+          vi: field.vi || "",
+        };
+      }
+      return { en: "", vi: "" };
+    };
+
     return {
-      name: product.name || "",
-      slug: product.slug || "",
-      description: product.description || "",
-      shortDescription: product.short_description || "",
+      name: getMultiLangField(product.name),
+      slug: getMultiLangField(product.slug),
+      description: getMultiLangField(product.description),
+      shortDescription: getMultiLangField(product.short_description),
       images: product.images || [],
       price: product.price ? Number(product.price) : 0,
       salePrice: product.sale_price ? Number(product.sale_price) : undefined,
       status: product.status || "active",
       isFeatured: product.is_featured || false,
-      categoryId: product.category_id,
+      category: product.category?.id || product.category_id || "",
       colorIds: Array.from(colorIdsSet),
       sizeIds: Array.from(sizeIdsSet),
       manageVariants: hasVariants,
@@ -564,7 +728,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       quantity: product.stock_quantity || 0,
       variants: hasVariants && product.variants
         ? product.variants.map((v: any) => ({
-          name: v.name || "",
+          name: getMultiLangField(v.name),
           sku: v.sku || "",
           price: typeof v.price === "number" ? v.price : (typeof v.price === "string" ? Number(v.price) : 0),
           stock: typeof v.stock === "number" ? v.stock : (typeof v.stock === "string" ? Number(v.stock) : 0),
@@ -574,14 +738,14 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
         }))
         : [],
       isSale: Boolean(product.sale_price),
-      enable_sale_tag: false,
+      enable_sale_tag: Boolean((product as any).enable_sale_tag || false),
       isNew: false,
       newLabel: "",
       productCode: "",
       costPrice: product.cost_price ? Number(product.cost_price) : undefined,
       barcode: product.barcode || undefined,
-      metaTitle: product.meta_title || undefined,
-      metaDescription: product.meta_description || undefined,
+      metaTitle: getMultiLangField(product.meta_title),
+      metaDescription: getMultiLangField(product.meta_description),
       weight: product.weight ? Number(product.weight) : undefined,
       dimensions: product.dimensions
         ? {
@@ -812,7 +976,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       const updatedVariants = currentVariants.map((variant: any) => {
         return {
           ...variant,
-          name: variant?.name || "",
+          name: typeof variant?.name === "object" ? variant.name : { en: variant?.name || "", vi: "" },
           sku: variant?.sku || "",
           price: variant?.price || 0,
           stock: variant?.stock || 0,
@@ -824,7 +988,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
 
       while (updatedVariants.length <= variantIndex) {
         updatedVariants.push({
-          name: "",
+          name: { en: "", vi: "" },
           sku: "",
           price: 0,
           stock: 0,
@@ -953,7 +1117,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
 
       const updatedVariants = currentVariants.map((variant: any) => ({
         ...variant,
-        name: variant?.name || "",
+        name: typeof variant?.name === "object" ? variant.name : { en: variant?.name || "", vi: "" },
         sku: variant?.sku || "",
         price: variant?.price || 0,
         stock: variant?.stock || 0,
@@ -1137,22 +1301,23 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
         }
 
         const payload: any = {
-          name: data.name,
-          slug: data.slug,
+          name: data.name, // Already in multi-language format { en: "", vi: "" }
+          slug: data.slug, // Already in multi-language format { en: "", vi: "" }
           productCode: data.productCode || undefined,
           sku: data.sku || undefined,
           quantity: data.quantity || 0,
-          description: data.description || undefined,
-          short_description: data.shortDescription || undefined,
+          description: data.description, // Already in multi-language format { en: "", vi: "" }
+          short_description: data.shortDescription, // Already in multi-language format { en: "", vi: "" }
           images: (data.images as string[])?.slice(0, 5) || [],
           price: basePrice,
           sale_price: sale != null ? sale : undefined,
           cost_price: (data as any).costPrice != null ? Number((data as any).costPrice) : undefined,
           barcode: (data as any).barcode || undefined,
+          enable_sale_tag: Boolean((data as any).enable_sale_tag || false),
           status: data.status === 'active' ? 'active' : 'inactive',
           is_featured: !!data.isFeatured,
-          meta_title: (data as any).metaTitle || undefined,
-          meta_description: (data as any).metaDescription || undefined,
+          meta_title: (data as any).metaTitle || undefined, // Already in multi-language format { en: "", vi: "" }
+          meta_description: (data as any).metaDescription || undefined, // Already in multi-language format { en: "", vi: "" }
           weight: data.weight != null ? Number(data.weight) : undefined,
           dimensions: data.dimensions && (data.dimensions.length != null || data.dimensions.width != null || data.dimensions.height != null)
             ? {
@@ -1161,19 +1326,32 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
               height: data.dimensions.height != null ? Number(data.dimensions.height) : undefined,
             }
             : undefined,
-          category_id: data.categoryId,
+          category_id: data.category,
         };
 
         if (data.manageVariants) {
-          payload.variants = (data.variants || []).map((v: any) => ({
-            name: v.name,
-            sku: v.sku,
-            price: Number(v.price) || 0,
-            stock: Number(v.stock) || 0,
-            color_id: v.colorId,
-            size_id: v.sizeId,
-            image_url: v.imageUrl || undefined,
-          }));
+          payload.variants = (data.variants || []).map((v: any) => {
+            // Ensure variant name has both en and vi - auto-fill from en if vi is empty, or vice versa
+            const variantName = v.name || {};
+            const nameEn = typeof variantName === "object" ? (variantName.en || "") : "";
+            const nameVi = typeof variantName === "object" ? (variantName.vi || "") : "";
+            
+            // Auto-fill missing field from the other
+            const finalName = {
+              en: nameEn || nameVi || "",
+              vi: nameVi || nameEn || "",
+            };
+            
+            return {
+              name: finalName,
+              sku: v.sku,
+              price: Number(v.price) || 0,
+              stock: Number(v.stock) || 0,
+              color_id: v.colorId,
+              size_id: v.sizeId,
+              image_url: v.imageUrl || undefined,
+            };
+          });
 
           const variantImageUrls = (data.variants || [])
             .map((v: any) => v.imageUrl)
@@ -1227,7 +1405,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
           setError("slug", { type: "server", message: t("productForm.slugAlreadyExists") });
         }
         if (lower.includes("invalid") && lower.includes("category")) {
-          setError("categoryId", { type: "server", message: "Invalid category_id" });
+          setError("category", { type: "server", message: "Invalid category_id" });
         }
         if (lower.includes("stock") && lower.includes("negative")) {
           if (data.manageVariants) {
@@ -1262,10 +1440,65 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
           {!mdUp && <CardHeader title={t("productForm.details")} />}
 
           <Stack spacing={3} sx={{ p: 3 }}>
-            <RHFTextField required name="name" label={t("productForm.name")} placeholder={t("productForm.namePlaceholder")} />
-            <RHFTextField required name="slug" label={t("productForm.slug")} helperText={t("productForm.slugHelperText")} placeholder={t("productForm.slugPlaceholder")} />
-            <RHFTextField name="shortDescription" label={t("productForm.shortDescription")} placeholder={t("productForm.shortDescriptionPlaceholder")} multiline minRows={2} />
-            <RHFEditor name="description" />
+            {/* Language Tabs */}
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <Tabs value={langTab} onChange={(e, newValue) => setLangTab(newValue)}>
+                <Tab label="English 🇬🇧" />
+                <Tab label="Vietnamese 🇻🇳" />
+              </Tabs>
+            </Box>
+
+            {/* English Tab */}
+            {langTab === 0 && (
+              <Stack spacing={3}>
+                <RHFTextField required name="name.en" label={t("productForm.name") + " (EN)"} placeholder={t("productForm.namePlaceholder")} />
+                <RHFTextField required name="slug.en" label={t("productForm.slug") + " (EN)"} helperText={t("productForm.slugHelperText")} placeholder={t("productForm.slugPlaceholder")} />
+                <RHFTextField name="shortDescription.en" label={t("productForm.shortDescription") + " (EN)"} placeholder={t("productForm.shortDescriptionPlaceholder")} multiline minRows={2} />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>{t("productForm.description")} (EN)</Typography>
+                  <RHFEditor name="description.en" id="description-en" />
+                </Box>
+              </Stack>
+            )}
+
+            {/* Vietnamese Tab */}
+            {langTab === 1 && (
+              <Stack spacing={3}>
+                <RHFTextField 
+                  required 
+                  name="name.vi" 
+                  label={t("productForm.name") + " (VI)"} 
+                  placeholder={t("productForm.namePlaceholder")}
+                  helperText={!watch("name.vi") && watch("name.en") ? `Auto-filled from EN: "${watch("name.en")}"` : undefined}
+                />
+                <RHFTextField 
+                  required 
+                  name="slug.vi" 
+                  label={t("productForm.slug") + " (VI)"} 
+                  helperText={!watch("slug.vi") && watch("slug.en") ? `Auto-filled from EN: "${watch("slug.en")}"` : t("productForm.slugHelperText")} 
+                  placeholder={t("productForm.slugPlaceholder")} 
+                />
+                <RHFTextField 
+                  name="shortDescription.vi" 
+                  label={t("productForm.shortDescription") + " (VI)"} 
+                  placeholder={t("productForm.shortDescriptionPlaceholder")} 
+                  multiline 
+                  minRows={2}
+                  helperText={!watch("shortDescription.vi") && watch("shortDescription.en") ? `Auto-filled from EN` : undefined}
+                />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                    {t("productForm.description")} (VI)
+                    {!watch("description.vi") && watch("description.en") && (
+                      <Typography component="span" variant="caption" sx={{ color: 'text.secondary', ml: 1 }}>
+                        (Auto-filled from EN)
+                      </Typography>
+                    )}
+                  </Typography>
+                  <RHFEditor name="description.vi" id="description-vi" />
+                </Box>
+              </Stack>
+            )}
             <Stack spacing={1}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Typography variant="subtitle2">{t("productForm.images")}</Typography>
@@ -1438,78 +1671,6 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
     </>
   );
 
-  const renderProperties = (
-    <>
-      {mdUp && (
-        <Grid md={2}>
-          <Typography variant="h6" sx={{ mb: 0.5 }}>
-            {t("productForm.productMeta")}
-          </Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            {t("productForm.productMetaDescription")}
-          </Typography>
-        </Grid>
-      )}
-
-      <Grid xs={12} md={10}>
-        <Card>
-          {!mdUp && <CardHeader title={t("productForm.productMeta")} />}
-
-          <Stack spacing={3} sx={{ p: 3 }}>
-            <Box columnGap={2} rowGap={3} display="grid" gridTemplateColumns={{ xs: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <RHFSelect required native name="categoryId" label={t("productForm.category")} InputLabelProps={{ shrink: true }}>
-                  <option value="" />
-                  {categories.map((c: any) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </RHFSelect>
-                <IconButton size="small" color="primary" onClick={() => setOpenCreateCategory(true)} aria-label="add category">
-                  +
-                </IconButton>
-              </Box>
-
-              <RHFSelect required native name="status" label={t("productForm.status")} InputLabelProps={{ shrink: true }}>
-                <option value="active">{t("productForm.statusActive")}</option>
-                <option value="inactive">{t("productForm.statusInactive")}</option>
-              </RHFSelect>
-
-            </Box>
-
-            {/* <Stack spacing={1}>
-              <Typography variant="subtitle2">Tags</Typography>
-              <RHFAutocomplete
-                name="tags"
-                placeholder="Enter tag and press Enter"
-                multiple
-                freeSolo
-                options={[]}
-                getOptionLabel={(option) => option as unknown as string}
-                renderTags={(selected, getTagProps) =>
-                  selected.map((option, index) => (
-                    <Chip
-                      {...getTagProps({ index })}
-                      key={option as unknown as string}
-                      label={option as unknown as string}
-                      size="small"
-                      color="primary"
-                      variant="soft"
-                    />
-                  ))
-                }
-              />
-              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                Add tags for better organization and searchability
-              </Typography>
-            </Stack> */}
-          </Stack>
-        </Card>
-      </Grid>
-    </>
-  );
-
   const renderPricing = (
     <>
       {mdUp && (
@@ -1592,6 +1753,16 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                   endAdornment: <InputAdornment position="end">kg</InputAdornment>,
                 }}
                 helperText={t("productForm.weightHelper")}
+              />
+            </Box>
+
+            <Box>
+              <RHFTextField
+                name="barcode"
+                label={t("productForm.barcode") || "Barcode"}
+                placeholder={t("productForm.barcodePlaceholder") || "Enter barcode"}
+                InputLabelProps={{ shrink: true }}
+                helperText={t("productForm.barcodeHelper") || "Optional product barcode"}
               />
             </Box>
 
@@ -1726,13 +1897,14 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                       onUploadImage={handleUploadVariantImage}
                       onDeleteImage={handleDeleteVariantImage}
                       onRemoveVariant={removeVariant}
+                      langTab={langTab}
                       t={t}
                     />
                   );
                 })}
 
                 <Box>
-                  <Button variant="outlined" onClick={() => appendVariant({ name: "", sku: "", price: 0, stock: 0, colorId: "", sizeId: "", imageUrl: "" })}>
+                  <Button variant="outlined" onClick={() => appendVariant({ name: { en: "", vi: "" }, sku: "", price: 0, stock: 0, colorId: "", sizeId: "", imageUrl: "" })}>
                     {t("productForm.addVariant")}
                   </Button>
                 </Box>
@@ -1742,7 +1914,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
         </>
       )}
     </>
-  ), [manageVariants, variantFields, colors, sizes, uploadingVariantImages, uploadingBulkVariantImages, mdUp, t, handleUploadVariantImage, handleDeleteVariantImage, handleBulkUploadVariantImages, removeVariant, appendVariant, getValues]);
+  ), [manageVariants, variantFields, colors, sizes, uploadingVariantImages, uploadingBulkVariantImages, mdUp, t, handleUploadVariantImage, handleDeleteVariantImage, handleBulkUploadVariantImages, removeVariant, appendVariant, getValues, langTab]);
 
   const renderActions = (
     <>
@@ -1806,8 +1978,6 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       <Grid container spacing={3}>
         {renderDetails}
 
-        {renderProperties}
-
         {renderPricing}
 
         {renderShipping}
@@ -1827,6 +1997,44 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
             </Stack>
             <Collapse in={openAttributes} timeout="auto" unmountOnExit>
               <Stack spacing={3} sx={{ p: 3 }} direction="column" alignItems="center" justifyContent="space-between" gap={2}>
+                  {/* Category */}
+                  <Stack direction="row" spacing={2} width="100%" alignItems="center">
+                    <RHFSelect 
+                      sx={{ width: "90%" }}
+                      required 
+                      native 
+                      name="category" 
+                      label={t("productForm.category")} 
+                      InputLabelProps={{ shrink: true }}
+                    >
+                      <option value="" />
+                      {categories.map((c: any) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </RHFSelect>
+                    <IconButton size="small" color="primary" onClick={() => setOpenCreateCategory(true)} aria-label="add category">
+                      <i className="fa-solid fa-plus"></i>
+                    </IconButton>
+                  </Stack>
+
+                  {/* Status */}
+                  <Stack direction="row" spacing={2} width="100%" alignItems="center">
+                    <RHFSelect 
+                      sx={{ width: "90%" }}
+                      required 
+                      native 
+                      name="status" 
+                      label={t("productForm.status")} 
+                      InputLabelProps={{ shrink: true }}
+                    >
+                      <option value="active">{t("productForm.statusActive")}</option>
+                      <option value="inactive">{t("productForm.statusInactive")}</option>
+                    </RHFSelect>
+                  </Stack>
+
+                  {/* Colors */}
                   <Stack direction="row" spacing={2} width="100%" alignItems="center">
                     <RHFMultiSelect
                       sx={{ width: "90%" }}
@@ -1837,9 +2045,11 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                       options={colors.map((c: any) => ({ label: c.name, value: c.id }))}
                     />
                     <IconButton sx={{ width: "30px", height: "30px" }} size="small" color="primary" onClick={() => setOpenCreateColor(true)} aria-label="add color">
-                    <i className="fa-solid fa-plus"></i>
+                      <i className="fa-solid fa-plus"></i>
                     </IconButton>
                   </Stack>
+
+                  {/* Sizes */}
                   <Stack direction="row" spacing={2} width="100%" alignItems="center">
                     <RHFMultiSelect
                       sx={{ width: "90%" }}
@@ -1850,22 +2060,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                       options={sizes.map((s: any) => ({ label: s.name, value: s.id }))}
                     />
                     <IconButton size="small" color="primary" onClick={() => setOpenCreateSize(true)} aria-label="add size">
-                    <i className="fa-solid fa-plus"></i>
-                    </IconButton>
-                  </Stack>
-                  <Stack direction="row" spacing={2} width="100%" alignItems="center">
-                    <RHFSelect 
-                    sx={{ width: "90%" }}
-                    required native name="categoryId" label={t("productForm.category")} InputLabelProps={{ shrink: true }}>
-                      <option value="" />
-                      {categories.map((c: any) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </RHFSelect>
-                    <IconButton size="small" color="primary" onClick={() => setOpenCreateCategory(true)} aria-label="add category">
-                    <i className="fa-solid fa-plus"></i>
+                      <i className="fa-solid fa-plus"></i>
                     </IconButton>
                   </Stack>
               </Stack>
@@ -1898,7 +2093,16 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                 </Box>
               )}
 
-              <RHFTextField required name="quantity" label={t("productForm.quantity")} placeholder={t("productForm.quantityPlaceholder")} type="number" InputLabelProps={{ shrink: true }} />
+              <RHFTextField 
+                required={!manageVariants}
+                disabled={manageVariants}
+                name="quantity" 
+                label={t("productForm.quantity")} 
+                placeholder={t("productForm.quantityPlaceholder")} 
+                type="number" 
+                InputLabelProps={{ shrink: true }}
+                helperText={manageVariants ? t("productForm.quantityAutoCalculated") : undefined}
+              />
             </Stack>
           </Card>
         </Grid>
@@ -1914,9 +2118,6 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
 
               <Stack spacing={1}>
                 <FormControlLabel control={<RHFSwitch name="enable_sale_tag" label={null} sx={{ m: 0 }} />} label={t("productForm.enableSaleLabel")} />
-                {isSale && (
-                  <RHFTextField name="enable_sale_tag" label={t("productForm.enableSaleLabel")} fullWidth />
-                )}
               </Stack>
 
               <Stack spacing={1}>
@@ -2006,7 +2207,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
             variant="contained"
             onClick={async () => {
               if (!newSizeName.trim()) return;
-              const currentCategoryId = getValues("categoryId");
+              const currentCategoryId = getValues("category");
               await createSize({ name: newSizeName.trim(), categoryId: currentCategoryId || undefined });
               await mutate([endpoints.refs.sizes, { params: { categoryId: currentCategoryId } }]);
               setNewSizeName("");

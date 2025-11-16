@@ -1,11 +1,18 @@
 import { IProductItem } from "src/types/product";
 import { Product } from "src/types/product-dto";
+import { t } from "src/utils/multi-lang";
 
-export function adaptProductDtoToItem(dto: Product): IProductItem {
+export function adaptProductDtoToItem(dto: Product, locale: string = "en"): IProductItem {
+  // Extract multi-language fields using locale with fallback
+  const name = t(dto.name, locale);
+  const description = t(dto.description, locale);
+  const shortDescription = t(dto.short_description, locale);
+  const categoryName = dto.category ? t(dto.category.name, locale) : "";
+
   return {
     id: String(dto.id),
     sku: dto.sku ?? "",
-    name: dto.name ?? "",
+    name: name,
     code: dto.sku ?? String(dto.id),
     price: Number(dto.price),
     taxes: 0,
@@ -22,14 +29,14 @@ export function adaptProductDtoToItem(dto: Product): IProductItem {
     is_sale: Boolean(dto.sale_price),
     colors: [],
     quantity: dto.stock_quantity ?? 0,
-    category: dto.category?.name ?? "",
+    category: categoryName,
     available: dto.stock_quantity ?? 0,
     totalSold: 0,
-    description: dto.description ?? "",
+    description: description,
     totalRatings: 0,
     totalReviews: 0,
     inventoryType: (dto.stock_quantity ?? 0) > 0 ? "In Stock" : "Out of Stock",
-    subDescription: dto.short_description ?? "",
+    subDescription: shortDescription,
     dimensions: dto.dimensions ?? null,
     priceSale: dto.sale_price ? Number(dto.sale_price) : null,
     reviews: [],

@@ -8,11 +8,10 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 
 import { paths } from "src/routes/paths";
-import { usePathname } from "src/routes/hooks";
 import { RouterLink } from "src/routes/components";
 
-import Logo from "src/components/logo";
 import Iconify from "src/components/iconify";
+import { useTranslate } from "src/locales";
 
 // ----------------------------------------------------------------------
 
@@ -21,6 +20,8 @@ const YEAR = new Date().getFullYear();
 // ----------------------------------------------------------------------
 
 export default function Footer() {
+  const { t } = useTranslate();
+  
   const mainFooter = (
     <Box
       component="footer"
@@ -39,7 +40,7 @@ export default function Footer() {
         >
           <Grid xs={12} md={2.5}>
             <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
-              WE ARE ...
+              {t("footer.weAre")}
             </Typography>
             <Stack spacing={2} sx={{ mt: 3 }}>
               <Link
@@ -48,17 +49,17 @@ export default function Footer() {
                 color="inherit"
                 variant="body1"
               >
-                Our Story
+                {t("footer.ourStory")}
               </Link>
               <Link href="#" color="inherit" variant="body1">
-                Careers
+                {t("footer.careers")}
               </Link>
             </Stack>
           </Grid>
 
           <Grid xs={12} md={3}>
             <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
-              CONTRACT US
+              {t("footer.contactUs")}
             </Typography>
             <Stack spacing={2} sx={{ mt: 3 }}>
               <Link
@@ -68,7 +69,7 @@ export default function Footer() {
                 variant="body1"
                 sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
               >
-                <Iconify icon="solar:letter-broken" width={20} /> Email
+                <Iconify icon="solar:letter-broken" width={20} /> {t("footer.email")}
               </Link>
               <Link
                 href="#"
@@ -83,38 +84,38 @@ export default function Footer() {
 
           <Grid xs={12} md={3}>
             <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
-              POLICY
+              {t("footer.policy")}
             </Typography>
             <Stack spacing={2} sx={{ mt: 3 }}>
               <Link href="#" color="inherit" variant="body1">
-                Shipping policy
+                {t("footer.shippingPolicy")}
               </Link>
               <Link href="#" color="inherit" variant="body1">
-                Privacy Policy
+                {t("footer.privacyPolicy")}
               </Link>
               <Link href="#" color="inherit" variant="body1">
-                Exchange Policy
+                {t("footer.exchangePolicy")}
               </Link>
               <Link href="#" color="inherit" variant="body1">
-                Terms of Use
+                {t("footer.termsOfUse")}
               </Link>
             </Stack>
           </Grid>
 
           <Grid xs={12} md={2}>
             <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
-              CATEGORY
+              {t("footer.category")}
             </Typography>
             <Stack spacing={2} sx={{ mt: 3 }}>
               <Link href="#" color="inherit" variant="body1">
-                Bikini
+                {t("footer.bikini")}
               </Link>
             </Stack>
           </Grid>
 
           <Grid xs={12} md={1.5}>
             <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
-              FOLLOW US
+              {t("footer.followUs")}
             </Typography>
             <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
               <IconButton size="small">
@@ -135,7 +136,7 @@ export default function Footer() {
           variant="body2"
           sx={{ display: "flex", alignItems: "center", gap: 1 }}
         >
-          © {YEAR} NO NAME
+          {t("footer.copyright", { year: YEAR })}
         </Typography>
       </Container>
     </Box>
