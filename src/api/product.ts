@@ -9,9 +9,71 @@ import { adaptProductDtoToItem } from "src/utils/product-adapter";
 
 // ----------------------------------------------------------------------
 
-export function useGetProducts(params?: { page?: number; limit?: number }) {
-  const URL = params
-    ? [endpoints.product.list, { params }]
+export type ProductQueryParams = {
+  // Pagination
+  page?: number;
+  limit?: number;
+  // Filter parameters (API supported)
+  category_id?: string;
+  status?: "active" | "draft" | "out_of_stock" | "discontinued";
+  is_featured?: boolean;
+  enable_sale_tag?: boolean;
+  // Search parameter
+  search?: string;
+  // Sort parameters
+  sort_by?: "created_at" | "updated_at" | "name" | "price" | "status";
+  sort_order?: "ASC" | "DESC";
+  // Locale
+  locale?: string;
+  // Client-side only filters (not supported by API, will be filtered after fetch)
+  gender?: string | string[];
+  colors?: string | string[];
+  price_min?: number;
+  price_max?: number;
+  rating?: string;
+};
+
+export function useGetProducts(params?: ProductQueryParams) {
+  // Get locale from i18n if not provided
+  const getLocale = () => {
+    if (params?.locale) return params.locale;
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("i18nextLng");
+      return stored || "en";
+    }
+    return "en";
+  };
+
+  // Build query params object for API, filtering out undefined values
+  const queryParams: Record<string, any> = {};
+  
+  if (params) {
+    // Pagination
+    if (params.page !== undefined) queryParams.page = params.page;
+    if (params.limit !== undefined) queryParams.limit = params.limit;
+    
+    // API supported filters
+    if (params.category_id) queryParams.category_id = params.category_id;
+    if (params.status) queryParams.status = params.status;
+    if (params.is_featured !== undefined) queryParams.is_featured = params.is_featured;
+    if (params.enable_sale_tag !== undefined) queryParams.enable_sale_tag = params.enable_sale_tag;
+    if (params.search) queryParams.search = params.search;
+    
+    // Sort parameters
+    if (params.sort_by) queryParams.sort_by = params.sort_by;
+    if (params.sort_order) queryParams.sort_order = params.sort_order;
+    
+    // Locale
+    const locale = getLocale();
+    if (locale) queryParams.locale = locale;
+  } else {
+    // Default locale if no params provided
+    const locale = getLocale();
+    if (locale) queryParams.locale = locale;
+  }
+
+  const URL = Object.keys(queryParams).length > 0
+    ? [endpoints.product.list, { params: queryParams }]
     : endpoints.product.list;
 
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);

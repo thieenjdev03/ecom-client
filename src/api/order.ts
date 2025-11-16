@@ -15,6 +15,7 @@ export type OrderItem = {
   unitPrice: string; // formatted "xx.xx"
   totalPrice: string; // formatted "xx.xx"
   sku?: string;
+  productThumbnailUrl?: string;
 };
 
 export type OrderSummary = {
@@ -69,8 +70,12 @@ export type Order = {
   // Additional fields for UI
   user?: {
     id: string;
-    name: string;
+    name?: string;
     email: string;
+    firstName?: string;
+    lastName?: string;
+    country?: string;
+    phoneNumber?: string;
     avatarUrl?: string;
   };
 };

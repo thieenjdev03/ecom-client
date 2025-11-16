@@ -45,16 +45,16 @@ export default function OverviewAppView() {
         <Grid xs={12} md={8}>
           <AppWelcome
             title={`Welcome back 👋 \n ${user?.displayName}`}
-            description="If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything."
+            // description="If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything."
             img={<SeoIllustration />}
             action={
               <Button variant="contained" color="primary">
-                Go Now
+                Check Order Now
               </Button>
             }
           />
         </Grid>
-
+{/* 
         <Grid xs={12} md={4}>
           <AppFeatured list={_appFeatured} />
         </Grid>
@@ -209,7 +209,7 @@ export default function OverviewAppView() {
               }}
             />
           </Stack>
-        </Grid>
+        </Grid> */}
       </Grid>
     </Container>
   );

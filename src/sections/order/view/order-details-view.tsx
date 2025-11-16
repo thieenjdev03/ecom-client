@@ -11,7 +11,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import { paths } from "src/routes/paths";
 
-import { ORDER_STATUS_OPTIONS } from "src/_mock";
+import { ORDER_STATUS_OPTIONS } from "../constant";
 
 import { useSettingsContext } from "src/components/settings";
 import { useSnackbar } from "src/components/snackbar";
@@ -51,14 +51,14 @@ function transformOrderForDetailView(order: Order) {
         id: order.user.id,
         name:
           order.user.name ||
-          `${(order as any).user?.firstName || ""} ${(order as any).user?.lastName || ""}`.trim() ||
+          `${(order.user as any).firstName || ""} ${(order.user as any).lastName || ""}`.trim() ||
           "Unknown",
         email: order.user.email,
         avatarUrl: order.user.avatarUrl || "",
         ipAddress: "",
-        country: (order as any).user?.country || "",
-        firstName: (order as any).user?.firstName,
-        lastName: (order as any).user?.lastName,
+        country: (order.user as any).country || "",
+        firstName: (order.user as any).firstName,
+        lastName: (order.user as any).lastName,
       }
     : {
         id: order.userId,
@@ -74,7 +74,7 @@ function transformOrderForDetailView(order: Order) {
     sku: item.sku || `${item.productId}-${item.variantId || "default"}`,
     name: item.productName,
     price: parseFloat(item.unitPrice),
-    coverUrl: "", // API doesn't provide this, may need to fetch from product
+    coverUrl: (item as any).productThumbnailUrl || "", // Use productThumbnailUrl from API
     quantity: item.quantity,
     variantName: item.variantName,
     productSlug: item.productSlug,
@@ -116,6 +116,29 @@ function transformOrderForDetailView(order: Order) {
   };
 
   // Transform shipping address
+  // Parse from notes if shippingAddress is null
+  const parseShippingFromNotes = (record?: any): IOrderShippingAddress => {
+    if (!record?.notes) {
+      return { fullAddress: "", phoneNumber: "" };
+    }
+    
+    // Check if notes contains "Shipping Address:" prefix
+    if (record?.notes.includes("Shipping Address:")) {
+      const addressPart = record?.notes.replace("Shipping Address:", "").trim();
+      // Try to extract phone number (look for patterns like +84, country codes, or 10+ digit numbers)
+      const phoneMatch = addressPart.match(/(\+?\d{1,4}[\s-]?\d{1,4}[\s-]?\d{1,4}[\s-]?\d{1,4}[\s-]?\d{1,4}[\s-]?\d{1,4}[\s-]?\d{1,4})/);
+      const phoneNumber = phoneMatch ? phoneMatch[1] : "";
+      const fullAddress = phoneNumber ? addressPart.replace(phoneNumber, "").trim().replace(/^,|,$/g, "").trim() : addressPart;
+      
+      return {
+        fullAddress: fullAddress || "",
+        phoneNumber: phoneNumber || "",
+      };
+    }
+    
+    return { fullAddress: record?.notes, phoneNumber: "" };
+  };
+
   const shippingAddress: IOrderShippingAddress = order.shippingAddress
     ? typeof order.shippingAddress === "string"
       ? {
@@ -134,12 +157,9 @@ function transformOrderForDetailView(order: Order) {
             .join(", ") || "",
           phoneNumber: order.shippingAddress.recipientPhone || "",
         }
-    : {
-        fullAddress: "",
-        phoneNumber: "",
-      };
+    : parseShippingFromNotes(order);
 
-  // Transform payment (mock data for now as API doesn't provide card details)
+  // Transform payment
   const payment: IOrderPayment = {
     cardType:
       order.paymentMethod === "PAYPAL"
@@ -149,7 +169,9 @@ function transformOrderForDetailView(order: Order) {
           : "COD",
     cardNumber:
       order.paymentMethod === "PAYPAL"
-        ? "PayPal Account"
+        ? order.paypalOrderId
+          ? `PayPal Order: ${order.paypalOrderId}`
+          : "PayPal Account"
         : order.paymentMethod === "STRIPE"
           ? "**** **** **** 4242"
           : "Cash on Delivery",
@@ -180,7 +202,7 @@ export default function OrderDetailsView({ id }: Props) {
   // Fetch order from API
   const { order, orderLoading, orderError } = useGetOrder(id);
 
-  const [status, setStatus] = useState<string>("pending");
+  const [status, setStatus] = useState<string>(ORDER_STATUS_OPTIONS[0].value);
 
   // Update status when order is loaded
   useEffect(() => {

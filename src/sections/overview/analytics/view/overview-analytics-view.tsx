@@ -39,7 +39,7 @@ export default function OverviewAnalyticsView() {
         Hi, Welcome back 👋
       </Typography>
 
-      <Grid container spacing={3}>
+      {/* <Grid container spacing={3}>
         <Grid xs={12} sm={6} md={3}>
           <AnalyticsWidgetSummary
             title="Weekly Sales"
@@ -198,7 +198,7 @@ export default function OverviewAnalyticsView() {
         <Grid xs={12} md={6} lg={8}>
           <AnalyticsTasks title="Tasks" list={_analyticTasks} />
         </Grid>
-      </Grid>
+      </Grid> */}
     </Container>
   );
 }

@@ -27,6 +27,7 @@ export default function CheckoutPayment() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [order, setOrder] = useState<any>(null);
+  const [countryCode, setCountryCode] = useState<string | undefined>(undefined);
 
   // Load order details if order_id exists
   useEffect(() => {
@@ -37,6 +38,25 @@ export default function CheckoutPayment() {
           // Handle response structure: { data: { id: ... }, success: true } or direct { id: ... }
           const orderData = response?.data || response;
           setOrder(orderData);
+          
+          // Extract country code from shipping address or saved order info
+          if (orderData?.shippingAddress?.district) {
+            // In checkout-cart, district is used to store country code
+            setCountryCode(orderData.shippingAddress.district);
+          } else {
+            // Try to get from localStorage saved order
+            try {
+              const savedOrder = localStorage.getItem('pending_order');
+              if (savedOrder) {
+                const orderInfo = JSON.parse(savedOrder);
+                if (orderInfo.shippingAddress?.country) {
+                  setCountryCode(orderInfo.shippingAddress.country);
+                }
+              }
+            } catch (e) {
+              console.error("Error reading saved order:", e);
+            }
+          }
         } catch (err) {
           console.error("Error loading order:", err);
           setError("Failed to load order details");
@@ -213,10 +233,12 @@ export default function CheckoutPayment() {
       <Grid xs={12} md={4}>
         <CheckoutSummary
           items={checkout.items}
-          total={checkout.total}
-          subTotal={checkout.subTotal}
-          discount={checkout.discount}
-          shipping={checkout.shipping}
+          total={order?.summary ? parseFloat(order.summary.total) : checkout.total}
+          subTotal={order?.summary ? parseFloat(order.summary.subtotal) : checkout.subTotal}
+          discount={order?.summary ? parseFloat(order.summary.discount) : checkout.discount}
+          shipping={order?.summary ? parseFloat(order.summary.shipping) : checkout.shipping}
+          tax={order?.summary ? parseFloat(order.summary.tax) : undefined}
+          countryCode={countryCode}
           onEdit={() => checkout.onGotoStep(0)}
         />
       </Grid>

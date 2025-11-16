@@ -145,28 +145,28 @@ export default function CheckoutCart() {
 
     try {
       // Step 1: Validate and refresh cart items before checkout
-      const validationResult = await checkout.onValidateAndRefreshCart();
+      // const validationResult = await checkout.onValidateAndRefreshCart();
 
-      if (!validationResult.isValid) {
-        // Show validation errors
-        validationResult.errors.forEach((err) => {
-          enqueueSnackbar(`${err.productName}: ${err.reason}`, {
-            variant: "error",
-          });
-        });
+      // if (!validationResult.isValid) {
+      //   // Show validation errors
+      //   validationResult.errors.forEach((err) => {
+      //     enqueueSnackbar(`${err.productName}: ${err.reason}`, {
+      //       variant: "error",
+      //     });
+      //   });
 
-        // If cart is empty after validation, show error
-        if (checkout.items.length === 0) {
-          setError("Giỏ hàng của bạn đã trống sau khi kiểm tra. Vui lòng thêm sản phẩm lại.");
-          setIsValidating(false);
-          return;
-        }
+      //   // If cart is empty after validation, show error
+      //   if (checkout.items.length === 0) {
+      //     setError("Giỏ hàng của bạn đã trống sau khi kiểm tra. Vui lòng thêm sản phẩm lại.");
+      //     setIsValidating(false);
+      //     return;
+      //   }
 
-        // If there are errors but cart still has items, show warning but continue
-        enqueueSnackbar("Một số sản phẩm đã được cập nhật. Vui lòng kiểm tra lại giỏ hàng.", {
-          variant: "warning",
-        });
-      }
+      //   // If there are errors but cart still has items, show warning but continue
+      //   enqueueSnackbar("Một số sản phẩm đã được cập nhật. Vui lòng kiểm tra lại giỏ hàng.", {
+      //     variant: "warning",
+      //   });
+      // }
 
       setIsValidating(false);
       setIsSubmitting(true);

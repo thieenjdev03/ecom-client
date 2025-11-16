@@ -741,7 +741,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       enable_sale_tag: Boolean((product as any).enable_sale_tag || false),
       isNew: false,
       newLabel: "",
-      productCode: "",
+      productCode: product.barcode,
       costPrice: product.cost_price ? Number(product.cost_price) : undefined,
       barcode: product.barcode || undefined,
       metaTitle: getMultiLangField(product.meta_title),
@@ -1663,7 +1663,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                 {t("productForm.imagesHelperText")}
               </Typography>
             </Stack>
-            <RHFTextField required name="productCode" label={t("productForm.productCode")} placeholder={t("productForm.productCodePlaceholder")} />
+            <RHFTextField required name="barcode" label={t("productForm.barcode")} placeholder={t("productForm.barcodePlaceholder")} />
             <RHFTextField name="sku" label={t("productForm.productSku")} placeholder={t("productForm.productSkuPlaceholder")} />
           </Stack>
         </Card>

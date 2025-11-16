@@ -336,7 +336,7 @@ type CardProps = {
 
 function ProductCard({ product, layout = "image-left", showAddToCart }: CardProps) {
   const { enqueueSnackbar } = useSnackbar();
-  const { t } = useTranslate();
+  const { t, i18n } = useTranslate();
   const checkout = useCheckoutContext();
   const wishlist = useWishlistContext();
   
@@ -369,7 +369,11 @@ function ProductCard({ product, layout = "image-left", showAddToCart }: CardProp
       };
       
       checkout.onAddToCart(cartItem);
-      enqueueSnackbar(t("homeProductShowcase.addedToCart", { name: product.name }), {
+      const productText = i18n.language === "vi" ? "sản phẩm" : "product";
+      enqueueSnackbar(t("homeProductShowcase.addedToCart", { 
+        quantity: 1,
+        product: productText
+      }), {
         variant: "success",
       });
     } catch (error) {

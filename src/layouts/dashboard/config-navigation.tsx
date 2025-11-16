@@ -102,7 +102,7 @@ export function useNavData() {
               // { title: t("cards"), path: paths.dashboard.user.cards },
               { title: t("list"), path: paths.dashboard.user.list },
               // { title: t("create"), path: paths.dashboard.user.new },
-              { title: t("edit"), path: paths.dashboard.user.demo.edit },
+              // { title: t("edit"), path: paths.dashboard.user.demo.edit },
               // { title: t("account"), path: paths.dashboard.user.account },
             ],
           },
@@ -136,33 +136,33 @@ export function useNavData() {
           },
 
           // INVOICE
-          {
-            title: t("invoice"),
-            path: paths.dashboard.invoice.root,
-            icon: ICONS.invoice,
-            children: [
-              { title: t("list"), path: paths.dashboard.invoice.root },
-              {
-                title: t("details"),
-                path: paths.dashboard.invoice.demo.details,
-              },
-              { title: t("create"), path: paths.dashboard.invoice.new },
-              { title: t("edit"), path: paths.dashboard.invoice.demo.edit },
-            ],
-          },
+          // {
+          //   title: t("invoice"),
+          //   path: paths.dashboard.invoice.root,
+          //   icon: ICONS.invoice,
+          //   children: [
+          //     { title: t("list"), path: paths.dashboard.invoice.root },
+          //     {
+          //       title: t("details"),
+          //       path: paths.dashboard.invoice.demo.details,
+          //     },
+          //     { title: t("create"), path: paths.dashboard.invoice.new },
+          //     { title: t("edit"), path: paths.dashboard.invoice.demo.edit },
+          //   ],
+          // },
 
           // BLOG
-          {
-            title: t("blog"),
-            path: paths.dashboard.post.root,
-            icon: ICONS.blog,
-            children: [
-              { title: t("list"), path: paths.dashboard.post.root },
-              { title: t("details"), path: paths.dashboard.post.demo.details },
-              { title: t("create"), path: paths.dashboard.post.new },
-              { title: t("edit"), path: paths.dashboard.post.demo.edit },
-            ],
-          },
+          // {
+          //   title: t("blog"),
+          //   path: paths.dashboard.post.root,
+          //   icon: ICONS.blog,
+          //   children: [
+          //     { title: t("list"), path: paths.dashboard.post.root },
+          //     { title: t("details"), path: paths.dashboard.post.demo.details },
+          //     { title: t("create"), path: paths.dashboard.post.new },
+          //     { title: t("edit"), path: paths.dashboard.post.demo.edit },
+          //   ],
+          // },
 
           // // JOB
           // {

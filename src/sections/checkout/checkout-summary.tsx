@@ -20,6 +20,7 @@ type Props = {
   discount?: number;
   subTotal: number;
   shipping?: number;
+  tax?: number; // Tax from order summary (optional, will calculate if not provided)
   items: ICheckoutItem[];
   countryCode?: string;
   //
@@ -32,6 +33,7 @@ export default function CheckoutSummary({
   discount,
   subTotal,
   shipping,
+  tax,
   items,
   countryCode,
   //
@@ -39,15 +41,20 @@ export default function CheckoutSummary({
   onApplyDiscount,
 }: Props) {
   // Calculate shipping and tax based on country (all in USD)
+  // If shipping/tax is provided as prop, use it; otherwise calculate from countryCode
   const country = countryCode ? getCountryConfig(countryCode) : null;
-  const shippingInfo = countryCode ? calculateShipping(countryCode, subTotal) : { cost: 0, isFree: false, currency: "USD" };
-  const tax = countryCode ? calculateTax(countryCode, subTotal) : 0;
+  const calculatedShippingInfo = countryCode ? calculateShipping(countryCode, subTotal) : { cost: 0, isFree: false, currency: "USD" };
+  const calculatedTax = countryCode ? calculateTax(countryCode, subTotal) : 0;
   
-  const displayShipping = shippingInfo.isFree 
+  // Use provided shipping/tax from props if available, otherwise use calculated values
+  const finalShipping = shipping !== undefined ? shipping : calculatedShippingInfo.cost;
+  const finalTax = tax !== undefined ? tax : calculatedTax;
+  
+  const displayShipping = calculatedShippingInfo.isFree || finalShipping === 0
     ? "Free" 
-    : fCurrency(shippingInfo.cost);
+    : fCurrency(finalShipping);
   
-  const calculatedTotal = subTotal - (discount || 0) + shippingInfo.cost + tax;
+  const calculatedTotal = subTotal - (discount || 0) + finalShipping + finalTax;
 
   return (
     <Card sx={{ mt: 10, p: 3 }}>
@@ -169,27 +176,27 @@ export default function CheckoutSummary({
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 Shipping
               </Typography>
-              {shippingInfo.isFree && (
+              {(calculatedShippingInfo.isFree || finalShipping === 0) && (
                 <Chip label="FREE" size="small" color="success" sx={{ height: 18, fontSize: "0.65rem" }} />
               )}
             </Stack>
-            <Typography variant="body2" sx={{ color: shippingInfo.isFree ? "success.main" : "text.secondary", fontWeight: shippingInfo.isFree ? 600 : 400 }}>
+            <Typography variant="body2" sx={{ color: (calculatedShippingInfo.isFree || finalShipping === 0) ? "success.main" : "text.secondary", fontWeight: (calculatedShippingInfo.isFree || finalShipping === 0) ? 600 : 400 }}>
               {displayShipping}
             </Typography>
           </Stack>
 
-          {country && country.freeShippingThreshold && !shippingInfo.isFree && subTotal < country.freeShippingThreshold && (
+          {country && country.freeShippingThreshold && !calculatedShippingInfo.isFree && finalShipping > 0 && subTotal < country.freeShippingThreshold && (
             <Typography variant="caption" sx={{ color: "info.main", fontSize: "0.7rem" }}>
               Add {fCurrency(country.freeShippingThreshold - subTotal)} more for free shipping!
             </Typography>
           )}
 
-          {tax > 0 && (
+          {finalTax > 0 && (
             <Stack direction="row" justifyContent="space-between">
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Tax ({country?.taxRate}%)
+                Tax ({country?.taxRate || 0}%)
               </Typography>
-              <Typography variant="body2">{fCurrency(tax)}</Typography>
+              <Typography variant="body2">{fCurrency(finalTax)}</Typography>
             </Stack>
           )}
 

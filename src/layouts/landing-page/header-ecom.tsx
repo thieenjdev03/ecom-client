@@ -29,7 +29,6 @@ import { useResponsive } from "src/hooks/use-responsive";
 import { HEADER } from "../config-layout";
 import HeaderShadow from "../common/header-shadow";
 import LanguagePopover from "../common/language-popover";
-import EcomDropdown from "../main/nav/ecom-dropdown";
 import EcomCategoriesDropdown from "./nav/ecom-categories-dropdown";
 import { PRODUCT_CATEGORY_GROUP_OPTIONS } from "src/_mock";
 import { useAuthContext } from "src/auth/hooks";
@@ -74,6 +73,21 @@ export default function HeaderEcom() {
   const [openCollection, setOpenCollection] = useState(false);
 
   const { categoryTree } = useGetCategoryTree();
+
+  // Helper function to get user display name
+  const getUserDisplayName = useCallback(() => {
+    if (!userProfile?.user) return null;
+    const user = userProfile.user;
+    // Try different possible fields for user name
+    return (
+      user.profile ||
+      user.displayName ||
+      (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}`.trim() : null) ||
+      user.name ||
+      user.email?.split("@")[0] ||
+      null
+    );
+  }, [userProfile?.user]);
 
   useEffect(() => {
     if (openMobileMenu) {
@@ -221,18 +235,6 @@ export default function HeaderEcom() {
                 color={activeColorValue}
                 textShadow={activeShadow}
               />
-              {/* <EcomDropdown
-                label={t("header.collection")}
-                color={activeColorValue}
-                textShadow={activeShadow}
-                groups={PRODUCT_CATEGORY_GROUP_OPTIONS.map((g) => ({
-                  title: g.group,
-                  items: g.classify.map((c) => ({
-                    label: c,
-                    href: `${paths.product.root}?category=${encodeURIComponent(c)}`,
-                  })),
-                }))}
-              /> */}
             </Stack>
           </Stack>
 
@@ -266,7 +268,7 @@ export default function HeaderEcom() {
           <Stack
             direction="row"
             alignItems="center"
-            spacing={{ xs: 0.5, sm: 1, md: 1.5 }}
+            spacing={{ xs: 0.5 }}
             sx={{ flex: { xs: 0, md: 1 }, justifyContent: "flex-end" }}
           >
             {/* Language Popover */}
@@ -275,7 +277,6 @@ export default function HeaderEcom() {
                 "& .MuiIconButton-root": {
                   color: activeColor,
                   transition: "all 0.3s ease",
-                  padding: { xs: 0.75, md: 1 },
                   "&:hover": {
                     color: theme.palette.primary.main,
                     transform: "scale(1.1)",
@@ -291,26 +292,6 @@ export default function HeaderEcom() {
             >
               <LanguagePopover />
             </Box>
-            {/* Search - Hidden on mobile */}
-            <IconButton 
-              color="inherit" 
-              sx={{ 
-                display: { xs: "none", sm: "flex" },
-                color: activeColor,
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  color: theme.palette.primary.main,
-                  transform: "scale(1.1)",
-                  backgroundColor: "rgba(0, 0, 0, 0.05)",
-                },
-              }}
-            >
-              <Iconify
-                icon="solar:magnifier-linear"
-                width={22}
-                sx={{ textShadow: activeShadow }}
-              />
-            </IconButton>
             {/* Wishlist */}
             <IconButton 
               component={RouterLink} 
@@ -332,8 +313,8 @@ export default function HeaderEcom() {
                 sx={{ textShadow: activeShadow }}
               />
             </IconButton>
-            {/* User Account */}
-            <IconButton
+              {/* User Account */}
+              <IconButton
               color="inherit"
               sx={{ 
                 color: activeColor,
@@ -353,6 +334,23 @@ export default function HeaderEcom() {
                 sx={{ textShadow: activeShadow }}
               />
             </IconButton>
+            {/* Welcome message for authenticated users */}
+            {userProfile?.authenticated && getUserDisplayName() && (
+              <Typography
+                variant="body2"
+                sx={{
+                  color: activeColor,
+                  textShadow: activeShadow,
+                  display: { xs: "none", md: "block" },
+                  mr: 1,
+                  fontWeight: 500,
+                  transition: "all 0.3s ease",
+                }}
+              >
+                {t("header.welcome")}, {getUserDisplayName()}
+              </Typography>
+            )}
+          
             {/* Cart */}
             <IconButton
               color="inherit"
@@ -603,6 +601,23 @@ export default function HeaderEcom() {
             </List>
 
             <Divider sx={{ my: 2 }} />
+
+            {/* Welcome message for authenticated users in mobile */}
+            {userProfile?.authenticated && getUserDisplayName() && (
+              <Box
+                sx={{
+                  p: 2,
+                  mb: 2,
+                  borderRadius: 1,
+                  bgcolor: "primary.lighter",
+                  textAlign: "center",
+                }}
+              >
+                <Typography variant="body2" sx={{ color: "primary.main", fontWeight: 500 }}>
+                  {t("header.welcome")}, {getUserDisplayName()}
+                </Typography>
+              </Box>
+            )}
 
             {/* Mobile menu footer actions */}
             <Stack spacing={1}>

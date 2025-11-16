@@ -233,7 +233,7 @@
     "pleaseSelectColorAndSize": "Please select color and size before adding to cart",
     "variantNotFound": "Variant not found. Please select color and size again.",
     "quantityExceedsStock": "Requested quantity ({quantity}) exceeds available stock ({stock})",
-    "addedToCart": "Added {quantity} {count, plural, =1 {product} other {products}} to cart",
+    "addedToCart": "Added {quantity} {product} to cart",
     "errorAddingToCart": "An error occurred while adding to cart",
     "color": "Color",
     "size": "Size",
@@ -278,7 +278,7 @@
     "title": "FEATURED PRODUCTS",
     "errorLoading": "Cannot load products. Please try again later.",
     "noProducts": "No products yet.",
-    "addedToCart": "Added \"{{name}}\" to cart",
+    "addedToCart": "Added {quantity} {product} to cart",
     "errorAddingToCart": "An error occurred while adding to cart",
     "removedFromWishlist": "Removed \"{{name}}\" from favorites",
     "addedToWishlist": "Added \"{{name}}\" to favorites",
@@ -289,6 +289,16 @@
     "hot": "HOT",
     "outOfStock": "OUT OF STOCK"
   },
+  "savedOrderBanner": {
+    "title": "You have a pending payment order",
+    "orderInfo": "Order #{orderId} • Created {timeAgo}",
+    "shippingTo": "Shipping to",
+    "totalAmount": "Total amount",
+    "continuePayment": "Continue payment",
+    "justNow": "just now",
+    "minutesAgo": "{minutes} minutes ago",
+    "hoursAgo": "{hours} hours ago"
+  },
   "header": {
     "home": "Home",
     "shop": "Shop",
@@ -297,7 +307,8 @@
     "wishlist": "Wishlist",
     "account": "Account",
     "login": "Login",
-    "another": "Another"
+    "another": "Another",
+    "welcome": "Welcome"
   },
   "footer": {
     "weAre": "WE ARE ...",

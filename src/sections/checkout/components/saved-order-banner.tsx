@@ -7,6 +7,7 @@ import IconButton from "@mui/material/IconButton";
 
 import Iconify from "src/components/iconify";
 import { fCurrency } from "src/utils/format-number";
+import { useTranslate } from "src/locales";
 
 // ----------------------------------------------------------------------
 
@@ -42,11 +43,12 @@ export default function SavedOrderBanner({
   onContinue,
   onDismiss,
 }: SavedOrderBannerProps) {
+  const { t } = useTranslate();
   const { orderId, shippingAddress, orderSummary, createdAt } = orderInfo;
 
   // Format created date
   const createdDate = new Date(createdAt);
-  const timeAgo = getTimeAgo(createdDate);
+  const timeAgo = getTimeAgo(createdDate, t);
 
   return (
     <Alert
@@ -67,17 +69,20 @@ export default function SavedOrderBanner({
       <Stack spacing={2}>
         <Box>
           <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-            Bạn có một đơn hàng đang chờ thanh toán
+            {t("savedOrderBanner.title")}
           </Typography>
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
-            Đơn hàng #{orderId.slice(0, 8)} • Tạo {timeAgo}
+            {t("savedOrderBanner.orderInfo", {
+              orderId: orderId.slice(0, 8),
+              timeAgo,
+            })}
           </Typography>
         </Box>
 
         <Stack direction="row" spacing={2} flexWrap="wrap">
           <Box>
             <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>
-              Giao đến
+              {t("savedOrderBanner.shippingTo")}
             </Typography>
             <Typography variant="body2" sx={{ fontWeight: 500 }}>
               {shippingAddress.firstName} {shippingAddress.lastName}
@@ -89,7 +94,7 @@ export default function SavedOrderBanner({
 
           <Box>
             <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>
-              Tổng tiền
+              {t("savedOrderBanner.totalAmount")}
             </Typography>
             <Typography variant="body2" sx={{ fontWeight: 600, color: "primary.main" }}>
               {fCurrency(parseFloat(orderSummary.total))}
@@ -104,7 +109,7 @@ export default function SavedOrderBanner({
           startIcon={<Iconify icon="solar:arrow-right-bold" />}
           sx={{ alignSelf: "flex-start" }}
         >
-          Tiếp tục thanh toán
+          {t("savedOrderBanner.continuePayment")}
         </Button>
       </Stack>
     </Alert>
@@ -112,20 +117,28 @@ export default function SavedOrderBanner({
 }
 
 // Helper function to format time ago
-function getTimeAgo(date: Date): string {
+function getTimeAgo(date: Date, t: (key: string, options?: any) => string): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
 
   if (diffMins < 1) {
-    return "vừa xong";
+    return t("savedOrderBanner.justNow");
   } else if (diffMins < 60) {
-    return `${diffMins} phút trước`;
+    return t("savedOrderBanner.minutesAgo", { minutes: diffMins });
   } else if (diffHours < 24) {
-    return `${diffHours} giờ trước`;
+    return t("savedOrderBanner.hoursAgo", { hours: diffHours });
   } else {
-    return date.toLocaleDateString("vi-VN");
+    // Use locale-aware date formatting
+    const locale = typeof window !== "undefined" 
+      ? localStorage.getItem("i18nextLng") || "en"
+      : "en";
+    return date.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   }
 }
 

@@ -102,13 +102,13 @@ function transformOrderToIOrderItem(order: Order): IOrderItem {
   // Transform customer - handle firstName/lastName if available
   const customer: IOrderCustomer = order.user ? {
     id: order.user.id,
-    name: order.user.name || `${(order as any).user?.firstName || ''} ${(order as any).user?.lastName || ''}`.trim() || "Unknown",
+    name: order.user.name || `${(order.user as any).firstName || ''} ${(order.user as any).lastName || ''}`.trim() || "Unknown",
     email: order.user.email,
     avatarUrl: order.user.avatarUrl || "",
     ipAddress: "",
-    country: (order as any).user?.country || "",
-    firstName: (order as any).user?.firstName,
-    lastName: (order as any).user?.lastName,
+    country: (order.user as any).country || "",
+    firstName: (order.user as any).firstName,
+    lastName: (order.user as any).lastName,
   } : {
     id: order.userId,
     name: "Unknown Customer",
@@ -123,7 +123,7 @@ function transformOrderToIOrderItem(order: Order): IOrderItem {
     sku: item.sku || `${item.productId}-${item.variantId || 'default'}`,
     name: item.productName,
     price: parseFloat(item.unitPrice),
-    coverUrl: "", // API doesn't provide this, may need to fetch from product
+    coverUrl: (item as any).productThumbnailUrl || "", // Use productThumbnailUrl from API
     quantity: item.quantity,
     variantName: item.variantName,
     productSlug: item.productSlug,

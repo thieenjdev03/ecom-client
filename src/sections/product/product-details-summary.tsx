@@ -319,8 +319,14 @@ export default function ProductDetailsSummary({
         onAddCart?.(cartItem);
 
         // Show success notification
+        const productText = i18n.language === "vi" 
+          ? "sản phẩm"
+          : quantity === 1 ? "product" : "products";
         enqueueSnackbar(
-          t("productDetails.addedToCart", { quantity }),
+          t("productDetails.addedToCart", { 
+            quantity,
+            product: productText
+          }),
           {
             variant: "success",
           }
@@ -432,8 +438,14 @@ export default function ProductDetailsSummary({
       onAddCart?.(cartItem);
 
       // Show success notification
+      const productText = i18n.language === "vi" 
+        ? "sản phẩm"
+        : quantity === 1 ? "product" : "products";
       enqueueSnackbar(
-        t("productDetails.addedToCart", { quantity }),
+        t("productDetails.addedToCart", { 
+          quantity,
+          product: productText
+        }),
         {
           variant: "success",
         }

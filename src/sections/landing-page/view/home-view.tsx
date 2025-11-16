@@ -68,7 +68,7 @@ export default function LandingPageView() {
           bgcolor: "background.default",
         }}
       >
-        <HomeProductShowcase priceBottom={true} showAddToCart title="New Arrivals"/>
+        <HomeProductShowcase priceBottom={true} title="New Arrivals"/>
       </Box>
       <Box
         sx={{

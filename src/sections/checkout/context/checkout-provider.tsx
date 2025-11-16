@@ -1,6 +1,5 @@
 "use client";
 
-import uniq from "lodash/uniq";
 import { useMemo, useEffect, useCallback } from "react";
 
 import { paths } from "src/routes/paths";
@@ -90,6 +89,20 @@ export function CheckoutProvider({ children }: Props) {
       const productId = newItem.productId || newItem.id;
       const variantId = newItem.variantId;
       
+      // Validate quantity
+      const quantityToAdd = newItem.quantity || 1;
+      if (quantityToAdd <= 0) {
+        enqueueSnackbar("Số lượng phải lớn hơn 0", { variant: "error" });
+        return;
+      }
+
+      // Validate available stock
+      const availableStock = newItem.available || 0;
+      if (availableStock <= 0) {
+        enqueueSnackbar("Sản phẩm đã hết hàng", { variant: "error" });
+        return;
+      }
+
       // Generate unique cart item ID
       const cartItemId = variantId 
         ? `${productId}-${variantId}` 
@@ -124,31 +137,73 @@ export function CheckoutProvider({ children }: Props) {
 
       if (existingItemIndex >= 0) {
         // Item exists - increase quantity
-        updatedItems = state.items.map((item: ICheckoutItem, index: number) => {
-          if (index === existingItemIndex) {
-            return {
-              ...item,
-              quantity: item.quantity + (newItem.quantity || 1),
-              subTotal: item.price * (item.quantity + (newItem.quantity || 1)),
-            };
-          }
-          return item;
-        });
+        const existingItem = state.items[existingItemIndex];
+        const newQuantity = existingItem.quantity + quantityToAdd;
+        
+        // Check if new quantity exceeds available stock
+        if (newQuantity > availableStock) {
+          enqueueSnackbar(
+            `Số lượng tối đa có thể mua là ${availableStock}. Hiện tại giỏ hàng đã có ${existingItem.quantity} sản phẩm.`,
+            { variant: "warning" }
+          );
+          // Update to max available stock
+          updatedItems = state.items.map((item: ICheckoutItem, index: number) => {
+            if (index === existingItemIndex) {
+              return {
+                ...item,
+                quantity: availableStock,
+                subTotal: item.price * availableStock,
+                available: availableStock,
+              };
+            }
+            return item;
+          });
+        } else {
+          updatedItems = state.items.map((item: ICheckoutItem, index: number) => {
+            if (index === existingItemIndex) {
+              return {
+                ...item,
+                quantity: newQuantity,
+                subTotal: item.price * newQuantity,
+                available: availableStock, // Update available stock
+              };
+            }
+            return item;
+          });
+        }
       } else {
-        // New item - add to cart
-        const itemToAdd: ICheckoutItem = {
-          ...newItem,
-          id: cartItemId,
-          productId: productId,
-          variantId: variantId || cartItemId, // Use cartItemId as fallback for backward compatibility
-          subTotal: (newItem.price || 0) * (newItem.quantity || 1),
-        };
-        updatedItems = [...state.items, itemToAdd];
+        // New item - validate quantity doesn't exceed stock
+        if (quantityToAdd > availableStock) {
+          enqueueSnackbar(
+            `Số lượng yêu cầu (${quantityToAdd}) vượt quá số lượng tồn kho (${availableStock})`,
+            { variant: "warning" }
+          );
+          // Add with available stock instead
+          const itemToAdd: ICheckoutItem = {
+            ...newItem,
+            id: cartItemId,
+            productId: productId,
+            variantId: variantId || cartItemId,
+            quantity: availableStock,
+            subTotal: (newItem.price || 0) * availableStock,
+          };
+          updatedItems = [...state.items, itemToAdd];
+        } else {
+          // New item - add to cart
+          const itemToAdd: ICheckoutItem = {
+            ...newItem,
+            id: cartItemId,
+            productId: productId,
+            variantId: variantId || cartItemId, // Use cartItemId as fallback for backward compatibility
+            subTotal: (newItem.price || 0) * quantityToAdd,
+          };
+          updatedItems = [...state.items, itemToAdd];
+        }
       }
 
       update("items", updatedItems);
     },
-    [update, state.items],
+    [update, state.items, enqueueSnackbar],
   );
 
   const onDeleteCart = useCallback(
@@ -178,29 +233,46 @@ export function CheckoutProvider({ children }: Props) {
   );
 
   const onIncreaseQuantity = useCallback(
-    (itemId: string) => {
-      const updatedItems = state.items.map((item: ICheckoutItem) => {
-        if (item.id === itemId) {
+    async (itemId: string) => {
+      const item = state.items.find((i: ICheckoutItem) => i.id === itemId);
+      if (!item) return;
+
+      // Check available stock before increasing
+      const availableStock = item.available || 0;
+      if (item.quantity >= availableStock) {
+        enqueueSnackbar(
+          `Số lượng tối đa có thể mua là ${availableStock}`,
+          { variant: "warning" }
+        );
+        return;
+      }
+
+      const updatedItems = state.items.map((i: ICheckoutItem) => {
+        if (i.id === itemId) {
+          const newQuantity = i.quantity + 1;
           return {
-            ...item,
-            quantity: item.quantity + 1,
+            ...i,
+            quantity: newQuantity,
+            subTotal: i.price * newQuantity,
           };
         }
-        return item;
+        return i;
       });
 
       update("items", updatedItems);
     },
-    [update, state.items],
+    [update, state.items, enqueueSnackbar],
   );
 
   const onDecreaseQuantity = useCallback(
     (itemId: string) => {
       const updatedItems = state.items.map((item: ICheckoutItem) => {
         if (item.id === itemId) {
+          const newQuantity = Math.max(1, item.quantity - 1);
           return {
             ...item,
-            quantity: item.quantity - 1,
+            quantity: newQuantity,
+            subTotal: item.price * newQuantity,
           };
         }
         return item;
@@ -289,7 +361,6 @@ export function CheckoutProvider({ children }: Props) {
   // This fetches latest product data from API to check stock, price, availability
   const onValidateAndRefreshCart = useCallback(async (): Promise<CartValidationResult> => {
     const errors: CartValidationResult["errors"] = [];
-    const updatedItems: ICheckoutItem[] = [];
 
     try {
       // Fetch latest product data for all items in cart
@@ -298,6 +369,7 @@ export function CheckoutProvider({ children }: Props) {
           const productId = item.productId || item.id;
           const latestProduct = await getProductById(productId);
 
+          // Check if product exists
           if (!latestProduct) {
             errors.push({
               itemId: item.id,
@@ -307,16 +379,57 @@ export function CheckoutProvider({ children }: Props) {
             return null; // Remove item
           }
 
-          // If item has variant, check variant stock
-          if (item.variantId && item.variants && item.variants.length > 0) {
-            // Extract color_id and size_id from variantId
-            const variantParts = item.variantId.split("-");
-            const colorId = variantParts[1];
-            const sizeId = variantParts[2];
+          // Check product status
+          if (latestProduct.publish !== "published" && latestProduct.publish !== "active") {
+            errors.push({
+              itemId: item.id,
+              productName: item.name,
+              reason: "Sản phẩm không còn được bán",
+            });
+            return null; // Remove item
+          }
+
+          // Check if product has variants
+          const hasVariants = Array.isArray(latestProduct.variants) && latestProduct.variants.length > 0;
+          const variantId = item.variantId || "";
+
+          // Parse variantId: format is `${productId}-${color_id}-${size_id}` or `${productId}-default`
+          // Note: productId might contain dashes, so we need to be careful when parsing
+          let colorId: string | null = null;
+          let sizeId: string | null = null;
+          
+          if (variantId && variantId !== `${productId}-default`) {
+            // Try to extract color_id and size_id from variantId
+            // Format: `${productId}-${color_id}-${size_id}`
+            // We need to remove the productId prefix first
+            const variantIdWithoutProduct = variantId.replace(`${productId}-`, "");
+            const variantParts = variantIdWithoutProduct.split("-");
+            
+            // If we have at least 2 parts, assume first is color_id, second is size_id
+            if (variantParts.length >= 2) {
+              colorId = variantParts[0] !== "no-color" ? variantParts[0] : null;
+              sizeId = variantParts[1] !== "no-size" ? variantParts[1] : null;
+            }
+          }
+
+          if (hasVariants) {
+            // Product with variants - must find matching variant
+            if (!colorId && !sizeId && variantId !== `${productId}-default`) {
+              errors.push({
+                itemId: item.id,
+                productName: item.name,
+                reason: "Variant không hợp lệ",
+              });
+              return null; // Remove item
+            }
 
             // Find matching variant in latest product
             const matchingVariant = latestProduct.variants?.find(
-              (v: any) => v.color_id === colorId && v.size_id === sizeId
+              (v: any) => {
+                const vColorId = v.color_id || null;
+                const vSizeId = v.size_id || null;
+                return vColorId === colorId && vSizeId === sizeId;
+              }
             );
 
             if (!matchingVariant) {
@@ -329,36 +442,79 @@ export function CheckoutProvider({ children }: Props) {
             }
 
             // Check variant stock
-            if (matchingVariant.stock < item.quantity) {
+            const variantStock = typeof matchingVariant.stock === "number" 
+              ? matchingVariant.stock 
+              : Number(matchingVariant.stock) || 0;
+
+            if (variantStock <= 0) {
               errors.push({
                 itemId: item.id,
                 productName: item.name,
-                reason: `Số lượng yêu cầu (${item.quantity}) vượt quá số lượng tồn kho (${matchingVariant.stock})`,
+                reason: "Variant đã hết hàng",
+              });
+              return null; // Remove item
+            }
+
+            if (variantStock < item.quantity) {
+              errors.push({
+                itemId: item.id,
+                productName: item.name,
+                reason: `Số lượng yêu cầu (${item.quantity}) vượt quá số lượng tồn kho (${variantStock})`,
               });
               // Update quantity to available stock
+              const variantPrice = typeof matchingVariant.price === "number"
+                ? matchingVariant.price
+                : Number(matchingVariant.price) || 0;
+              
               const updatedItem: ICheckoutItem = {
                 ...item,
-                quantity: matchingVariant.stock,
-                price: matchingVariant.price,
-                available: matchingVariant.stock,
-                subTotal: matchingVariant.price * matchingVariant.stock,
+                quantity: variantStock,
+                price: variantPrice,
+                available: variantStock,
+                subTotal: variantPrice * variantStock,
               };
               return updatedItem;
             }
 
             // Check price change
-            if (matchingVariant.price !== item.price) {
+            const variantPrice = typeof matchingVariant.price === "number"
+              ? matchingVariant.price
+              : Number(matchingVariant.price) || 0;
+
+            if (variantPrice !== item.price) {
               // Price changed - update item
               const updatedItem: ICheckoutItem = {
                 ...item,
-                price: matchingVariant.price,
-                subTotal: matchingVariant.price * item.quantity,
+                price: variantPrice,
+                available: variantStock,
+                subTotal: variantPrice * item.quantity,
               };
               return updatedItem;
             }
+
+            // Update available stock in case it changed
+            const updatedItem: ICheckoutItem = {
+              ...item,
+              available: variantStock,
+            };
+            return updatedItem;
           } else {
-            // Product without variant - check stock and price
-            const availableStock = latestProduct.available || 0;
+            // Product without variants - check stock_quantity and price
+            const availableStock = typeof latestProduct.available === "number"
+              ? latestProduct.available
+              : typeof latestProduct.quantity === "number"
+              ? latestProduct.quantity
+              : Number(latestProduct.available) || Number(latestProduct.quantity) || 0;
+
+            if (availableStock <= 0) {
+              errors.push({
+                itemId: item.id,
+                productName: item.name,
+                reason: "Sản phẩm đã hết hàng",
+              });
+              return null; // Remove item
+            }
+
             if (availableStock < item.quantity) {
               errors.push({
                 itemId: item.id,
@@ -366,7 +522,14 @@ export function CheckoutProvider({ children }: Props) {
                 reason: `Số lượng yêu cầu (${item.quantity}) vượt quá số lượng tồn kho (${availableStock})`,
               });
               // Update quantity to available stock
-              const productPrice = latestProduct.priceSale || latestProduct.productPrice || item.price;
+              const productPrice = latestProduct.priceSale 
+                ? Number(latestProduct.priceSale)
+                : latestProduct.productPrice 
+                ? Number(latestProduct.productPrice)
+                : latestProduct.price
+                ? Number(latestProduct.price)
+                : item.price;
+
               const updatedItem: ICheckoutItem = {
                 ...item,
                 quantity: availableStock,
@@ -378,20 +541,32 @@ export function CheckoutProvider({ children }: Props) {
             }
 
             // Check price change
-            const productPrice = latestProduct.priceSale || latestProduct.productPrice || item.price;
+            const productPrice = latestProduct.priceSale 
+              ? Number(latestProduct.priceSale)
+              : latestProduct.productPrice 
+              ? Number(latestProduct.productPrice)
+              : latestProduct.price
+              ? Number(latestProduct.price)
+              : item.price;
+
             if (productPrice !== item.price) {
               // Price changed - update item
               const updatedItem: ICheckoutItem = {
                 ...item,
                 price: productPrice,
+                available: availableStock,
                 subTotal: productPrice * item.quantity,
               };
               return updatedItem;
             }
-          }
 
-          // Item is valid - keep as is
-          return item;
+            // Update available stock in case it changed
+            const updatedItem: ICheckoutItem = {
+              ...item,
+              available: availableStock,
+            };
+            return updatedItem;
+          }
         } catch (error) {
           console.error(`Error validating item ${item.id}:`, error);
           errors.push({

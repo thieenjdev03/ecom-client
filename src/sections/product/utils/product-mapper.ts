@@ -75,7 +75,7 @@ export function mapProductToFormValues(
     newLabel: '',
 
     // Optional fields
-    productCode: '',
+    productCode: product.barcode,
     costPrice: product.cost_price ? Number(product.cost_price) : undefined,
     barcode: product.barcode || undefined,
     metaTitle: product.meta_title || undefined,

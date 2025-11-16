@@ -1,12 +1,13 @@
 "use client";
 
-import orderBy from "lodash/orderBy";
 import isEqual from "lodash/isEqual";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 import Stack from "@mui/material/Stack";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
+import Pagination from "@mui/material/Pagination";
+import Box from "@mui/material/Box";
 
 import { paths } from "src/routes/paths";
 
@@ -26,7 +27,6 @@ import EmptyContent from "src/components/empty-content";
 import { useSettingsContext } from "src/components/settings";
 
 import {
-  IProductItem,
   IProductFilters,
   IProductFilterValue,
 } from "src/types/product";
@@ -35,7 +35,6 @@ import ProductList from "../product-list";
 import ProductSort from "../product-sort";
 import ProductSearch from "../product-search";
 import ProductFilters from "../product-filters";
-import { useCheckoutContext } from "../../checkout/context";
 import ProductFiltersResult from "../product-filters-result";
 
 // ----------------------------------------------------------------------
@@ -53,8 +52,6 @@ const defaultFilters: IProductFilters = {
 export default function ProductShopView() {
   const settings = useSettingsContext();
 
-  const checkout = useCheckoutContext();
-
   const openFilters = useBoolean();
 
   const [sortBy, setSortBy] = useState("featured");
@@ -65,13 +62,135 @@ export default function ProductShopView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  // ------------------------------------------------------------------
-  // Use real API data instead of mockup
-  const { products, productsLoading, productsEmpty } = useGetProducts({
-    page: 1,
-    limit: 20,
+  const [page, setPage] = useState(1);
+
+  const limit = 20;
+
+  // Convert sortBy UI value to API sort_by and sort_order
+  const getApiSort = useCallback((sortValue: string) => {
+    const sortMap: Record<string, { sort_by: "created_at" | "updated_at" | "name" | "price" | "status"; sort_order: "ASC" | "DESC" }> = {
+      featured: { sort_by: "created_at", sort_order: "DESC" }, // Featured products - using created_at DESC as fallback
+      newest: { sort_by: "created_at", sort_order: "DESC" },
+      priceDesc: { sort_by: "price", sort_order: "DESC" },
+      priceAsc: { sort_by: "price", sort_order: "ASC" },
+    };
+    return sortMap[sortValue] || sortMap.featured;
+  }, []);
+
+  // Get locale from i18n
+  const getLocale = useCallback(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("i18nextLng");
+      return stored || "en";
+    }
+    return "en";
+  }, []);
+
+  // Build query parameters for API (only API-supported filters)
+  const queryParams = useMemo(() => {
+    const params: any = {
+      page,
+      limit,
+      locale: getLocale(),
+      status: "active", // Only show active products
+    };
+
+    // Add search query (API uses 'search' not 'query')
+    if (debouncedQuery) {
+      params.search = debouncedQuery;
+    }
+
+    // Add sort
+    const sortConfig = getApiSort(sortBy);
+    params.sort_by = sortConfig.sort_by;
+    params.sort_order = sortConfig.sort_order;
+
+    // Add category filter (if category is provided and not "all")
+    // Note: API uses category_id (UUID), but UI uses category name/slug
+    // For now, we'll pass it as-is and let backend handle the mapping
+    // TODO: Convert category name/slug to category_id if needed
+    if (filters.category && filters.category !== "all") {
+      // Assuming category could be ID or slug - backend should handle both
+      params.category_id = filters.category;
+    }
+
+    // Client-side filters (not sent to API, will filter after fetch)
+    // These are stored in params but not sent to API
+    if (filters.gender && filters.gender.length > 0) {
+      params.gender = filters.gender;
+    }
+
+    if (filters.colors && filters.colors.length > 0) {
+      params.colors = filters.colors;
+    }
+
+    const [min, max] = filters.priceRange;
+    if (min !== 0 || max !== 200) {
+      params.price_min = min;
+      params.price_max = max;
+    }
+
+    if (filters.rating) {
+      params.rating = filters.rating;
+    }
+
+    return params;
+  }, [page, limit, debouncedQuery, sortBy, filters, getApiSort, getLocale]);
+
+  // Fetch products with API-supported filters and pagination
+  const { products: apiProducts, productsLoading, productsEmpty, meta } = useGetProducts({
+    page: queryParams.page,
+    limit: queryParams.limit,
+    locale: queryParams.locale,
+    status: queryParams.status,
+    search: queryParams.search,
+    sort_by: queryParams.sort_by,
+    sort_order: queryParams.sort_order,
+    category_id: queryParams.category_id,
   });
 
+  // Apply client-side filters for filters not supported by API
+  const products = useMemo(() => {
+    let filtered = [...apiProducts];
+
+    // Filter by gender
+    if (filters.gender && filters.gender.length > 0) {
+      filtered = filtered.filter((product) =>
+        filters.gender.includes(product.gender),
+      );
+    }
+
+    // Filter by colors
+    if (filters.colors && filters.colors.length > 0) {
+      filtered = filtered.filter((product) =>
+        product.colors.some((color) => filters.colors.includes(color)),
+      );
+    }
+
+    // Filter by price range
+    const [min, max] = filters.priceRange;
+    if (min !== 0 || max !== 200) {
+      filtered = filtered.filter(
+        (product) => product.price >= min && product.price <= max,
+      );
+    }
+
+    // Filter by rating
+    if (filters.rating) {
+      const convertRating = (value: string) => {
+        if (value === "up4Star") return 4;
+        if (value === "up3Star") return 3;
+        if (value === "up2Star") return 2;
+        return 1;
+      };
+      const minRating = convertRating(filters.rating);
+      filtered = filtered.filter((product) => product.totalRatings > minRating);
+    }
+
+    return filtered;
+  }, [apiProducts, filters]);
+
+  // Search results for autocomplete (client-side filtering for quick results)
   const searchResults = debouncedQuery
     ? products.filter((p) =>
         p.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
@@ -85,31 +204,44 @@ export default function ProductShopView() {
         ...prevState,
         [name]: value,
       }));
+      // Reset to page 1 when filters change
+      setPage(1);
     },
     [],
   );
 
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
+    setPage(1);
   }, []);
-
-  const dataFiltered = applyFilter({
-    inputData: products,
-    filters,
-    sortBy,
-  });
 
   const canReset = !isEqual(defaultFilters, filters);
 
-  const notFound = !dataFiltered.length && canReset;
+  // Note: notFound logic needs to account for client-side filtering
+  // If API returns empty, or if client-side filtering results in empty
+  const notFound = (productsEmpty || products.length === 0) && canReset;
 
   const handleSortBy = useCallback((newValue: string) => {
     setSortBy(newValue);
+    setPage(1); // Reset to page 1 when sort changes
   }, []);
 
   const handleSearch = useCallback((inputValue: string) => {
     setSearchQuery(inputValue);
+    setPage(1); // Reset to page 1 when search changes
   }, []);
+
+  const handlePageChange = useCallback((event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  // Calculate total pages based on client-side filtered results
+  // Since we're doing client-side filtering, pagination might not be accurate
+  // For better UX, we could fetch more items and paginate client-side
+  // Or implement server-side filtering for all filters
+  const totalPages = meta?.totalPages || 1;
 
   const renderFilters = (
     <Stack
@@ -161,7 +293,7 @@ export default function ProductShopView() {
       canReset={canReset}
       onResetFilters={handleResetFilters}
       //
-      results={dataFiltered.length}
+      results={meta?.total || products.length}
     />
   );
 
@@ -199,77 +331,26 @@ export default function ProductShopView() {
 
       {(notFound || productsEmpty) && renderNotFound}
 
-      <ProductList products={dataFiltered} loading={productsLoading} />
+      <ProductList products={products} loading={productsLoading} />
+
+      {!productsEmpty && totalPages > 1 && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            mt: 5,
+          }}
+        >
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+            size="large"
+          />
+        </Box>
+      )}
     </Container>
   );
 }
 
-// ----------------------------------------------------------------------
-
-function applyFilter({
-  inputData,
-  filters,
-  sortBy,
-}: {
-  inputData: IProductItem[];
-  filters: IProductFilters;
-  sortBy: string;
-}) {
-  const { gender, category, colors, priceRange, rating } = filters;
-
-  const min = priceRange[0];
-
-  const max = priceRange[1];
-
-  // SORT BY
-  if (sortBy === "featured") {
-    inputData = orderBy(inputData, ["totalSold"], ["desc"]);
-  }
-
-  if (sortBy === "newest") {
-    inputData = orderBy(inputData, ["createdAt"], ["desc"]);
-  }
-
-  if (sortBy === "priceDesc") {
-    inputData = orderBy(inputData, ["price"], ["desc"]);
-  }
-
-  if (sortBy === "priceAsc") {
-    inputData = orderBy(inputData, ["price"], ["asc"]);
-  }
-
-  // FILTERS
-  if (gender.length) {
-    inputData = inputData.filter((product) => gender.includes(product.gender));
-  }
-
-  if (category !== "all") {
-    inputData = inputData.filter((product) => product.category === category);
-  }
-
-  if (colors.length) {
-    inputData = inputData.filter((product) =>
-      product.colors.some((color) => colors.includes(color)),
-    );
-  }
-
-  if (min !== 0 || max !== 200) {
-    inputData = inputData.filter(
-      (product) => product.price >= min && product.price <= max,
-    );
-  }
-
-  if (rating) {
-    inputData = inputData.filter((product) => {
-      const convertRating = (value: string) => {
-        if (value === "up4Star") return 4;
-        if (value === "up3Star") return 3;
-        if (value === "up2Star") return 2;
-        return 1;
-      };
-      return product.totalRatings > convertRating(rating);
-    });
-  }
-
-  return inputData;
-}

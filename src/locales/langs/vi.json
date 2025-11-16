@@ -233,7 +233,7 @@
     "pleaseSelectColorAndSize": "Vui lòng chọn màu và size trước khi thêm vào giỏ hàng",
     "variantNotFound": "Variant không tồn tại. Vui lòng chọn lại màu và size.",
     "quantityExceedsStock": "Số lượng yêu cầu ({quantity}) vượt quá số lượng tồn kho ({stock})",
-    "addedToCart": "Đã thêm {quantity} sản phẩm vào giỏ hàng",
+    "addedToCart": "Đã thêm {quantity} {product} vào giỏ hàng",
     "errorAddingToCart": "Có lỗi xảy ra khi thêm vào giỏ hàng",
     "color": "Màu sắc",
     "size": "Kích thước",
@@ -278,7 +278,7 @@
     "title": "SẢN PHẨM NỔI BẬT",
     "errorLoading": "Không thể tải sản phẩm. Vui lòng thử lại sau.",
     "noProducts": "Chưa có sản phẩm nào.",
-    "addedToCart": "Đã thêm \"{{name}}\" vào giỏ hàng",
+    "addedToCart": "Đã thêm {quantity} {product} vào giỏ hàng",
     "errorAddingToCart": "Có lỗi xảy ra khi thêm vào giỏ hàng",
     "removedFromWishlist": "Đã xóa \"{{name}}\" khỏi yêu thích",
     "addedToWishlist": "Đã thêm \"{{name}}\" vào yêu thích",
@@ -289,15 +289,26 @@
     "hot": "HOT",
     "outOfStock": "HẾT HÀNG"
   },
+  "savedOrderBanner": {
+    "title": "Bạn có một đơn hàng đang chờ thanh toán",
+    "orderInfo": "Đơn hàng #{orderId} • Tạo {timeAgo}",
+    "shippingTo": "Giao đến",
+    "totalAmount": "Tổng tiền",
+    "continuePayment": "Tiếp tục thanh toán",
+    "justNow": "vừa xong",
+    "minutesAgo": "{minutes} phút trước",
+    "hoursAgo": "{hours} giờ trước"
+  },
   "header": {
-    "home": "TRANG CHỦ",
+    "home": "Trang Chủ",
     "shop": "Cửa hàng",
-    "categories": "DANH MỤC",
-    "collection": "BỘ SƯU TẬP",
+    "categories": "Danh Mục",
+    "collection": "Bộ sưu tập",
     "wishlist": "Yêu thích",
     "account": "Tài khoản",
     "login": "Đăng nhập",
-    "another": "Khác"
+    "another": "Khác",
+    "welcome": "Chào mừng"
   },
   "footer": {
     "weAre": "CHÚNG TÔI LÀ ...",
@@ -310,7 +321,7 @@
     "privacyPolicy": "Chính sách bảo mật",
     "exchangePolicy": "Chính sách đổi trả",
     "termsOfUse": "Điều khoản sử dụng",
-    "category": "DANH MỤC",
+    "category": "Danh Mục",
     "bikini": "Bikini",
     "followUs": "THEO DÕI CHÚNG TÔI",
     "copyright": "© {{year}} NO NAME"
