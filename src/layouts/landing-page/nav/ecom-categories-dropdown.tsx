@@ -1,8 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 
 import Box from "@mui/material/Box";
-import Link from "@mui/material/Link";
-import Paper from "@mui/material/Paper";
 import Popover from "@mui/material/Popover";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
@@ -13,6 +11,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { RouterLink } from "src/routes/components";
 import { paths } from "src/routes/paths";
 import { useGetCategoryTree } from "src/api/reference";
+import { useRouter } from "next/navigation";
 
 type Props = {
   label: string;
@@ -58,12 +57,19 @@ export default function EcomCategoriesDropdown({
 
   const parentGroupsWithChildren = groups.filter((g) => g.children.length > 0);
   const parentsWithoutChildren = groups.filter((g) => g.children.length === 0).map((g) => g.parent);
+  const router = useRouter();
+  const handleLabelClick = useCallback(() => {
+    console.log('handleLabelClick');
+    router.push(paths.product.root);
+  }, []);
+
   return (
     <Box
       onMouseEnter={handleOpen}
       onMouseLeave={handleClose}
       ref={anchorRef}
       sx={{ position: "relative" }}
+      onClick={handleLabelClick}
     >
       <Typography
         component="span"

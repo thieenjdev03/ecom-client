@@ -16,9 +16,6 @@ import DialogContent from "@mui/material/DialogContent";
 import ButtonBase from "@mui/material/ButtonBase";
 import { alpha } from "@mui/material/styles";
 
-import { paths } from "src/routes/paths";
-import { useRouter } from "src/routes/hooks";
-
 import { useBoolean } from "src/hooks/use-boolean";
 import { useGetColors } from "src/api/reference";
 import { useGetSizes } from "src/api/reference";
@@ -50,6 +47,29 @@ type Props = {
   onVariantChange?: (variant: ProductVariantDto | null) => void;
 };
 
+const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
+
+type SizeOption = {
+  id: string;
+  name: string;
+  sortOrder?: number;
+};
+
+function sortBySize(options: SizeOption[]) {
+  return [...options].sort((a, b) => {
+    const indexA = SIZE_ORDER.indexOf(a.name);
+    const indexB = SIZE_ORDER.indexOf(b.name);
+
+    // If a size does not exist inside SIZE_ORDER (e.g. "3XL"), push it to the end and sort alphabetically
+    if (indexA === -1 && indexB === -1) {
+      return a.name.localeCompare(b.name);
+    }
+    if (indexA === -1) return 1;
+    if (indexB === -1) return -1;
+    return indexA - indexB;
+  });
+}
+
 export default function ProductDetailsSummary({
   items,
   product,
@@ -59,7 +79,6 @@ export default function ProductDetailsSummary({
   onVariantChange,
   ...other
 }: Props) {
-  const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const { t, i18n } = useTranslate();
   const currentLocale = i18n.language || "en";
@@ -121,16 +140,8 @@ export default function ProductDetailsSummary({
     const sizes = sizeIds
       .map((sizeId) => allSizes.find((s: any) => s.id === sizeId))
       .filter(Boolean);
-    
-    // Sort by sortOrder (ascending), then by name if sortOrder is the same
-    return sizes.sort((a: any, b: any) => {
-      const sortOrderA = a.sortOrder ?? 0;
-      const sortOrderB = b.sortOrder ?? 0;
-      if (sortOrderA !== sortOrderB) {
-        return sortOrderA - sortOrderB;
-      }
-      return (a.name || '').localeCompare(b.name || '');
-    });
+
+    return sortBySize(sizes as SizeOption[]);
   }, [variants, allSizes]);
 
   // Check if size is available for selected color
@@ -333,7 +344,6 @@ export default function ProductDetailsSummary({
         );
       }
       onGotoStep?.(0);
-      router.push(paths.product.checkout);
     } catch (error) {
       console.error("Error submitting form:", error);
       enqueueSnackbar(t("productDetails.errorAddingToCart"), {

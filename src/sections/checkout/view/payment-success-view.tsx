@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import Container from "@mui/material/Container";
@@ -23,6 +23,88 @@ import { checkPendingOrderStatus, pollOrderStatusWithRetry } from "src/hooks/use
 
 // ----------------------------------------------------------------------
 
+type ParsedShippingAddress = {
+  full_name?: string;
+  phone?: string;
+  address_line: string;
+  ward?: string;
+  district?: string;
+  city?: string;
+};
+
+const formatPaymentMethod = (method?: Order["paymentMethod"]) => {
+  if (!method) {
+    return "PayPal";
+  }
+
+  switch (method) {
+    case "PAYPAL":
+      return "PayPal";
+    case "STRIPE":
+      return "Stripe";
+    case "COD":
+      return "Cash on Delivery";
+    default:
+      return method;
+  }
+};
+
+const formatCustomerName = (user?: Order["user"]) => {
+  if (!user) {
+    return "";
+  }
+
+  if (user.firstName || user.lastName) {
+    return `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim();
+  }
+
+  return user.email;
+};
+
+const parseShippingAddressFromNotes = (notes?: string): ParsedShippingAddress | null => {
+  if (!notes) {
+    return null;
+  }
+
+  const normalizedNotes = notes.trim();
+  if (!normalizedNotes) {
+    return null;
+  }
+
+  const prefix = "shipping address:";
+  const hasPrefix = normalizedNotes.toLowerCase().startsWith(prefix);
+  const cleaned = hasPrefix ? normalizedNotes.slice(prefix.length).trim() : normalizedNotes;
+
+  if (!cleaned) {
+    return null;
+  }
+
+  const segments = cleaned
+    .split(",")
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+
+  if (!segments.length) {
+    return null;
+  }
+
+  const [full_name, phone, ...rest] = segments;
+  const address_line = rest.join(", ");
+
+  return {
+    ...(full_name && { full_name }),
+    ...(phone && { phone }),
+    address_line: address_line || cleaned,
+  };
+};
+
+const isShippingAddressNote = (notes?: string) => {
+  if (!notes) {
+    return false;
+  }
+  return notes.trim().toLowerCase().startsWith("shipping address:");
+};
+
 export default function PaymentSuccessView() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -30,12 +112,51 @@ export default function PaymentSuccessView() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(false);
+  const shippingAddress =
+    order?.shippingAddress ?? (order?.notes ? parseShippingAddressFromNotes(order.notes) : null);
+  const paymentMethodLabel = formatPaymentMethod(order?.paymentMethod);
+  const customerName = formatCustomerName(order?.user);
+  const shouldShowNotesSection = Boolean(order?.notes && !isShippingAddressNote(order.notes));
+  const hasPaymentDetails = Boolean(
+    order?.paypalTransactionId || order?.paidAmount || order?.paidAt || order?.paypalOrderId
+  );
 
-  useEffect(() => {
-    handlePaymentReturn();
+  const fetchOrderDetails = useCallback(async (orderId: string) => {
+    try {
+      const response = await orderApi.getById(orderId);
+      // Handle response structure: { data: { id: ... }, success: true } or direct { id: ... }
+      const orderData = response?.data || response;
+      setOrder(orderData);
+      setIsLoading(false);
+    } catch (err) {
+      console.error('Error fetching order details:', err);
+      setError('Failed to load order details');
+      setIsLoading(false);
+    }
   }, []);
 
-  const handlePaymentReturn = async () => {
+  const pollOrderStatus = useCallback(async (orderId: string) => {
+    try {
+      const result = await pollOrderStatusWithRetry(orderId, 30, 10000);
+      
+      if (result.success && result.order) {
+        setOrder(result.order);
+        setIsPolling(false);
+        setIsLoading(false);
+      } else {
+        setError('Payment is taking longer than expected. Please contact support.');
+        setIsPolling(false);
+        setIsLoading(false);
+      }
+    } catch (err) {
+      console.error('Error polling order status:', err);
+      setError('Failed to check payment status');
+      setIsPolling(false);
+      setIsLoading(false);
+    }
+  }, []);
+
+  const handlePaymentReturn = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -75,42 +196,11 @@ export default function PaymentSuccessView() {
       setError('Failed to process payment return');
       setIsLoading(false);
     }
-  };
+  }, [fetchOrderDetails, pollOrderStatus, searchParams]);
 
-  const pollOrderStatus = async (orderId: string) => {
-    try {
-      const result = await pollOrderStatusWithRetry(orderId, 30, 10000);
-      
-      if (result.success && result.order) {
-        setOrder(result.order);
-        setIsPolling(false);
-        setIsLoading(false);
-      } else {
-        setError('Payment is taking longer than expected. Please contact support.');
-        setIsPolling(false);
-        setIsLoading(false);
-      }
-    } catch (err) {
-      console.error('Error polling order status:', err);
-      setError('Failed to check payment status');
-      setIsPolling(false);
-      setIsLoading(false);
-    }
-  };
-
-  const fetchOrderDetails = async (orderId: string) => {
-    try {
-      const response = await orderApi.getById(orderId);
-      // Handle response structure: { data: { id: ... }, success: true } or direct { id: ... }
-      const orderData = response?.data || response;
-      setOrder(orderData);
-      setIsLoading(false);
-    } catch (err) {
-      console.error('Error fetching order details:', err);
-      setError('Failed to load order details');
-      setIsLoading(false);
-    }
-  };
+  useEffect(() => {
+    handlePaymentReturn();
+  }, [handlePaymentReturn]);
 
   const handleDownloadReceipt = () => {
     if (!order) return;
@@ -265,99 +355,217 @@ Total: ${fCurrency(order.summary.total)}
                   Payment Method:
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  {order.paymentMethod || 'PayPal'}
+                  {paymentMethodLabel}
                 </Typography>
               </Stack>
             </Stack>
 
-            <Divider />
-
             {/* Payment Information */}
-            {(order.paypalTransactionId || order.paidAmount) && (
-              <Stack spacing={2}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                  Payment Information:
-                </Typography>
-                {order.paypalTransactionId && (
+            {hasPaymentDetails && (
+              <>
+                <Divider />
+                <Stack spacing={2}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    Payment Information:
+                  </Typography>
+                  {order.paypalOrderId && (
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        PayPal Order ID:
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 500, fontFamily: 'monospace' }}>
+                        {order.paypalOrderId}
+                      </Typography>
+                    </Stack>
+                  )}
+                  {order.paypalTransactionId && (
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Transaction ID:
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 500, fontFamily: 'monospace' }}>
+                        {order.paypalTransactionId}
+                      </Typography>
+                    </Stack>
+                  )}
+                  {order.paidAmount && (
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Paid Amount:
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main' }}>
+                        {fCurrency(order.paidAmount)} {order.paidCurrency || order.summary.currency}
+                      </Typography>
+                    </Stack>
+                  )}
+                  {order.paidAt && (
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Paid At:
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        {new Date(order.paidAt).toLocaleString()}
+                      </Typography>
+                    </Stack>
+                  )}
+                </Stack>
+              </>
+            )}
+
+            {/* Customer Information */}
+            {order.user && (
+              <>
+                <Divider />
+                <Stack spacing={2}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    Customer Information:
+                  </Typography>
                   <Stack direction="row" justifyContent="space-between">
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Transaction ID:
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 500, fontFamily: 'monospace' }}>
-                      {order.paypalTransactionId}
-                    </Typography>
-                  </Stack>
-                )}
-                {order.paidAmount && (
-                  <Stack direction="row" justifyContent="space-between">
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Paid Amount:
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main' }}>
-                      {fCurrency(order.paidAmount)} {order.paidCurrency || order.summary.currency}
-                    </Typography>
-                  </Stack>
-                )}
-                {order.paidAt && (
-                  <Stack direction="row" justifyContent="space-between">
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Paid At:
+                      Name:
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                      {new Date(order.paidAt).toLocaleString()}
+                      {customerName}
                     </Typography>
                   </Stack>
-                )}
-              </Stack>
+                  {order.user.email && (
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Email:
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        {order.user.email}
+                      </Typography>
+                    </Stack>
+                  )}
+                  {order.user.phoneNumber && (
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Phone:
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        {order.user.phoneNumber}
+                      </Typography>
+                    </Stack>
+                  )}
+                  {order.user.country && (
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Country:
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        {order.user.country}
+                      </Typography>
+                    </Stack>
+                  )}
+                </Stack>
+              </>
             )}
-
-            <Divider />
 
             {/* Shipping Address */}
-            {order.shippingAddress && (
-              <Stack spacing={2}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                  Shipping Address:
-                </Typography>
-                <Typography variant="body2">
-                  {order.shippingAddress.full_name}
-                </Typography>
-                {order.shippingAddress.phone && (
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Phone: {order.shippingAddress.phone}
+            {shippingAddress && (
+              <>
+                <Divider />
+                <Stack spacing={2}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    Shipping Address:
                   </Typography>
-                )}
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  {order.shippingAddress.address_line}
-                  {order.shippingAddress.ward && `, ${order.shippingAddress.ward}`}
-                  {order.shippingAddress.district && `, ${order.shippingAddress.district}`}
-                  {order.shippingAddress.city && `, ${order.shippingAddress.city}`}
-                </Typography>
-              </Stack>
+                  <Typography variant="body2">
+                    {shippingAddress.full_name || customerName || order.user?.email}
+                  </Typography>
+                  {shippingAddress.phone && (
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      Phone: {shippingAddress.phone}
+                    </Typography>
+                  )}
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    {shippingAddress.address_line}
+                    {shippingAddress.ward && `, ${shippingAddress.ward}`}
+                    {shippingAddress.district && `, ${shippingAddress.district}`}
+                    {shippingAddress.city && `, ${shippingAddress.city}`}
+                  </Typography>
+                </Stack>
+              </>
             )}
 
-            {order.shippingAddress && <Divider />}
+            {/* Order Notes */}
+            {shouldShowNotesSection && (
+              <>
+                <Divider />
+                <Stack spacing={2}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    Order Notes:
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', whiteSpace: 'pre-line' }}>
+                    {order.notes}
+                  </Typography>
+                </Stack>
+              </>
+            )}
 
             {/* Order Items */}
             {order.items.length > 0 && (
-              <Stack spacing={2}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                  Items Ordered:
-                </Typography>
-                {order.items.map((item, index) => (
-                  <Stack key={index} direction="row" justifyContent="space-between">
-                    <Typography variant="body2">
-                      {item.productName} x{item.quantity}
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                      {fCurrency(item.totalPrice)}
-                    </Typography>
-                  </Stack>
-                ))}
-              </Stack>
+              <>
+                <Divider />
+                <Stack spacing={2}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    Items Ordered:
+                  </Typography>
+                  {order.items.map((item, index) => (
+                    <Stack
+                      key={index}
+                      direction="row"
+                      alignItems="center"
+                      spacing={2}
+                      sx={{ py: 1}}
+                    >
+                      <Box sx={{ width: 56, height: 56, borderRadius: 1, overflow: 'hidden', flexShrink: 0 }}>
+                        {item.productThumbnailUrl ? (
+                          <Box
+                            component="img"
+                            src={item.productThumbnailUrl}
+                            alt={item.productName}
+                            sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        ) : (
+                          <Box
+                            sx={{
+                              width: '100%',
+                              height: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              bgcolor: 'background.default',
+                            }}
+                          >
+                            <Iconify icon="eva:image-outline" sx={{ color: 'text.disabled', fontSize: 24 }} />
+                          </Box>
+                        )}
+                      </Box>
+                      <Stack spacing={0.5} flexGrow={1}>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {item.productName}
+                        </Typography>
+                        {(item.variantName || item.sku) && (
+                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            {item.variantName || item.sku}
+                          </Typography>
+                        )}
+                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                          Qty {item.quantity}
+                        </Typography>
+                      </Stack>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {fCurrency(item.totalPrice)}
+                      </Typography>
+                    </Stack>
+                  ))}
+                </Stack>
+              </>
             )}
 
             {/* Order Summary */}
+            <Divider />
             <Stack spacing={1}>
               <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                 Order Summary:

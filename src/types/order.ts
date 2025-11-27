@@ -14,10 +14,10 @@ export type IOrderTableFilters = {
 // ----------------------------------------------------------------------
 
 export type IOrderHistory = {
-  orderTime: Date;
-  paymentTime: Date;
-  deliveryTime: Date;
-  completionTime: Date;
+  orderTime: Date | null;
+  paymentTime: Date | null;
+  deliveryTime: Date | null;
+  completionTime: Date | null;
   timeline: {
     title: string;
     time: Date;
@@ -27,11 +27,19 @@ export type IOrderHistory = {
 export type IOrderShippingAddress = {
   fullAddress: string;
   phoneNumber: string;
+  recipientName?: string;
+  label?: string;
 };
 
 export type IOrderPayment = {
   cardType: string;
   cardNumber: string;
+  paidAt?: Date | null;
+  paidAmount?: number | null;
+  paidCurrency?: string | null;
+  transactionId?: string | null;
+  orderId?: string | null;
+  status?: string;
 };
 
 export type IOrderDelivery = {
@@ -90,4 +98,16 @@ export type IOrderItem = {
   internalNotes?: string | null;
   shippingAddress?: any;
   billingAddress?: any;
+  paypalOrderId?: string | null;
+  paypalTransactionId?: string | null;
+  paidAmount?: number | null;
+  paidCurrency?: string | null;
+  summaryTotals?: {
+    subtotal: number;
+    shipping: number;
+    tax: number;
+    discount: number;
+    total: number;
+    currency: string;
+  };
 };

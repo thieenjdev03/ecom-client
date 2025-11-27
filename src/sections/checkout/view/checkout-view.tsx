@@ -16,20 +16,7 @@ export default function CheckoutView() {
   const checkout = useCheckoutContext();
 
   return (
-    <Container maxWidth={settings.themeStretch ? false : "lg"} sx={{ mb: 10, mt: 10 }}>
-
-      <Grid
-        container
-        justifyContent={checkout.completed ? "center" : "flex-start"}
-      >
-        {/* <Grid xs={12} md={8}>
-          <CheckoutSteps
-            activeStep={checkout.activeStep}
-            steps={PRODUCT_CHECKOUT_STEPS}
-          />
-        </Grid> */}
-      </Grid>
-
+    <Container maxWidth="xl" sx={{ mb: 10, mt: 10 }}>
       {checkout.completed ? (
         <CheckoutOrderComplete
           open={checkout.completed}

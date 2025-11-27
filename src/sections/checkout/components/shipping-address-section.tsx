@@ -11,7 +11,7 @@ import Button from "@mui/material/Button";
 
 import Iconify from "src/components/iconify";
 import AddressAutocomplete from "src/components/address-autocomplete/address-autocomplete";
-import { COUNTRIES, getCountryConfig } from "src/config/shipping";
+import { getCountryConfig, useShippingCountries } from "src/config/shipping";
 import ShippingInfo from "./shipping-info";
 
 // ----------------------------------------------------------------------
@@ -51,6 +51,13 @@ export default function ShippingAddressSection({
   onClearForm,
   hasData = false,
 }: ShippingAddressSectionProps) {
+  const {
+    countries,
+    loading: countriesLoading,
+    error: countriesError,
+    refresh: refreshCountries,
+  } = useShippingCountries();
+
   // Get country-specific messages
   const getCountryMessages = () => {
     switch (formData.country) {
@@ -94,7 +101,8 @@ export default function ShippingAddressSection({
   };
 
   const messages = getCountryMessages();
-  const selectedCountry = getCountryConfig(formData.country);
+  const selectedCountry = getCountryConfig(formData.country, countries);
+  const selectedCountryLabel = countries.find((country) => country.value === formData.country)?.label;
 
   return (
     <Box sx={{ mb: 3 }}>
@@ -129,6 +137,20 @@ export default function ShippingAddressSection({
           <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
             We cannot change addresses after checkout.
           </Typography>
+
+          {countriesError && (
+            <Alert
+              severity="warning"
+              sx={{ mt: 2 }}
+              action={
+                <Button color="inherit" size="small" onClick={() => refreshCountries(true)} disabled={countriesLoading}>
+                  Retry
+                </Button>
+              }
+            >
+              Unable to refresh country list. Using cached values for now.
+            </Alert>
+          )}
         </Box>
 
         <Box>
@@ -138,8 +160,9 @@ export default function ShippingAddressSection({
             label="Country/Region"
             value={formData.country}
             onChange={onCountryChange}
+            helperText={countriesLoading ? "Loading country list..." : undefined}
           >
-            {COUNTRIES.map((option) => (
+            {countries.map((option) => (
               <MenuItem key={option.value} value={option.value}>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <span>{option.flag}</span>
@@ -174,7 +197,10 @@ export default function ShippingAddressSection({
           placeholder={messages.addressPlaceholder}
           label={messages.addressLabel}
           error={addressError}
-          helperText={addressHelperText || `Tìm kiếm địa chỉ tại ${COUNTRIES.find(c => c.value === formData.country)?.label || 'your country'}`}
+          helperText={
+            addressHelperText ||
+            `Tìm kiếm địa chỉ tại ${selectedCountryLabel || "your country"}`
+          }
           required
           countryCode={formData.country.toLowerCase()}
         />

@@ -20,7 +20,7 @@ import { useRouter, useSearchParams } from "src/routes/hooks";
 import { useBoolean } from "src/hooks/use-boolean";
 
 import { useAuthContext } from "src/auth/hooks";
-import { PATH_AFTER_LOGIN, PATH_AFTER_LOGIN_USER } from "src/config-global";
+import { PATH_AFTER_LOGIN_USER } from "src/config-global";
 
 import Iconify from "src/components/iconify";
 import FormProvider, { RHFTextField } from "src/components/hook-form";
@@ -49,14 +49,14 @@ export default function JwtLoginView() {
 
 
   const methods = useForm({
-    resolver: yupResolver(LoginSchema)
+    resolver: yupResolver(LoginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  const {
-    reset,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
+  const { handleSubmit, formState: { isSubmitting } } = methods;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -78,7 +78,6 @@ export default function JwtLoginView() {
       }
     } catch (error) {
       console.error(error);
-      reset();
       setErrorMsg(typeof error === "string" ? error : error.message);
     }
   });

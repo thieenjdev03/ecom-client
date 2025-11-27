@@ -36,22 +36,17 @@ export default function OrderDetailsHistory({ history }: Props) {
         borderStyle: "dashed",
       }}
     >
-      <Stack spacing={0.5}>
-        <Box sx={{ color: "text.disabled" }}>Order time</Box>
-        {fDateTime(history.orderTime)}
-      </Stack>
-      <Stack spacing={0.5}>
-        <Box sx={{ color: "text.disabled" }}>Payment time</Box>
-        {fDateTime(history.orderTime)}
-      </Stack>
-      <Stack spacing={0.5}>
-        <Box sx={{ color: "text.disabled" }}>Delivery time for the carrier</Box>
-        {fDateTime(history.orderTime)}
-      </Stack>
-      <Stack spacing={0.5}>
-        <Box sx={{ color: "text.disabled" }}>Completion time</Box>
-        {fDateTime(history.orderTime)}
-      </Stack>
+      {[
+        { label: "Order time", value: history.orderTime },
+        { label: "Payment time", value: history.paymentTime },
+        { label: "Shipped time", value: history.deliveryTime },
+        { label: "Completion time", value: history.completionTime },
+      ].map((item) => (
+        <Stack key={item.label} spacing={0.5}>
+          <Box sx={{ color: "text.disabled" }}>{item.label}</Box>
+          {item.value ? fDateTime(item.value) : "-"}
+        </Stack>
+      ))}
     </Stack>
   );
 

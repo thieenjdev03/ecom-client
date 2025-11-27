@@ -7,6 +7,7 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import CardHeader from "@mui/material/CardHeader";
 import Typography from "@mui/material/Typography";
+import Chip from "@mui/material/Chip";
 
 import Iconify from "src/components/iconify";
 
@@ -25,6 +26,16 @@ type Props = {
   payment: IOrderPayment;
   shippingAddress: IOrderShippingAddress;
 };
+
+function formatCurrencyWithCode(amount?: number | null, currency?: string | null) {
+  if (amount === null || amount === undefined) return "-";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency || "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
 
 export default function OrderDetailsInfo({
   customer,
@@ -86,7 +97,7 @@ export default function OrderDetailsInfo({
           >
             Ship by
           </Box>
-          {delivery.shipBy}
+          {delivery.shipBy || "Not assigned"}
         </Stack>
         <Stack direction="row" alignItems="center">
           <Box
@@ -95,7 +106,7 @@ export default function OrderDetailsInfo({
           >
             Speedy
           </Box>
-          {delivery.speedy}
+          {delivery.speedy || "Standard"}
         </Stack>
         <Stack direction="row" alignItems="center">
           <Box
@@ -104,9 +115,13 @@ export default function OrderDetailsInfo({
           >
             Tracking No.
           </Box>
-          <Link underline="always" color="inherit">
-            {delivery.trackingNumber}
-          </Link>
+          {delivery.trackingNumber ? (
+            <Link underline="always" color="inherit">
+              {delivery.trackingNumber}
+            </Link>
+          ) : (
+            "-"
+          )}
         </Stack>
       </Stack>
     </>
@@ -130,8 +145,20 @@ export default function OrderDetailsInfo({
           >
             Address
           </Box>
-          {shippingAddress.fullAddress}
+          {shippingAddress.fullAddress || "Not provided"}
         </Stack>
+
+        {shippingAddress.recipientName && (
+          <Stack direction="row">
+            <Box
+              component="span"
+              sx={{ color: "text.secondary", width: 120, flexShrink: 0 }}
+            >
+              Recipient
+            </Box>
+            {shippingAddress.recipientName}
+          </Stack>
+        )}
 
         <Stack direction="row">
           <Box
@@ -140,7 +167,7 @@ export default function OrderDetailsInfo({
           >
             Phone number
           </Box>
-          {shippingAddress.phoneNumber}
+          {shippingAddress.phoneNumber || "-"}
         </Stack>
       </Stack>
     </>
@@ -164,7 +191,14 @@ export default function OrderDetailsInfo({
           >
             Method
           </Box>
-          {payment.cardType}
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Chip label={payment.cardType} size="small" variant="soft" />
+            {payment.status && (
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                {payment.status}
+              </Typography>
+            )}
+          </Stack>
         </Stack>
         <Stack direction="row" alignItems="center">
           <Box
@@ -175,6 +209,50 @@ export default function OrderDetailsInfo({
           </Box>
           {payment.cardNumber}
         </Stack>
+        {payment.paidAmount !== undefined && (
+          <Stack direction="row" alignItems="center">
+            <Box
+              component="span"
+              sx={{ color: "text.secondary", width: 120, flexShrink: 0 }}
+            >
+              Paid amount
+            </Box>
+            {formatCurrencyWithCode(payment.paidAmount, payment.paidCurrency)}
+          </Stack>
+        )}
+        {payment.paidAt && (
+          <Stack direction="row" alignItems="center">
+            <Box
+              component="span"
+              sx={{ color: "text.secondary", width: 120, flexShrink: 0 }}
+            >
+              Paid at
+            </Box>
+            {payment.paidAt.toLocaleString()}
+          </Stack>
+        )}
+        {payment.transactionId && (
+          <Stack direction="row" alignItems="center">
+            <Box
+              component="span"
+              sx={{ color: "text.secondary", width: 120, flexShrink: 0 }}
+            >
+              Transaction ID
+            </Box>
+            {payment.transactionId}
+          </Stack>
+        )}
+        {payment.orderId && (
+          <Stack direction="row" alignItems="center">
+            <Box
+              component="span"
+              sx={{ color: "text.secondary", width: 120, flexShrink: 0 }}
+            >
+              External order
+            </Box>
+            {payment.orderId}
+          </Stack>
+        )}
       </Stack>
     </>
   );

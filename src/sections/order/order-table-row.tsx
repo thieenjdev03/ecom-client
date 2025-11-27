@@ -13,12 +13,10 @@ import TableRow from "@mui/material/TableRow";
 import Checkbox from "@mui/material/Checkbox";
 import TableCell from "@mui/material/TableCell";
 import IconButton from "@mui/material/IconButton";
-import ListItemText from "@mui/material/ListItemText";
 import Link from "@mui/material/Link";
 
 import { useBoolean } from "src/hooks/use-boolean";
 
-import { fCurrency } from "src/utils/format-number";
 import { fDate, fTime } from "src/utils/format-time";
 import { paths } from "src/routes/paths";
 import { RouterLink } from "src/routes/components";
@@ -69,6 +67,104 @@ function formatDateTime(date: Date): string {
   return `${dateStr} – ${timeStr}`;
 }
 
+type NormalizedShippingAddress = {
+  name?: string;
+  phone?: string;
+  addressLine?: string;
+  ward?: string;
+  district?: string;
+  city?: string;
+  country?: string;
+  postalCode?: string;
+};
+
+const SHIPPING_ADDRESS_NOTE_PREFIX = "shipping address:";
+
+function parseShippingAddressFromNotes(notes?: string | null): NormalizedShippingAddress | null {
+  if (!notes) {
+    return null;
+  }
+
+  const trimmed = notes.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const hasPrefix = trimmed.toLowerCase().startsWith(SHIPPING_ADDRESS_NOTE_PREFIX);
+  const cleaned = hasPrefix ? trimmed.slice(SHIPPING_ADDRESS_NOTE_PREFIX.length).trim() : trimmed;
+
+  if (!cleaned) {
+    return null;
+  }
+
+  const segments = cleaned
+    .split(",")
+    .map((seg) => seg.trim())
+    .filter(Boolean);
+
+  if (!segments.length) {
+    return null;
+  }
+
+  const [name, phone, ...rest] = segments;
+  const addressLine = rest.join(", ");
+
+  return {
+    name,
+    phone,
+    addressLine: addressLine || cleaned,
+  };
+}
+
+function normalizeShippingAddress(address?: any, notes?: string | null): NormalizedShippingAddress | null {
+  const noteAddress = parseShippingAddressFromNotes(notes);
+
+  if (!address && !noteAddress) {
+    return null;
+  }
+
+  if (typeof address === "string") {
+    return {
+      ...(noteAddress ?? {}),
+      addressLine: address || noteAddress?.addressLine,
+    };
+  }
+
+  if (address && typeof address === "object") {
+    const normalized: NormalizedShippingAddress = {
+      name:
+        address.full_name ||
+        address.fullName ||
+        address.name ||
+        address.recipientName ||
+        noteAddress?.name,
+      phone: address.phone || address.phoneNumber || noteAddress?.phone,
+      addressLine:
+        address.address_line ||
+        address.addressLine ||
+        address.addressLine1 ||
+        address.address ||
+        address.street ||
+        address.line1 ||
+        noteAddress?.addressLine,
+      ward: address.ward || address.ward_name || noteAddress?.ward,
+      district: address.district || address.district_name || noteAddress?.district,
+      city: address.city || address.province || address.state || noteAddress?.city,
+      country: address.country || address.country_code || noteAddress?.country,
+      postalCode:
+        address.postal_code ||
+        address.postalCode ||
+        address.zip ||
+        address.zipCode ||
+        noteAddress?.postalCode,
+    };
+
+    return normalized;
+  }
+
+  return noteAddress;
+}
+
 export default function OrderTableRow({
   row,
   selected,
@@ -77,6 +173,7 @@ export default function OrderTableRow({
   onDeleteRow,
 }: Props) {
   const {
+    taxes,
     items,
     status,
     orderNumber,
@@ -96,12 +193,46 @@ export default function OrderTableRow({
     shipping,
     discount,
     subTotal,
+    paypalOrderId,
+    paypalTransactionId,
+    paidAmount,
+    paidCurrency,
+    summaryTotals,
   } = row;
 
   const confirm = useBoolean();
   const collapse = useBoolean();
   const popover = usePopover();
   const rowRef = useRef<HTMLTableRowElement>(null);
+  const normalizedShippingAddress = normalizeShippingAddress(shippingAddress, notes);
+  const paidAmountLabel =
+    typeof paidAmount === "number"
+      ? formatCurrencyWithCode(paidAmount, paidCurrency || currency || "USD")
+      : null;
+  const paymentMethodDisplay = paymentMethod
+    ? paymentMethod.charAt(0) + paymentMethod.slice(1).toLowerCase()
+    : "N/A";
+  const shippingAddressLine = normalizedShippingAddress
+    ? [
+        normalizedShippingAddress.addressLine,
+        normalizedShippingAddress.ward,
+        normalizedShippingAddress.district,
+        normalizedShippingAddress.city,
+        normalizedShippingAddress.country,
+        normalizedShippingAddress.postalCode,
+      ]
+        .filter(Boolean)
+        .join(", ")
+    : "";
+  const orderSummary = summaryTotals ?? {
+    subtotal: subTotal,
+    shipping,
+    tax: taxes ?? 0,
+    discount,
+    total: totalAmount,
+    currency: currency || "USD",
+  };
+  const summaryCurrency = orderSummary.currency || currency || "USD";
 
   // Get payment badge color
   const getPaymentColor = () => {
@@ -128,9 +259,6 @@ export default function OrderTableRow({
     }
     return methodName;
   };
-
-  // Maximum products to display in Products column
-  const MAX_PRODUCTS_DISPLAY = 2;
 
   const hasNotes = !!(notes || internalNotes);
 
@@ -357,15 +485,26 @@ export default function OrderTableRow({
                       <strong>Tracking Number:</strong> {trackingNumber}
                     </Typography>
                   )}
-                  {shippingAddress && (
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      <strong>Address:</strong>{" "}
-                      {typeof shippingAddress === "string"
-                        ? shippingAddress
-                        : JSON.stringify(shippingAddress)}
-                    </Typography>
+                  {normalizedShippingAddress && (
+                    <Stack spacing={0.5} sx={{ mt: 1 }}>
+                      {normalizedShippingAddress.name && (
+                        <Typography variant="body2">
+                          <strong>Recipient:</strong> {normalizedShippingAddress.name}
+                        </Typography>
+                      )}
+                      {normalizedShippingAddress.phone && (
+                        <Typography variant="body2">
+                          <strong>Phone:</strong> {normalizedShippingAddress.phone}
+                        </Typography>
+                      )}
+                      {shippingAddressLine && (
+                        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                          {shippingAddressLine}
+                        </Typography>
+                      )}
+                    </Stack>
                   )}
-                  {!carrier && !trackingNumber && !shippingAddress && (
+                  {!carrier && !trackingNumber && !normalizedShippingAddress && (
                     <Typography variant="body2" sx={{ color: "text.disabled" }}>
                       No shipping information available
                     </Typography>
@@ -394,16 +533,33 @@ export default function OrderTableRow({
                 </Typography>
                 <Stack spacing={1}>
                   <Typography variant="body2">
-                    <strong>Method:</strong> {paymentMethod || "N/A"}
+                    <strong>Method:</strong> {paymentMethodDisplay}
                   </Typography>
-                  {paidAt && (
+                  <Typography
+                    variant="body2"
+                    sx={{ color: paidAt ? "text.primary" : "text.disabled" }}
+                  >
+                    <strong>Status:</strong>{" "}
+                    {paidAt ? `Paid on ${formatDateTime(paidAt)}` : "Payment pending"}
+                  </Typography>
+                  {paidAmountLabel && (
                     <Typography variant="body2">
-                      <strong>Paid At:</strong> {formatDateTime(paidAt)}
+                      <strong>Amount:</strong> {paidAmountLabel}
                     </Typography>
                   )}
-                  {!paidAt && (
-                    <Typography variant="body2" sx={{ color: "text.disabled" }}>
-                      Payment pending
+                  {currency && (
+                    <Typography variant="body2">
+                      <strong>Currency:</strong> {currency}
+                    </Typography>
+                  )}
+                  {paypalOrderId && (
+                    <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
+                      <strong>PayPal Order ID:</strong> {paypalOrderId}
+                    </Typography>
+                  )}
+                  {paypalTransactionId && (
+                    <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
+                      <strong>Transaction ID:</strong> {paypalTransactionId}
                     </Typography>
                   )}
                 </Stack>
@@ -459,22 +615,32 @@ export default function OrderTableRow({
                 <Stack spacing={1}>
                   <Stack direction="row" justifyContent="space-between">
                     <Typography variant="body2">Subtotal:</Typography>
-                    <Typography variant="body2">{formatCurrencyWithCode(subTotal, currency)}</Typography>
+                    <Typography variant="body2">
+                      {formatCurrencyWithCode(orderSummary.subtotal, summaryCurrency)}
+                    </Typography>
                   </Stack>
-                  {shipping > 0 && (
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="body2">Shipping:</Typography>
-                      <Typography variant="body2">{formatCurrencyWithCode(shipping, currency)}</Typography>
-                    </Stack>
-                  )}
-                  {discount > 0 && (
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="body2">Discount:</Typography>
-                      <Typography variant="body2" sx={{ color: "success.main" }}>
-                        -{formatCurrencyWithCode(discount, currency)}
-                      </Typography>
-                    </Stack>
-                  )}
+                  <Stack direction="row" justifyContent="space-between">
+                    <Typography variant="body2">Shipping:</Typography>
+                    <Typography variant="body2">
+                      {formatCurrencyWithCode(orderSummary.shipping, summaryCurrency)}
+                    </Typography>
+                  </Stack>
+                  <Stack direction="row" justifyContent="space-between">
+                    <Typography variant="body2">Tax:</Typography>
+                    <Typography variant="body2">
+                      {formatCurrencyWithCode(orderSummary.tax, summaryCurrency)}
+                    </Typography>
+                  </Stack>
+                  <Stack direction="row" justifyContent="space-between">
+                    <Typography variant="body2">Discount:</Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: orderSummary.discount > 0 ? "success.main" : "text.primary" }}
+                    >
+                      {orderSummary.discount > 0 ? "-" : ""}
+                      {formatCurrencyWithCode(orderSummary.discount, summaryCurrency)}
+                    </Typography>
+                  </Stack>
                   <Stack 
                     direction="row" 
                     justifyContent="space-between" 
@@ -482,7 +648,7 @@ export default function OrderTableRow({
                   >
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>Total:</Typography>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {formatCurrencyWithCode(totalAmount, currency)}
+                      {formatCurrencyWithCode(orderSummary.total, summaryCurrency)}
                     </Typography>
                   </Stack>
                 </Stack>

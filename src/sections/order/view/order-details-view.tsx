@@ -18,182 +18,18 @@ import { useSnackbar } from "src/components/snackbar";
 
 import { useGetOrder, orderApi, Order } from "src/api/order";
 
-import {
-  IOrderCustomer,
-  IOrderDelivery,
-  IOrderPayment,
-  IOrderShippingAddress,
-  IOrderHistory,
-  IOrderProductItem,
-} from "src/types/order";
-
 import OrderDetailsInfo from "../order-details-info";
 import OrderDetailsItems from "../order-details-item";
 import OrderDetailsHistory from "../order-details-history";
 import OrderDetailsToolbar from "../order-details-toolbar";
+import OrderDetailsNotes from "../order-details-notes";
+import { transformOrderForDetailView } from "../utils/transform-order";
 
 // ----------------------------------------------------------------------
 
 type Props = {
   id: string;
 };
-
-// Transform API Order to detail view format
-function transformOrderForDetailView(order: Order) {
-  const subTotal = parseFloat(order.summary.subtotal || order.summary.total);
-  const shipping = parseFloat(order.summary.shipping);
-  const tax = parseFloat(order.summary.tax || "0");
-  const discount = parseFloat(order.summary.discount);
-
-  // Transform customer
-  const customer: IOrderCustomer = order.user
-    ? {
-        id: order.user.id,
-        name:
-          order.user.name ||
-          `${(order.user as any).firstName || ""} ${(order.user as any).lastName || ""}`.trim() ||
-          "Unknown",
-        email: order.user.email,
-        avatarUrl: order.user.avatarUrl || "",
-        ipAddress: "",
-        country: (order.user as any).country || "",
-        firstName: (order.user as any).firstName,
-        lastName: (order.user as any).lastName,
-      }
-    : {
-        id: order.userId,
-        name: "Unknown Customer",
-        email: "unknown@example.com",
-        avatarUrl: "",
-        ipAddress: "",
-      };
-
-  // Transform items
-  const productItems: IOrderProductItem[] = order.items.map((item, index) => ({
-    id: item.variantId || item.productId.toString() || index.toString(),
-    sku: item.sku || `${item.productId}-${item.variantId || "default"}`,
-    name: item.productName,
-    price: parseFloat(item.unitPrice),
-    coverUrl: (item as any).productThumbnailUrl || "", // Use productThumbnailUrl from API
-    quantity: item.quantity,
-    variantName: item.variantName,
-    productSlug: item.productSlug,
-    productId: item.productId,
-    variantId: item.variantId,
-  }));
-
-  // Transform history
-  const history: IOrderHistory = {
-    orderTime: new Date(order.createdAt),
-    paymentTime: order.paidAt ? new Date(order.paidAt) : new Date(order.createdAt),
-    deliveryTime: new Date(order.createdAt),
-    completionTime: new Date(order.updatedAt),
-    timeline: [
-      {
-        title: "Order placed",
-        time: new Date(order.createdAt),
-      },
-      ...(order.paidAt
-        ? [
-            {
-              title: "Payment completed",
-              time: new Date(order.paidAt),
-            },
-          ]
-        : []),
-      {
-        title: "Order updated",
-        time: new Date(order.updatedAt),
-      },
-    ],
-  };
-
-  // Transform delivery
-  const delivery: IOrderDelivery = {
-    shipBy: (order as any).carrier || "",
-    speedy: "",
-    trackingNumber: (order as any).trackingNumber || "",
-  };
-
-  // Transform shipping address
-  // Parse from notes if shippingAddress is null
-  const parseShippingFromNotes = (record?: any): IOrderShippingAddress => {
-    if (!record?.notes) {
-      return { fullAddress: "", phoneNumber: "" };
-    }
-    
-    // Check if notes contains "Shipping Address:" prefix
-    if (record?.notes.includes("Shipping Address:")) {
-      const addressPart = record?.notes.replace("Shipping Address:", "").trim();
-      // Try to extract phone number (look for patterns like +84, country codes, or 10+ digit numbers)
-      const phoneMatch = addressPart.match(/(\+?\d{1,4}[\s-]?\d{1,4}[\s-]?\d{1,4}[\s-]?\d{1,4}[\s-]?\d{1,4}[\s-]?\d{1,4}[\s-]?\d{1,4})/);
-      const phoneNumber = phoneMatch ? phoneMatch[1] : "";
-      const fullAddress = phoneNumber ? addressPart.replace(phoneNumber, "").trim().replace(/^,|,$/g, "").trim() : addressPart;
-      
-      return {
-        fullAddress: fullAddress || "",
-        phoneNumber: phoneNumber || "",
-      };
-    }
-    
-    return { fullAddress: record?.notes, phoneNumber: "" };
-  };
-
-  const shippingAddress: IOrderShippingAddress = order.shippingAddress
-    ? typeof order.shippingAddress === "string"
-      ? {
-          fullAddress: order.shippingAddress,
-          phoneNumber: "",
-        }
-      : {
-          fullAddress: [
-            order.shippingAddress.streetLine1,
-            order.shippingAddress.streetLine2,
-            order.shippingAddress.ward,
-            order.shippingAddress.district,
-            order.shippingAddress.province,
-          ]
-            .filter(Boolean)
-            .join(", ") || "",
-          phoneNumber: order.shippingAddress.recipientPhone || "",
-        }
-    : parseShippingFromNotes(order);
-
-  // Transform payment
-  const payment: IOrderPayment = {
-    cardType:
-      order.paymentMethod === "PAYPAL"
-        ? "PayPal"
-        : order.paymentMethod === "STRIPE"
-          ? "Stripe"
-          : "COD",
-    cardNumber:
-      order.paymentMethod === "PAYPAL"
-        ? order.paypalOrderId
-          ? `PayPal Order: ${order.paypalOrderId}`
-          : "PayPal Account"
-        : order.paymentMethod === "STRIPE"
-          ? "**** **** **** 4242"
-          : "Cash on Delivery",
-  };
-
-  return {
-    customer,
-    delivery,
-    payment,
-    shippingAddress,
-    history,
-    items: productItems,
-    taxes: tax,
-    shipping,
-    discount,
-    subTotal: subTotal - discount,
-    totalAmount: parseFloat(order.summary.total),
-    orderNumber: order.orderNumber,
-    createdAt: new Date(order.createdAt),
-    status: order.status.toLowerCase(),
-  };
-}
 
 export default function OrderDetailsView({ id }: Props) {
   const settings = useSettingsContext();
@@ -288,7 +124,10 @@ export default function OrderDetailsView({ id }: Props) {
               discount={orderData.discount}
               subTotal={orderData.subTotal}
               totalAmount={orderData.totalAmount}
+              currency={orderData.currency}
             />
+
+            <OrderDetailsNotes notes={orderData.notes} internalNotes={orderData.internalNotes} />
 
             <OrderDetailsHistory history={orderData.history} />
           </Stack>

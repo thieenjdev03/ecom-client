@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
@@ -57,6 +57,7 @@ export default function HomeProductShowcase({
       price: product.price,
       priceSale: product.priceSale,
       image: product.coverUrl || product.images?.[0] || "/assets/placeholder.svg",
+      hoverImage: product.images && product.images.length > 1 ? product.images[1] : undefined,
       isFeatured: product.isFeatured,
       isNew: product.is_new,
       isSale: product.is_sale,
@@ -316,6 +317,7 @@ type MinimalProduct = {
   price: number;
   priceSale?: number | null;
   image: string;
+  hoverImage?: string;
   isFeatured?: boolean;
   isNew?: boolean;
   isSale?: boolean;
@@ -339,6 +341,13 @@ function ProductCard({ product, layout = "image-left", showAddToCart }: CardProp
   const { t, i18n } = useTranslate();
   const checkout = useCheckoutContext();
   const wishlist = useWishlistContext();
+  const [isImageHovered, setIsImageHovered] = useState(false);
+  const displayedImage =
+    isImageHovered && product.hoverImage ? product.hoverImage : product.image;
+
+  useEffect(() => {
+    setIsImageHovered(false);
+  }, [product.id]);
   
   const isPriceBottom = layout === "price-bottom";
   const linkTo = paths.product.details(product.id);
@@ -472,7 +481,6 @@ function ProductCard({ product, layout = "image-left", showAddToCart }: CardProp
             display: "flex",
             alignItems: "stretch",
             flexDirection: isPriceBottom ? "column-reverse" : "row",
-            p: isPriceBottom ? 2 : 0,
             height: "100%",
             position: "relative",
             cursor: "pointer",
@@ -588,9 +596,30 @@ function ProductCard({ product, layout = "image-left", showAddToCart }: CardProp
             flexShrink: 0,
           }}
         >
+          <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
             {product.name}
           </Typography>
+          <IconButton
+              size="small"
+              onClick={handleToggleWishlist}
+              sx={{
+                border: 1,
+                borderColor: "divider",
+                color: isInWishlist ? "error.main" : "text.secondary",
+                "&:hover": {
+                  borderColor: "error.main",
+                  bgcolor: "error.lighter",
+                },
+              }}
+            >
+              <Iconify 
+                icon={isInWishlist ? "solar:heart-bold" : "solar:heart-linear"} 
+                width={18} 
+              />
+            </IconButton>
+          </Stack>
+          
 
           {/* Category */}
           {product.category && (
@@ -641,30 +670,20 @@ function ProductCard({ product, layout = "image-left", showAddToCart }: CardProp
               </Button>
             )}
             
-            <IconButton
-              size="small"
-              onClick={handleToggleWishlist}
-              sx={{
-                border: 1,
-                borderColor: "divider",
-                color: isInWishlist ? "error.main" : "text.secondary",
-                "&:hover": {
-                  borderColor: "error.main",
-                  bgcolor: "error.lighter",
-                },
-              }}
-            >
-              <Iconify 
-                icon={isInWishlist ? "solar:heart-bold" : "solar:heart-linear"} 
-                width={18} 
-              />
-            </IconButton>
           </Stack>
         </Stack>
 
-        <Box sx={{ flex: 1, minHeight: 0 }}>
+        <Box
+          sx={{ flex: 1, minHeight: 0 }}
+          onMouseEnter={() => {
+            if (product.hoverImage) {
+              setIsImageHovered(true);
+            }
+          }}
+          onMouseLeave={() => setIsImageHovered(false)}
+        >
           <Image
-            src={product.image}
+            src={displayedImage}
             alt={product.name}
             ratio={isPriceBottom ? "3/4" : undefined}
             loading="lazy"

@@ -228,12 +228,18 @@
       "securePayment": "You can pay securely via PayPal or Visa card."
     }
   },
+  "cartPreview": {
+    "selectAll": "Select all",
+    "selectAllAria": "Select all items",
+    "deleteSelected": "Delete selected",
+    "deleteSelectedAria": "Delete selected items"
+  },
   "productDetails": {
     "quantityMustBeGreaterThanZero": "Quantity must be greater than 0",
     "pleaseSelectColorAndSize": "Please select color and size before adding to cart",
     "variantNotFound": "Variant not found. Please select color and size again.",
     "quantityExceedsStock": "Requested quantity ({quantity}) exceeds available stock ({stock})",
-    "addedToCart": "Added {quantity} {product} to cart",
+    "addedToCart": "Added {{quantity}} {{product}} to cart",
     "errorAddingToCart": "An error occurred while adding to cart",
     "color": "Color",
     "size": "Size",
@@ -308,7 +314,9 @@
     "account": "Account",
     "login": "Login",
     "another": "Another",
-    "welcome": "Welcome"
+    "welcome": "Welcome",
+    "viewProfile": "View profile",
+    "logout": "Logout"
   },
   "footer": {
     "weAre": "WE ARE ...",

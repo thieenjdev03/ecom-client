@@ -97,7 +97,7 @@ export default function ProductItem({ product }: Props) {
 
   const handleImageHover = () => {
     if (images && images.length > 1) {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+      setCurrentImageIndex(1);
     }
   };
 
@@ -233,33 +233,6 @@ export default function ProductItem({ product }: Props) {
         </Fab>
       )}
 
-      <IconButton
-        className="wishlist-btn"
-        onClick={handleWishlistToggle}
-        sx={{
-          position: "absolute",
-          top: 16,
-          right: 16,
-          zIndex: 9,
-          opacity: 0,
-          transition: (theme) =>
-            theme.transitions.create("all", {
-              easing: theme.transitions.easing.easeInOut,
-              duration: theme.transitions.duration.shorter,
-            }),
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
-          "&:hover": {
-            backgroundColor: "rgba(255, 255, 255, 1)",
-          },
-        }}
-      >
-        <Iconify 
-          icon={isInWishlist(id) ? "solar:heart-bold" : "solar:heart-outline"} 
-          width={20} 
-          sx={{ color: isInWishlist(id) ? "error.main" : "inherit" }}
-        />
-      </IconButton>
-
       <Tooltip
         title={!available && !isFeatured && variants && variants.length === 0 ? "Out of stock" : "In stock"}
         placement="bottom-end"
@@ -287,7 +260,7 @@ export default function ProductItem({ product }: Props) {
   );
 
   const renderContent = (
-    <Stack spacing={2} sx={{ p: 2 }}>
+    <Stack spacing={2}>
       <Stack direction="row" alignItems="center" spacing={1}>
         <ColorPreview colors={colors} />
         {category && (
@@ -305,8 +278,8 @@ export default function ProductItem({ product }: Props) {
           </Box>
         )}
       </Stack>
-
-      <Link
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Link
         component={RouterLink}
         href={linkTo}
         color="inherit"
@@ -323,7 +296,23 @@ export default function ProductItem({ product }: Props) {
       >
         {name}
       </Link>
-
+      <IconButton
+            size="small"
+            onClick={handleWishlistToggle}
+            sx={{
+              p: 0.5,
+              "&:hover": {
+                backgroundColor: "rgba(0, 0, 0, 0.04)",
+              },
+            }}
+          >
+            <Iconify 
+              icon={isInWishlist(id) ? "solar:heart-bold" : "solar:heart-outline"} 
+              width={20} 
+              sx={{ color: isInWishlist(id) ? "error.main" : "inherit" }}
+            />
+          </IconButton>
+        </Stack>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Stack direction="row" spacing={0.5} sx={{ typography: "subtitle1" }}>
           {priceSale && (
@@ -355,33 +344,17 @@ export default function ProductItem({ product }: Props) {
               {stock_quantity} left
             </Box>
           )}
-          
-          <IconButton
-            size="small"
-            onClick={handleWishlistToggle}
-            sx={{
-              p: 0.5,
-              "&:hover": {
-                backgroundColor: "rgba(0, 0, 0, 0.04)",
-              },
-            }}
-          >
-            <Iconify 
-              icon={isInWishlist(id) ? "solar:heart-bold" : "solar:heart-outline"} 
-              width={20} 
-              sx={{ color: isInWishlist(id) ? "error.main" : "inherit" }}
-            />
-          </IconButton>
         </Stack>
       </Stack>
     </Stack>
   );
 
   return (
-    <Card
+    <Box
       sx={{
         position: "relative",
         borderRadius: 2,
+        padding:2,
         overflow: "hidden",
         transition: (theme) =>
           theme.transitions.create("all", {
@@ -389,7 +362,6 @@ export default function ProductItem({ product }: Props) {
             duration: theme.transitions.duration.shorter,
           }),
         "&:hover": {
-          boxShadow: (theme) => theme.shadows[8],
           transform: "translateY(-2px)",
         },
       }}
@@ -397,6 +369,6 @@ export default function ProductItem({ product }: Props) {
       {renderLabels}
       {renderImg}
       {renderContent}
-    </Card>
+    </Box>
   );
 }

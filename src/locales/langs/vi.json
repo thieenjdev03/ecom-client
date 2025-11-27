@@ -228,12 +228,18 @@
       "securePayment": "Bạn có thể thanh toán an toàn qua PayPal hoặc thẻ Visa."
     }
   },
+  "cartPreview": {
+    "selectAll": "Chọn tất cả",
+    "selectAllAria": "Chọn tất cả sản phẩm",
+    "deleteSelected": "Xóa đã chọn",
+    "deleteSelectedAria": "Xóa các sản phẩm đã chọn"
+  },
   "productDetails": {
     "quantityMustBeGreaterThanZero": "Số lượng phải lớn hơn 0",
     "pleaseSelectColorAndSize": "Vui lòng chọn màu và size trước khi thêm vào giỏ hàng",
     "variantNotFound": "Variant không tồn tại. Vui lòng chọn lại màu và size.",
     "quantityExceedsStock": "Số lượng yêu cầu ({quantity}) vượt quá số lượng tồn kho ({stock})",
-    "addedToCart": "Đã thêm {quantity} {product} vào giỏ hàng",
+    "addedToCart": "Đã thêm {{quantity}} {{product}} vào giỏ hàng",
     "errorAddingToCart": "Có lỗi xảy ra khi thêm vào giỏ hàng",
     "color": "Màu sắc",
     "size": "Kích thước",
@@ -308,7 +314,9 @@
     "account": "Tài khoản",
     "login": "Đăng nhập",
     "another": "Khác",
-    "welcome": "Chào mừng"
+    "welcome": "Chào mừng",
+    "viewProfile": "Xem thông tin cá nhân",
+    "logout": "Đăng xuất"
   },
   "footer": {
     "weAre": "CHÚNG TÔI LÀ ...",

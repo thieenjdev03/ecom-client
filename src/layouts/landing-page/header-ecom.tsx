@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, MouseEvent } from "react";
 
 import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
@@ -13,6 +13,10 @@ import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import Collapse from "@mui/material/Collapse";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
 
 import IconButton from "@mui/material/IconButton";
 
@@ -21,6 +25,7 @@ import Iconify from "src/components/iconify";
 import { RouterLink } from "src/routes/components";
 import { paths } from "src/routes/paths";
 import Scrollbar from "src/components/scrollbar";
+import { useRouter } from "src/routes/hooks";
 
 import { bgBlur } from "src/theme/css";
 import { useOffSetTop } from "src/hooks/use-off-set-top";
@@ -42,6 +47,7 @@ import { useTranslate } from "src/locales";
 export default function HeaderEcom() {
   const theme = useTheme();
   const pathname = usePathname();
+  const router = useRouter();
   const { t } = useTranslate();
 
   const mdUp = useResponsive("up", "md");
@@ -66,11 +72,17 @@ export default function HeaderEcom() {
       : theme.palette.text.primary;
   const userProfile = useAuthContext();
   const checkout = useCheckoutContext();
-
   // Mobile menu state
+  const isAuthenticated = Boolean(userProfile?.authenticated);
+  const userEmail = userProfile?.user?.email as string | undefined;
+  const logoutUser = userProfile?.logout;
+
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const [openCategories, setOpenCategories] = useState(false);
   const [openCollection, setOpenCollection] = useState(false);
+  const [accountMenuAnchor, setAccountMenuAnchor] =
+    useState<null | HTMLElement>(null);
+  const isAccountMenuOpen = Boolean(accountMenuAnchor);
 
   const { categoryTree } = useGetCategoryTree();
 
@@ -115,6 +127,37 @@ export default function HeaderEcom() {
     setOpenCollection((prev) => !prev);
     setOpenCategories(false);
   }, []);
+
+  const handleOpenAccountMenu = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      if (isAuthenticated) {
+        setAccountMenuAnchor(event.currentTarget);
+        return;
+      }
+      router.push(paths.auth.jwt.login);
+    },
+    [isAuthenticated, router],
+  );
+
+  const handleCloseAccountMenu = useCallback(() => {
+    setAccountMenuAnchor(null);
+  }, []);
+
+  const handleGoToAccount = useCallback(() => {
+    handleCloseAccountMenu();
+    router.push(paths.landing.user.account);
+  }, [handleCloseAccountMenu, router]);
+
+  const handleLogout = useCallback(async () => {
+    if (!logoutUser) return;
+    try {
+      await logoutUser();
+      handleCloseAccountMenu();
+      router.push("/");
+    } catch (error) {
+      console.error(error);
+    }
+  }, [handleCloseAccountMenu, logoutUser, router]);
 
   // Prepare categories data for mobile menu
   interface Category {
@@ -313,10 +356,10 @@ export default function HeaderEcom() {
                 sx={{ textShadow: activeShadow }}
               />
             </IconButton>
-              {/* User Account */}
-              <IconButton
+            {/* User Account */}
+            <IconButton
               color="inherit"
-              sx={{ 
+              sx={{
                 color: activeColor,
                 transition: "all 0.3s ease",
                 "&:hover": {
@@ -325,8 +368,9 @@ export default function HeaderEcom() {
                   backgroundColor: "rgba(0, 0, 0, 0.05)",
                 },
               }}
-              component={RouterLink}
-              href={userProfile?.authenticated ? paths.landing.user.account : paths.auth.jwt.login}
+              onClick={handleOpenAccountMenu}
+              aria-haspopup="true"
+              aria-controls={isAccountMenuOpen ? "header-account-menu" : undefined}
             >
               <Iconify
                 icon="solar:user-linear"
@@ -334,22 +378,6 @@ export default function HeaderEcom() {
                 sx={{ textShadow: activeShadow }}
               />
             </IconButton>
-            {/* Welcome message for authenticated users */}
-            {userProfile?.authenticated && getUserDisplayName() && (
-              <Typography
-                variant="body2"
-                sx={{
-                  color: activeColor,
-                  textShadow: activeShadow,
-                  display: { xs: "none", md: "block" },
-                  mr: 1,
-                  fontWeight: 500,
-                  transition: "all 0.3s ease",
-                }}
-              >
-                {t("header.welcome")}, {getUserDisplayName()}
-              </Typography>
-            )}
           
             {/* Cart */}
             <IconButton
@@ -602,23 +630,6 @@ export default function HeaderEcom() {
 
             <Divider sx={{ my: 2 }} />
 
-            {/* Welcome message for authenticated users in mobile */}
-            {userProfile?.authenticated && getUserDisplayName() && (
-              <Box
-                sx={{
-                  p: 2,
-                  mb: 2,
-                  borderRadius: 1,
-                  bgcolor: "primary.lighter",
-                  textAlign: "center",
-                }}
-              >
-                <Typography variant="body2" sx={{ color: "primary.main", fontWeight: 500 }}>
-                  {t("header.welcome")}, {getUserDisplayName()}
-                </Typography>
-              </Box>
-            )}
-
             {/* Mobile menu footer actions */}
             <Stack spacing={1}>
               <ListItemButton
@@ -632,13 +643,13 @@ export default function HeaderEcom() {
               </ListItemButton>
               <ListItemButton
                 component={RouterLink}
-                href={userProfile?.authenticated ? paths.landing.user.account : paths.auth.jwt.login}
+                href={isAuthenticated ? paths.landing.user.account : paths.auth.jwt.login}
                 onClick={handleCloseMobileMenu}
                 sx={{ borderRadius: 1 }}
               >
                 <Iconify icon="solar:user-linear" width={20} sx={{ mr: 2 }} />
                 <Typography variant="body1">
-                  {userProfile?.authenticated ? t("header.account") : t("header.login")}
+                  {isAuthenticated ? t("header.account") : t("header.login")}
                 </Typography>
               </ListItemButton>
             </Stack>
@@ -648,6 +659,45 @@ export default function HeaderEcom() {
 
       {/* Cart Preview Drawer */}
       <CartPreviewDrawer />
+      {isAuthenticated && (
+        <Menu
+          id="header-account-menu"
+          anchorEl={accountMenuAnchor}
+          open={isAccountMenuOpen}
+          onClose={handleCloseAccountMenu}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+          slotProps={{
+            paper: {
+              sx: { mt: 1, minWidth: 220 },
+            },
+          }}
+        >
+          <Box sx={{ px: 2, pt: 1.5, pb: 1 }}>
+            <Typography variant="subtitle2" noWrap>
+              {getUserDisplayName() || t("header.account")}
+            </Typography>
+            {userEmail && (
+              <Typography variant="body2" sx={{ color: "text.secondary" }} noWrap>
+                {userEmail}
+              </Typography>
+            )}
+          </Box>
+          <Divider sx={{ borderStyle: "dashed" }} />
+          <MenuItem onClick={handleGoToAccount}>
+            <ListItemIcon>
+              <Iconify icon="solar:user-linear" width={20} />
+            </ListItemIcon>
+            <ListItemText primary={t("header.viewProfile")} />
+          </MenuItem>
+          <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
+            <ListItemIcon>
+              <Iconify icon="solar:logout-2-linear" width={20} />
+            </ListItemIcon>
+            <ListItemText primary={t("header.logout")} />
+          </MenuItem>
+        </Menu>
+      )}
     </AppBar>
   );
 }

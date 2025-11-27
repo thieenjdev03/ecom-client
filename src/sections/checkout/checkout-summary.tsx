@@ -57,7 +57,7 @@ export default function CheckoutSummary({
   const calculatedTotal = subTotal - (discount || 0) + finalShipping + finalTax;
 
   return (
-    <Card sx={{ mt: 10, p: 3 }}>
+    <Card sx={{ mt: 10, p:2 }}>
       <Stack spacing={3}>
         {/* Product Details */}
         {items.length > 0 ? (
@@ -200,7 +200,7 @@ export default function CheckoutSummary({
             </Stack>
           )}
 
-          {discount && discount > 0 && (
+          {/* {discount && discount > 0 && (
             <Stack direction="row" justifyContent="space-between">
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 Discount
@@ -209,7 +209,7 @@ export default function CheckoutSummary({
                 -{fCurrency(discount)}
               </Typography>
             </Stack>
-          )}
+          )} */}
 
           <Divider />
 

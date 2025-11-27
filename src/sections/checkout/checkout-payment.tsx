@@ -21,6 +21,101 @@ import { orderApi } from "src/api/order";
 
 // ----------------------------------------------------------------------
 
+const PAYPAL_ISSUE_MESSAGES: Record<string, string> = {
+  INSTRUMENT_DECLINED:
+    "Your bank declined the card. Choose a different payment method or contact your bank.",
+  PAYMENT_DENIED:
+    "PayPal could not process this payment. Please try again or use another payment method.",
+  PAYER_CANNOT_PAY:
+    "This PayPal account cannot complete the payment. Try another PayPal account or card.",
+  AUTH_CAPTURE_OPEN:
+    "The payment authorization is still pending. Please wait a moment and try again.",
+};
+
+interface PayPalErrorPayload {
+  name?: string;
+  message?: string;
+  details?: Array<{
+    issue?: string;
+    description?: string;
+  }>;
+}
+
+const extractPayPalErrorPayload = (error: unknown): PayPalErrorPayload | null => {
+  if (!error) return null;
+
+  const possiblePayload = (() => {
+    if (typeof error === "string") {
+      return error;
+    }
+    if (error instanceof Error && error.message) {
+      return error.message;
+    }
+    if (typeof error === "object") {
+      return JSON.stringify(error);
+    }
+    return null;
+  })();
+
+  if (!possiblePayload) {
+    return null;
+  }
+
+  const firstCurlyIndex = possiblePayload.indexOf("{");
+  if (firstCurlyIndex === -1) {
+    return null;
+  }
+
+  const jsonCandidate = possiblePayload.slice(firstCurlyIndex);
+
+  try {
+    const parsed = JSON.parse(jsonCandidate);
+    if (parsed?.error) {
+      if (typeof parsed.error === "string") {
+        try {
+          return JSON.parse(parsed.error);
+        } catch (nestedErr) {
+          console.error("Failed to parse nested PayPal error:", nestedErr);
+          return { message: parsed.error };
+        }
+      }
+      return parsed.error;
+    }
+    return parsed;
+  } catch (err) {
+    console.error("Failed to parse PayPal error payload:", err);
+    return null;
+  }
+};
+
+const getFriendlyPayPalErrorMessage = (error: unknown): string => {
+  const fallback = "Payment could not be completed. Please try again.";
+  const payload = extractPayPalErrorPayload(error);
+
+  if (payload) {
+    const issue = payload.details?.[0]?.issue || payload.name;
+    const description = payload.details?.[0]?.description || payload.message;
+
+    if (issue && PAYPAL_ISSUE_MESSAGES[issue]) {
+      return PAYPAL_ISSUE_MESSAGES[issue];
+    }
+
+    if (description) {
+      return description;
+    }
+  }
+
+  if (typeof error === "string" && error.trim()) {
+    return error;
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return fallback;
+};
+
 export default function CheckoutPayment() {
   const checkout = useCheckoutContext();
   const router = useRouter();
@@ -147,7 +242,7 @@ export default function CheckoutPayment() {
       router.push(`/checkout/success?orderId=${orderId}`);
     } catch (err: any) {
       console.error("Error capturing PayPal order:", err);
-      setError(err.message || "Payment failed. Please try again.");
+      setError(getFriendlyPayPalErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -155,7 +250,7 @@ export default function CheckoutPayment() {
 
   const handlePayPalError = (err: any) => {
     console.error("PayPal error:", err);
-    setError(err.message || "PayPal payment error occurred");
+    setError(getFriendlyPayPalErrorMessage(err));
     setIsLoading(false);
   };
 

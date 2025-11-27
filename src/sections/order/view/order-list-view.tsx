@@ -94,10 +94,12 @@ const defaultFilters: IOrderTableFilters = {
 // Transform API Order to UI IOrderItem
 function transformOrderToIOrderItem(order: Order): IOrderItem {
   const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
-  const subTotal = parseFloat(order.summary.total);
-  const shipping = parseFloat(order.summary.shipping);
+  const subtotal = parseFloat(order.summary.subtotal || order.summary.total || "0");
+  const shipping = parseFloat(order.summary.shipping || "0");
   const tax = parseFloat(order.summary.tax || "0");
-  const discount = parseFloat(order.summary.discount);
+  const discount = parseFloat(order.summary.discount || "0");
+  const total = parseFloat(order.summary.total || order.summary.subtotal || "0");
+  const currency = order.summary.currency || "USD";
   
   // Transform customer - handle firstName/lastName if available
   const customer: IOrderCustomer = order.user ? {
@@ -135,12 +137,12 @@ function transformOrderToIOrderItem(order: Order): IOrderItem {
     id: order.id,
     taxes: tax,
     status: order.status.toLowerCase(),
-    shipping: shipping,
-    discount: discount,
-    subTotal: subTotal - discount,
+    shipping,
+    discount,
+    subTotal: subtotal,
     orderNumber: order.orderNumber,
-    totalAmount: subTotal,
-    totalQuantity: totalQuantity,
+    totalAmount: total,
+    totalQuantity,
     history: {
       orderTime: new Date(order.createdAt),
       paymentTime: order.paidAt ? new Date(order.paidAt) : new Date(order.createdAt),
@@ -173,13 +175,25 @@ function transformOrderToIOrderItem(order: Order): IOrderItem {
     // New fields
     paymentMethod: order.paymentMethod,
     paidAt: order.paidAt ? new Date(order.paidAt) : null,
-    currency: order.summary.currency || "USD",
+    currency,
     carrier: (order as any).carrier || null,
     trackingNumber: (order as any).trackingNumber || null,
     notes: order.notes || null,
     internalNotes: (order as any).internalNotes || null,
     shippingAddress: order.shippingAddress || null,
     billingAddress: order.billingAddress || null,
+    paypalOrderId: order.paypalOrderId || null,
+    paypalTransactionId: order.paypalTransactionId || null,
+    paidAmount: order.paidAmount ? parseFloat(order.paidAmount) : null,
+    paidCurrency: order.paidCurrency || currency,
+    summaryTotals: {
+      subtotal,
+      shipping,
+      tax,
+      discount,
+      total,
+      currency,
+    },
   };
 }
 

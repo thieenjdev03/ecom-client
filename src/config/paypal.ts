@@ -3,13 +3,13 @@ const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 // PayPal Configuration
 export const PAYPAL_CONFIG = {
   // PayPal Client ID from environment variables
-  clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "AaPxFImzUVo929lWqr4DTVvhY8JW2V3tdn8sL7LxxbyuATTBr0bMXDWpdKyl8jmwyIGKq2y-syoIC844",
+  clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "AUTUidBwLAlKUay1EED_Fo-5q4Qd3VzQ_3CGmGhlIkytMYDRUKtkMJla9lTv2neCdPo-Zgti11qdOl7H",
   
   // Currency settings
   currency: process.env.NEXT_PUBLIC_PAYPAL_CURRENCY || "USD",
   
   // PayPal environment (sandbox or live)
-  environment: process.env.NEXT_PUBLIC_PAYPAL_ENVIRONMENT || "sandbox",
+  environment: process.env.NEXT_PUBLIC_PAYPAL_ENVIRONMENT || "live",
   
   // Intent for payments
   intent: "capture",

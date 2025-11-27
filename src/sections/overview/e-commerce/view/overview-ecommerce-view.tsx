@@ -4,9 +4,9 @@ import Button from "@mui/material/Button";
 import { useTheme } from "@mui/material/styles";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Unstable_Grid2";
-
+import { useRouter } from "src/routes/hooks";
 import { useMockedUser } from "src/hooks/use-mocked-user";
-
+import { paths } from "src/routes/paths";
 import { MotivationIllustration } from "src/assets/illustrations";
 import {
   _ecommerceNewProducts,
@@ -35,23 +35,22 @@ export default function OverviewEcommerceView() {
   const theme = useTheme();
 
   const settings = useSettingsContext();
-
+  const router = useRouter();
   return (
     <Container maxWidth={settings.themeStretch ? false : "xl"}>
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <EcommerceWelcome
             title={`Congratulations! \n ${user?.displayName}`}
-            description="Best seller of the month You have done 57.6% more sales today."
             img={<MotivationIllustration />}
             action={
-              <Button variant="contained" color="primary">
-                Go Now
+              <Button onClick={() => router.push(paths.orders.root)} variant="contained" color="primary">
+                Check Orders Now!
               </Button>
             }
           />
         </Grid>
-
+{/* 
         <Grid xs={12} md={4}>
           <EcommerceNewProducts list={_ecommerceNewProducts} />
         </Grid>
@@ -189,7 +188,7 @@ export default function OverviewEcommerceView() {
             title="Latest Products"
             list={_ecommerceLatestProducts}
           />
-        </Grid>
+        </Grid> */}
       </Grid>
     </Container>
   );

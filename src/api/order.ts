@@ -65,6 +65,9 @@ export type Order = {
   shippingAddress?: any;
   billingAddress?: any;
   notes?: string;
+  internalNotes?: string | null;
+  carrier?: string | null;
+  trackingNumber?: string | null;
   createdAt: string;
   updatedAt: string;
   // Additional fields for UI

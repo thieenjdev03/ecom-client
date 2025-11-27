@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
@@ -75,6 +75,7 @@ type Props = {
 
 export default function ProductDetailsCarousel({ product, selectedVariant }: Props) {
   const theme = useTheme();
+  const [zoomedIndex, setZoomedIndex] = useState<number | null>(null);
 
   // Use variant image if available, otherwise use product images
   const imagesToDisplay = useMemo(() => {
@@ -126,6 +127,14 @@ export default function ProductDetailsCarousel({ product, selectedVariant }: Pro
     }
   }, [carouselLarge, lightbox.open, lightbox.selected]);
 
+  useEffect(() => {
+    setZoomedIndex(null);
+  }, [carouselLarge.currentIndex, selectedVariant, product.id]);
+
+  const handleToggleZoom = (index: number) => {
+    setZoomedIndex((prev) => (prev === index ? null : index));
+  };
+
   const renderLargeImg = (
     <Box
       sx={{
@@ -142,16 +151,28 @@ export default function ProductDetailsCarousel({ product, selectedVariant }: Pro
         asNavFor={carouselThumb.nav}
         ref={carouselLarge.carouselRef}
       >
-        {slides.map((slide) => (
-          <Image
-            key={slide.src}
-            alt={slide.src}
-            src={slide.src}
-            ratio="1/1"
-            onClick={() => lightbox.onOpen(slide.src)}
-            sx={{ cursor: "zoom-in" }}
-          />
-        ))}
+        {slides.map((slide, index) => {
+          const isZoomed = zoomedIndex === index;
+
+          return (
+            <Image
+              key={`${slide.src}-${index}`}
+              alt={slide.src}
+              src={slide.src}
+              ratio="1/1"
+              onClick={() => handleToggleZoom(index)}
+              onDoubleClick={() => lightbox.onOpen(slide.src)}
+              sx={{
+                cursor: isZoomed ? "zoom-out" : "zoom-in",
+                overflow: "hidden",
+              }}
+              imgSx={{
+                transition: "transform 0.4s ease",
+                transform: isZoomed ? "scale(1.6)" : "scale(1)",
+              }}
+            />
+          );
+        })}
       </Carousel>
 
       <CarouselArrowIndex

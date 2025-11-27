@@ -10,7 +10,7 @@ import { getStorage, useLocalStorage } from "src/hooks/use-local-storage";
 import { PRODUCT_CHECKOUT_STEPS } from "src/_mock/_product";
 
 import { getProductById } from "src/api/product";
-import { useAuthContext } from "src/auth/hooks/use-auth-context";
+import { useAuthContext } from "src/auth/hooks";
 import { useSnackbar } from "src/components/snackbar";
 
 import { IAddressItem } from "src/types/address";
@@ -42,7 +42,7 @@ type Props = {
 
 export function CheckoutProvider({ children }: Props) {
   const router = useRouter();
-  const { authenticated } = useAuthContext();
+  const userProfile = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
 
   const { state, update, reset } = useLocalStorage(STORAGE_KEY, initialState);
@@ -321,7 +321,7 @@ export function CheckoutProvider({ children }: Props) {
   // Cart preview functions
   const onOpenCartPreview = useCallback(() => {
     // Check authentication before opening cart preview
-    if (!authenticated) {
+    if (!userProfile?.authenticated) {
       enqueueSnackbar("Vui lòng đăng nhập để xem giỏ hàng", {
         variant: "warning",
       });
@@ -338,7 +338,7 @@ export function CheckoutProvider({ children }: Props) {
     }
     
     update("cartPreviewOpen", true);
-  }, [update, authenticated, router, enqueueSnackbar]);
+  }, [update, userProfile?.authenticated, router, enqueueSnackbar]);
 
   const onCloseCartPreview = useCallback(() => {
     update("cartPreviewOpen", false);

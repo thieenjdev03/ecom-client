@@ -20,7 +20,7 @@ type Props = {
 function formatCurrencyWithCode(amount: number, currency: string = "USD"): string {
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: currency || "USD",
+    currency: "USD",
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });

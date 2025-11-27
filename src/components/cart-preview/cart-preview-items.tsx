@@ -7,6 +7,7 @@ import Collapse from "@mui/material/Collapse";
 import Typography from "@mui/material/Typography";
 import { TransitionGroup } from "react-transition-group";
 import { useCheckoutContext } from "src/sections/checkout/context/checkout-context";
+import { useTranslate } from "src/locales";
 
 import CartPreviewItem from "./cart-preview-item";
 
@@ -14,6 +15,7 @@ import CartPreviewItem from "./cart-preview-item";
 
 export default function CartPreviewItems() {
   const checkout = useCheckoutContext();
+  const { t } = useTranslate();
 
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
 
@@ -42,10 +44,10 @@ export default function CartPreviewItems() {
             <Checkbox
               checked={allSelected}
               onChange={toggleSelectAll}
-              inputProps={{ "aria-label": "Select all items" }}
+              inputProps={{ "aria-label": t("cartPreview.selectAllAria") }}
             />
             <Typography variant="body2" color="text.secondary">
-              Chọn tất cả ({checkout.items.length})
+              {t("cartPreview.selectAll")} ({checkout.items.length})
             </Typography>
           </Stack>
           <Button
@@ -54,9 +56,9 @@ export default function CartPreviewItems() {
             variant="outlined"
             disabled={!hasSelection}
             onClick={handleDeleteSelected}
-            aria-label="Delete selected items"
+            aria-label={t("cartPreview.deleteSelectedAria")}
           >
-            Xóa đã chọn
+            {t("cartPreview.deleteSelected")}
           </Button>
         </Stack>
       )}

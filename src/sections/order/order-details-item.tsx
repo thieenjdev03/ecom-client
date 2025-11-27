@@ -5,8 +5,7 @@ import Avatar from "@mui/material/Avatar";
 import CardHeader from "@mui/material/CardHeader";
 import IconButton from "@mui/material/IconButton";
 import ListItemText from "@mui/material/ListItemText";
-
-import { fCurrency } from "src/utils/format-number";
+import Typography from "@mui/material/Typography";
 
 import Iconify from "src/components/iconify";
 import Scrollbar from "src/components/scrollbar";
@@ -21,8 +20,18 @@ type Props = {
   discount: number;
   subTotal: number;
   totalAmount: number;
+  currency: string;
   items: IOrderProductItem[];
 };
+
+function formatCurrencyWithCode(amount: number, currency: string) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency || "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount || 0);
+}
 
 export default function OrderDetailsItems({
   items,
@@ -31,6 +40,7 @@ export default function OrderDetailsItems({
   discount,
   subTotal,
   totalAmount,
+  currency,
 }: Props) {
   const renderTotal = (
     <Stack
@@ -38,45 +48,35 @@ export default function OrderDetailsItems({
       alignItems="flex-end"
       sx={{ my: 3, textAlign: "right", typography: "body2" }}
     >
-      <Stack direction="row">
+      <Stack direction="row" spacing={3}>
         <Box sx={{ color: "text.secondary" }}>Subtotal</Box>
         <Box sx={{ width: 160, typography: "subtitle2" }}>
-          {fCurrency(subTotal) || "-"}
+          {formatCurrencyWithCode(subTotal, currency)}
         </Box>
       </Stack>
 
-      <Stack direction="row">
+      <Stack direction="row" spacing={3}>
         <Box sx={{ color: "text.secondary" }}>Shipping</Box>
-        <Box
-          sx={{
-            width: 160,
-            ...(shipping && { color: "error.main" }),
-          }}
-        >
-          {shipping ? `- ${fCurrency(shipping)}` : "-"}
+        <Box sx={{ width: 160 }}>
+          {shipping ? formatCurrencyWithCode(shipping, currency) : "-"}
         </Box>
       </Stack>
 
-      <Stack direction="row">
+      <Stack direction="row" spacing={3}>
         <Box sx={{ color: "text.secondary" }}>Discount</Box>
-        <Box
-          sx={{
-            width: 160,
-            ...(discount && { color: "error.main" }),
-          }}
-        >
-          {discount ? `- ${fCurrency(discount)}` : "-"}
+        <Box sx={{ width: 160, color: discount ? "error.main" : "inherit" }}>
+          {discount ? `- ${formatCurrencyWithCode(discount, currency)}` : "-"}
         </Box>
       </Stack>
 
-      <Stack direction="row">
+      <Stack direction="row" spacing={3}>
         <Box sx={{ color: "text.secondary" }}>Taxes</Box>
-        <Box sx={{ width: 160 }}>{taxes ? fCurrency(taxes) : "-"}</Box>
+        <Box sx={{ width: 160 }}>{taxes ? formatCurrencyWithCode(taxes, currency) : "-"}</Box>
       </Stack>
 
       <Stack direction="row" sx={{ typography: "subtitle1" }}>
         <Box>Total</Box>
-        <Box sx={{ width: 160 }}>{fCurrency(totalAmount) || "-"}</Box>
+        <Box sx={{ width: 160 }}>{formatCurrencyWithCode(totalAmount, currency)}</Box>
       </Stack>
     </Stack>
   );
@@ -116,25 +116,32 @@ export default function OrderDetailsItems({
                 sx={{ width: 48, height: 48, mr: 2 }}
               />
 
-              <ListItemText
-                primary={item.name}
-                secondary={item.sku}
-                primaryTypographyProps={{
-                  typography: "body2",
-                }}
-                secondaryTypographyProps={{
-                  component: "span",
-                  color: "text.disabled",
-                  mt: 0.5,
-                }}
-              />
+              <Box sx={{ flexGrow: 1 }}>
+                <ListItemText
+                  primary={item.name}
+                  secondary={item.sku}
+                  primaryTypographyProps={{
+                    typography: "body2",
+                  }}
+                  secondaryTypographyProps={{
+                    component: "span",
+                    color: "text.disabled",
+                    mt: 0.5,
+                  }}
+                />
+                {item.variantName && (
+                  <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                    Variant: {item.variantName}
+                  </Typography>
+                )}
+              </Box>
 
               <Box sx={{ typography: "body2" }}>x{item.quantity}</Box>
 
               <Box
                 sx={{ width: 110, textAlign: "right", typography: "subtitle2" }}
               >
-                {fCurrency(item.price)}
+                {formatCurrencyWithCode(item.price, currency)}
               </Box>
             </Stack>
           ))}

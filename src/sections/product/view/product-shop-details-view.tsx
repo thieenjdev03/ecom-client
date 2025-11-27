@@ -84,7 +84,7 @@ export default function ProductShopDetailsView({ id }: Props) {
 
   const renderProduct = product && (
     <>
-      <Grid container spacing={{ xs: 3, md: 5, lg: 8 }}>
+      <Grid spacing={{ xs: 3, md: 5, lg: 8 }}>
         <Grid xs={12} md={8} lg={8}>
           <ProductDetailsCarousel product={product} selectedVariant={selectedVariant} />
         </Grid>
@@ -122,7 +122,8 @@ export default function ProductShopDetailsView({ id }: Props) {
           bgcolor: "background.default",
         }}
       >
-        <HomeProductShowcase priceBottom />
+        <HomeProductShowcase priceBottom title="Wish List Products" />
+        <HomeProductShowcase priceBottom title="Related Products" />
       </Box>
     </Container>
   );

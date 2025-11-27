@@ -21,6 +21,36 @@ import { useGetProducts } from "src/api/product";
 import { useAuthContext } from "src/auth/hooks/use-auth-context";
 import { orderApi, type OrderItem, type OrderSummary, type ShippingAddress } from "src/api/order";
 import { calculateShipping, calculateTax } from "src/config/shipping";
+import { useTranslate } from "src/locales";
+
+const translations = {
+  en: {
+    checkoutTitle: "Lume Store - Checkout Cart",
+    emptyTitle: "Cart is empty",
+    emptyDescription: "Looks like you have no items in your shopping cart.",
+    loginWarning: "Please sign in to continue checkout",
+    missingShippingFields: "Please fill in all shipping information",
+    orderCreatedSuccess: "Order created successfully!",
+    orderCreationFailed: "Failed to create order. Please try again.",
+    validatingCart: "Validating cart...",
+    creatingOrder: "Creating order...",
+    continueToPayment: "Continue to Payment",
+  },
+  vi: {
+    checkoutTitle: "Lume Store - Giỏ hàng thanh toán",
+    emptyTitle: "Giỏ hàng trống",
+    emptyDescription: "Có vẻ như bạn chưa có sản phẩm nào trong giỏ hàng.",
+    loginWarning: "Vui lòng đăng nhập để tiếp tục thanh toán",
+    missingShippingFields: "Vui lòng nhập đầy đủ thông tin giao hàng",
+    orderCreatedSuccess: "Đơn hàng đã được tạo thành công!",
+    orderCreationFailed: "Tạo đơn hàng thất bại. Vui lòng thử lại.",
+    validatingCart: "Đang kiểm tra giỏ hàng...",
+    creatingOrder: "Đang tạo đơn hàng...",
+    continueToPayment: "Tiếp tục thanh toán",
+  },
+} as const;
+
+type Language = keyof typeof translations;
 
 // ----------------------------------------------------------------------
 
@@ -30,6 +60,7 @@ export default function CheckoutCart() {
   const { enqueueSnackbar } = useSnackbar();
   const { products } = useGetProducts({ page: 1, limit: 1 });
   const { user, authenticated } = useAuthContext();
+  const { i18n } = useTranslate();
 
   const empty = !checkout.items.length;
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,6 +77,9 @@ export default function CheckoutCart() {
     apartment?: string;
     country: string;
   } | null>(null);
+
+  const currentLanguage = (i18n.language as Language) || "en";
+  const t = translations[currentLanguage] || translations.en;
 
   // Load saved order info from localStorage on mount
   React.useEffect(() => {
@@ -120,7 +154,7 @@ export default function CheckoutCart() {
   const handleCreateOrder = async () => {
     // Step 0: Check authentication - redirect to login if not authenticated
     if (!authenticated) {
-      enqueueSnackbar("Vui lòng đăng nhập để tiếp tục thanh toán", {
+      enqueueSnackbar(t.loginWarning, {
         variant: "warning",
       });
       
@@ -136,7 +170,7 @@ export default function CheckoutCart() {
     }
 
     if (!shippingFormData) {
-      setError("Please fill in all shipping information");
+      setError(t.missingShippingFields);
       return;
     }
 
@@ -259,7 +293,7 @@ export default function CheckoutCart() {
       localStorage.setItem('pending_order', JSON.stringify(orderInfo));
       
       // Show success message
-      enqueueSnackbar("Đơn hàng đã được tạo thành công!", {
+      enqueueSnackbar(t.orderCreatedSuccess, {
         variant: "success",
       });
 
@@ -268,8 +302,10 @@ export default function CheckoutCart() {
       checkout.onNextStep();
     } catch (err: any) {
       console.error("Error creating order:", err);
-      setError(err.message || "Failed to create order. Please try again.");
-      enqueueSnackbar(err.message || "Có lỗi xảy ra khi tạo đơn hàng", {
+      const fallbackMessage = t.orderCreationFailed;
+      const errorMessage = err?.message || fallbackMessage;
+      setError(errorMessage);
+      enqueueSnackbar(errorMessage, {
         variant: "error",
       });
     } finally {
@@ -280,27 +316,24 @@ export default function CheckoutCart() {
 
   if (empty) {
     return (
-      <EmptyContent
-        title="Cart is empty"
-        description="Look like you have no items in your shopping cart."
-      />
+      <EmptyContent title={t.emptyTitle} description={t.emptyDescription} />
     );
   }
 
   return (
     <Box
       sx={{
-        width: "70%",
         mx: "auto",
         mt: 2,
       }}
     >
-      <Grid container spacing={4}>
-   
-        <Grid xs={12} md={8}>
-        <Typography variant="h4" align="left" sx={{ mb: 5 }}>
-        Lume Store - Checkout Cart
-      </Typography>
+      <Grid container spacing={4} sx={{
+        justifyContent: "center",
+      }}>
+        <Grid xs={12} md={6}>
+          <Typography variant="h4" align="left" sx={{ mb: 5 }}>
+            {t.checkoutTitle}
+          </Typography>
           <Stack spacing={3}>
             {/* Saved Order Banner */}
             {savedOrderInfo && (
@@ -342,14 +375,18 @@ export default function CheckoutCart() {
                     fontWeight: 600,
                   }}
                 >
-                  {isValidating ? "Đang kiểm tra giỏ hàng..." : isSubmitting ? "Đang tạo đơn hàng..." : "Continue to Payment"}
+                  {isValidating
+                    ? t.validatingCart
+                    : isSubmitting
+                    ? t.creatingOrder
+                    : t.continueToPayment}
                 </LoadingButton>
               </Card>
             )}
           </Stack>
         </Grid>
-
-        <Grid xs={12} md={4}>
+s
+        <Grid xs={12} md={5}>
           <CheckoutSummary
             total={checkout.total}
             discount={checkout.discount}
