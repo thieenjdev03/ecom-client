@@ -203,6 +203,7 @@ export function AuthProvider({ children }: Props) {
       lastName: string,
       phoneNumber?: string,
       country?: string,
+      marketingOptIn?: boolean,
     ) => {
       const data = {
         email,
@@ -211,6 +212,7 @@ export function AuthProvider({ children }: Props) {
         lastName,
         phoneNumber,
         country,
+        marketingOptIn: Boolean(marketingOptIn),
       };
       const res = await axios.post(endpoints.auth.register, data);
 

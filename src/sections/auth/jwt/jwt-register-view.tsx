@@ -15,19 +15,15 @@ import InputAdornment from "@mui/material/InputAdornment";
 
 import { paths } from "src/routes/paths";
 import { RouterLink } from "src/routes/components";
-import { useRouter, useSearchParams } from "src/routes/hooks";
+import { useRouter } from "src/routes/hooks";
 
 import { useBoolean } from "src/hooks/use-boolean";
 
 import { useAuthContext } from "src/auth/hooks";
-import {
-  PATH_AFTER_LOGIN,
-  PATH_AFTER_LOGIN_USER,
-  PATH_AFTER_REGISTER_USER,
-} from "src/config-global";
+import { PATH_AFTER_REGISTER_USER } from "src/config-global";
 
 import Iconify from "src/components/iconify";
-import FormProvider, { RHFTextField } from "src/components/hook-form";
+import FormProvider, { RHFCheckbox, RHFTextField } from "src/components/hook-form";
 import RHFAutocomplete, { getCountry } from "src/components/hook-form/rhf-autocomplete";
 import { countries } from "src/assets/data";
 import TextField from "@mui/material/TextField";
@@ -41,10 +37,6 @@ export default function JwtRegisterView() {
 
   const [errorMsg, setErrorMsg] = useState("");
 
-  const searchParams = useSearchParams();
-
-  const returnTo = searchParams?.get("returnTo");
-
   const password = useBoolean();
 
   const RegisterSchema = Yup.object().shape({
@@ -56,6 +48,7 @@ export default function JwtRegisterView() {
     password: Yup.string().required("Password is required"),
     phoneNumber: Yup.string().required("Phone number is required"),
     country: Yup.string().required("Country is required"),
+    marketingOptIn: Yup.boolean().default(false),
   });
 
   const defaultValues = {
@@ -65,6 +58,7 @@ export default function JwtRegisterView() {
     password: "",
     phoneNumber: "",
     country: "",
+    marketingOptIn: false,
   };
 
   const methods = useForm({
@@ -115,6 +109,7 @@ export default function JwtRegisterView() {
         data.lastName,
         data.phoneNumber,
         data.country,
+        data.marketingOptIn,
       );
       if (result?.success as boolean) {
         router.push(PATH_AFTER_REGISTER_USER);
@@ -345,6 +340,15 @@ export default function JwtRegisterView() {
         }}
       />
 
+      <Stack spacing={0.5}>
+        <RHFCheckbox
+          name="marketingOptIn"
+          label="Nhận email khuyến mãi từ chúng tôi"
+        />
+        <Typography variant="caption" sx={{ color: "text.secondary" }}>
+          Receive curated product updates and promotions via email.
+        </Typography>
+      </Stack>
       <LoadingButton
         fullWidth
         color="inherit"

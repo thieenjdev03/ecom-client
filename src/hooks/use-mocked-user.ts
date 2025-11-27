@@ -66,6 +66,7 @@ export function useMockedUser() {
           isPublic: true,
           // Store all addresses for display
           addresses: parsedUser.addresses || [],
+          marketingOptIn: Boolean(parsedUser.marketingOptIn),
         });
       } else if (authUser) {
         // Fallback to AuthContext user

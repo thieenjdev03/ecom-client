@@ -205,6 +205,9 @@ export function AuthProvider({ children }: Props) {
       password: string,
       firstName: string,
       lastName: string,
+      _phoneNumber?: string,
+      _country?: string,
+      _marketingOptIn?: boolean,
     ) => {
       const newUser = await createUserWithEmailAndPassword(
         AUTH,

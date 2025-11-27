@@ -162,6 +162,9 @@ export function AuthProvider({ children }: Props) {
       password: string,
       firstName: string,
       lastName: string,
+      _phoneNumber?: string,
+      _country?: string,
+      _marketingOptIn?: boolean,
     ) => {
       await signUp({
         username: email,

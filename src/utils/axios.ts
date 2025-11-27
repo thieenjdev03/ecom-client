@@ -74,4 +74,9 @@ export const endpoints = {
     base: `${apiUrl}/cart`,
     item: (itemId: string) => `${apiUrl}/cart/${itemId}`,
   },
+  marketing: {
+    subscribe: `${apiUrl}/marketing/subscribe`,
+    subscribeFromRegister: `${apiUrl}/marketing/subscribe-from-register`,
+    unsubscribe: `${apiUrl}/marketing/unsubscribe`,
+  },
 };

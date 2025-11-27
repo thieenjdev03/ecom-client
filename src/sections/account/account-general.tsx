@@ -17,8 +17,13 @@ import { useMockedUser } from "src/hooks/use-mocked-user";
 import { IUserAddress } from "src/api/user";
 
 import { useSnackbar } from "src/components/snackbar";
-import FormProvider, { RHFTextField, RHFSelect } from "src/components/hook-form";
+import FormProvider, {
+  RHFTextField,
+  RHFSelect,
+  RHFSwitch,
+} from "src/components/hook-form";
 import { AddressAutocomplete } from "src/components/address-autocomplete";
+import axiosInstance, { endpoints } from "src/utils/axios";
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +37,7 @@ interface FormValuesProps {
   city: string;
   zipCode: string;
   about?: string;
+  marketingOptIn: boolean;
 }
 
 // ----------------------------------------------------------------------
@@ -41,6 +47,7 @@ export default function AccountGeneral() {
   const { user } = useMockedUser();
 
   const [coordinates, setCoordinates] = useState<{ lat: number; lon: number } | undefined>();
+  const [marketingOptInSnapshot, setMarketingOptInSnapshot] = useState<boolean>(Boolean(user?.marketingOptIn));
 
   const UpdateUserSchema = Yup.object().shape({
     displayName: Yup.string().required("Name is required"),
@@ -52,9 +59,10 @@ export default function AccountGeneral() {
     city: Yup.string().required("City is required"),
     zipCode: Yup.string().required("Zip code is required"),
     about: Yup.string(),
+    marketingOptIn: Yup.boolean().default(false).required(),
   });
 
-  const defaultValues = {
+  const defaultValues: FormValuesProps = {
     displayName: user?.displayName || "",
     email: user?.email || "",
     phoneNumber: user?.phoneNumber || "",
@@ -64,10 +72,11 @@ export default function AccountGeneral() {
     city: user?.city || "",
     zipCode: user?.zipCode || "",
     about: user?.about || "",
+    marketingOptIn: Boolean(user?.marketingOptIn),
   };
 
   const methods = useForm<FormValuesProps>({
-    resolver: yupResolver(UpdateUserSchema),
+    resolver: yupResolver<FormValuesProps>(UpdateUserSchema),
     defaultValues,
   });
 
@@ -93,17 +102,87 @@ export default function AccountGeneral() {
         city: user?.city || "",
         zipCode: user?.zipCode || "",
         about: user?.about || "",
+        marketingOptIn: Boolean(user?.marketingOptIn),
       });
+      setMarketingOptInSnapshot(Boolean(user?.marketingOptIn));
     }
   }, [user, reset]);
 
+  const persistMarketingPreference = (nextOptIn: boolean) => {
+    try {
+      const sessionUser = sessionStorage.getItem("user");
+      if (!sessionUser) {
+        return;
+      }
+      const parsedUser = JSON.parse(sessionUser);
+      sessionStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...parsedUser,
+          marketingOptIn: nextOptIn,
+        }),
+      );
+    } catch (error) {
+      console.error("Failed to persist marketing preference", error);
+    }
+  };
+
+  const updateMarketingPreference = async (
+    email: string,
+    shouldOptIn: boolean,
+    previousOptIn: boolean,
+  ) => {
+    if (shouldOptIn === previousOptIn) {
+      return;
+    }
+
+    if (shouldOptIn) {
+      await axiosInstance.post(endpoints.marketing.subscribe, {
+        email,
+        source: "account",
+      });
+      return;
+    }
+
+    await axiosInstance.get(endpoints.marketing.unsubscribe, {
+      params: { email },
+    });
+  };
+
+  const getErrorMessage = (error: unknown) => {
+    if (typeof error === "string") {
+      return error;
+    }
+    if (typeof error === "object" && error !== null) {
+      const maybeError = error as { message?: string; error?: string };
+      if (maybeError.message) {
+        return maybeError.message;
+      }
+      if (maybeError.error) {
+        return maybeError.error;
+      }
+    }
+    return "Unable to update marketing preference. Please try again.";
+  };
+
   const onSubmit = handleSubmit(async (data) => {
     try {
+      const shouldOptIn = Boolean(data.marketingOptIn);
+      await updateMarketingPreference(data.email, shouldOptIn, marketingOptInSnapshot);
       await new Promise((resolve) => setTimeout(resolve, 500));
+      setMarketingOptInSnapshot(shouldOptIn);
+      persistMarketingPreference(shouldOptIn);
       enqueueSnackbar("Update success!");
       console.log("DATA", data);
       console.log("COORDINATES", coordinates);
+      console.log("MARKETING_OPT_IN", shouldOptIn);
+      reset({
+        ...data,
+        marketingOptIn: shouldOptIn,
+      });
     } catch (error) {
+      const message = getErrorMessage(error);
+      enqueueSnackbar(message, { variant: "error" });
       console.error(error);
     }
   });
@@ -189,6 +268,42 @@ export default function AccountGeneral() {
 
               <Box sx={{ gridColumn: "span 2" }}>
                 <RHFTextField name="about" multiline rows={4} label="About" />
+              </Box>
+              <Box
+                sx={{
+                  gridColumn: "span 2",
+                  p: 2,
+                  borderRadius: 1,
+                  bgcolor: "background.neutral",
+                }}
+              >
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={2}
+                  alignItems="flex-start"
+                  justifyContent="space-between"
+                >
+                  <Box>
+                    <Typography variant="subtitle2">Marketing emails</Typography>
+                    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                      Toggle to subscribe or unsubscribe from promotional updates.
+                    </Typography>
+                  </Box>
+
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Chip
+                      size="small"
+                      label={values.marketingOptIn ? "Subscribed" : "Unsubscribed"}
+                      color={values.marketingOptIn ? "success" : "default"}
+                      variant={values.marketingOptIn ? "soft" : "outlined"}
+                    />
+                    <RHFSwitch
+                      name="marketingOptIn"
+                      label="Nhận email khuyến mãi"
+                      sx={{ m: 0 }}
+                    />
+                  </Stack>
+                </Stack>
               </Box>
             </Box>
 

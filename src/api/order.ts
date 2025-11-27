@@ -68,6 +68,8 @@ export type Order = {
   internalNotes?: string | null;
   carrier?: string | null;
   trackingNumber?: string | null;
+  shippedAt?: string | null;
+  deliveredAt?: string | null;
   createdAt: string;
   updatedAt: string;
   // Additional fields for UI

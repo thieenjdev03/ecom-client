@@ -36,6 +36,7 @@ type CanRemove = {
     lastName: string,
     phoneNumber?: string,
     country?: string,
+    marketingOptIn?: boolean,
   ) => Promise<any>;
   //
   loginWithGoogle?: () => Promise<void>;
@@ -70,6 +71,7 @@ export type JWTContextType = CanRemove & {
     lastName: string,
     phoneNumber?: string,
     country?: string,
+    marketingOptIn?: boolean,
   ) => Promise<any>;
   logout: () => Promise<void>;
 };
@@ -93,6 +95,7 @@ export type FirebaseContextType = CanRemove & {
     lastName: string,
     phoneNumber?: string,
     country?: string,
+    marketingOptIn?: boolean,
   ) => Promise<any>;
 };
 
@@ -110,6 +113,7 @@ export type AmplifyContextType = CanRemove & {
     lastName: string,
     phoneNumber?: string,
     country?: string,
+    marketingOptIn?: boolean,
   ) => Promise<unknown>;
   logout: () => Promise<unknown>;
   confirmRegister: (email: string, code: string) => Promise<void>;
@@ -143,6 +147,9 @@ export type SupabaseContextType = CanRemove & {
     password: string,
     firstName: string,
     lastName: string,
+    phoneNumber?: string,
+    country?: string,
+    marketingOptIn?: boolean,
   ) => Promise<void>;
   logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
