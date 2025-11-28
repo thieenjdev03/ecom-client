@@ -274,7 +274,7 @@ export default function HeaderEcom() {
                 {t("header.shop")}
               </Link>
               <EcomCategoriesDropdown
-                label={t("header.categories")}
+                label={t("header.collection")}
                 color={activeColorValue}
                 textShadow={activeShadow}
               />

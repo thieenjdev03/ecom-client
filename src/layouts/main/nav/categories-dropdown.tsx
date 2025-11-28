@@ -43,14 +43,6 @@ export default function CategoriesDropdown({ onMouseEnter, onMouseLeave, open }:
   const parentsWithChildren = parents.filter((p) => (p.children || []).length > 0);
   const parentsWithoutChildren = parents.filter((p) => !p.children || p.children.length === 0);
 
-  // Create navigation items for categories
-  const createCategoryItems = (categoryList: Category[]) => {
-    return categoryList.map((category) => ({
-      title: category.name,
-      path: paths.categories.details(category.slug),
-    }));
-  };
-
   if (categoryTreeLoading) {
     return (
       <Portal>

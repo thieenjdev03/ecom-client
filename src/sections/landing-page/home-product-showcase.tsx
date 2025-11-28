@@ -254,11 +254,11 @@ export default function HomeProductShowcase({
     <Container
       maxWidth={false}
       sx={{
-        px: { xs: 6, md: 8 },
-        py: { xs: 6, md: 8 },
-        mx: "auto",
+        gap: 2,
         display: "flex",
         flexDirection: "column",
+        px: 6,
+        py: 6,
       }}
     >
       <Typography
@@ -587,8 +587,6 @@ function ProductCard({ product, layout = "image-left", showAddToCart }: CardProp
         <Stack
           spacing={1}
           sx={{
-            width: { xs: 240, md: 260 },
-            minWidth: { xs: 240, md: 260 },
             pr: isPriceBottom ? 0 : 2,
             pt: isPriceBottom ? 2 : 1,
             pb: 1,
@@ -628,16 +626,6 @@ function ProductCard({ product, layout = "image-left", showAddToCart }: CardProp
             </Typography>
           )}
           
-          {/* Rating */}
-          {/* {product.totalRatings && product.totalReviews && (
-            <Stack direction="row" alignItems="center" spacing={0.5}>
-              <Iconify icon="solar:star-bold" width={16} sx={{ color: "warning.main" }} />
-              <Typography variant="caption" color="text.secondary">
-                {product.totalRatings.toFixed(1)} ({product.totalReviews} đánh giá)
-              </Typography>
-            </Stack>
-          )} */}
-
           <Stack direction="row" spacing={1} alignItems="center">
             {product.priceSale && (
               <Typography

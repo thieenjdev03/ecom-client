@@ -91,7 +91,6 @@ export default function ProductDetailsCarousel({ product, selectedVariant }: Pro
   }));
 
   const lightbox = useLightBox(slides);
-  console.log("slides", slides);
   const carouselLarge = useCarousel({
     rtl: false,
     draggable: false,

@@ -83,7 +83,6 @@ export default function ProductDetailsSummary({
   const { t, i18n } = useTranslate();
   const currentLocale = i18n.language || "en";
   const [openDetails, setOpenDetails] = useState(false);
-  const [openAdditional, setOpenAdditional] = useState(false);
   const sizeGuideDialog = useBoolean();
 
   // Fetch colors and sizes for variant selection
@@ -104,7 +103,6 @@ export default function ProductDetailsSummary({
     saleLabel,
     totalRatings,
     totalReviews,
-    inventoryType,
     subDescription,
     modelHeight,
     modelSize,
@@ -352,141 +350,6 @@ export default function ProductDetailsSummary({
     }
   });
 
-  const handleAddCart = useCallback(() => {
-    try {
-      // Validate quantity
-      const quantity = values.quantity || 1;
-      if (quantity <= 0) {
-        enqueueSnackbar(t("productDetails.quantityMustBeGreaterThanZero"), {
-          variant: "error",
-        });
-        return;
-      }
-
-      // Validate variant selection if product has variants
-      if (variants && variants.length > 0) {
-        if (!selectedColorId || !selectedSizeId) {
-          enqueueSnackbar(t("productDetails.pleaseSelectColorAndSize"), {
-            variant: "warning",
-          });
-          return;
-        }
-        if (!selectedVariant) {
-          enqueueSnackbar(t("productDetails.variantNotFound"), {
-            variant: "error",
-          });
-          return;
-        }
-
-        // Validate stock for variant
-        if (selectedVariant.stock < quantity) {
-          enqueueSnackbar(
-            t("productDetails.quantityExceedsStock", {
-              quantity,
-              stock: selectedVariant.stock,
-            }),
-            {
-              variant: "error",
-            }
-          );
-          return;
-        }
-      } else {
-        // Validate stock for product without variants
-        if (displayStock < quantity) {
-          enqueueSnackbar(
-            t("productDetails.quantityExceedsStock", {
-              quantity,
-              stock: displayStock,
-            }),
-            {
-              variant: "error",
-            }
-          );
-          return;
-        }
-      }
-
-      // Generate variantId from variant
-      // Always use color_id + size_id combination to ensure uniqueness
-      // SKU might not be unique across variants, so we use the combination instead
-      const variantId = selectedVariant
-        ? `${id}-${selectedVariant.color_id || 'no-color'}-${selectedVariant.size_id || 'no-size'}`
-        : `${id}-default`;
-
-      // Get variant name for display
-      const selectedColor = allColors.find((c: any) => c.id === selectedColorId);
-      const selectedSize = allSizes.find((s: any) => s.id === selectedSizeId);
-      const colorName = selectedColor ? tMultiLang(selectedColor.name, currentLocale) : "";
-      const sizeName = selectedSize ? tMultiLang(selectedSize.name, currentLocale) : "";
-      const variantName = selectedColor && selectedSize
-        ? `${colorName} / ${sizeName}`
-        : selectedVariant?.name ? tMultiLang(selectedVariant.name, currentLocale) : "";
-
-      // Prepare cart item with all required fields
-      const cartItem: ICheckoutItem = {
-        id: id, // Product ID (will be used as fallback)
-        productId: id, // Product ID
-        variantId: variantId, // Variant ID
-        name: name, // Product name
-        variantName: variantName, // Display name
-        coverUrl: coverUrl || images?.[0] || "", // Product image
-        available: selectedVariant ? selectedVariant.stock : displayStock, // Available stock
-        price: displayPrice, // Current price (variant price or product price)
-        sku: selectedVariant?.sku || displaySku || "", // SKU
-        quantity: quantity, // Quantity
-        subTotal: displayPrice * quantity, // Subtotal
-        category: product.category || "", // Category
-        variants: selectedVariant ? [selectedVariant] : [], // Variant data
-        colors: selectedColorId ? [selectedColorId] : [], // Color IDs (backward compatibility)
-        size: selectedSizeId || "", // Size ID (backward compatibility)
-        color: selectedColor || undefined, // Full color object
-        sizeObj: selectedSize || undefined, // Full size object
-      };
-
-      // Add to cart
-      onAddCart?.(cartItem);
-
-      // Show success notification
-      const productText = i18n.language === "vi" 
-        ? "sản phẩm"
-        : quantity === 1 ? "product" : "products";
-      enqueueSnackbar(
-        t("productDetails.addedToCart", { 
-          quantity,
-          product: productText
-        }),
-        {
-          variant: "success",
-        }
-      );
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      enqueueSnackbar(t("productDetails.errorAddingToCart"), {
-        variant: "error",
-      });
-    }
-  }, [
-    onAddCart,
-    values,
-    selectedVariant,
-    selectedColorId,
-    selectedSizeId,
-    product.category,
-    id,
-    name,
-    coverUrl,
-    images,
-    variants,
-    allColors,
-    allSizes,
-    displaySku,
-    displayPrice,
-    displayStock,
-    enqueueSnackbar,
-    t,
-  ]);
-
   const renderPrice = (
     <Box sx={{ typography: "h5" }}>
       {displayOriginalPrice && (
@@ -571,12 +434,9 @@ export default function ProductDetailsSummary({
       {allAvailableSizes.length > 0 ? (
         <Box
           sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "repeat(3, minmax(0, 1fr))",
-              sm: "repeat(5, minmax(0, 1fr))",
-            },
             gap: 1,
+            display: "flex",
+            flexWrap: "wrap",
           }}
         >
           {allAvailableSizes.map((size: any) => {
@@ -735,9 +595,6 @@ export default function ProductDetailsSummary({
               {t("productDetails.sku")}: {displaySku}
             </Typography>
           )}
-          {/* <Typography variant="caption" component="div">
-            Available: {displayStock}
-          </Typography> */}
         </Stack>
       </Stack>
     </Stack>
@@ -797,26 +654,6 @@ export default function ProductDetailsSummary({
       dangerouslySetInnerHTML={{ __html: description }}
     />
   ) : null;
-
-  const renderRating = (
-    <Stack
-      direction="row"
-      alignItems="center"
-      sx={{
-        color: "text.disabled",
-        typography: "body2",
-      }}
-    >
-      <Rating
-        size="small"
-        value={totalRatings}
-        precision={0.1}
-        readOnly
-        sx={{ mr: 1 }}
-      />
-      {`(${fShortenNumber(totalReviews)} ${t("productDetails.reviews")})`}
-    </Stack>
-  );
 
   const renderLabels = (newLabel.enabled || saleLabel.enabled) && (
     <Stack direction="row" alignItems="center" spacing={1}>
@@ -898,52 +735,6 @@ export default function ProductDetailsSummary({
       </Collapse>
     </Stack>
   );
-  const renderAdditionalInfoSection = (
-    <Stack spacing={1.5}>
-      <Stack alignItems="center" direction="row" justifyContent="space-between">
-        <Typography variant="h6">{t("productDetails.additionalInfo")}</Typography>
-        <IconButton
-          size="small"
-          onClick={() => setOpenAdditional((prev) => !prev)}
-          aria-label={
-            openAdditional
-              ? t("productDetails.collapseAdditionalInfo")
-              : t("productDetails.expandAdditionalInfo")
-          }
-        >
-          <Iconify
-            icon="eva:arrow-ios-downward-fill"
-            width={24}
-            style={{
-              transform: openAdditional ? "rotate(180deg)" : "rotate(0deg)",
-              transition: "transform 200ms",
-            }}
-          />
-        </IconButton>
-      </Stack>
-      <Collapse in={openAdditional} timeout="auto" unmountOnExit>
-        <Stack spacing={1} sx={{ color: "text.secondary" }}>
-          <Typography variant="body2">
-            {t("productDetails.material")}: {t("productDetails.meshUpper")}
-          </Typography>
-          <Typography variant="body2">
-            {t("productDetails.care")}: {t("productDetails.spotClean")}
-          </Typography>
-          <Typography variant="body2">
-            {t("productDetails.warranty")}: {t("productDetails.oneYearWarranty")}
-          </Typography>
-          <Typography variant="body2">
-            {t("productDetails.shipping")}: {t("productDetails.freeShippingOver100")}
-          </Typography>
-          {!!productSizes?.length && (
-            <Typography variant="body2">
-              {t("productDetails.availableSizes")}: {productSizes.join(", ")}
-            </Typography>
-          )}
-        </Stack>
-      </Collapse>
-    </Stack>
-  );
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Stack spacing={3} sx={{ pt: 3 }} {...other}>
@@ -955,8 +746,6 @@ export default function ProductDetailsSummary({
           <Typography variant="h5">{name}</Typography>
 
           {renderPrice}
-
-          {/* {renderRating} */}
 
           {renderSubDescription}
 

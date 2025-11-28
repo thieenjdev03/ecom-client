@@ -84,13 +84,6 @@ export default function ProductDetailsView({ id }: Props) {
     setPublish(newValue);
   }, []);
 
-  const handleChangeTab = useCallback(
-    (event: React.SyntheticEvent, newValue: string) => {
-      setCurrentTab(newValue);
-    },
-    [],
-  );
-
   const renderSkeleton = <ProductDetailsSkeleton />;
 
   const renderError = (
@@ -123,11 +116,11 @@ export default function ProductDetailsView({ id }: Props) {
       />
 
       <Grid container spacing={{ xs: 3, md: 5, lg: 8 }}>
-        <Grid xs={12} md={6} lg={7}>
+        <Grid xs={12} md={6} lg={6}>
           <ProductDetailsCarousel product={product} selectedVariant={selectedVariant} />
         </Grid>
 
-        <Grid xs={12} md={6} lg={5}>
+        <Grid xs={12} md={5} lg={5}>
           <ProductDetailsSummary 
             disabledActions 
             product={product} 

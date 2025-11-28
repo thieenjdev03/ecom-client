@@ -3,15 +3,10 @@
 import { useState, useCallback } from "react";
 import { ProductVariantDto } from "src/types/product-dto";
 
-import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import Tabs from "@mui/material/Tabs";
-import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
-import { alpha } from "@mui/material/styles";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Unstable_Grid2";
-import Typography from "@mui/material/Typography";
 
 import { paths } from "src/routes/paths";
 import { RouterLink } from "src/routes/components";
@@ -22,15 +17,11 @@ import { useTranslate } from "src/locales";
 
 import Iconify from "src/components/iconify";
 import EmptyContent from "src/components/empty-content";
-import { useSettingsContext } from "src/components/settings";
-import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 
 import { useCheckoutContext } from "../../checkout/context";
-import ProductDetailsReview from "../product-details-review";
 import { ProductDetailsSkeleton } from "../product-skeleton";
 import ProductDetailsSummary from "../product-details-summary";
 import ProductDetailsCarousel from "../product-details-carousel";
-import ProductDetailsDescription from "../product-details-description";
 import HomeProductShowcase from "src/sections/landing-page/home-product-showcase";
 
 // ----------------------------------------------------------------------
@@ -40,7 +31,6 @@ type Props = {
 };
 
 export default function ProductShopDetailsView({ id }: Props) {
-  const settings = useSettingsContext();
   const { t } = useTranslate();
 
   const checkout = useCheckoutContext();
@@ -55,13 +45,6 @@ export default function ProductShopDetailsView({ id }: Props) {
 
   // Use real API data instead of mockup
   const { product, productLoading, productError } = useGetProduct(id, currentLocale);
-  const handleChangeTab = useCallback(
-    (event: React.SyntheticEvent, newValue: string) => {
-      setCurrentTab(newValue);
-    },
-    [],
-  );
-
   const renderSkeleton = <ProductDetailsSkeleton />;
 
   const renderError = (
@@ -84,12 +67,12 @@ export default function ProductShopDetailsView({ id }: Props) {
 
   const renderProduct = product && (
     <>
-      <Grid spacing={{ xs: 3, md: 5, lg: 8 }}>
-        <Grid xs={12} md={8} lg={8}>
+      <Box sx={{ display: "flex", gap: 2, mb: 6, alignItems: "center", justifyContent: "center"}}>
+        <Box sx={{ width: "50%" }}>
           <ProductDetailsCarousel product={product} selectedVariant={selectedVariant} />
-        </Grid>
+        </Box>
 
-        <Grid xs={12} md={4} lg={4}>
+        <Box sx={{ width: "40%" }}>
           <ProductDetailsSummary
             product={product}
             items={checkout.items}
@@ -97,14 +80,14 @@ export default function ProductShopDetailsView({ id }: Props) {
             onGotoStep={checkout.onGotoStep}
             onVariantChange={setSelectedVariant}
           />
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </>
   );
 
   return (
     <Container
-      maxWidth={"lg"}
+      maxWidth={"xl"}
       sx={{
         mt: 15,
         mb: 15,
