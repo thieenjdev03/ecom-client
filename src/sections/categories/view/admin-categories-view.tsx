@@ -240,14 +240,6 @@ export default function AdminCategoriesView() {
   return (
     <Container maxWidth="lg">
       <Stack spacing={3}>
-        {/* Header */}
-        <Box>
-          <Typography variant="h4" gutterBottom>
-            Manage Categories
-          </Typography>
-        </Box>
-
-        {/* Search and Actions */}
         <Card>
           <Box sx={{ p: 3 }}>
             <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">

@@ -15,6 +15,7 @@ import Chip from "@mui/material/Chip";
 
 import { useMockedUser } from "src/hooks/use-mocked-user";
 import { IUserAddress } from "src/api/user";
+import { countries as COUNTRY_OPTIONS } from "src/assets/data/countries";
 
 import { useSnackbar } from "src/components/snackbar";
 import FormProvider, {
@@ -40,6 +41,24 @@ interface FormValuesProps {
   marketingOptIn: boolean;
 }
 
+const getDefaultAddress = (targetUser?: { addresses?: IUserAddress[] }) => {
+  if (!targetUser?.addresses || targetUser.addresses.length === 0) {
+    return null;
+  }
+  return targetUser.addresses.find((addr) => addr.isDefault) || targetUser.addresses[0];
+};
+
+const getPrimaryStreetLine = (targetUser?: {
+  address?: string;
+  addresses?: IUserAddress[];
+}): string => {
+  const defaultAddress = getDefaultAddress(targetUser);
+  if (defaultAddress?.streetLine1) {
+    return defaultAddress.streetLine1.trim();
+  }
+  return (targetUser?.address || "").trim();
+};
+
 // ----------------------------------------------------------------------
 
 export default function AccountGeneral() {
@@ -62,15 +81,17 @@ export default function AccountGeneral() {
     marketingOptIn: Yup.boolean().default(false).required(),
   });
 
+  const defaultAddress = getDefaultAddress(user);
+
   const defaultValues: FormValuesProps = {
     displayName: user?.displayName || "",
     email: user?.email || "",
     phoneNumber: user?.phoneNumber || "",
-    country: user?.country || "",
-    address: user?.address || "",
-    state: user?.state || "",
-    city: user?.city || "",
-    zipCode: user?.zipCode || "",
+    country: defaultAddress?.countryCode || user?.country || "",
+    address: getPrimaryStreetLine(user),
+    state: defaultAddress?.province || user?.state || "",
+    city: defaultAddress?.district || user?.city || "",
+    zipCode: defaultAddress?.postalCode || user?.zipCode || "",
     about: user?.about || "",
     marketingOptIn: Boolean(user?.marketingOptIn),
   };
@@ -92,15 +113,18 @@ export default function AccountGeneral() {
   // Update form values when user data is loaded
   useEffect(() => {
     if (user) {
+      const nextDefaultAddress = getDefaultAddress(user);
+      const preferredAddress = getPrimaryStreetLine(user);
+      const defaultCountry = nextDefaultAddress?.countryCode || user?.country || "";
       reset({
         displayName: user?.displayName || "",
         email: user?.email || "",
         phoneNumber: user?.phoneNumber || "",
-        country: user?.country || "",
-        address: user?.address || "",
-        state: user?.state || "",
-        city: user?.city || "",
-        zipCode: user?.zipCode || "",
+        country: defaultCountry,
+        address: preferredAddress,
+        state: nextDefaultAddress?.province || user?.state || "",
+        city: nextDefaultAddress?.district || user?.city || "",
+        zipCode: nextDefaultAddress?.postalCode || user?.zipCode || "",
         about: user?.about || "",
         marketingOptIn: Boolean(user?.marketingOptIn),
       });
@@ -242,11 +266,11 @@ export default function AccountGeneral() {
 
               <RHFSelect native name="country" label="Country">
                 <option value="" />
-                <option value="Vietnam">Vietnam</option>
-                <option value="United States">United States</option>
-                <option value="United Kingdom">United Kingdom</option>
-                <option value="Canada">Canada</option>
-                <option value="Australia">Australia</option>
+                {COUNTRY_OPTIONS.filter((country) => country.label).map((country) => (
+                  <option key={country.code || country.label} value={country.label}>
+                    {country.label}
+                  </option>
+                ))}
               </RHFSelect>
 
               <Box sx={{ gridColumn: "span 2" }}>

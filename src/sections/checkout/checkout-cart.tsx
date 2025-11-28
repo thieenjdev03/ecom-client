@@ -14,7 +14,7 @@ import { useRouter } from "src/routes/hooks";
 
 import { useCheckoutContext } from "./context";
 import CheckoutSummary from "./checkout-summary";
-import CheckoutShippingForm from "./checkout-shipping-form";
+import CheckoutShippingForm, { CheckoutShippingData } from "./checkout-shipping-form";
 import SavedOrderBanner from "./components/saved-order-banner";
 import { PAYPAL_CONFIG } from "src/config/paypal";
 import { useGetProducts } from "src/api/product";
@@ -29,7 +29,7 @@ const translations = {
     emptyTitle: "Cart is empty",
     emptyDescription: "Looks like you have no items in your shopping cart.",
     loginWarning: "Please sign in to continue checkout",
-    missingShippingFields: "Please fill in all shipping information",
+    missingShippingFields: "Please fill in all required shipping info (name, phone, street, province, district, ward).",
     orderCreatedSuccess: "Order created successfully!",
     orderCreationFailed: "Failed to create order. Please try again.",
     validatingCart: "Validating cart...",
@@ -41,7 +41,7 @@ const translations = {
     emptyTitle: "Giỏ hàng trống",
     emptyDescription: "Có vẻ như bạn chưa có sản phẩm nào trong giỏ hàng.",
     loginWarning: "Vui lòng đăng nhập để tiếp tục thanh toán",
-    missingShippingFields: "Vui lòng nhập đầy đủ thông tin giao hàng",
+    missingShippingFields: "Vui lòng nhập đủ họ tên, số điện thoại, địa chỉ, tỉnh/thành, quận/huyện, phường/xã.",
     orderCreatedSuccess: "Đơn hàng đã được tạo thành công!",
     orderCreationFailed: "Tạo đơn hàng thất bại. Vui lòng thử lại.",
     validatingCart: "Đang kiểm tra giỏ hàng...",
@@ -67,19 +67,27 @@ export default function CheckoutCart() {
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedOrderInfo, setSavedOrderInfo] = useState<any>(null);
-  const [shippingFormData, setShippingFormData] = useState<{
-    firstName: string;
-    lastName: string;
-    phone: string;
-    address: string;
-    city: string;
-    postalCode?: string;
-    apartment?: string;
-    country: string;
-  } | null>(null);
+  const [shippingFormData, setShippingFormData] = useState<CheckoutShippingData | null>(null);
 
   const currentLanguage = (i18n.language as Language) || "en";
   const t = translations[currentLanguage] || translations.en;
+
+  const sanitize = (value: string) => value.trim();
+  const isShippingDataComplete = (data: CheckoutShippingData) => {
+    const requiredFields = [
+      data.firstName,
+      data.lastName,
+      data.phone,
+      data.addressLine1,
+      data.province,
+      data.district,
+      data.ward,
+      data.city,
+      data.countryCode,
+    ];
+
+    return requiredFields.every((field) => Boolean(field && field.trim()));
+  };
 
   // Load saved order info from localStorage on mount
   React.useEffect(() => {
@@ -169,7 +177,7 @@ export default function CheckoutCart() {
       return;
     }
 
-    if (!shippingFormData) {
+    if (!shippingFormData || !isShippingDataComplete(shippingFormData)) {
       setError(t.missingShippingFields);
       return;
     }
@@ -230,11 +238,11 @@ export default function CheckoutCart() {
 
       // Calculate summary with string values for API (using updated cart totals)
       // Calculate shipping based on selected country
-      const shippingInfo = calculateShipping(shippingFormData.country, checkout.subTotal);
+      const shippingInfo = calculateShipping(shippingFormData.countryCode, checkout.subTotal);
       const shipping = shippingInfo.cost;
       
       // Calculate tax based on selected country
-      const tax = calculateTax(shippingFormData.country, checkout.subTotal);
+      const tax = calculateTax(shippingFormData.countryCode, checkout.subTotal);
       
       const orderSummary: OrderSummary = {
         subtotal: formatCurrency(checkout.subTotal),
@@ -246,14 +254,24 @@ export default function CheckoutCart() {
       };
 
       // Step 3: Create order with validated items
-      // Prepare shipping address
+      // Prepare shipping address that matches backend contract
       const shippingAddress: ShippingAddress = {
-        full_name: `${shippingFormData.firstName} ${shippingFormData.lastName}`,
-        phone: shippingFormData.phone,
-        address_line: shippingFormData.address + (shippingFormData.apartment ? `, ${shippingFormData.apartment}` : ''),
-        city: shippingFormData.city,
-        ward: shippingFormData.postalCode,
-        district: shippingFormData.country,
+        full_name: `${sanitize(shippingFormData.firstName)} ${sanitize(shippingFormData.lastName)}`.trim(),
+        phone: sanitize(shippingFormData.phone),
+        countryCode: shippingFormData.countryCode,
+        province: sanitize(shippingFormData.province),
+        district: sanitize(shippingFormData.district),
+        ward: sanitize(shippingFormData.ward),
+        address_line: sanitize(shippingFormData.addressLine1),
+        city: sanitize(shippingFormData.city),
+        country: shippingFormData.countryCode,
+        isBilling: shippingFormData.isBilling,
+        isDefault: shippingFormData.isDefault,
+        isShipping: true,
+        ...(shippingFormData.addressLine2 ? { address_line2: sanitize(shippingFormData.addressLine2) } : {}),
+        ...(shippingFormData.postalCode ? { postalCode: sanitize(shippingFormData.postalCode) } : {}),
+        ...(shippingFormData.label ? { label: sanitize(shippingFormData.label) } : {}),
+        ...(shippingFormData.note ? { note: sanitize(shippingFormData.note) } : {}),
       };
 
       // Create order with shipping address
@@ -393,7 +411,7 @@ s
             subTotal={checkout.subTotal}
             items={checkout.items}
             onApplyDiscount={checkout.onApplyDiscount}
-            countryCode={shippingFormData?.country}
+            countryCode={shippingFormData?.countryCode}
           />
         </Grid>
       </Grid>

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
@@ -11,6 +12,7 @@ import { fDateTime } from "src/utils/format-time";
 import Label from "src/components/label";
 import Iconify from "src/components/iconify";
 import CustomPopover, { usePopover } from "src/components/custom-popover";
+import { getOrderStatusColor, getOrderStatusLabel } from "./constant";
 
 // ----------------------------------------------------------------------
 
@@ -24,6 +26,8 @@ type Props = {
     value: string;
     label: string;
   }[];
+  allowedStatusValues?: string[];
+  onEdit?: VoidFunction;
 };
 
 export default function OrderDetailsToolbar({
@@ -32,9 +36,18 @@ export default function OrderDetailsToolbar({
   createdAt,
   orderNumber,
   statusOptions,
+  allowedStatusValues,
   onChangeStatus,
+  onEdit,
 }: Props) {
   const popover = usePopover();
+  const statusLabel = getOrderStatusLabel(status);
+  const statusColor = getOrderStatusColor(status);
+  const canChangeStatus = statusOptions.length > 0;
+  const allowedSet = useMemo(
+    () => new Set((allowedStatusValues || []).map((value) => value)),
+    [allowedStatusValues],
+  );
 
   return (
     <>
@@ -55,14 +68,9 @@ export default function OrderDetailsToolbar({
               <Typography variant="h4"> Order {orderNumber} </Typography>
               <Label
                 variant="soft"
-                color={
-                  (status === "completed" && "success") ||
-                  (status === "pending" && "warning") ||
-                  (status === "cancelled" && "error") ||
-                  "default"
-                }
+                color={statusColor}
               >
-                {status}
+                {statusLabel}
               </Label>
             </Stack>
 
@@ -84,9 +92,10 @@ export default function OrderDetailsToolbar({
             variant="outlined"
             endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
             onClick={popover.onOpen}
+            disabled={!canChangeStatus}
             sx={{ textTransform: "capitalize" }}
           >
-            {status}
+            {statusLabel}
           </Button>
 
           <Button
@@ -101,6 +110,8 @@ export default function OrderDetailsToolbar({
             color="inherit"
             variant="contained"
             startIcon={<Iconify icon="solar:pen-bold" />}
+            onClick={onEdit}
+            disabled={!onEdit}
           >
             Edit
           </Button>
@@ -113,18 +124,27 @@ export default function OrderDetailsToolbar({
         arrow="top-right"
         sx={{ width: 140 }}
       >
-        {statusOptions.map((option) => (
-          <MenuItem
-            key={option.value}
-            selected={option.value === status}
-            onClick={() => {
-              popover.onClose();
-              onChangeStatus(option.value);
-            }}
-          >
-            {option.label}
-          </MenuItem>
-        ))}
+        {canChangeStatus ? (
+          statusOptions.map((option) => {
+            const isAllowed = !allowedStatusValues || allowedSet.has(option.value);
+            return (
+            <MenuItem
+              key={option.value}
+              selected={option.value === status}
+                disabled={!isAllowed}
+              onClick={() => {
+                  if (!isAllowed) return;
+                  popover.onClose();
+                  onChangeStatus(option.value);
+              }}
+            >
+              {option.label}
+            </MenuItem>
+            );
+          })
+        ) : (
+          <MenuItem disabled>No transitions</MenuItem>
+        )}
       </CustomPopover>
     </>
   );

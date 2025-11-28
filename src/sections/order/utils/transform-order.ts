@@ -1,4 +1,5 @@
 import { Order } from "src/api/order";
+import { normalizeOrderStatus } from "../constant";
 
 import {
   IOrderCustomer,
@@ -211,7 +212,7 @@ export function transformOrderForDetailView(order: Order): OrderDetailViewModel 
     totalAmount: toNumber(order.summary.total),
     orderNumber: order.orderNumber,
     createdAt: new Date(order.createdAt),
-    status: order.status.toLowerCase(),
+    status: normalizeOrderStatus(order.status) || order.status.toLowerCase(),
     currency,
     notes: order.notes,
     internalNotes: order.internalNotes,

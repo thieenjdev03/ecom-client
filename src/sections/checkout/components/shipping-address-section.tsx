@@ -18,15 +18,22 @@ import ShippingInfo from "./shipping-info";
 
 interface ShippingAddressSectionProps {
   formData: {
-    country: string;
+    countryCode: string;
     firstName: string;
     lastName: string;
-    address: string;
-    addressCoordinates: { lat: number; lon: number } | null;
-    apartment: string;
+    addressLine1: string;
+    addressLine2: string;
     city: string;
+    province: string;
+    district: string;
+    ward: string;
     postalCode: string;
     phone: string;
+    label: string;
+    note: string;
+    isBilling: boolean;
+    isDefault: boolean;
+    addressCoordinates: { lat: number; lon: number } | null;
   };
   onFieldChange: (field: string) => (event: any) => void;
   onAddressChange: (address: string, coordinates?: { lat: number; lon: number }) => void;
@@ -60,7 +67,7 @@ export default function ShippingAddressSection({
 
   // Get country-specific messages
   const getCountryMessages = () => {
-    switch (formData.country) {
+    switch (formData.countryCode) {
       case "VN":
         return {
           addressPlaceholder: "Nhập địa chỉ giao hàng (ví dụ: 123 Đường Lê Lợi)...",
@@ -69,6 +76,11 @@ export default function ShippingAddressSection({
           postalCodeLabel: "Mã bưu điện (tùy chọn)",
           phoneLabel: "Số điện thoại",
           apartmentLabel: "Căn hộ, tầng, v.v. (tùy chọn)",
+          provinceLabel: "Tỉnh/Thành",
+          districtLabel: "Quận/Huyện",
+          wardLabel: "Phường/Xã",
+          labelLabel: "Nhãn địa chỉ (tùy chọn)",
+          noteLabel: "Ghi chú giao hàng (tùy chọn)",
         };
       case "US":
         return {
@@ -78,6 +90,11 @@ export default function ShippingAddressSection({
           postalCodeLabel: "ZIP Code (optional)",
           phoneLabel: "Phone Number",
           apartmentLabel: "Apt, suite, etc. (optional)",
+          provinceLabel: "State / Province",
+          districtLabel: "County / District",
+          wardLabel: "Neighborhood (optional)",
+          labelLabel: "Label (optional)",
+          noteLabel: "Delivery notes (optional)",
         };
       case "UK":
         return {
@@ -87,6 +104,11 @@ export default function ShippingAddressSection({
           postalCodeLabel: "Postcode (optional)",
           phoneLabel: "Phone Number",
           apartmentLabel: "Flat, unit, etc. (optional)",
+          provinceLabel: "County / Province",
+          districtLabel: "District",
+          wardLabel: "Ward (optional)",
+          labelLabel: "Label (optional)",
+          noteLabel: "Delivery notes (optional)",
         };
       default:
         return {
@@ -96,13 +118,18 @@ export default function ShippingAddressSection({
           postalCodeLabel: "Postal Code (optional)",
           phoneLabel: "Phone",
           apartmentLabel: "Apartment, suite, etc. (optional)",
+          provinceLabel: "State / Province",
+          districtLabel: "District",
+          wardLabel: "Ward",
+          labelLabel: "Label (optional)",
+          noteLabel: "Delivery notes (optional)",
         };
     }
   };
 
   const messages = getCountryMessages();
-  const selectedCountry = getCountryConfig(formData.country, countries);
-  const selectedCountryLabel = countries.find((country) => country.value === formData.country)?.label;
+  const selectedCountry = getCountryConfig(formData.countryCode, countries);
+  const selectedCountryLabel = countries.find((country) => country.value === formData.countryCode)?.label;
 
   return (
     <Box sx={{ mb: 3 }}>
@@ -158,7 +185,7 @@ export default function ShippingAddressSection({
             fullWidth
             select
             label="Country/Region"
-            value={formData.country}
+            value={formData.countryCode}
             onChange={onCountryChange}
             helperText={countriesLoading ? "Loading country list..." : undefined}
           >
@@ -192,7 +219,7 @@ export default function ShippingAddressSection({
         </Stack>
 
         <AddressAutocomplete
-          value={formData.address}
+          value={formData.addressLine1}
           onChange={onAddressChange}
           placeholder={messages.addressPlaceholder}
           label={messages.addressLabel}
@@ -202,17 +229,41 @@ export default function ShippingAddressSection({
             `Tìm kiếm địa chỉ tại ${selectedCountryLabel || "your country"}`
           }
           required
-          countryCode={formData.country.toLowerCase()}
+          countryCode={formData.countryCode.toLowerCase()}
         />
 
         <TextField
           fullWidth
           label={messages.apartmentLabel}
-          value={formData.apartment}
-          onChange={onFieldChange("apartment")}
+          value={formData.addressLine2}
+          onChange={onFieldChange("addressLine2")}
         />
 
         <Stack direction="row" spacing={2}>
+          <TextField
+            fullWidth
+            label={messages.provinceLabel}
+            value={formData.province}
+            onChange={onFieldChange("province")}
+            required
+          />
+          <TextField
+            fullWidth
+            label={messages.districtLabel}
+            value={formData.district}
+            onChange={onFieldChange("district")}
+            required
+          />
+        </Stack>
+
+        <Stack direction="row" spacing={2}>
+          <TextField
+            fullWidth
+            label={messages.wardLabel}
+            value={formData.ward}
+            onChange={onFieldChange("ward")}
+            required
+          />
           <TextField
             fullWidth
             label={messages.cityLabel}
@@ -220,13 +271,31 @@ export default function ShippingAddressSection({
             onChange={onFieldChange("city")}
             required
           />
+        </Stack>
+
+        <Stack direction="row" spacing={2}>
           <TextField
             fullWidth
             label={messages.postalCodeLabel}
             value={formData.postalCode}
             onChange={onFieldChange("postalCode")}
           />
+          <TextField
+            fullWidth
+            label={messages.labelLabel}
+            value={formData.label}
+            onChange={onFieldChange("label")}
+          />
         </Stack>
+
+        <TextField
+          fullWidth
+          label={messages.noteLabel}
+          value={formData.note}
+          onChange={onFieldChange("note")}
+          multiline
+          minRows={2}
+        />
 
         <TextField
           fullWidth
@@ -243,6 +312,26 @@ export default function ShippingAddressSection({
           }}
         />
 
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={formData.isDefault}
+                onChange={onFieldChange("isDefault")}
+              />
+            }
+            label="Set as default shipping address"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={formData.isBilling}
+                onChange={onFieldChange("isBilling")}
+              />
+            }
+            label="Use as billing address too"
+          />
+        </Stack>
       </Stack>
     </Box>
   );

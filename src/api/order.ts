@@ -30,10 +30,20 @@ export type OrderSummary = {
 export type ShippingAddress = {
   full_name: string;
   phone: string;
+  countryCode: string;
+  province: string;
+  district: string;
+  ward: string;
   address_line: string;
-  ward?: string;
-  district?: string;
+  address_line2?: string;
   city: string;
+  country?: string;
+  postalCode?: string;
+  label?: string;
+  note?: string;
+  isBilling?: boolean;
+  isDefault?: boolean;
+  isShipping?: boolean;
 };
 
 export type CreateOrderRequest = {
@@ -51,7 +61,21 @@ export type Order = {
   id: string;
   orderNumber: string;
   userId: string;
-  status: 'PENDING' | 'PAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'FAILED' | 'REFUNDED';
+  status:
+    | 'PENDING_PAYMENT'
+    | 'PAID'
+    | 'PROCESSING'
+    | 'PACKED'
+    | 'READY_TO_GO'
+    | 'AT_CARRIER_FACILITY'
+    | 'IN_TRANSIT'
+    | 'ARRIVED_IN_COUNTRY'
+    | 'AT_LOCAL_FACILITY'
+    | 'OUT_FOR_DELIVERY'
+    | 'DELIVERED'
+    | 'CANCELLED'
+    | 'FAILED'
+    | 'REFUNDED';
   paymentMethod?: "PAYPAL" | "STRIPE" | "COD";
   paypalOrderId?: string;
   paypalTransactionId?: string;
@@ -115,6 +139,21 @@ export type CaptureOrderResponse = {
     };
   };
 };
+
+export type UpdateOrderPayload = Partial<{
+  status: Order['status'];
+  trackingNumber: string | null;
+  carrier: string | null;
+  internalNotes: string | null;
+  notes: string | null;
+  shippingAddressId: string | null;
+  billingAddressId: string | null;
+  paypalOrderId: string | null;
+  paypalTransactionId: string | null;
+  paidAmount: string | number | null;
+  paidCurrency: string | null;
+  paidAt: string | null;
+}>;
 
 // ----------------------------------------------------------------------
 
@@ -197,7 +236,7 @@ export const orderApi = {
   },
 
   // Update order (Admin only)
-  async update(id: string, data: { status?: Order['status']; trackingNumber?: string; carrier?: string; internalNotes?: string }) {
+  async update(id: string, data: UpdateOrderPayload) {
     const res = await axios.patch(`${base}/${id}`, data, {
       headers: getAuthHeaders(),
     });
@@ -280,7 +319,7 @@ export function useGetMyOrders(params?: { status?: string; page?: number; limit?
 export function useGetOrder(orderId: string | null) {
   const URL = orderId ? `${base}/${orderId}` : null;
   
-  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
+  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
 
   const memoizedValue = useMemo(
     () => ({
@@ -288,8 +327,9 @@ export function useGetOrder(orderId: string | null) {
       orderLoading: isLoading,
       orderError: error,
       orderValidating: isValidating,
+      mutateOrder: mutate,
     }),
-    [data, error, isLoading, isValidating],
+    [data, error, isLoading, isValidating, mutate],
   );
 
   return memoizedValue;

@@ -8,19 +8,20 @@ import IconButton from "@mui/material/IconButton";
 import Iconify from "src/components/iconify";
 import { fCurrency } from "src/utils/format-number";
 import { useTranslate } from "src/locales";
+import { getCountryConfig } from "src/config/shipping";
+import type { CheckoutShippingData } from "../checkout-shipping-form";
 
 // ----------------------------------------------------------------------
 
+type SavedOrderShippingAddress = Partial<CheckoutShippingData> & {
+  phone?: string;
+  address?: string; // legacy storage
+  country?: string; // legacy storage
+};
+
 interface SavedOrderInfo {
   orderId: string;
-  shippingAddress: {
-    firstName: string;
-    lastName: string;
-    phone: string;
-    address: string;
-    city: string;
-    country: string;
-  };
+  shippingAddress: SavedOrderShippingAddress;
   orderSummary: {
     subtotal: string;
     shipping: string;
@@ -45,6 +46,19 @@ export default function SavedOrderBanner({
 }: SavedOrderBannerProps) {
   const { t } = useTranslate();
   const { orderId, shippingAddress, orderSummary, createdAt } = orderInfo;
+  const recipientName =
+    shippingAddress.full_name ||
+    `${shippingAddress.firstName ?? ""} ${shippingAddress.lastName ?? ""}`.trim() ||
+    "Customer";
+  const cityLine =
+    shippingAddress.city ||
+    shippingAddress.province ||
+    shippingAddress.district ||
+    "";
+  const countryConfig = shippingAddress.countryCode
+    ? getCountryConfig(shippingAddress.countryCode)
+    : null;
+  const countryLabel = countryConfig?.label || shippingAddress.country || shippingAddress.countryCode || "";
 
   // Format created date
   const createdDate = new Date(createdAt);
@@ -85,11 +99,13 @@ export default function SavedOrderBanner({
               {t("savedOrderBanner.shippingTo")}
             </Typography>
             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              {shippingAddress.firstName} {shippingAddress.lastName}
+              {recipientName}
             </Typography>
-            <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              {shippingAddress.city}, {shippingAddress.country}
-            </Typography>
+            {(cityLine || countryLabel) && (
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                {[cityLine, countryLabel].filter(Boolean).join(", ")}
+              </Typography>
+            )}
           </Box>
 
           <Box>

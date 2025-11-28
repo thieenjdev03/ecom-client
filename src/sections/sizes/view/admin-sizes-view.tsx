@@ -23,6 +23,7 @@ import {
   Select,
   InputLabel,
   FormControl,
+  Skeleton,
 } from "@mui/material";
 import Iconify from "src/components/iconify";
 import { useSnackbar } from "src/components/snackbar";
@@ -37,6 +38,7 @@ export default function AdminSizesView() {
   const { categories } = useGetCategories();
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined);
   const { sizes, sizesLoading, sizesError } = useGetSizes(categoryFilter);
+  const skeletonRows = useMemo(() => Array.from({ length: 5 }, (_, idx) => idx), []);
 
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -141,9 +143,26 @@ export default function AdminSizesView() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {sizesLoading && (
-                <TableRow><TableCell colSpan={4}>Loading...</TableCell></TableRow>
-              )}
+              {sizesLoading &&
+                skeletonRows.map((row) => (
+                  <TableRow key={`size-skeleton-${row}`}>
+                    <TableCell>
+                      <Skeleton width="70%" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton width="60%" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton width="30%" />
+                    </TableCell>
+                    <TableCell align="right">
+                      <Stack direction="row" spacing={1} justifyContent="flex-end">
+                        <Skeleton variant="circular" width={32} height={32} />
+                        <Skeleton variant="circular" width={32} height={32} />
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))}
               {sizesError && (
                 <TableRow><TableCell colSpan={4}>Failed to load</TableCell></TableRow>
               )}

@@ -28,6 +28,11 @@ import CustomPopover, { usePopover } from "src/components/custom-popover";
 
 import { IOrderItem } from "src/types/order";
 import OrderProductItem from "./components/order-product-item";
+import {
+  getOrderStatusColor,
+  getOrderStatusLabel,
+  normalizeOrderStatus,
+} from "src/sections/order/constant";
 
 // ----------------------------------------------------------------------
 
@@ -233,6 +238,9 @@ export default function OrderTableRow({
     currency: currency || "USD",
   };
   const summaryCurrency = orderSummary.currency || currency || "USD";
+  const normalizedStatusValue = normalizeOrderStatus(status);
+  const statusLabel = getOrderStatusLabel(normalizedStatusValue);
+  const statusColor = getOrderStatusColor(normalizedStatusValue);
 
   // Get payment badge color
   const getPaymentColor = () => {
@@ -366,15 +374,9 @@ export default function OrderTableRow({
       <TableCell>
         <Label
           variant="soft"
-          color={
-            (status === "completed" && "success") ||
-            (status === "pending" && "warning") ||
-            (status === "cancelled" && "error") ||
-            (status === "refunded" && "error") ||
-            "default"
-          }
+          color={statusColor}
         >
-          {status}
+          {statusLabel}
         </Label>
       </TableCell>
 

@@ -12,6 +12,7 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
+import Chip from "@mui/material/Chip";
 
 import Iconify from "src/components/iconify";
 import { RouterLink } from "src/routes/components";
@@ -105,6 +106,16 @@ const isShippingAddressNote = (notes?: string) => {
   return notes.trim().toLowerCase().startsWith("shipping address:");
 };
 
+const resolveShippingField = (address: any, keys: string[], fallback?: string) => {
+  if (!address) return fallback || "";
+  for (const key of keys) {
+    if (address[key]) {
+      return address[key];
+    }
+  }
+  return fallback || "";
+};
+
 export default function PaymentSuccessView() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -120,6 +131,48 @@ export default function PaymentSuccessView() {
   const hasPaymentDetails = Boolean(
     order?.paypalTransactionId || order?.paidAmount || order?.paidAt || order?.paypalOrderId
   );
+  const shippingRecipientName = shippingAddress
+    ? resolveShippingField(
+        shippingAddress,
+        ["recipientName", "full_name", "fullName", "name"],
+        customerName || order?.user?.email || "",
+      )
+    : customerName;
+  const shippingPhone = shippingAddress
+    ? resolveShippingField(
+        shippingAddress,
+        ["recipientPhone", "phone", "phoneNumber"],
+        order?.user?.phoneNumber || "",
+      )
+    : order?.user?.phoneNumber || "";
+  const shippingLabel = shippingAddress?.label || "";
+  const shippingStreetLine1 = shippingAddress
+    ? resolveShippingField(
+        shippingAddress,
+        ["streetLine1", "address_line", "street", "addressLine1", "address"],
+      )
+    : "";
+  const shippingStreetLine2 = shippingAddress
+    ? resolveShippingField(
+        shippingAddress,
+        ["streetLine2", "address_line2", "apartment", "addressLine2"],
+      )
+    : "";
+  const shippingWard = resolveShippingField(shippingAddress, ["ward", "subDistrict"]);
+  const shippingDistrict = resolveShippingField(shippingAddress, ["district", "cityDistrict"]);
+  const shippingProvince = resolveShippingField(shippingAddress, ["province", "state", "city"]);
+  const shippingCountry = resolveShippingField(
+    shippingAddress,
+    ["country", "countryCode"],
+    order?.user?.country || "",
+  );
+  const shippingPostalCode = resolveShippingField(shippingAddress, ["postalCode", "postal_code", "zipCode"]);
+  const shippingNote = resolveShippingField(shippingAddress, ["note", "notes"]);
+  const shippingStatusChips = [
+    shippingAddress?.isDefault ? { label: "Default", color: "success" as const } : null,
+    shippingAddress?.isShipping ? { label: "Shipping", color: "primary" as const } : null,
+    shippingAddress?.isBilling ? { label: "Billing", color: "info" as const } : null,
+  ].filter(Boolean) as { label: string; color: "success" | "primary" | "info" }[];
 
   const fetchOrderDetails = useCallback(async (orderId: string) => {
     try {
@@ -153,6 +206,35 @@ export default function PaymentSuccessView() {
       setError('Failed to check payment status');
       setIsPolling(false);
       setIsLoading(false);
+    }
+  }, []);
+
+  const clearCheckoutArtifacts = useCallback(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const localStorageKeys = [
+      "checkout",
+      "pending_order",
+      "pendingOrderId",
+      "paypalOrderId",
+      "checkout_shipping_info",
+      "pendingOrder",
+    ];
+
+    localStorageKeys.forEach((key) => {
+      try {
+        localStorage.removeItem(key);
+      } catch (error) {
+        console.error(`Failed to remove ${key} from localStorage`, error);
+      }
+    });
+
+    try {
+      sessionStorage.removeItem("pendingOrderId");
+    } catch (error) {
+      console.error("Failed to remove pendingOrderId from sessionStorage", error);
     }
   }, []);
 
@@ -202,6 +284,10 @@ export default function PaymentSuccessView() {
     handlePaymentReturn();
   }, [handlePaymentReturn]);
 
+  useEffect(() => {
+    clearCheckoutArtifacts();
+  }, [clearCheckoutArtifacts]);
+
   const handleDownloadReceipt = () => {
     if (!order) return;
     
@@ -235,9 +321,7 @@ Total: ${fCurrency(order.summary.total)}
   };
 
   const handleContinueShopping = () => {
-    // Clear payment details from localStorage
-    localStorage.removeItem('pendingOrderId');
-    localStorage.removeItem('paypalOrderId');
+    clearCheckoutArtifacts();
     router.push(paths.product.root);
   };
 
@@ -467,23 +551,65 @@ Total: ${fCurrency(order.summary.total)}
               <>
                 <Divider />
                 <Stack spacing={2}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                    Shipping Address:
-                  </Typography>
-                  <Typography variant="body2">
-                    {shippingAddress.full_name || customerName || order.user?.email}
-                  </Typography>
-                  {shippingAddress.phone && (
+                  <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                      Shipping Address:
+                    </Typography>
+                    {shippingStatusChips.length > 0 &&
+                      shippingStatusChips.map((chip) => (
+                        <Chip
+                          key={chip.label}
+                          label={chip.label}
+                          size="small"
+                          color={chip.color}
+                          variant="soft"
+                        />
+                      ))}
+                    {shippingLabel && (
+                      <Chip label={shippingLabel} size="small" color="primary" variant="outlined" />
+                    )}
+                  </Stack>
+
+                  <Stack spacing={0.5}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {shippingRecipientName}
+                    </Typography>
+                    {shippingPhone && (
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Phone: {shippingPhone}
+                      </Typography>
+                    )}
+                  </Stack>
+
+                  <Stack spacing={0.5} sx={{ color: 'text.secondary' }}>
+                    {shippingStreetLine1 && (
+                      <Typography variant="body2">Street line 1: {shippingStreetLine1}</Typography>
+                    )}
+                    {shippingStreetLine2 && (
+                      <Typography variant="body2">Street line 2: {shippingStreetLine2}</Typography>
+                    )}
+                    {shippingWard && (
+                      <Typography variant="body2">Ward: {shippingWard}</Typography>
+                    )}
+                    {shippingDistrict && (
+                      <Typography variant="body2">District: {shippingDistrict}</Typography>
+                    )}
+                    {shippingProvince && (
+                      <Typography variant="body2">Province/State: {shippingProvince}</Typography>
+                    )}
+                    {shippingCountry && (
+                      <Typography variant="body2">Country: {shippingCountry}</Typography>
+                    )}
+                    {shippingPostalCode && (
+                      <Typography variant="body2">Postal code: {shippingPostalCode}</Typography>
+                    )}
+                  </Stack>
+
+                  {shippingNote && (
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Phone: {shippingAddress.phone}
+                      Note: {shippingNote}
                     </Typography>
                   )}
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    {shippingAddress.address_line}
-                    {shippingAddress.ward && `, ${shippingAddress.ward}`}
-                    {shippingAddress.district && `, ${shippingAddress.district}`}
-                    {shippingAddress.city && `, ${shippingAddress.city}`}
-                  </Typography>
                 </Stack>
               </>
             )}

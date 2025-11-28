@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import Box from "@mui/material/Box";
@@ -11,6 +12,9 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
+import Alert from "@mui/material/Alert";
 
 import { fDate, fTime } from "src/utils/format-time";
 import { paths } from "src/routes/paths";
@@ -18,8 +22,14 @@ import { paths } from "src/routes/paths";
 import Iconify from "src/components/iconify";
 import Label from "src/components/label";
 import EmptyContent from "src/components/empty-content";
+import AddressAutocomplete from "src/components/address-autocomplete/address-autocomplete";
+import { getCountryConfig, useShippingCountries } from "src/config/shipping";
 
 import { useGetMyOrders, Order } from "src/api/order";
+import {
+  getOrderStatusColor,
+  getOrderStatusLabel,
+} from "src/sections/order/constant";
 
 // ----------------------------------------------------------------------
 
@@ -30,34 +40,13 @@ interface AccountBillingProps {
   addressBook?: any[];
 }
 
-// Helper function to get status color
+// Helper functions to normalize status presentation
 function getStatusColor(status: Order["status"]) {
-  const colors: Record<string, "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning"> = {
-    PENDING: "warning",
-    PAID: "info",
-    PROCESSING: "primary",
-    SHIPPED: "secondary",
-    DELIVERED: "success",
-    CANCELLED: "error",
-    FAILED: "error",
-    REFUNDED: "error",
-  };
-  return colors[status] || "default";
+  return getOrderStatusColor(status);
 }
 
-// Helper function to format status text
 function formatStatus(status: Order["status"]) {
-  const statusMap: Record<string, string> = {
-    PENDING: "Pending",
-    PAID: "Paid",
-    PROCESSING: "Processing",
-    SHIPPED: "Shipped",
-    DELIVERED: "Delivered",
-    CANCELLED: "Cancelled",
-    FAILED: "Failed",
-    REFUNDED: "Refunded",
-  };
-  return statusMap[status] || status;
+  return getOrderStatusLabel(status);
 }
 
 // Helper function to format currency with specific currency code
@@ -86,6 +75,31 @@ function formatPaymentMethodLabel(method?: Order["paymentMethod"]) {
   if (method === "COD") return "Cash on Delivery";
   return method.charAt(0) + method.slice(1).toLowerCase();
 }
+
+const getCountryMessages = (countryCode: string) => {
+  switch (countryCode) {
+    case "VN":
+      return {
+        addressPlaceholder: "Nhập địa chỉ giao hàng (ví dụ: 123 Đường Lê Lợi)...",
+        addressLabel: "Địa chỉ",
+      };
+    case "US":
+      return {
+        addressPlaceholder: "Enter street address (e.g., 123 Main St)...",
+        addressLabel: "Street Address",
+      };
+    case "UK":
+      return {
+        addressPlaceholder: "Enter street address (e.g., 123 High Street)...",
+        addressLabel: "Street Address",
+      };
+    default:
+      return {
+        addressPlaceholder: "Enter delivery address...",
+        addressLabel: "Address",
+      };
+  }
+};
 
 type ShippingInfo = {
   recipient?: string;
@@ -147,6 +161,19 @@ function extractShippingInfo(order: Order): ShippingInfo | null {
 export default function AccountBilling(_props: AccountBillingProps) {
   const router = useRouter();
 
+  const [addressSearch, setAddressSearch] = useState("");
+  const [addressCoordinates, setAddressCoordinates] = useState<{ lat: number; lon: number } | null>(null);
+  const [countryCode, setCountryCode] = useState("VN");
+
+  const {
+    countries,
+    loading: countriesLoading,
+    error: countriesError,
+    refresh: refreshCountries,
+  } = useShippingCountries();
+  const selectedCountry = getCountryConfig(countryCode, countries);
+  const addressMessages = getCountryMessages(countryCode);
+
   // Fetch orders from API
   const { orders, ordersLoading, ordersError, ordersEmpty } = useGetMyOrders();
 
@@ -156,6 +183,96 @@ export default function AccountBilling(_props: AccountBillingProps) {
 
   return (
     <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Card sx={{ p: 3 }}>
+          <Stack spacing={2}>
+            <Typography variant="h6">Quick Shipping Address Lookup</Typography>
+            <Typography variant="body2" color="text.secondary">
+              Use the Geoapify-powered autocomplete (same config as&nbsp;
+              <code>countrycode:{countryCode.toLowerCase()}</code>) to locate addresses quickly before saving
+              them to your account or using them at checkout.
+            </Typography>
+
+            <Box>
+              <TextField
+                select
+                fullWidth
+                label="Country/Region"
+                value={countryCode}
+                onChange={(event) => setCountryCode(event.target.value)}
+                helperText={countriesLoading ? "Loading country list..." : undefined}
+              >
+                {countries.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <span>{option.flag}</span>
+                      <span>{option.label}</span>
+                    </Stack>
+                  </MenuItem>
+                ))}
+              </TextField>
+              {selectedCountry && (
+                <Typography variant="caption" color="text.secondary">
+                  Default shipping cost: {selectedCountry.shippingCost} — Tax: {selectedCountry.taxRate}%
+                </Typography>
+              )}
+
+              {countriesError && (
+                <Alert
+                  severity="warning"
+                  sx={{ mt: 2 }}
+                  action={
+                    <Button color="inherit" size="small" onClick={() => refreshCountries(true)} disabled={countriesLoading}>
+                      Retry
+                    </Button>
+                  }
+                >
+                  Unable to refresh country list. Using cached values for now.
+                </Alert>
+              )}
+            </Box>
+
+            <AddressAutocomplete
+              value={addressSearch}
+              onChange={(value, coords) => {
+                setAddressSearch(value);
+                setAddressCoordinates(coords || null);
+              }}
+              label={addressMessages.addressLabel}
+              placeholder={addressMessages.addressPlaceholder}
+              countryCode={countryCode.toLowerCase()}
+              helperText={
+                selectedCountry
+                  ? `Tìm kiếm địa chỉ tại ${selectedCountry.label}`
+                  : "Start typing to search for addresses"
+              }
+              required
+            />
+            {addressSearch && (
+              <Box
+                sx={{
+                  bgcolor: "background.neutral",
+                  borderRadius: 1,
+                  p: 2,
+                }}
+              >
+                <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                  Selected address
+                </Typography>
+                <Typography variant="body2" sx={{ wordBreak: "break-word" }}>
+                  {addressSearch}
+                </Typography>
+                {addressCoordinates && (
+                  <Typography variant="caption" color="text.secondary">
+                    Lat: {addressCoordinates.lat.toFixed(6)} • Lon: {addressCoordinates.lon.toFixed(6)}
+                  </Typography>
+                )}
+              </Box>
+            )}
+          </Stack>
+        </Card>
+      </Grid>
+
       <Grid item xs={12}>
         <Card sx={{ p: 3 }}>
           <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>

@@ -56,7 +56,8 @@ export default function EcomCategoriesDropdown({
   }));
 
   const parentGroupsWithChildren = groups.filter((g) => g.children.length > 0);
-  const parentsWithoutChildren = groups.filter((g) => g.children.length === 0).map((g) => g.parent);
+  const parentsWithoutChildren = groups.filter((g) => g.children.length === 0 && g.parent.slug !== "all").map((g) => g.parent);
+  const allProductsCategory = groups.find((g) => g.children.length === 0 && g.parent.slug === "all")?.parent;
   const router = useRouter();
   const handleLabelClick = useCallback(() => {
     console.log('handleLabelClick');
@@ -99,6 +100,7 @@ export default function EcomCategoriesDropdown({
         transformOrigin={{ vertical: "top", horizontal: "left" }}
         PaperProps={{ sx: { mt: 1, p: 2 } }}
       >
+       
         {categoryTreeLoading ? (
           <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
             <CircularProgress />
@@ -109,6 +111,13 @@ export default function EcomCategoriesDropdown({
           </Typography>
         ) : groups.length > 0 ? (
           <Stack direction="row" spacing={4} sx={{ minWidth: 480 }}>
+             {allProductsCategory && (
+          <Box key="all" component={RouterLink} href={paths.categories.details(allProductsCategory.slug)} sx={{ minWidth: 180 }}>
+            <Typography variant="h6" sx={{ mb: 1, color: "text.primary", fontWeight: 600}}>
+              {allProductsCategory.name}
+            </Typography>
+          </Box>
+        )}
             {parentGroupsWithChildren.map((g) => (
               <Box key={g.parent.id} sx={{ minWidth: 180 }}>
                 <Typography variant="h6" sx={{ mb: 1, color: "text.primary", fontWeight: 600}}>

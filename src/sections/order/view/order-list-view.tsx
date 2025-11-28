@@ -24,7 +24,12 @@ import { useBoolean } from "src/hooks/use-boolean";
 
 import { isAfter, isBetween } from "src/utils/format-time";
 
-import { ORDER_STATUS_OPTIONS } from "src/_mock";
+import {
+  ORDER_STATUS_ALL_OPTIONS,
+  getOrderStatusColor,
+  getOrderStatusLabel,
+  normalizeOrderStatus,
+} from "../constant";
 
 import Label from "src/components/label";
 import Iconify from "src/components/iconify";
@@ -63,7 +68,7 @@ import OrderTableFiltersResult from "../order-table-filters-result";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "All" },
-  ...ORDER_STATUS_OPTIONS,
+  ...ORDER_STATUS_ALL_OPTIONS,
 ];
 
 const TABLE_HEAD = [
@@ -136,7 +141,7 @@ function transformOrderToIOrderItem(order: Order): IOrderItem {
   return {
     id: order.id,
     taxes: tax,
-    status: order.status.toLowerCase(),
+    status: normalizeOrderStatus(order.status),
     shipping,
     discount,
     subTotal: subtotal,
@@ -311,7 +316,6 @@ export default function OrderListView() {
     },
     [handleFilters],
   );
-
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : "lg"}>
@@ -356,19 +360,13 @@ export default function OrderListView() {
                         "filled") ||
                       "soft"
                     }
-                    color={
-                      (tab.value === "completed" && "success") ||
-                      (tab.value === "pending" && "warning") ||
-                      (tab.value === "cancelled" && "error") ||
-                      "default"
-                    }
+                    color={tab.value === "all" ? "default" : getOrderStatusColor(tab.value)}
                   >
-                    {["completed", "pending", "cancelled", "refunded"].includes(
-                      tab.value,
-                    )
-                      ? tableData.filter((order) => order.status === tab.value)
-                          .length
-                      : tableData.length}
+                    {tab.value === "all"
+                      ? tableData.length
+                      : tableData.filter(
+                          (order) => normalizeOrderStatus(order.status) === tab.value,
+                        ).length}
                   </Label>
                 }
               />
@@ -563,7 +561,9 @@ function applyFilter({
 
   // Status filter
   if (status !== "all") {
-    inputData = inputData.filter((order) => order.status === status);
+    inputData = inputData.filter(
+      (order) => normalizeOrderStatus(order.status) === status,
+    );
   }
 
   // Payment method filter (multi-select)

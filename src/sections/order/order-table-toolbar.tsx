@@ -17,6 +17,7 @@ import Iconify from "src/components/iconify";
 import CustomPopover, { usePopover } from "src/components/custom-popover";
 import CountrySelect from "src/components/country-select";
 import { countries } from "src/assets/data";
+import { ORDER_STATUS_ALL_OPTIONS } from "src/sections/order/constant";
 
 import { IOrderTableFilters, IOrderTableFilterValue } from "src/types/order";
 
@@ -91,7 +92,6 @@ export default function OrderTableToolbar({
     },
     [onFilters],
   );
-
   return (
     <>
       <Stack
@@ -148,10 +148,11 @@ export default function OrderTableToolbar({
             onChange={(e) => onFilters("status", e.target.value)}
           >
             <MenuItem value="all">All</MenuItem>
-            <MenuItem value="pending">Pending</MenuItem>
-            <MenuItem value="completed">Completed</MenuItem>
-            <MenuItem value="cancelled">Cancelled</MenuItem>
-            <MenuItem value="refunded">Refunded</MenuItem>
+            {ORDER_STATUS_ALL_OPTIONS.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
 

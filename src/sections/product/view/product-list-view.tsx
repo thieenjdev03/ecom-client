@@ -8,6 +8,7 @@ import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
+import Skeleton from "@mui/material/Skeleton";
 import {
   DataGrid,
   GridColDef,
@@ -235,18 +236,21 @@ export default function ProductListView() {
       disableColumnMenu: true,
       getActions: (params) => [
         <GridActionsCellItem
+          key="view"
           showInMenu
           icon={<Iconify icon="solar:eye-bold" />}
           label="View"
           onClick={() => handleViewRow(params.row.id)}
         />,
         <GridActionsCellItem
+          key="edit"
           showInMenu
           icon={<Iconify icon="solar:pen-bold" />}
           label="Edit"
           onClick={() => handleEditRow(params.row.id)}
         />,
         <GridActionsCellItem
+          key="delete"
           showInMenu
           icon={<Iconify icon="solar:trash-bin-trash-bold" />}
           label="Delete"
@@ -263,6 +267,27 @@ export default function ProductListView() {
     columns
       .filter((column) => !HIDE_COLUMNS_TOGGLABLE.includes(column.field))
       .map((column) => column.field);
+
+  const showInitialLoading = productsLoading && !tableData.length;
+
+  const renderSkeletonToolbar = (
+    <Stack spacing={2} sx={{ p: 3 }}>
+      <Skeleton variant="rounded" height={56} />
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+        <Skeleton variant="rounded" height={40} sx={{ flex: 1 }} />
+        <Skeleton variant="rounded" height={40} sx={{ flex: 1 }} />
+        <Skeleton variant="rounded" height={40} sx={{ flex: 1 }} />
+      </Stack>
+    </Stack>
+  );
+
+  const renderSkeletonTable = (
+    <Stack spacing={1} sx={{ p: 3 }}>
+      {Array.from({ length: 6 }).map((_, index) => (
+        <Skeleton key={`product-row-skeleton-${index}`} variant="rounded" height={48} />
+      ))}
+    </Stack>
+  );
 
   return (
     <>
@@ -297,33 +322,40 @@ export default function ProductListView() {
           flexDirection: "column",
         }}
       >
-        <CustomBreadcrumbs
-          heading={`Product List`}
-          links={[
-            { name: "Dashboard", href: paths.dashboard.root },
-            {
-              name: "Product",
-              href: paths.dashboard.product.root,
-            },
-            { name: "List" },
-          ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.product.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-             Add Product
-            </Button>
-          }
-          sx={{
-            mb: {
-              xs: 3,
-              md: 5,
-            },
-          }}
-        />
+        {showInitialLoading ? (
+          <Stack spacing={2} sx={{ mb: { xs: 3, md: 5 } }}>
+            <Skeleton variant="text" height={40} width="30%" />
+            <Skeleton variant="rounded" height={48} width={200} sx={{ alignSelf: "flex-start" }} />
+          </Stack>
+        ) : (
+          <CustomBreadcrumbs
+            heading={`Product List`}
+            links={[
+              { name: "Dashboard", href: paths.dashboard.root },
+              {
+                name: "Product",
+                href: paths.dashboard.product.root,
+              },
+              { name: "List" },
+            ]}
+            action={
+              <Button
+                component={RouterLink}
+                href={paths.dashboard.product.new}
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+              >
+               Add Product
+              </Button>
+            }
+            sx={{
+              mb: {
+                xs: 3,
+                md: 5,
+              },
+            }}
+          />
+        )}
 
         <Card
           sx={{
@@ -333,92 +365,99 @@ export default function ProductListView() {
             flexDirection: { md: "column" },
           }}
         >
-          <DataGrid
-            checkboxSelection
-            disableRowSelectionOnClick
-            rows={dataFiltered}
-            columns={columns}
-            loading={productsLoading}
-            getRowHeight={() => "auto"}
-            paginationMode="server"
-            rowCount={meta?.total ?? 0}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            pageSizeOptions={[5, 10, 25]}
-            onRowSelectionModelChange={(newSelectionModel) => {
-              setSelectedRowIds(newSelectionModel);
-            }}
-            columnVisibilityModel={columnVisibilityModel}
-            onColumnVisibilityModelChange={(newModel) =>
-              setColumnVisibilityModel(newModel)
-            }
-            slots={{
-              toolbar: () => (
-                <>
-                  <GridToolbarContainer>
-                    <ProductTableToolbar
-                      filters={filters}
-                      onFilters={handleFilters}
-                      stockOptions={PRODUCT_STOCK_OPTIONS}
-                      publishOptions={PUBLISH_OPTIONS}
-                      categoryOptions={Array.from(new Set(tableData.map((p) => p.category)))}
-                      sortOptions={[
-                        { value: "createdDesc", label: "Created (Newest)" },
-                        { value: "createdAsc", label: "Created (Oldest)" },
-                        { value: "priceAsc", label: "Price (ASC)" },
-                        { value: "priceDesc", label: "Price (DESC)" },
-                        { value: "nameAsc", label: "Name (A–Z)" },
-                      ]}
-                    />
+          {showInitialLoading ? (
+            <>
+              {renderSkeletonToolbar}
+              {renderSkeletonTable}
+            </>
+          ) : (
+            <DataGrid
+              checkboxSelection
+              disableRowSelectionOnClick
+              rows={dataFiltered}
+              columns={columns}
+              loading={productsLoading}
+              getRowHeight={() => "auto"}
+              paginationMode="server"
+              rowCount={meta?.total ?? 0}
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
+              pageSizeOptions={[5, 10, 25]}
+              onRowSelectionModelChange={(newSelectionModel) => {
+                setSelectedRowIds(newSelectionModel);
+              }}
+              columnVisibilityModel={columnVisibilityModel}
+              onColumnVisibilityModelChange={(newModel) =>
+                setColumnVisibilityModel(newModel)
+              }
+              slots={{
+                toolbar: () => (
+                  <>
+                    <GridToolbarContainer>
+                      <ProductTableToolbar
+                        filters={filters}
+                        onFilters={handleFilters}
+                        stockOptions={PRODUCT_STOCK_OPTIONS}
+                        publishOptions={PUBLISH_OPTIONS}
+                        categoryOptions={Array.from(new Set(tableData.map((p) => p.category)))}
+                        sortOptions={[
+                          { value: "createdDesc", label: "Created (Newest)" },
+                          { value: "createdAsc", label: "Created (Oldest)" },
+                          { value: "priceAsc", label: "Price (ASC)" },
+                          { value: "priceDesc", label: "Price (DESC)" },
+                          { value: "nameAsc", label: "Name (A–Z)" },
+                        ]}
+                      />
 
-                    <GridToolbarQuickFilter />
+                      <GridToolbarQuickFilter />
 
-                    <Stack
-                      spacing={1}
-                      flexGrow={1}
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="flex-end"
-                    >
-                      {!!selectedRowIds.length && (
-                        <Button
-                          size="small"
-                          color="error"
-                          startIcon={
-                            <Iconify icon="solar:trash-bin-trash-bold" />
-                          }
-                          onClick={confirmRows.onTrue}
-                        >
-                          Delete ({selectedRowIds.length})
-                        </Button>
-                      )}
+                      <Stack
+                        spacing={1}
+                        flexGrow={1}
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="flex-end"
+                      >
+                        {!!selectedRowIds.length && (
+                          <Button
+                            size="small"
+                            color="error"
+                            startIcon={
+                              <Iconify icon="solar:trash-bin-trash-bold" />
+                            }
+                            onClick={confirmRows.onTrue}
+                          >
+                            Delete ({selectedRowIds.length})
+                          </Button>
+                        )}
 
-                      <GridToolbarColumnsButton />
-                      <GridToolbarFilterButton />
-                      <GridToolbarExport />
-                    </Stack>
-                  </GridToolbarContainer>
+                        <GridToolbarColumnsButton />
+                        <GridToolbarFilterButton />
+                        <GridToolbarExport />
+                      </Stack>
+                    </GridToolbarContainer>
 
-                  {canReset && (
-                    <ProductTableFiltersResult
-                      filters={filters}
-                      onFilters={handleFilters}
-                      onResetFilters={handleResetFilters}
-                      results={dataFiltered.length}
-                      sx={{ p: 2.5, pt: 0 }}
-                    />
-                  )}
-                </>
-              ),
-              noRowsOverlay: () => <EmptyContent title="No Data" />,
-              noResultsOverlay: () => <EmptyContent title="No results found" />,
-            }}
-            slotProps={{
-              columnsPanel: {
-                getTogglableColumns,
-              },
-            }}
-          />
+                    {canReset && (
+                      <ProductTableFiltersResult
+                        filters={filters}
+                        onFilters={handleFilters}
+                        onResetFilters={handleResetFilters}
+                        results={dataFiltered.length}
+                        sx={{ p: 2.5, pt: 0 }}
+                      />
+                    )}
+                  </>
+                ),
+                noRowsOverlay: () => <EmptyContent title="No Data" />,
+                noResultsOverlay: () => <EmptyContent title="No results found" />,
+              }}
+              slotProps={{
+                columnsPanel: {
+                  getTogglableColumns,
+                },
+              }}
+            />
+          )}
         </Card>
       </Container>
       )}

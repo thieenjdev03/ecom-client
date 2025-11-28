@@ -16,6 +16,7 @@ import { RouterLink } from "src/routes/components";
 import { useSettingsContext } from "src/components/settings";
 import Iconify from "src/components/iconify";
 import Label from "src/components/label";
+import { getOrderStatusColor, getOrderStatusLabel } from "../constant";
 
 import { useGetOrder } from "src/api/order";
 
@@ -32,26 +33,6 @@ import { transformOrderForDetailView } from "../utils/transform-order";
 type Props = {
   id: string;
 };
-
-// Helper function to get status color
-function getStatusColor(status: string) {
-  const colors: Record<string, "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning"> = {
-    pending: "warning",
-    paid: "info",
-    processing: "primary",
-    shipped: "secondary",
-    delivered: "success",
-    cancelled: "error",
-    failed: "error",
-    refunded: "error",
-  };
-  return colors[status] || "default";
-}
-
-function formatStatusLabel(status: string) {
-  if (!status) return "";
-  return status.charAt(0).toUpperCase() + status.slice(1);
-}
 
 export default function OrderDetailsViewLanding({ id }: Props) {
   const settings = useSettingsContext();
@@ -126,7 +107,7 @@ export default function OrderDetailsViewLanding({ id }: Props) {
             <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
               <Typography variant="h4">Order {orderData.orderNumber}</Typography>
               <Label variant="soft" color={getStatusColor(orderData.status)}>
-                {formatStatusLabel(orderData.status)}
+                {getOrderStatusLabel(orderData.status)}
               </Label>
             </Stack>
 
