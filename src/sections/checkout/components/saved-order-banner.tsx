@@ -14,6 +14,8 @@ import type { CheckoutShippingData } from "../checkout-shipping-form";
 // ----------------------------------------------------------------------
 
 type SavedOrderShippingAddress = Partial<CheckoutShippingData> & {
+  // Legacy / API field name for full recipient name
+  full_name?: string;
   phone?: string;
   address?: string; // legacy storage
   country?: string; // legacy storage

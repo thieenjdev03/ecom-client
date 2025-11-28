@@ -216,7 +216,7 @@ export default function OrderDetailsView({ id }: Props) {
       </Container>
 
       <OrderDetailsEditDrawer
-        order={order}
+        order={order ?? null}
         open={isEditOpen}
         saving={isSavingEdit}
         statusOptions={allStatusOptions}

@@ -186,7 +186,9 @@ export default function CheckoutShippingForm({
     isLoaded,
   ]);
 
-  const handleChange = (field: EditableField) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // Use a string field key here to match the child component prop typing,
+  // while still only passing valid keys from our form.
+  const handleChange = (field: string) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const target = event.target as HTMLInputElement;
     const value = target.type === "checkbox" ? target.checked : target.value;
     setFormData((prev) => ({

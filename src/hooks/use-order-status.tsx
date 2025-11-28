@@ -124,7 +124,8 @@ export const useOrderStatus = ({
     order,
     isLoading,
     error,
-    status: order?.status || 'PENDING',
+    // Default to a valid backend status when order is not yet loaded
+    status: order?.status || "PENDING_PAYMENT",
     refreshOrder: fetchOrder,
     pollOrderStatus,
   };
@@ -148,30 +149,44 @@ export const OrderStatusDisplay = ({
     autoPoll: true,
   });
 
-  const getStatusColor = (status: Order['status']) => {
-    const colors = {
-      PENDING: '#ff9800',
-      PAID: '#4caf50',
-      PROCESSING: '#2196f3',
-      SHIPPED: '#9c27b0',
-      DELIVERED: '#4caf50',
-      CANCELLED: '#f44336',
-      FAILED: '#f44336',
-      REFUNDED: '#9e9e9e',
+  const getStatusColor = (status: Order["status"]) => {
+    // Color mapping for all possible order statuses (kept in sync with backend enum)
+    const colors: Record<Order["status"], string> = {
+      PENDING_PAYMENT: "#ff9800",
+      PAID: "#4caf50",
+      PROCESSING: "#2196f3",
+      PACKED: "#2196f3",
+      READY_TO_GO: "#2196f3",
+      AT_CARRIER_FACILITY: "#2196f3",
+      IN_TRANSIT: "#2196f3",
+      ARRIVED_IN_COUNTRY: "#2196f3",
+      AT_LOCAL_FACILITY: "#2196f3",
+      OUT_FOR_DELIVERY: "#ff9800",
+      DELIVERED: "#4caf50",
+      CANCELLED: "#f44336",
+      FAILED: "#f44336",
+      REFUNDED: "#9e9e9e",
     };
-    return colors[status] || '#9e9e9e';
+    return colors[status] || "#9e9e9e";
   };
 
-  const getStatusText = (status: Order['status']) => {
-    const texts = {
-      PENDING: 'Payment Pending',
-      PAID: 'Payment Completed',
-      PROCESSING: 'Processing Order',
-      SHIPPED: 'Order Shipped',
-      DELIVERED: 'Order Delivered',
-      CANCELLED: 'Order Cancelled',
-      FAILED: 'Payment Failed',
-      REFUNDED: 'Payment Refunded',
+  const getStatusText = (status: Order["status"]) => {
+    // Text mapping for all possible order statuses
+    const texts: Record<Order["status"], string> = {
+      PENDING_PAYMENT: "Payment Pending",
+      PAID: "Payment Completed",
+      PROCESSING: "Processing Order",
+      PACKED: "Order Packed",
+      READY_TO_GO: "Ready To Go",
+      AT_CARRIER_FACILITY: "At Carrier Facility",
+      IN_TRANSIT: "In Transit",
+      ARRIVED_IN_COUNTRY: "Arrived In Country",
+      AT_LOCAL_FACILITY: "At Local Facility",
+      OUT_FOR_DELIVERY: "Out For Delivery",
+      DELIVERED: "Order Delivered",
+      CANCELLED: "Order Cancelled",
+      FAILED: "Payment Failed",
+      REFUNDED: "Payment Refunded",
     };
     return texts[status] || status;
   };

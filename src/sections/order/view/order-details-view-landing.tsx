@@ -106,7 +106,7 @@ export default function OrderDetailsViewLanding({ id }: Props) {
           <Stack spacing={0.5}>
             <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
               <Typography variant="h4">Order {orderData.orderNumber}</Typography>
-              <Label variant="soft" color={getStatusColor(orderData.status)}>
+              <Label variant="soft" color={getOrderStatusColor(orderData.status)}>
                 {getOrderStatusLabel(orderData.status)}
               </Label>
             </Stack>
