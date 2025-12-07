@@ -7,12 +7,9 @@ import Checkbox from "@mui/material/Checkbox";
 import TableCell from "@mui/material/TableCell";
 import IconButton from "@mui/material/IconButton";
 import ListItemText from "@mui/material/ListItemText";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
 
 import { useBoolean } from "src/hooks/use-boolean";
 
-import Label from "src/components/label";
 import Iconify from "src/components/iconify";
 import { ConfirmDialog } from "src/components/custom-dialog";
 import CustomPopover, { usePopover } from "src/components/custom-popover";
@@ -41,21 +38,18 @@ export default function UserTableRow({
 }: Props) {
   const {
     profile,
-    name,
-    avatarUrl,
+    firstName,
+    lastName,
     role,
-    status,
     email,
     phoneNumber,
     addresses,
     createdAt,
     country,
-    city,
-    state,
-    address,
-    zipCode,
-    company,
   } = row;
+
+  // Combine firstName and lastName for display
+  const fullName = `${firstName || ""} ${lastName || ""}`.trim() || "-";
 
   const confirm = useBoolean();
 
@@ -71,24 +65,22 @@ export default function UserTableRow({
         </TableCell>
 
         <TableCell sx={{ display: "flex", alignItems: "center" }}>
-          <Avatar alt={name} src={avatarUrl} sx={{ mr: 2 }} />
+          <Avatar alt={fullName} src={profile || ""} sx={{ mr: 2 }} />
           <ListItemText
-            primary={profile}
-            primaryTypographyProps={{ typography: "body2" }}
+            primary={fullName}
+            secondary={email}
+            primaryTypographyProps={{ typography: "body2", fontWeight: 600 }}
             secondaryTypographyProps={{
               component: "span",
               color: "text.disabled",
+              typography: "caption",
             }}
           />
         </TableCell>
 
         <TableCell sx={{ whiteSpace: "nowrap" }}>{email}</TableCell>
 
-        <TableCell sx={{ whiteSpace: "nowrap" }}>
-          <Tooltip title={`${country || ""} ${city ? `- ${city}` : ""}`.trim()}>
-            <span>{country || "-"}</span>
-          </Tooltip>
-        </TableCell>
+        <TableCell sx={{ whiteSpace: "nowrap" }}>{country || "-"}</TableCell>
         
         <TableCell sx={{ whiteSpace: "nowrap" }}>{phoneNumber}</TableCell>
 
@@ -99,14 +91,14 @@ export default function UserTableRow({
           <Tooltip
             title={(() => {
               const def = addresses?.find((a) => a.isDefault);
-              if (!def) {
-                // Fallback to general address fields if available
-                return address || city || state ? [address, city, state, zipCode].filter(Boolean).join(", ") : "";
+              if (!def && addresses?.length) {
+                // Use first address if no default
+                const first = addresses[0];
+                return [first.streetLine1, first.district, first.province].filter(Boolean).join(", ");
               }
+              if (!def) return "No addresses";
               const parts = [
                 def.streetLine1,
-                def.streetLine2,
-                def.ward,
                 def.district,
                 def.province,
                 def.postalCode,

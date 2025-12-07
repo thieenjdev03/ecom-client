@@ -52,7 +52,7 @@ export default function Footer() {
                 {t("footer.ourStory")}
               </Link>
               <Link href="#" color="inherit" variant="body1">
-                {t("footer.careers")}
+                {t("footer.contactUs")}
               </Link>
             </Stack>
           </Grid>
@@ -69,7 +69,7 @@ export default function Footer() {
                 variant="body1"
                 sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
               >
-                <Iconify icon="solar:letter-broken" width={20} /> {t("footer.email")}
+                <Iconify icon="solar:letter-broken" width={20} /> example@example.com
               </Link>
               <Link
                 href="#"
@@ -77,8 +77,16 @@ export default function Footer() {
                 variant="body1"
                 sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
               >
-                <Iconify icon="solar:phone-linear" width={20} /> (+84)
+                <Iconify icon="solar:phone-linear" width={20} /> (+84) 1234567890
               </Link>
+              <Stack direction="row" spacing={2}>
+              <IconButton size="small">
+                <Iconify icon="mdi:instagram" width={22} />
+              </IconButton>
+              <IconButton size="small">
+                <Iconify icon="mdi:tiktok" width={22} />
+              </IconButton>
+            </Stack>
             </Stack>
           </Grid>
 
@@ -110,20 +118,6 @@ export default function Footer() {
               <Link href="#" color="inherit" variant="body1">
                 {t("footer.bikini")}
               </Link>
-            </Stack>
-          </Grid>
-
-          <Grid xs={12} md={1.5}>
-            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
-              {t("footer.followUs")}
-            </Typography>
-            <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-              <IconButton size="small">
-                <Iconify icon="mdi:instagram" width={22} />
-              </IconButton>
-              <IconButton size="small">
-                <Iconify icon="mdi:tiktok" width={22} />
-              </IconButton>
             </Stack>
           </Grid>
         </Grid>

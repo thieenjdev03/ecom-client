@@ -37,11 +37,31 @@ export default function ColorsView() {
                 <Typography variant="subtitle1" gutterBottom>
                   {c.name}
                 </Typography>
-                <Chip
-                  size="small"
-                  label={c.hexCode || "N/A"}
-                  sx={{ bgcolor: c.hexCode || undefined, color: c.hexCode ? "#fff" : undefined }}
-                />
+                <Box display="flex" alignItems="center" gap={1}>
+                  {c.imageUrl ? (
+                    <Box
+                      component="img"
+                      src={c.imageUrl}
+                      alt={c.name}
+                      sx={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 1,
+                        border: "1px solid",
+                        borderColor: "divider",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : null}
+                  <Chip
+                    size="small"
+                    label={c.hexCode || (c.imageUrl ? "Image" : "N/A")}
+                    sx={{
+                      bgcolor: c.hexCode || undefined,
+                      color: c.hexCode ? "#fff" : undefined,
+                    }}
+                  />
+                </Box>
               </CardContent>
             </Card>
           </Grid>

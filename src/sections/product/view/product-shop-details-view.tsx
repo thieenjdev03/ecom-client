@@ -23,6 +23,7 @@ import { ProductDetailsSkeleton } from "../product-skeleton";
 import ProductDetailsSummary from "../product-details-summary";
 import ProductDetailsCarousel from "../product-details-carousel";
 import HomeProductShowcase from "src/sections/landing-page/home-product-showcase";
+import WishlistProductShowcase from "src/sections/landing-page/wishlist-product-showcase";
 
 // ----------------------------------------------------------------------
 
@@ -35,7 +36,6 @@ export default function ProductShopDetailsView({ id }: Props) {
 
   const checkout = useCheckoutContext();
 
-  const [currentTab, setCurrentTab] = useState("description");
   const [selectedVariant, setSelectedVariant] = useState<ProductVariantDto | null>(null);
 
   // ------------------------------------------------------------------
@@ -105,7 +105,11 @@ export default function ProductShopDetailsView({ id }: Props) {
           bgcolor: "background.default",
         }}
       >
-        <HomeProductShowcase priceBottom title="Wish List Products" />
+        <WishlistProductShowcase 
+      title="My Wishlist"
+      layout="price-bottom"
+      showAddToCart
+    />
         <HomeProductShowcase priceBottom title="Related Products" />
       </Box>
     </Container>

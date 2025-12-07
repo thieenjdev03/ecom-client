@@ -8,6 +8,7 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Pagination from "@mui/material/Pagination";
 import Box from "@mui/material/Box";
+import { alpha } from "@mui/material/styles";
 
 import { paths } from "src/routes/paths";
 
@@ -18,13 +19,12 @@ import { useGetProducts } from "src/api/product";
 import {
   PRODUCT_SORT_OPTIONS,
   PRODUCT_COLOR_OPTIONS,
-  PRODUCT_GENDER_OPTIONS,
-  PRODUCT_RATING_OPTIONS,
-  PRODUCT_CATEGORY_OPTIONS,
 } from "src/_mock";
 
 import EmptyContent from "src/components/empty-content";
 import { useSettingsContext } from "src/components/settings";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
+import { useTranslate } from "src/locales";
 
 import {
   IProductFilters,
@@ -32,10 +32,8 @@ import {
 } from "src/types/product";
 
 import ProductList from "../product-list";
-import ProductSort from "../product-sort";
-import ProductSearch from "../product-search";
-import ProductFilters from "../product-filters";
 import ProductFiltersResult from "../product-filters-result";
+import ProductSortFilterAccordion from "../product-sort-filter-accordion";
 
 // ----------------------------------------------------------------------
 
@@ -50,13 +48,14 @@ const defaultFilters: IProductFilters = {
 // ----------------------------------------------------------------------
 
 export default function ProductShopView() {
+  const { t } = useTranslate();
   const settings = useSettingsContext();
 
-  const openFilters = useBoolean();
+  const openSortFilter = useBoolean();
 
-  const [sortBy, setSortBy] = useState("featured");
+  const [sortBy, setSortBy] = useState("priceAsc");
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery] = useState("");
 
   const debouncedQuery = useDebounce(searchQuery);
 
@@ -69,12 +68,13 @@ export default function ProductShopView() {
   // Convert sortBy UI value to API sort_by and sort_order
   const getApiSort = useCallback((sortValue: string) => {
     const sortMap: Record<string, { sort_by: "created_at" | "updated_at" | "name" | "price" | "status"; sort_order: "ASC" | "DESC" }> = {
-      featured: { sort_by: "created_at", sort_order: "DESC" }, // Featured products - using created_at DESC as fallback
-      newest: { sort_by: "created_at", sort_order: "DESC" },
-      priceDesc: { sort_by: "price", sort_order: "DESC" },
       priceAsc: { sort_by: "price", sort_order: "ASC" },
+      priceDesc: { sort_by: "price", sort_order: "DESC" },
+      bestSelling: { sort_by: "created_at", sort_order: "DESC" },
+      newest: { sort_by: "created_at", sort_order: "DESC" },
+      oldest: { sort_by: "created_at", sort_order: "ASC" },
     };
-    return sortMap[sortValue] || sortMap.featured;
+    return sortMap[sortValue] || sortMap.priceAsc;
   }, []);
 
   // Get locale from i18n
@@ -105,17 +105,7 @@ export default function ProductShopView() {
     params.sort_by = sortConfig.sort_by;
     params.sort_order = sortConfig.sort_order;
 
-    // Add category filter (if category is provided and not "all")
-    // Note: API uses category_id (UUID), but UI uses category name/slug
-    // For now, we'll pass it as-is and let backend handle the mapping
-    // TODO: Convert category name/slug to category_id if needed
-    if (filters.category && filters.category !== "all") {
-      // Assuming category could be ID or slug - backend should handle both
-      params.category_id = filters.category;
-    }
-
     // Client-side filters (not sent to API, will filter after fetch)
-    // These are stored in params but not sent to API
     if (filters.gender && filters.gender.length > 0) {
       params.gender = filters.gender;
     }
@@ -146,7 +136,6 @@ export default function ProductShopView() {
     search: queryParams.search,
     sort_by: queryParams.sort_by,
     sort_order: queryParams.sort_order,
-    category_id: queryParams.category_id,
   });
 
   // Apply client-side filters for filters not supported by API
@@ -190,14 +179,6 @@ export default function ProductShopView() {
     return filtered;
   }, [apiProducts, filters]);
 
-  // Search results for autocomplete (client-side filtering for quick results)
-  const searchResults = debouncedQuery
-    ? products.filter((p) =>
-        p.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
-      )
-    : [];
-  const searchLoading = false;
-
   const handleFilters = useCallback(
     (name: string, value: IProductFilterValue) => {
       setFilters((prevState) => ({
@@ -218,17 +199,11 @@ export default function ProductShopView() {
   const canReset = !isEqual(defaultFilters, filters);
 
   // Note: notFound logic needs to account for client-side filtering
-  // If API returns empty, or if client-side filtering results in empty
   const notFound = (productsEmpty || products.length === 0) && canReset;
 
   const handleSortBy = useCallback((newValue: string) => {
     setSortBy(newValue);
     setPage(1); // Reset to page 1 when sort changes
-  }, []);
-
-  const handleSearch = useCallback((inputValue: string) => {
-    setSearchQuery(inputValue);
-    setPage(1); // Reset to page 1 when search changes
   }, []);
 
   const handlePageChange = useCallback((event: React.ChangeEvent<unknown>, value: number) => {
@@ -237,52 +212,163 @@ export default function ProductShopView() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  // Calculate total pages based on client-side filtered results
-  // Since we're doing client-side filtering, pagination might not be accurate
-  // For better UX, we could fetch more items and paginate client-side
-  // Or implement server-side filtering for all filters
+  // Calculate total pages based on API meta
   const totalPages = meta?.totalPages || 1;
 
-  const renderFilters = (
-    <Stack
-      spacing={3}
-      justifyContent="space-between"
-      alignItems={{ xs: "flex-end", sm: "center" }}
-      direction={{ xs: "column", sm: "row" }}
+  // Total products count
+  const totalProducts = meta?.total || products.length;
+
+  // Hero image for shop page
+  const heroImage = "/assets/background/overlay_4.jpg";
+
+  const renderHero = (
+    <Box
+      sx={{
+        position: "relative",
+        width: "100%",
+        height: { xs: 280, sm: 360, md: 400 },
+        overflow: "hidden",
+        borderRadius: 2,
+        mb: 4,
+      }}
     >
-      <ProductSearch
-        query={debouncedQuery}
-        results={searchResults}
-        onSearch={handleSearch}
-        loading={searchLoading}
-        hrefItem={(id: string) => paths.product.details(id)}
+      {/* Background gradient */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+        }}
       />
 
-      <Stack direction="row" spacing={1} flexShrink={0}>
-        <ProductFilters
-          open={openFilters.value}
-          onOpen={openFilters.onTrue}
-          onClose={openFilters.onFalse}
-          //
-          filters={filters}
-          onFilters={handleFilters}
-          //
-          canReset={canReset}
-          onResetFilters={handleResetFilters}
-          //
-          colorOptions={PRODUCT_COLOR_OPTIONS}
-          ratingOptions={PRODUCT_RATING_OPTIONS}
-          genderOptions={PRODUCT_GENDER_OPTIONS}
-          categoryOptions={["all", ...PRODUCT_CATEGORY_OPTIONS]}
-        />
+      {/* Background Image with overlay */}
+      <Box
+        component="img"
+        src={heroImage}
+        alt="Shop"
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition: "center",
+          opacity: 0.3,
+        }}
+      />
 
-        <ProductSort
-          sort={sortBy}
-          onSort={handleSortBy}
-          sortOptions={PRODUCT_SORT_OPTIONS}
+      {/* Decorative elements */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: "20%",
+          right: "10%",
+          width: 200,
+          height: 200,
+          borderRadius: "50%",
+          bgcolor: alpha("#fff", 0.03),
+        }}
+      />
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: "-20%",
+          left: "5%",
+          width: 150,
+          height: 150,
+          borderRadius: "50%",
+          bgcolor: alpha("#fff", 0.02),
+        }}
+      />
+
+      {/* Content */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          px: 2,
+        }}
+      >
+        <Typography
+          variant="h2"
+          sx={{
+            color: "common.white",
+            fontWeight: 700,
+            fontSize: { xs: "32px", sm: "40px", md: "48px" },
+            letterSpacing: "2px",
+            textTransform: "uppercase",
+            textShadow: "0 2px 8px rgba(0,0,0,0.3)",
+            mb: 1,
+          }}
+        >
+          {t("shop.title")}
+        </Typography>
+
+        <Typography
+          variant="body1"
+          sx={{
+            color: "common.white",
+            fontWeight: 500,
+            fontSize: { xs: "14px", sm: "16px" },
+            letterSpacing: "1px",
+            textTransform: "uppercase",
+            opacity: 0.9,
+            mb: 2,
+          }}
+        >
+          {totalProducts} {t("shop.productsCount")}
+        </Typography>
+
+        {/* Breadcrumbs inside hero */}
+        <CustomBreadcrumbs
+          links={[
+            { name: t("header.home"), href: "/" },
+            { name: t("shop.title") },
+          ]}
+          sx={{
+            "& .MuiBreadcrumbs-ol": {
+              justifyContent: "center",
+            },
+            "& .MuiLink-root, & .MuiTypography-root": {
+              color: "common.white",
+              opacity: 0.85,
+              fontSize: "13px",
+            },
+            "& .MuiBreadcrumbs-separator": {
+              color: "common.white",
+              opacity: 0.6,
+            },
+          }}
         />
-      </Stack>
-    </Stack>
+      </Box>
+    </Box>
+  );
+
+  const renderFilters = (
+    <ProductSortFilterAccordion
+      open={openSortFilter.value}
+      onToggle={openSortFilter.onToggle}
+      sort={sortBy}
+      onSort={handleSortBy}
+      sortOptions={PRODUCT_SORT_OPTIONS}
+      filters={filters}
+      onFilters={handleFilters}
+      colorOptions={PRODUCT_COLOR_OPTIONS}
+      canReset={canReset}
+      onResetFilters={handleResetFilters}
+    />
   );
 
   const renderResults = (
@@ -298,7 +384,7 @@ export default function ProductShopView() {
   );
 
   const renderNotFound = (
-    <EmptyContent filled title="No Data" sx={{ py: 10 }} />
+    <EmptyContent filled title={t("shop.noProducts")} sx={{ py: 10 }} />
   );
 
   return (
@@ -309,15 +395,10 @@ export default function ProductShopView() {
         mt: "80px",
       }}
     >
-      <Typography
-        variant="h4"
-        sx={{
-          my: { xs: 3, md: 5 },
-        }}
-      >
-        Categories of Products
-      </Typography>
+      {/* Hero Image with Shop Title and Breadcrumbs */}
+      {renderHero}
 
+      {/* Filter & Sort Bar */}
       <Stack
         spacing={2.5}
         sx={{
@@ -353,4 +434,3 @@ export default function ProductShopView() {
     </Container>
   );
 }
-

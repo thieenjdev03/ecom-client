@@ -23,14 +23,14 @@ export const createProductValidationSchema = (t: any) =>
         if (value == null) return true;
         return Number(value) <= Number(price || 0);
       }),
-    // Multi-language fields
+    // Multi-language fields - only English is required, Vietnamese is optional
     name: Yup.object().shape({
       en: Yup.string().required(t('productForm.nameRequired')),
-      vi: Yup.string().required(t('productForm.nameRequired')),
+      vi: Yup.string().nullable(),
     }).required(),
     slug: Yup.object().shape({
       en: Yup.string().required(t('productForm.slugRequired')),
-      vi: Yup.string().required(t('productForm.slugRequired')),
+      vi: Yup.string().nullable(),
     }).required(),
     description: Yup.object().shape({
       en: Yup.string().nullable(),
@@ -40,7 +40,6 @@ export const createProductValidationSchema = (t: any) =>
       en: Yup.string().nullable(),
       vi: Yup.string().nullable(),
     }).nullable(),
-    productCode: Yup.string().required(t('productForm.productCodeRequired')),
     category: Yup.string().required(t('productForm.categoryRequired')),
     quantity: Yup.number()
       .min(0)
@@ -160,7 +159,6 @@ export const getDefaultProductFormValues = () => ({
   slug: { en: '', vi: '' },
   description: { en: '', vi: '' },
   shortDescription: { en: '', vi: '' },
-  productCode: '',
   sku: '',
   category: '',
   quantity: 0,

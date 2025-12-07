@@ -12,6 +12,7 @@ import { PRODUCT_CHECKOUT_STEPS } from "src/_mock/_product";
 import { getProductById } from "src/api/product";
 import { useAuthContext } from "src/auth/hooks";
 import { useSnackbar } from "src/components/snackbar";
+import { useTranslate } from "src/locales";
 
 import { IAddressItem } from "src/types/address";
 import { ICheckoutItem, CartValidationResult } from "src/types/checkout";
@@ -44,6 +45,7 @@ export function CheckoutProvider({ children }: Props) {
   const router = useRouter();
   const userProfile = useAuthContext();
   const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslate();
 
   const { state, update, reset } = useLocalStorage(STORAGE_KEY, initialState);
 
@@ -92,14 +94,14 @@ export function CheckoutProvider({ children }: Props) {
       // Validate quantity
       const quantityToAdd = newItem.quantity || 1;
       if (quantityToAdd <= 0) {
-        enqueueSnackbar("Số lượng phải lớn hơn 0", { variant: "error" });
+        enqueueSnackbar(t("checkout.quantityMustBeGreaterThanZero"), { variant: "error" });
         return;
       }
 
       // Validate available stock
       const availableStock = newItem.available || 0;
       if (availableStock <= 0) {
-        enqueueSnackbar("Sản phẩm đã hết hàng", { variant: "error" });
+        enqueueSnackbar(t("checkout.productOutOfStock"), { variant: "error" });
         return;
       }
 
@@ -143,7 +145,7 @@ export function CheckoutProvider({ children }: Props) {
         // Check if new quantity exceeds available stock
         if (newQuantity > availableStock) {
           enqueueSnackbar(
-            `Số lượng tối đa có thể mua là ${availableStock}. Hiện tại giỏ hàng đã có ${existingItem.quantity} sản phẩm.`,
+            t("checkout.maxQuantityInCart", { max: availableStock, current: existingItem.quantity }),
             { variant: "warning" }
           );
           // Update to max available stock
@@ -175,7 +177,7 @@ export function CheckoutProvider({ children }: Props) {
         // New item - validate quantity doesn't exceed stock
         if (quantityToAdd > availableStock) {
           enqueueSnackbar(
-            `Số lượng yêu cầu (${quantityToAdd}) vượt quá số lượng tồn kho (${availableStock})`,
+            t("checkout.quantityExceedsStock", { quantity: quantityToAdd, stock: availableStock }),
             { variant: "warning" }
           );
           // Add with available stock instead
@@ -203,7 +205,7 @@ export function CheckoutProvider({ children }: Props) {
 
       update("items", updatedItems);
     },
-    [update, state.items, enqueueSnackbar],
+    [update, state.items, enqueueSnackbar, t],
   );
 
   const onDeleteCart = useCallback(
@@ -241,7 +243,7 @@ export function CheckoutProvider({ children }: Props) {
       const availableStock = item.available || 0;
       if (item.quantity >= availableStock) {
         enqueueSnackbar(
-          `Số lượng tối đa có thể mua là ${availableStock}`,
+          t("checkout.maxQuantityReached", { max: availableStock }),
           { variant: "warning" }
         );
         return;
@@ -261,7 +263,7 @@ export function CheckoutProvider({ children }: Props) {
 
       update("items", updatedItems);
     },
-    [update, state.items, enqueueSnackbar],
+    [update, state.items, enqueueSnackbar, t],
   );
 
   const onDecreaseQuantity = useCallback(
@@ -322,7 +324,7 @@ export function CheckoutProvider({ children }: Props) {
   const onOpenCartPreview = useCallback(() => {
     // Check authentication before opening cart preview
     if (!userProfile?.authenticated) {
-      enqueueSnackbar("Vui lòng đăng nhập để xem giỏ hàng", {
+      enqueueSnackbar(t("checkout.pleaseLoginToViewCart"), {
         variant: "warning",
       });
       
@@ -338,7 +340,7 @@ export function CheckoutProvider({ children }: Props) {
     }
     
     update("cartPreviewOpen", true);
-  }, [update, userProfile?.authenticated, router, enqueueSnackbar]);
+  }, [update, userProfile?.authenticated, router, enqueueSnackbar, t]);
 
   const onCloseCartPreview = useCallback(() => {
     update("cartPreviewOpen", false);
@@ -374,7 +376,7 @@ export function CheckoutProvider({ children }: Props) {
             errors.push({
               itemId: item.id,
               productName: item.name,
-              reason: "Sản phẩm không còn tồn tại",
+              reason: t("checkout.validation.productNotExist"),
             });
             return null; // Remove item
           }
@@ -384,7 +386,7 @@ export function CheckoutProvider({ children }: Props) {
             errors.push({
               itemId: item.id,
               productName: item.name,
-              reason: "Sản phẩm không còn được bán",
+              reason: t("checkout.validation.productNotForSale"),
             });
             return null; // Remove item
           }
@@ -418,7 +420,7 @@ export function CheckoutProvider({ children }: Props) {
               errors.push({
                 itemId: item.id,
                 productName: item.name,
-                reason: "Variant không hợp lệ",
+                reason: t("checkout.validation.invalidVariant"),
               });
               return null; // Remove item
             }
@@ -436,7 +438,7 @@ export function CheckoutProvider({ children }: Props) {
               errors.push({
                 itemId: item.id,
                 productName: item.name,
-                reason: "Variant không còn tồn tại",
+                reason: t("checkout.validation.variantNotExist"),
               });
               return null; // Remove item
             }
@@ -450,7 +452,7 @@ export function CheckoutProvider({ children }: Props) {
               errors.push({
                 itemId: item.id,
                 productName: item.name,
-                reason: "Variant đã hết hàng",
+                reason: t("checkout.validation.variantOutOfStock"),
               });
               return null; // Remove item
             }
@@ -459,7 +461,7 @@ export function CheckoutProvider({ children }: Props) {
               errors.push({
                 itemId: item.id,
                 productName: item.name,
-                reason: `Số lượng yêu cầu (${item.quantity}) vượt quá số lượng tồn kho (${variantStock})`,
+                reason: t("checkout.validation.quantityExceedsStock", { quantity: item.quantity, stock: variantStock }),
               });
               // Update quantity to available stock
               const variantPrice = typeof matchingVariant.price === "number"
@@ -510,7 +512,7 @@ export function CheckoutProvider({ children }: Props) {
               errors.push({
                 itemId: item.id,
                 productName: item.name,
-                reason: "Sản phẩm đã hết hàng",
+                reason: t("checkout.validation.productOutOfStock"),
               });
               return null; // Remove item
             }
@@ -519,7 +521,7 @@ export function CheckoutProvider({ children }: Props) {
               errors.push({
                 itemId: item.id,
                 productName: item.name,
-                reason: `Số lượng yêu cầu (${item.quantity}) vượt quá số lượng tồn kho (${availableStock})`,
+                reason: t("checkout.validation.quantityExceedsStock", { quantity: item.quantity, stock: availableStock }),
               });
               // Update quantity to available stock
               const productPrice = latestProduct.priceSale 
@@ -572,7 +574,7 @@ export function CheckoutProvider({ children }: Props) {
           errors.push({
             itemId: item.id,
             productName: item.name,
-            reason: "Lỗi khi kiểm tra sản phẩm",
+            reason: t("checkout.validation.errorCheckingProduct"),
           });
           return null; // Remove item on error
         }
@@ -599,12 +601,12 @@ export function CheckoutProvider({ children }: Props) {
           {
             itemId: "",
             productName: "",
-            reason: "Lỗi khi kiểm tra giỏ hàng",
+            reason: t("checkout.validation.errorCheckingCart"),
           },
         ],
       };
     }
-  }, [state.items, update]);
+  }, [state.items, update, t]);
 
   const memoizedValue = useMemo(
     () => ({

@@ -52,6 +52,7 @@ import {
   RenderCellPublish,
   RenderCellProduct,
   RenderCellCreatedAt,
+  RenderCellVariants,
 } from "../product-table-row";
 
 // ----------------------------------------------------------------------
@@ -72,7 +73,7 @@ const HIDE_COLUMNS = {
   category: false,
 };
 
-const HIDE_COLUMNS_TOGGLABLE = ["category", "actions"];
+const HIDE_COLUMNS_TOGGLABLE = ["category", "actions", "variants"];
 
 // ----------------------------------------------------------------------
 
@@ -174,36 +175,33 @@ export default function ProductListView() {
 
   const columns: GridColDef[] = [
     {
+      field: "name",
+      headerName: "Product",
+      flex: 1,
+      minWidth: 320,
+      hideable: false,
+      renderCell: (params) => <RenderCellProduct params={params} />,
+    },
+    {
       field: "status",
       headerName: "Status",
-      width: 140,
+      width: 120,
       filterable: false,
       sortable: false,
       renderCell: (params) => <RenderCellPublish params={params} />,
     },
     {
-      field: "category",
-      headerName: "Category",
+      field: "variants",
+      headerName: "Variants",
+      width: 140,
       filterable: false,
+      sortable: false,
+      renderCell: (params) => <RenderCellVariants params={params} />,
     },
     {
-      field: "name",
-      headerName: "Product",
-      flex: 1,
-      minWidth: 360,
-      hideable: false,
-      renderCell: (params) => <RenderCellProduct params={params} />,
-    },
-    {
-      field: "createdAt",
-      headerName: "Create at",
-      width: 160,
-      renderCell: (params) => <RenderCellCreatedAt params={params} />,
-    },
-    {
-      field: "inventoryType",
+      field: "stock_quantity",
       headerName: "Stock",
-      width: 160,
+      width: 140,
       type: "singleSelect",
       valueOptions: PRODUCT_STOCK_OPTIONS,
       renderCell: (params) => <RenderCellStock params={params} />,
@@ -211,18 +209,21 @@ export default function ProductListView() {
     {
       field: "price",
       headerName: "Price",
-      width: 140,
-      editable: true,
+      width: 120,
       renderCell: (params) => <RenderCellPrice params={params} />,
     },
     {
-      field: "publish",
-      headerName: "Publish",
-      width: 110,
-      type: "singleSelect",
-      editable: true,
-      valueOptions: PUBLISH_OPTIONS,
-      renderCell: (params) => <RenderCellPublish params={params} />,
+      field: "created_at",
+      headerName: "Created",
+      width: 140,
+      renderCell: (params) => <RenderCellCreatedAt params={params} />,
+    },
+    {
+      field: "category",
+      headerName: "Category",
+      width: 140,
+      filterable: false,
+      valueGetter: (value: any) => (typeof value === "object" ? value?.name : value),
     },
     {
       type: "actions",
@@ -409,8 +410,6 @@ export default function ProductListView() {
                         ]}
                       />
 
-                      <GridToolbarQuickFilter />
-
                       <Stack
                         spacing={1}
                         flexGrow={1}
@@ -546,3 +545,4 @@ function applyFilter({
 
   return inputData;
 }
+

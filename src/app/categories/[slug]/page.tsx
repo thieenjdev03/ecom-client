@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 
 import { CategoryDetailsView } from "src/sections/categories/view";
-import CategoryBreadcrumbs from "./category-breadcrumbs";
 
 // ----------------------------------------------------------------------
 
@@ -22,7 +21,6 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 export default function CategoryPage({ params }: CategoryPageProps) {
   return (
     <>
-      <CategoryBreadcrumbs slug={params.slug} />
       <CategoryDetailsView slug={params.slug} />
     </>
   );

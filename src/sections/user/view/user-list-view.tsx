@@ -28,9 +28,7 @@ import { useSettingsContext } from "src/components/settings";
 import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 import {
   useTable,
-  emptyRows,
   TableNoData,
-  TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
@@ -45,20 +43,20 @@ import {
 import { usersApi } from "src/api/user";
 
 import UserTableRow from "../user-table-row";
+import UserTableRowSkeleton from "../user-table-row-skeleton";
 import UserTableToolbar from "../user-table-toolbar";
 import UserTableFiltersResult from "../user-table-filters-result";
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: "name", label: "Name", width: 300 },
-  { id: "email", label: "Email", width: 240 },
-  { id: "country", label: "Country", width: 240 },
-  { id: "phoneNumber", label: "Phone Number", width: 160 },
-  { id: "role", label: "Role", width: 120 },
-  { id: "addresses", label: "Addresses", width: 140 },
-  { id: "createdAt", label: "Created", width: 180 },
-  // { id: "status", label: "Status", width: 100 },
+  { id: "name", label: "Name", width: 280 },
+  { id: "email", label: "Email", width: 220 },
+  { id: "country", label: "Country", width: 140 },
+  { id: "phoneNumber", label: "Phone", width: 150 },
+  { id: "role", label: "Role", width: 100 },
+  { id: "addresses", label: "Addresses", width: 100 },
+  { id: "createdAt", label: "Created", width: 160 },
   { id: "", width: 88 },
 ];
 
@@ -83,15 +81,13 @@ export default function UserListView() {
 
   const [tableData, setTableData] = useState<IUserItem[]>([]);
   const [total, setTotal] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const denseHeight = table.dense ? 56 : 56 + 20;
-
   const canReset = !isEqual(defaultFilters, filters);
 
-  const notFound = (!tableData.length && canReset) || !tableData.length;
+  const notFound = !loading && ((!tableData.length && canReset) || !tableData.length);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -159,7 +155,7 @@ export default function UserListView() {
         enqueueSnackbar(err?.message || "Delete failed", { variant: "error" });
       }
     },
-    [enqueueSnackbar, fetchUsers, table],
+    [enqueueSnackbar, fetchUsers],
   );
 
   const handleDeleteRows = useCallback(async () => {
@@ -267,32 +263,28 @@ export default function UserListView() {
                 />
 
                 <TableBody>
-                  {tableData
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage,
-                    )
-                    .map((row) => (
-                      <UserTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
-                      />
-                    ))}
+                  {loading ? (
+                    // Skeleton loading rows
+                    [...Array(table.rowsPerPage)].map((_, index) => (
+                      <UserTableRowSkeleton key={index} />
+                    ))
+                  ) : (
+                    <>
+                      {/* Data is already paginated from server, no need to slice */}
+                      {tableData.map((row) => (
+                        <UserTableRow
+                          key={row.id}
+                          row={row}
+                          selected={table.selected.includes(row.id)}
+                          onSelectRow={() => table.onSelectRow(row.id)}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
+                          onEditRow={() => handleEditRow(row.id)}
+                        />
+                      ))}
 
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(
-                      table.page,
-                      table.rowsPerPage,
-                      tableData.length,
-                    )}
-                  />
-
-                  <TableNoData notFound={notFound} />
+                      <TableNoData notFound={notFound} />
+                    </>
+                  )}
                 </TableBody>
               </Table>
             </Scrollbar>
@@ -338,42 +330,3 @@ export default function UserListView() {
   );
 }
 
-// ----------------------------------------------------------------------
-
-function applyFilter({
-  inputData,
-  comparator,
-  filters,
-}: {
-  inputData: IUserItem[];
-  comparator: (a: any, b: any) => number;
-  filters: IUserTableFilters;
-}) {
-  const { name, status, role } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index] as const);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (name) {
-    inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(name.toLowerCase()) !== -1,
-    );
-  }
-
-  if (status !== "all") {
-    inputData = inputData.filter((user) => user.status === status);
-  }
-
-  if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user.role));
-  }
-
-  return inputData;
-}

@@ -69,10 +69,11 @@ export const PRODUCT_PUBLISH_OPTIONS = [
 ];
 
 export const PRODUCT_SORT_OPTIONS = [
-  { value: "featured", label: "Featured" },
-  { value: "newest", label: "Newest" },
-  { value: "priceDesc", label: "Price: High - Low" },
-  { value: "priceAsc", label: "Price: Low - High" },
+  { value: "priceAsc", label: "Price: Low to High" },
+  { value: "priceDesc", label: "Price: High to Low" },
+  { value: "bestSelling", label: "Best Selling" },
+  { value: "newest", label: "Newest → Oldest" },
+  { value: "oldest", label: "Oldest → Newest" },
 ];
 
 export const PRODUCT_CATEGORY_GROUP_OPTIONS = [

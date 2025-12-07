@@ -1,6 +1,6 @@
 "use client";
 
-import LandingPageLayout from "src/layouts/landing-page";
+import MainLayout from "src/layouts/main";
 
 // ----------------------------------------------------------------------
 
@@ -9,5 +9,5 @@ type Props = {
 };
 
 export default function Layout({ children }: Props) {
-  return <LandingPageLayout>{children}</LandingPageLayout>;
+  return <MainLayout>{children}</MainLayout>;
 }

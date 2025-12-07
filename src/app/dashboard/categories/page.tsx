@@ -14,7 +14,6 @@ export const metadata: Metadata = {
 export default function CategoriesPage() {
   return (
     <>
-      <CategoriesBreadcrumbs />
       <CategoriesView />
     </>
   );

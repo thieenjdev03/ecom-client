@@ -62,7 +62,7 @@ type Props = {
   currentProduct?: IProductItem;
 };
 
-const VariantItem = memo(({
+  const VariantItem = memo(({
   index,
   field,
   variant,
@@ -278,20 +278,48 @@ const VariantItem = memo(({
                 placeholder="0"
                 size="small"
               />
-              <RHFSelect
-                required
-                native
-                name={`variants[${index}].colorId`}
-                label={t("productForm.color")}
-                size="small"
-              >
-                <option value="">{t("productForm.selectColor")}</option>
-                {colors.map((c: any) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </RHFSelect>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <RHFSelect
+                  required
+                  native
+                  name={`variants[${index}].colorId`}
+                  label={t("productForm.color")}
+                  size="small"
+                >
+                  <option value="">{t("productForm.selectColor")}</option>
+                  {colors.map((c: any) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </RHFSelect>
+                {selectedColor && (
+                  <Box
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: '50%',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      bgcolor: selectedColor.hexCode || 'transparent',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {selectedColor.imageUrl && (
+                      <Box
+                        component="img"
+                        src={selectedColor.imageUrl}
+                        alt={selectedColor.name}
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    )}
+                  </Box>
+                )}
+              </Box>
               <RHFSelect
                 required
                 native
@@ -561,7 +589,40 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
 
   const { categories } = useGetCategories();
   const { colors } = useGetColors();
-  const { sizes } = useGetSizes();
+  
+  // Watch the selected category to filter sizes by category
+  const selectedCategoryId = watch("category");
+  const { sizes } = useGetSizes(selectedCategoryId || undefined);
+
+  // Track previous category to detect changes and clear size selections
+  const prevCategoryIdRef = useRef<string | undefined>(undefined);
+  
+  // Clear selected sizeIds when category changes (only after initial load)
+  useEffect(() => {
+    // Skip if this is the initial load (no previous category set yet)
+    if (prevCategoryIdRef.current === undefined) {
+      prevCategoryIdRef.current = selectedCategoryId;
+      return;
+    }
+    
+    // Only clear if category actually changed
+    if (prevCategoryIdRef.current !== selectedCategoryId) {
+      // Clear size selections in the form
+      setValue("sizeIds", [], { shouldValidate: false });
+      
+      // Also clear sizeId in variants if any
+      const currentVariants = getValues("variants") || [];
+      if (currentVariants.length > 0) {
+        const updatedVariants = currentVariants.map((variant: any) => ({
+          ...variant,
+          sizeId: "", // Clear size selection
+        }));
+        setValue("variants", updatedVariants, { shouldValidate: false });
+      }
+      
+      prevCategoryIdRef.current = selectedCategoryId;
+    }
+  }, [selectedCategoryId, setValue, getValues]);
 
   const [openCreateCategory, setOpenCreateCategory] = useState(false);
   const [openCreateColor, setOpenCreateColor] = useState(false);
@@ -717,7 +778,6 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       images: product.images || [],
       price: product.price ? Number(product.price) : 0,
       salePrice: product.sale_price ? Number(product.sale_price) : undefined,
-      status: product.status || "active",
       isFeatured: product.is_featured || false,
       category: product.category?.id || product.category_id || "",
       colorIds: Array.from(colorIdsSet),
@@ -741,9 +801,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       enable_sale_tag: Boolean((product as any).enable_sale_tag || false),
       isNew: false,
       newLabel: "",
-      productCode: product.barcode,
       costPrice: product.cost_price ? Number(product.cost_price) : undefined,
-      barcode: product.barcode || undefined,
       metaTitle: getMultiLangField(product.meta_title),
       metaDescription: getMultiLangField(product.meta_description),
       weight: product.weight ? Number(product.weight) : undefined,
@@ -1303,7 +1361,6 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
         const payload: any = {
           name: data.name, // Already in multi-language format { en: "", vi: "" }
           slug: data.slug, // Already in multi-language format { en: "", vi: "" }
-          productCode: data.productCode || undefined,
           sku: data.sku || undefined,
           quantity: data.quantity || 0,
           description: data.description, // Already in multi-language format { en: "", vi: "" }
@@ -1312,9 +1369,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
           price: basePrice,
           sale_price: sale != null ? sale : undefined,
           cost_price: (data as any).costPrice != null ? Number((data as any).costPrice) : undefined,
-          barcode: (data as any).barcode || undefined,
           enable_sale_tag: Boolean((data as any).enable_sale_tag || false),
-          status: data.status === 'active' ? 'active' : 'inactive',
           is_featured: !!data.isFeatured,
           meta_title: (data as any).metaTitle || undefined, // Already in multi-language format { en: "", vi: "" }
           meta_description: (data as any).metaDescription || undefined, // Already in multi-language format { en: "", vi: "" }
@@ -1461,18 +1516,16 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
               </Stack>
             )}
 
-            {/* Vietnamese Tab */}
+            {/* Vietnamese Tab - all fields are optional */}
             {langTab === 1 && (
               <Stack spacing={3}>
                 <RHFTextField 
-                  required 
                   name="name.vi" 
                   label={t("productForm.name") + " (VI)"} 
                   placeholder={t("productForm.namePlaceholder")}
                   helperText={!watch("name.vi") && watch("name.en") ? `Auto-filled from EN: "${watch("name.en")}"` : undefined}
                 />
                 <RHFTextField 
-                  required 
                   name="slug.vi" 
                   label={t("productForm.slug") + " (VI)"} 
                   helperText={!watch("slug.vi") && watch("slug.en") ? `Auto-filled from EN: "${watch("slug.en")}"` : t("productForm.slugHelperText")} 
@@ -1663,7 +1716,6 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                 {t("productForm.imagesHelperText")}
               </Typography>
             </Stack>
-            <RHFTextField required name="barcode" label={t("productForm.barcode")} placeholder={t("productForm.barcodePlaceholder")} />
             <RHFTextField name="sku" label={t("productForm.productSku")} placeholder={t("productForm.productSkuPlaceholder")} />
           </Stack>
         </Card>
@@ -1755,17 +1807,6 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                 helperText={t("productForm.weightHelper")}
               />
             </Box>
-
-            <Box>
-              <RHFTextField
-                name="barcode"
-                label={t("productForm.barcode") || "Barcode"}
-                placeholder={t("productForm.barcodePlaceholder") || "Enter barcode"}
-                InputLabelProps={{ shrink: true }}
-                helperText={t("productForm.barcodeHelper") || "Optional product barcode"}
-              />
-            </Box>
-
             <Box>
               <Typography variant="subtitle2" sx={{ mb: 2 }}>
                 {t("productForm.dimensions")}
@@ -2019,32 +2060,56 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                     </IconButton>
                   </Stack>
 
-                  {/* Status */}
-                  <Stack direction="row" spacing={2} width="100%" alignItems="center">
-                    <RHFSelect 
-                      sx={{ width: "90%" }}
-                      required 
-                      native 
-                      name="status" 
-                      label={t("productForm.status")} 
-                      InputLabelProps={{ shrink: true }}
-                    >
-                      <option value="active">{t("productForm.statusActive")}</option>
-                      <option value="inactive">{t("productForm.statusInactive")}</option>
-                    </RHFSelect>
-                  </Stack>
-
                   {/* Colors */}
                   <Stack direction="row" spacing={2} width="100%" alignItems="center">
-                    <RHFMultiSelect
-                      sx={{ width: "90%" }}
-                      checkbox
-                      name="colorIds"
-                      label={t("productForm.colors")}
-                      required
-                      options={colors.map((c: any) => ({ label: c.name, value: c.id }))}
-                    />
-                    <IconButton sx={{ width: "30px", height: "30px" }} size="small" color="primary" onClick={() => setOpenCreateColor(true)} aria-label="add color">
+                    <Box sx={{ flexGrow: 1 }}>
+                      <RHFMultiSelect
+                        sx={{ width: "100%" }}
+                        checkbox
+                        name="colorIds"
+                        label={t("productForm.colors")}
+                        required
+                        options={colors.map((c: any) => ({ label: c.name, value: c.id }))}
+                      />
+                      {/* Simple inline preview of selected colors using hex or image thumbnail */}
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
+                        {(watch("colorIds") || []).map((id: string) => {
+                          const color = colors.find((c: any) => c.id === id);
+                          if (!color) return null;
+                          return (
+                            <Box
+                              key={id}
+                              sx={{
+                                width: 18,
+                                height: 18,
+                                borderRadius: "50%",
+                                border: "1px solid",
+                                borderColor: "divider",
+                                bgcolor: color.hexCode || "transparent",
+                                overflow: "hidden",
+                              }}
+                              title={color.name}
+                            >
+                              {color.imageUrl && (
+                                <Box
+                                  component="img"
+                                  src={color.imageUrl}
+                                  alt={color.name}
+                                  sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                              )}
+                            </Box>
+                          );
+                        })}
+                      </Box>
+                    </Box>
+                    <IconButton
+                      sx={{ width: "30px", height: "30px" }}
+                      size="small"
+                      color="primary"
+                      onClick={() => setOpenCreateColor(true)}
+                      aria-label="add color"
+                    >
                       <i className="fa-solid fa-plus"></i>
                     </IconButton>
                   </Stack>
@@ -2114,8 +2179,6 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
           <Card sx={{ mt: 3 }}>
             <CardHeader title={t("productForm.marketingOptions")} />
             <Stack spacing={3} sx={{ p: 3 }}>
-              <FormControlLabel control={<Switch checked={isFeatured} onChange={(e) => setValue("isFeatured", e.target.checked)} />} label={t("productForm.featuredProduct")} />
-
               <Stack spacing={1}>
                 <FormControlLabel control={<RHFSwitch name="enable_sale_tag" label={null} sx={{ m: 0 }} />} label={t("productForm.enableSaleLabel")} />
               </Stack>

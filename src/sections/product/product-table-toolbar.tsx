@@ -40,7 +40,6 @@ type Props = {
 export default function ProductTableToolbar({
   filters,
   onFilters,
-  //
   stockOptions,
   publishOptions,
   categoryOptions = [],
@@ -106,36 +105,6 @@ export default function ProductTableToolbar({
 
   return (
     <>
-      <FormControl
-        sx={{
-          flexShrink: 0,
-          width: { xs: 1, md: 200 },
-        }}
-      >
-        <InputLabel>Stock</InputLabel>
-
-        <Select
-          multiple
-          value={stock}
-          onChange={handleChangeStock}
-          input={<OutlinedInput label="Stock" />}
-          renderValue={(selected) => selected.map((value) => value).join(", ")}
-          onClose={handleCloseStock}
-          sx={{ textTransform: "capitalize" }}
-        >
-          {stockOptions.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              <Checkbox
-                disableRipple
-                size="small"
-                checked={stock.includes(option.value)}
-              />
-              {option.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
       <FormControl
         sx={{
           flexShrink: 0,

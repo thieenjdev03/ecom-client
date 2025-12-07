@@ -1,4 +1,4 @@
-import { Barlow, Public_Sans } from "next/font/google";
+import { Barlow, Montserrat } from "next/font/google";
 
 // ----------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ declare module "@mui/material/styles" {
   }
 }
 
-export const primaryFont = Public_Sans({
+export const primaryFont = Montserrat({
   weight: ["400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],
   display: "swap",

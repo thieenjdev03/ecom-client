@@ -105,7 +105,10 @@ export async function deleteCategory(id: string) {
 }
 
 
-export async function createColor(payload: { name: string; hexCode?: string }) {
+// Colors CRUD operations
+// NOTE: Backend requires at least one of `hexCode` or `imageUrl`.
+// Frontend callers should respect this rule when constructing the payload.
+export async function createColor(payload: { name: string; hexCode?: string; imageUrl?: string }) {
   const res = await axios.post(endpoints.refs.colors, payload);
   mutate(endpoints.refs.colors);
   return res.data;
@@ -117,7 +120,7 @@ export async function createSize(payload: { name: string; categoryId?: string })
   return res.data;
 }
 
-export async function updateColor({ id, ...payload }: { id: string; name?: string; hexCode?: string }) {
+export async function updateColor({ id, ...payload }: { id: string; name?: string; hexCode?: string; imageUrl?: string }) {
   const res = await axios.patch(`${endpoints.refs.colors}/${id}`, payload);
   mutate(endpoints.refs.colors);
   return res.data;

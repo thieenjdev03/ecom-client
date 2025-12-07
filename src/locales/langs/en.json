@@ -196,12 +196,16 @@
     "mainCategories": "Main Categories",
     "subCategories": "Sub Categories",
     "subCategoriesCount": "subcategories",
+    "categoriesCount": "categories",
     "viewDetails": "View Details",
+    "viewAll": "View All",
     "belongsTo": "Belongs to: ",
     "noCategories": "No categories",
     "noCategoriesDescription": "There is currently no category data to display.",
     "loading": "Loading categories...",
     "errorLoading": "Error loading categories: ",
+    "browseDescription": "Explore our product categories",
+    "otherCategories": "Other Categories",
     "categoryDetails": {
       "title": "Category",
       "productsInCategory": "products in this category",
@@ -295,6 +299,12 @@
     "hot": "HOT",
     "outOfStock": "OUT OF STOCK"
   },
+  "wishlistProductShowcase": {
+    "title": "MY WISHLIST",
+    "emptyTitle": "Your wishlist is empty",
+    "emptyDescription": "Add items to your wishlist to see them here",
+    "continueShopping": "Continue Shopping"
+  },
   "savedOrderBanner": {
     "title": "You have a pending payment order",
     "orderInfo": "Order #{orderId} • Created {timeAgo}",
@@ -305,30 +315,60 @@
     "minutesAgo": "{minutes} minutes ago",
     "hoursAgo": "{hours} hours ago"
   },
+  "shop": {
+    "title": "Shop",
+    "product": "product",
+    "productsCount": "products",
+    "noProducts": "No products found",
+    "browseDescription": "Explore our product collection"
+  },
+  "checkout": {
+    "quantityMustBeGreaterThanZero": "Quantity must be greater than 0",
+    "productOutOfStock": "Product is out of stock",
+    "maxQuantityInCart": "Maximum quantity is {{max}}. Your cart already has {{current}} item(s).",
+    "quantityExceedsStock": "Requested quantity ({{quantity}}) exceeds available stock ({{stock}})",
+    "maxQuantityReached": "Maximum quantity is {{max}}",
+    "pleaseLoginToViewCart": "Please login to view cart",
+    "validation": {
+      "productNotExist": "Product no longer exists",
+      "productNotForSale": "Product is no longer for sale",
+      "invalidVariant": "Invalid variant",
+      "variantNotExist": "Variant no longer exists",
+      "variantOutOfStock": "Variant is out of stock",
+      "productOutOfStock": "Product is out of stock",
+      "quantityExceedsStock": "Requested quantity ({{quantity}}) exceeds available stock ({{stock}})",
+      "errorCheckingProduct": "Error checking product",
+      "errorCheckingCart": "Error checking cart"
+    }
+  },
   "header": {
     "home": "Home",
     "shop": "Shop",
     "categories": "Categories",
-    "collection": "COLLECTION",
+    "collection": "Collection",
     "wishlist": "Wishlist",
     "account": "Account",
     "login": "Login",
     "another": "Another",
     "welcome": "Welcome",
     "viewProfile": "View profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "allProducts": "All Products",
+    "viewAllCategories": "View All Categories",
+    "popularTags": "Popular Tags",
+    "viewAllCollections": "View All Collections"
   },
   "footer": {
-    "weAre": "WE ARE ...",
-    "ourStory": "Our Story",
+    "weAre": "About",
+    "ourStory": "Lume Store",
     "careers": "Careers",
-    "contactUs": "CONTACT US",
+    "contactUs": "Join US",
     "email": "Email",
     "policy": "POLICY",
     "shippingPolicy": "Shipping policy",
     "privacyPolicy": "Privacy Policy",
     "exchangePolicy": "Exchange Policy",
-    "termsOfUse": "Terms of Use",
+    "termsOfUse": "FAQs",
     "category": "CATEGORY",
     "bikini": "Bikini",
     "followUs": "FOLLOW US",

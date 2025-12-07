@@ -133,9 +133,6 @@ export default function ProductDetailsView({ id }: Props) {
               {t("productForm.productMeta")}
             </Typography>
             <Box sx={{ display: 'grid', rowGap: 1, columnGap: 2, gridTemplateColumns: 'auto 1fr' }}>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>{t("productDetails.sku")}</Typography>
-              <Typography variant="body2">{product.sku || '-'}</Typography>
-
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>{t("productForm.category")}</Typography>
               <Typography variant="body2">{product.category || '-'}</Typography>
 
@@ -173,43 +170,6 @@ export default function ProductDetailsView({ id }: Props) {
       >
       </Box>
 
-      {/* <Card>
-        <Tabs
-          value={currentTab}
-          onChange={handleChangeTab}
-          sx={{
-            px: 3,
-            boxShadow: (theme) =>
-              `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-          }}
-        >
-          {[
-            {
-              value: "description",
-              label: "Description",
-            },
-            {
-              value: "reviews",
-              label: `Reviews (${product.reviews.length})`,
-            },
-          ].map((tab) => (
-            <Tab key={tab.value} value={tab.value} label={tab.label} />
-          ))}
-        </Tabs>
-
-        {currentTab === "description" && (
-          <ProductDetailsDescription description={product?.description} />
-        )}
-
-        {currentTab === "reviews" && (
-          <ProductDetailsReview
-            ratings={product.ratings}
-            reviews={product.reviews}
-            totalRatings={product.totalRatings}
-            totalReviews={product.totalReviews}
-          />
-        )}
-      </Card> */}
     </>
   );
 

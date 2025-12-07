@@ -3,14 +3,19 @@
 import { useMemo } from "react";
 
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Skeleton from "@mui/material/Skeleton";
 
+import { paths } from "src/routes/paths";
+import { RouterLink } from "src/routes/components";
+
+import Iconify from "src/components/iconify";
 import Image from "src/components/image";
 import Carousel, { useCarousel, CarouselArrows } from "src/components/carousel";
-import { useGetProducts } from "src/api/product";
-import { IProductItem } from "src/types/product";
+import EmptyContent from "src/components/empty-content";
+import { useWishlistContext } from "src/sections/wishlist/context";
 import { useTranslate } from "src/locales";
 
 import ProductShowcaseCard, {
@@ -20,35 +25,32 @@ import ProductShowcaseCard, {
 
 // ----------------------------------------------------------------------
 
-type HomeProductShowcaseProps = {
+type WishlistProductShowcaseProps = {
   priceBottom?: boolean;
   layout?: ProductCardLayout;
   showAddToCart?: boolean;
   title?: string;
+  showEmptyAction?: boolean;
 };
 
 // ----------------------------------------------------------------------
 
-export default function HomeProductShowcase({
+export default function WishlistProductShowcase({
   priceBottom,
   layout,
   showAddToCart,
   title,
-}: HomeProductShowcaseProps) {
+  showEmptyAction = true,
+}: WishlistProductShowcaseProps) {
   const { t } = useTranslate();
+  const wishlist = useWishlistContext();
+  const displayTitle = title || t("wishlistProductShowcase.title");
 
-  const displayTitle = title || t("homeProductShowcase.title");
-
-  // Fetch real products from API
-  const { products, productsLoading, productsError } = useGetProducts({
-    page: 1,
-    limit: 10,
-  });
-
+  // Convert wishlist items to minimal products
   const minimalProducts = useMemo(() => {
-    if (!products || products.length === 0) return [];
-    return products.map((product: IProductItem) => productToMinimal(product));
-  }, [products]);
+    if (!wishlist.items || wishlist.items.length === 0) return [];
+    return wishlist.items.map(productToMinimal);
+  }, [wishlist.items]);
 
   const thumbnails = minimalProducts.map((p) => p.image);
 
@@ -144,64 +146,6 @@ export default function HomeProductShowcase({
     ),
   });
 
-  // Show loading skeleton
-  if (productsLoading) {
-    return (
-      <Container
-        maxWidth={false}
-        sx={{
-          px: { xs: 6, md: 8 },
-          py: { xs: 6, md: 8 },
-          mx: "auto",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <Skeleton variant="text" width={300} height={60} sx={{ mb: 3 }} />
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: 2,
-          }}
-        >
-          {[...Array(4)].map((_, index) => (
-            <Box key={index} sx={{ p: 2 }}>
-              <Skeleton variant="rectangular" height={200} sx={{ mb: 2 }} />
-              <Skeleton variant="text" width="80%" height={24} />
-              <Skeleton variant="text" width="60%" height={20} />
-            </Box>
-          ))}
-        </Box>
-      </Container>
-    );
-  }
-
-  // Show error state
-  if (productsError) {
-    return (
-      <Container
-        maxWidth={false}
-        sx={{
-          px: { xs: 6, md: 8 },
-          py: { xs: 6, md: 8 },
-          mx: "auto",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-        }}
-      >
-        <Typography variant="h3" sx={{ mb: 3, fontWeight: 700 }}>
-          {displayTitle}
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          {t("homeProductShowcase.errorLoading")}
-        </Typography>
-      </Container>
-    );
-  }
-
   // Show empty state
   if (minimalProducts.length === 0) {
     return (
@@ -220,9 +164,25 @@ export default function HomeProductShowcase({
         <Typography variant="h3" sx={{ mb: 3, fontWeight: 700 }}>
           {displayTitle}
         </Typography>
-        <Typography variant="body1" color="text.secondary">
-          {t("homeProductShowcase.noProducts")}
-        </Typography>
+        <EmptyContent
+          filled
+          title={t("wishlistProductShowcase.emptyTitle")}
+          description={t("wishlistProductShowcase.emptyDescription")}
+          action={
+            showEmptyAction ? (
+              <Button
+                component={RouterLink}
+                href={paths.product.root}
+                variant="contained"
+                startIcon={<Iconify icon="solar:shopping-bag-bold" />}
+                sx={{ mt: 3 }}
+              >
+                {t("wishlistProductShowcase.continueShopping")}
+              </Button>
+            ) : undefined
+          }
+          sx={{ py: 5 }}
+        />
       </Container>
     );
   }
@@ -287,3 +247,4 @@ export default function HomeProductShowcase({
     </Container>
   );
 }
+

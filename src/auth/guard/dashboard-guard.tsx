@@ -37,7 +37,7 @@ function Container({ children }: Props) {
   const router = useRouter();
 
   const { authenticated, method, user } = useAuthContext();
-
+  console.log('user', user);
   const [checked, setChecked] = useState(false);
 
   const check = useCallback(() => {

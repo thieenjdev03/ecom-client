@@ -77,15 +77,6 @@ export default function LandingPageView() {
           bgcolor: "background.default",
         }}
       >
-        <HomeProductShowcase priceBottom={true} showAddToCart title="Best Sellers"/>
-      </Box>
-      <Box
-        sx={{
-          scrollSnapAlign: "start",
-          position: "relative",
-          bgcolor: "background.default",
-        }}
-      >
         <HomeContactForm />
       </Box>
     </MainLayout>

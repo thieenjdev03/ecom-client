@@ -1,46 +1,41 @@
 "use client";
 
-import { notFound } from "next/navigation";
-import orderBy from "lodash/orderBy";
 import isEqual from "lodash/isEqual";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 
-import { Typography, Box, Chip, Stack, Container, Divider } from "@mui/material";
-import { RouterLink } from "src/routes/components";
+import Stack from "@mui/material/Stack";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import Pagination from "@mui/material/Pagination";
+import Box from "@mui/material/Box";
+import { alpha } from "@mui/material/styles";
+
 import { paths } from "src/routes/paths";
-import { useGetCategories } from "src/api/reference";
-import { useGetProducts } from "src/api/product";
 
 import { useBoolean } from "src/hooks/use-boolean";
 import { useDebounce } from "src/hooks/use-debounce";
-import { useSettingsContext } from "src/components/settings";
-import { useCheckoutContext } from "src/sections/checkout/context";
-import { useTranslate } from "src/locales";
-
-import Iconify from "src/components/iconify";
-import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
-import { LoadingScreen } from "src/components/loading-screen";
+import { useGetCategories } from "src/api/reference";
+import { useGetProducts } from "src/api/product";
 
 import {
   PRODUCT_SORT_OPTIONS,
   PRODUCT_COLOR_OPTIONS,
-  PRODUCT_GENDER_OPTIONS,
-  PRODUCT_RATING_OPTIONS,
-  PRODUCT_CATEGORY_OPTIONS,
 } from "src/_mock";
 
 import EmptyContent from "src/components/empty-content";
-import ProductList from "src/sections/product/product-list";
-import ProductSort from "src/sections/product/product-sort";
-import ProductSearch from "src/sections/product/product-search";
-import ProductFilters from "src/sections/product/product-filters";
-import ProductFiltersResult from "src/sections/product/product-filters-result";
+import { useSettingsContext } from "src/components/settings";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
+import { LoadingScreen } from "src/components/loading-screen";
+import { useTranslate } from "src/locales";
 
 import {
-  IProductItem,
   IProductFilters,
   IProductFilterValue,
 } from "src/types/product";
+
+import ProductList from "src/sections/product/product-list";
+import ProductFiltersResult from "src/sections/product/product-filters-result";
+import ProductSortFilterAccordion from "src/sections/product/product-sort-filter-accordion";
 
 // ----------------------------------------------------------------------
 
@@ -61,59 +56,206 @@ interface CategoryDetailsViewProps {
 export default function CategoryDetailsView({ slug }: CategoryDetailsViewProps) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
-  const checkout = useCheckoutContext();
-  const openFilters = useBoolean();
 
-  const [sortBy, setSortBy] = useState("featured");
-  const [searchQuery, setSearchQuery] = useState("");
+  const openSortFilter = useBoolean();
+
+  const [sortBy, setSortBy] = useState("priceAsc");
+
+  const [searchQuery] = useState("");
+
   const debouncedQuery = useDebounce(searchQuery);
-  const [filters, setFilters] = useState(defaultFilters);
-  const { categories, categoriesLoading, categoriesError } = useGetCategories();
-  const { products, productsLoading, productsError } = useGetProducts();
 
-  // Filter handlers - moved before early returns
+  const [filters, setFilters] = useState(defaultFilters);
+
+  const [page, setPage] = useState(1);
+
+  const limit = 20;
+
+  // Get categories to find category by slug
+  const { categories, categoriesLoading, categoriesError } = useGetCategories();
+
+  // Find category by slug
+  const category = useMemo(() => {
+    if (!categories || categories.length === 0) return null;
+    return categories.find((cat: any) => cat.slug === slug) || null;
+  }, [categories, slug]);
+
+  // Convert sortBy UI value to API sort_by and sort_order
+  const getApiSort = useCallback((sortValue: string) => {
+    const sortMap: Record<string, { sort_by: "created_at" | "updated_at" | "name" | "price" | "status"; sort_order: "ASC" | "DESC" }> = {
+      priceAsc: { sort_by: "price", sort_order: "ASC" },
+      priceDesc: { sort_by: "price", sort_order: "DESC" },
+      bestSelling: { sort_by: "created_at", sort_order: "DESC" }, // Fallback to newest for best selling
+      newest: { sort_by: "created_at", sort_order: "DESC" },
+      oldest: { sort_by: "created_at", sort_order: "ASC" },
+    };
+    return sortMap[sortValue] || sortMap.priceAsc;
+  }, []);
+
+  // Get locale from i18n
+  const getLocale = useCallback(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("i18nextLng");
+      return stored || "en";
+    }
+    return "en";
+  }, []);
+
+  // Build query parameters for API (only API-supported filters)
+  const queryParams = useMemo(() => {
+    const params: any = {
+      page,
+      limit,
+      locale: getLocale(),
+      status: "active", // Only show active products
+    };
+
+    // Add category_id if category is found
+    if (category?.id) {
+      params.category_id = category.id;
+    }
+
+    // Add search query (API uses 'search' not 'query')
+    if (debouncedQuery) {
+      params.search = debouncedQuery;
+    }
+
+    // Add sort
+    const sortConfig = getApiSort(sortBy);
+    params.sort_by = sortConfig.sort_by;
+    params.sort_order = sortConfig.sort_order;
+
+    // Client-side filters (not sent to API, will filter after fetch)
+    if (filters.gender && filters.gender.length > 0) {
+      params.gender = filters.gender;
+    }
+
+    if (filters.colors && filters.colors.length > 0) {
+      params.colors = filters.colors;
+    }
+
+    const [min, max] = filters.priceRange;
+    if (min !== 0 || max !== 200) {
+      params.price_min = min;
+      params.price_max = max;
+    }
+
+    if (filters.rating) {
+      params.rating = filters.rating;
+    }
+
+    return params;
+  }, [page, limit, debouncedQuery, sortBy, filters, getApiSort, getLocale, category]);
+
+  // Fetch products with API-supported filters and pagination
+  const { products: apiProducts, productsLoading, productsEmpty, meta } = useGetProducts({
+    page: queryParams.page,
+    limit: queryParams.limit,
+    locale: queryParams.locale,
+    status: queryParams.status,
+    search: queryParams.search,
+    sort_by: queryParams.sort_by,
+    sort_order: queryParams.sort_order,
+    category_id: queryParams.category_id,
+  });
+
+  // Apply client-side filters for filters not supported by API
+  const products = useMemo(() => {
+    let filtered = [...apiProducts];
+
+    // Filter by gender
+    if (filters.gender && filters.gender.length > 0) {
+      filtered = filtered.filter((product) =>
+        filters.gender.includes(product.gender),
+      );
+    }
+
+    // Filter by colors
+    if (filters.colors && filters.colors.length > 0) {
+      filtered = filtered.filter((product) =>
+        product.colors.some((color) => filters.colors.includes(color)),
+      );
+    }
+
+    // Filter by price range
+    const [min, max] = filters.priceRange;
+    if (min !== 0 || max !== 200) {
+      filtered = filtered.filter(
+        (product) => product.price >= min && product.price <= max,
+      );
+    }
+
+    // Filter by rating
+    if (filters.rating) {
+      const convertRating = (value: string) => {
+        if (value === "up4Star") return 4;
+        if (value === "up3Star") return 3;
+        if (value === "up2Star") return 2;
+        return 1;
+      };
+      const minRating = convertRating(filters.rating);
+      filtered = filtered.filter((product) => product.totalRatings > minRating);
+    }
+
+    return filtered;
+  }, [apiProducts, filters]);
+
+
   const handleFilters = useCallback(
     (name: string, value: IProductFilterValue) => {
       setFilters((prevState) => ({
         ...prevState,
         [name]: value,
       }));
+      // Reset to page 1 when filters change
+      setPage(1);
     },
     [],
   );
 
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
+    setPage(1);
   }, []);
+
+  const canReset = !isEqual(defaultFilters, filters);
+
+  // Note: notFound logic needs to account for client-side filtering
+  const notFound = (productsEmpty || products.length === 0) && canReset;
 
   const handleSortBy = useCallback((newValue: string) => {
     setSortBy(newValue);
+    setPage(1); // Reset to page 1 when sort changes
   }, []);
 
-  const handleSearch = useCallback((inputValue: string) => {
-    setSearchQuery(inputValue);
+  const handlePageChange = useCallback((event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  // Early returns after all hooks
-  if (categoriesLoading || productsLoading) {
+  // Calculate total pages based on API meta
+  const totalPages = meta?.totalPages || 1;
+
+  // Loading state
+  if (categoriesLoading) {
     return <LoadingScreen />;
   }
 
-  if (categoriesError || productsError) {
+  // Error state
+  if (categoriesError) {
     return (
       <Container sx={{ py: 4 }}>
         <EmptyContent
           filled
           title={t("categories.categoryDetails.errorLoading")}
-          description={categoriesError?.message || productsError?.message || ""}
+          description={categoriesError?.message || ""}
         />
       </Container>
     );
   }
 
-  // Find category by slug
-  const category = categories.find((cat: any) => cat.slug === slug);
-
+  // Category not found
   if (!category) {
     return (
       <Container sx={{ py: 2 }}>
@@ -126,72 +268,175 @@ export default function CategoryDetailsView({ slug }: CategoryDetailsViewProps) 
     );
   }
 
-  // Filter products by category
-  const categoryProducts = products.filter((product: IProductItem) => 
-    product.category === category.name || 
-    product.category === category.slug ||
-    product.category?.toLowerCase().includes(category.name.toLowerCase())
+  // Total products count
+  const totalProducts = meta?.total || products.length;
+
+  // Check if category has a valid image URL
+  const hasCategoryImage = category?.image_url && category.image_url.trim() !== "";
+  const categoryImageUrl = category?.image_url || "";
+
+  const renderHero = (
+    <Box
+      sx={{
+        position: "relative",
+        width: "100%",
+        height: { xs: 280, sm: 360, md: 400 },
+        overflow: "hidden",
+        borderRadius: 2,
+        mb: 4,
+      }}
+    >
+      {/* Background - Show category image or gradient fallback */}
+      {hasCategoryImage ? (
+        <>
+          {/* Category Image */}
+          <Box
+            component="img"
+            src={categoryImageUrl}
+            alt={category?.name || "Category"}
+            sx={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center",
+            }}
+          />
+          {/* Dark overlay for better text readability */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              bgcolor: alpha("#000", 0.4),
+            }}
+          />
+        </>
+      ) : (
+        <>
+          {/* Gradient background fallback when no image */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+            }}
+          />
+          {/* Decorative circles */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: "20%",
+              right: "10%",
+              width: 200,
+              height: 200,
+              borderRadius: "50%",
+              bgcolor: alpha("#fff", 0.03),
+            }}
+          />
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: "-20%",
+              left: "5%",
+              width: 150,
+              height: 150,
+              borderRadius: "50%",
+              bgcolor: alpha("#fff", 0.02),
+            }}
+          />
+        </>
+      )}
+
+      {/* Content */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          px: 2,
+        }}
+      >
+        <Typography
+          variant="h2"
+          sx={{
+            color: "common.white",
+            fontWeight: 700,
+            fontSize: { xs: "32px", sm: "40px", md: "48px" },
+            letterSpacing: "2px",
+            textTransform: "uppercase",
+            textShadow: "0 2px 8px rgba(0,0,0,0.3)",
+            mb: 1,
+          }}
+        >
+          {category?.name}
+        </Typography>
+
+        <Typography
+          variant="body1"
+          sx={{
+            color: "common.white",
+            fontWeight: 500,
+            fontSize: { xs: "14px", sm: "16px" },
+            letterSpacing: "1px",
+            textTransform: "uppercase",
+            opacity: 0.9,
+            mb: 2,
+          }}
+        >
+          {totalProducts} {totalProducts === 1 ? t("shop.product") : t("shop.productsCount")}
+        </Typography>
+
+        {/* Breadcrumbs inside hero */}
+        <CustomBreadcrumbs
+          links={[
+            { name: t("header.home"), href: "/" },
+            { name: t("categories.title"), href: paths.categories.root },
+            { name: category?.name || "" },
+          ]}
+          sx={{
+            "& .MuiBreadcrumbs-ol": {
+              justifyContent: "center",
+            },
+            "& .MuiLink-root, & .MuiTypography-root": {
+              color: "common.white",
+              opacity: 0.85,
+              fontSize: "13px",
+            },
+            "& .MuiBreadcrumbs-separator": {
+              color: "common.white",
+              opacity: 0.6,
+            },
+          }}
+        />
+      </Box>
+    </Box>
   );
 
-  // Search functionality
-  const searchResults = debouncedQuery
-    ? categoryProducts.filter((p) =>
-        p.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
-      )
-    : [];
-
-  // Apply filters to products
-  const dataFiltered = applyFilter({
-    inputData: categoryProducts,
-    filters,
-    sortBy,
-  });
-
-  const canReset = !isEqual(defaultFilters, filters);
-  const notFound = !dataFiltered.length && canReset;
-  const productsEmpty = categoryProducts.length === 0;
-
-  // Render filters
   const renderFilters = (
-    <Stack
-      spacing={3}
-      justifyContent="space-between"
-      alignItems={{ xs: "flex-end", sm: "center" }}
-      direction={{ xs: "column", sm: "row" }}
-    >
-      <ProductSearch
-        query={debouncedQuery}
-        results={searchResults}
-        onSearch={handleSearch}
-        loading={false}
-        hrefItem={(id: string) => paths.product.details(id)}
-      />
-
-      <Stack direction="row" spacing={1} flexShrink={0}>
-        <ProductFilters
-          open={openFilters.value}
-          onOpen={openFilters.onTrue}
-          onClose={openFilters.onFalse}
-          //
-          filters={filters}
-          onFilters={handleFilters}
-          //
-          canReset={canReset}
-          onResetFilters={handleResetFilters}
-          //
-          colorOptions={PRODUCT_COLOR_OPTIONS}
-          ratingOptions={PRODUCT_RATING_OPTIONS}
-          genderOptions={PRODUCT_GENDER_OPTIONS}
-          categoryOptions={["all", ...PRODUCT_CATEGORY_OPTIONS]}
-        />
-
-        <ProductSort
-          sort={sortBy}
-          onSort={handleSortBy}
-          sortOptions={PRODUCT_SORT_OPTIONS}
-        />
-      </Stack>
-    </Stack>
+    <ProductSortFilterAccordion
+      open={openSortFilter.value}
+      onToggle={openSortFilter.onToggle}
+      sort={sortBy}
+      onSort={handleSortBy}
+      sortOptions={PRODUCT_SORT_OPTIONS}
+      filters={filters}
+      onFilters={handleFilters}
+      colorOptions={PRODUCT_COLOR_OPTIONS}
+      canReset={canReset}
+      onResetFilters={handleResetFilters}
+    />
   );
 
   const renderResults = (
@@ -202,17 +447,12 @@ export default function CategoryDetailsView({ slug }: CategoryDetailsViewProps) 
       canReset={canReset}
       onResetFilters={handleResetFilters}
       //
-      results={dataFiltered.length}
+      results={meta?.total || products.length}
     />
   );
 
   const renderNotFound = (
-    <EmptyContent
-      filled
-      title={t("categories.categoryDetails.noData")}
-      description={t("categories.categoryDetails.noProducts")}
-      sx={{ py: 4 }}
-    />
+    <EmptyContent filled title="No Data" sx={{ py: 10 }} />
   );
 
   return (
@@ -223,15 +463,10 @@ export default function CategoryDetailsView({ slug }: CategoryDetailsViewProps) 
         mt: "80px",
       }}
     >
-      {/* Breadcrumbs */}
-      <CustomBreadcrumbs
-        links={[
-          { name: t("categories.title"), href: paths.categories.root },
-          { name: category.name },
-        ]}
-        sx={{ mb: 3 }}
-      />
+      {/* Hero Image with Category Name and Breadcrumbs */}
+      {renderHero}
 
+      {/* Filter & Sort Bar */}
       <Stack
         spacing={2.5}
         sx={{
@@ -245,76 +480,25 @@ export default function CategoryDetailsView({ slug }: CategoryDetailsViewProps) 
 
       {(notFound || productsEmpty) && renderNotFound}
 
-      <ProductList products={dataFiltered} loading={productsLoading} />
+      <ProductList products={products} loading={productsLoading} />
+
+      {!productsEmpty && totalPages > 1 && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            mt: 5,
+          }}
+        >
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+            size="large"
+          />
+        </Box>
+      )}
     </Container>
   );
-}
-
-// ----------------------------------------------------------------------
-
-function applyFilter({
-  inputData,
-  filters,
-  sortBy,
-}: {
-  inputData: IProductItem[];
-  filters: IProductFilters;
-  sortBy: string;
-}) {
-  const { gender, category, colors, priceRange, rating } = filters;
-
-  const min = priceRange[0];
-  const max = priceRange[1];
-
-  // SORT BY
-  if (sortBy === "featured") {
-    inputData = orderBy(inputData, ["totalSold"], ["desc"]);
-  }
-
-  if (sortBy === "newest") {
-    inputData = orderBy(inputData, ["createdAt"], ["desc"]);
-  }
-
-  if (sortBy === "priceDesc") {
-    inputData = orderBy(inputData, ["price"], ["desc"]);
-  }
-
-  if (sortBy === "priceAsc") {
-    inputData = orderBy(inputData, ["price"], ["asc"]);
-  }
-
-  // FILTERS
-  if (gender.length) {
-    inputData = inputData.filter((product) => gender.includes(product.gender));
-  }
-
-  if (category !== "all") {
-    inputData = inputData.filter((product) => product.category === category);
-  }
-
-  if (colors.length) {
-    inputData = inputData.filter((product) =>
-      product.colors.some((color) => colors.includes(color)),
-    );
-  }
-
-  if (min !== 0 || max !== 200) {
-    inputData = inputData.filter(
-      (product) => product.price >= min && product.price <= max,
-    );
-  }
-
-  if (rating) {
-    inputData = inputData.filter((product) => {
-      const convertRating = (value: string) => {
-        if (value === "up4Star") return 4;
-        if (value === "up3Star") return 3;
-        if (value === "up2Star") return 2;
-        return 1;
-      };
-      return product.totalRatings > convertRating(rating);
-    });
-  }
-
-  return inputData;
 }

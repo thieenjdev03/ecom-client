@@ -82,41 +82,6 @@ export default function UserTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 200 },
-          }}
-        >
-          <InputLabel>Role</InputLabel>
-
-          <Select
-            multiple
-            value={filters.role}
-            onChange={handleFilterRole}
-            input={<OutlinedInput label="Role" />}
-            renderValue={(selected) =>
-              selected.map((value) => value).join(", ")
-            }
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {roleOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox
-                  disableRipple
-                  size="small"
-                  checked={filters.role.includes(option)}
-                />
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
         <Stack
           direction="row"
           alignItems="center"

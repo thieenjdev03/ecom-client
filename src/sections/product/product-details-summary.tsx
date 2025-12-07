@@ -195,7 +195,6 @@ export default function ProductDetailsSummary({
   const displayStock = selectedVariant
     ? selectedVariant.stock
     : available;
-  const displaySku = selectedVariant ? selectedVariant.sku : product.sku;
 
   const defaultValues = {
     id,
@@ -315,7 +314,6 @@ export default function ProductDetailsSummary({
           coverUrl: coverUrl || images?.[0] || "", // Product image
           available: selectedVariant ? selectedVariant.stock : displayStock, // Available stock
           price: data.price, // Current price
-          sku: selectedVariant?.sku || displaySku || "", // SKU
           quantity: quantity, // Quantity
           subTotal: data.price * quantity, // Subtotal
           category: product.category || "", // Category
@@ -507,7 +505,12 @@ export default function ProductDetailsSummary({
         <Link
           underline="always"
           component="button"
-          onClick={sizeGuideDialog.onTrue}
+          type="button"
+          onClick={(e: React.MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            sizeGuideDialog.onTrue();
+          }}
           sx={{
             cursor: "pointer",
             border: "none",
@@ -589,13 +592,6 @@ export default function ProductDetailsSummary({
           onDecrease={() => setValue("quantity", values.quantity - 1)}
         />
 
-        <Stack spacing={0.5} sx={{ textAlign: "right" }}>
-          {displaySku && (
-            <Typography variant="caption" component="div">
-              {t("productDetails.sku")}: {displaySku}
-            </Typography>
-          )}
-        </Stack>
       </Stack>
     </Stack>
   );

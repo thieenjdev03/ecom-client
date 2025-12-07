@@ -196,12 +196,16 @@
     "mainCategories": "Danh mục chính",
     "subCategories": "Danh mục con",
     "subCategoriesCount": "danh mục con",
+    "categoriesCount": "danh mục",
     "viewDetails": "Xem chi tiết",
+    "viewAll": "Xem tất cả",
     "belongsTo": "Thuộc: ",
     "noCategories": "Chưa có danh mục nào",
     "noCategoriesDescription": "Hiện tại chưa có dữ liệu danh mục để hiển thị.",
     "loading": "Đang tải danh mục...",
     "errorLoading": "Lỗi khi tải danh mục: ",
+    "browseDescription": "Khám phá các danh mục sản phẩm của chúng tôi",
+    "otherCategories": "Danh mục khác",
     "categoryDetails": {
       "title": "Danh mục",
       "productsInCategory": "sản phẩm trong danh mục này",
@@ -295,6 +299,12 @@
     "hot": "HOT",
     "outOfStock": "HẾT HÀNG"
   },
+  "wishlistProductShowcase": {
+    "title": "SẢN PHẨM YÊU THÍCH",
+    "emptyTitle": "Danh sách yêu thích trống",
+    "emptyDescription": "Thêm sản phẩm vào danh sách yêu thích để xem ở đây",
+    "continueShopping": "Tiếp tục mua sắm"
+  },
   "savedOrderBanner": {
     "title": "Bạn có một đơn hàng đang chờ thanh toán",
     "orderInfo": "Đơn hàng #{orderId} • Tạo {timeAgo}",
@@ -304,6 +314,32 @@
     "justNow": "vừa xong",
     "minutesAgo": "{minutes} phút trước",
     "hoursAgo": "{hours} giờ trước"
+  },
+  "shop": {
+    "title": "Cửa hàng",
+    "product": "sản phẩm",
+    "productsCount": "sản phẩm",
+    "noProducts": "Không tìm thấy sản phẩm nào",
+    "browseDescription": "Khám phá bộ sưu tập sản phẩm của chúng tôi"
+  },
+  "checkout": {
+    "quantityMustBeGreaterThanZero": "Số lượng phải lớn hơn 0",
+    "productOutOfStock": "Sản phẩm đã hết hàng",
+    "maxQuantityInCart": "Số lượng tối đa có thể mua là {{max}}. Hiện tại giỏ hàng đã có {{current}} sản phẩm.",
+    "quantityExceedsStock": "Số lượng yêu cầu ({{quantity}}) vượt quá số lượng tồn kho ({{stock}})",
+    "maxQuantityReached": "Số lượng tối đa có thể mua là {{max}}",
+    "pleaseLoginToViewCart": "Vui lòng đăng nhập để xem giỏ hàng",
+    "validation": {
+      "productNotExist": "Sản phẩm không còn tồn tại",
+      "productNotForSale": "Sản phẩm không còn được bán",
+      "invalidVariant": "Biến thể không hợp lệ",
+      "variantNotExist": "Biến thể không còn tồn tại",
+      "variantOutOfStock": "Biến thể đã hết hàng",
+      "productOutOfStock": "Sản phẩm đã hết hàng",
+      "quantityExceedsStock": "Số lượng yêu cầu ({{quantity}}) vượt quá số lượng tồn kho ({{stock}})",
+      "errorCheckingProduct": "Lỗi khi kiểm tra sản phẩm",
+      "errorCheckingCart": "Lỗi khi kiểm tra giỏ hàng"
+    }
   },
   "header": {
     "home": "Trang Chủ",
@@ -316,7 +352,11 @@
     "another": "Khác",
     "welcome": "Chào mừng",
     "viewProfile": "Xem thông tin cá nhân",
-    "logout": "Đăng xuất"
+    "logout": "Đăng xuất",
+    "allProducts": "Tất cả sản phẩm",
+    "viewAllCategories": "Xem tất cả danh mục",
+    "popularTags": "Tags phổ biến",
+    "viewAllCollections": "Xem tất cả bộ sưu tập"
   },
   "footer": {
     "weAre": "CHÚNG TÔI LÀ ...",

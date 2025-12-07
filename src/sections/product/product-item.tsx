@@ -199,7 +199,6 @@ export default function ProductItem({ product }: Props) {
     <Box
       sx={{
         position: "relative",
-        p: 1,
         "&:hover .add-cart-btn": {
           opacity: 1,
         },
@@ -261,23 +260,6 @@ export default function ProductItem({ product }: Props) {
 
   const renderContent = (
     <Stack spacing={2}>
-      <Stack direction="row" alignItems="center" spacing={1}>
-        <ColorPreview colors={colors} />
-        {category && (
-          <Box
-            sx={{
-              px: 1,
-              py: 0.5,
-              borderRadius: 1,
-              bgcolor: 'grey.100',
-              typography: 'caption',
-              color: 'text.secondary',
-            }}
-          >
-            {category.name}
-          </Box>
-        )}
-      </Stack>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Link
         component={RouterLink}
@@ -354,7 +336,6 @@ export default function ProductItem({ product }: Props) {
       sx={{
         position: "relative",
         borderRadius: 2,
-        padding:2,
         overflow: "hidden",
         transition: (theme) =>
           theme.transitions.create("all", {

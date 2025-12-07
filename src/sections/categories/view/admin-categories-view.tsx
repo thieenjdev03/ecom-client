@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import {
   Box,
   Card,
@@ -24,6 +24,7 @@ import {
   DialogActions,
   Alert,
   CircularProgress,
+  alpha,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -32,7 +33,7 @@ import { useSnackbar } from "src/components/snackbar";
 import Iconify from "src/components/iconify";
 import { useGetCategories, createCategory, updateCategory, deleteCategory } from "src/api/reference";
 import { mutate } from "swr";
-import { endpoints } from "src/utils/axios";
+import axios, { endpoints } from "src/utils/axios";
 
 // ----------------------------------------------------------------------
 
@@ -65,6 +66,11 @@ export default function AdminCategoriesView() {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
+  
+  // Image upload states
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { categories, categoriesLoading, categoriesError } = useGetCategories();
   const {
@@ -95,7 +101,7 @@ export default function AdminCategoriesView() {
   // Get parent categories for dropdown (flat response uses parent_id)
   const parentCategories = categories && categories.length > 0 ? categories?.filter((category: any) => !category.parent_id) : [];
   // Precompute children count by parent id when API does not provide children_count
-  const childrenCountByParentId = useMemo(() => {
+  const _childrenCountByParentId = useMemo(() => {
     const map = new Map<number, number>();
     (categories && categories.length > 0 ? categories : []).forEach((c: any) => {
       if (c.parent_id) {
@@ -107,11 +113,13 @@ export default function AdminCategoriesView() {
 
   const handleOpenAddModal = () => {
     reset();
+    setPreviewImage(null);
     setOpenAddModal(true);
   };
 
   const handleCloseAddModal = () => {
     setOpenAddModal(false);
+    setPreviewImage(null);
     reset();
   };
 
@@ -124,14 +132,90 @@ export default function AdminCategoriesView() {
     setValue("parent_id", category.parent_id ?? "");
     setValue("display_order", category.display_order || 0);
     setValue("is_active", category.is_active ?? true);
+    // Set preview image if category has an image
+    setPreviewImage(category.image_url || null);
     setOpenEditModal(true);
   };
 
   const handleCloseEditModal = () => {
     setOpenEditModal(false);
     setSelectedCategory(null);
+    setPreviewImage(null);
     reset();
   };
+
+  // Handle image upload for category
+  const handleImageUpload = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFiles = Array.from(event.target.files || []);
+      if (selectedFiles.length === 0) return;
+
+      const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+      const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
+      const file = selectedFiles[0];
+      
+      // Validate file type
+      if (!ACCEPTED_TYPES.includes(file.type)) {
+        enqueueSnackbar("Only JPG, PNG, and WebP images are allowed", { variant: "error" });
+        return;
+      }
+      
+      // Validate file size
+      if (file.size > MAX_SIZE) {
+        enqueueSnackbar("File size must be less than 5MB", { variant: "error" });
+        return;
+      }
+
+      setUploadingImage(true);
+
+      try {
+        const formData = new FormData();
+        formData.append("files", file);
+        formData.append("folder", "categories");
+
+        const response = await axios.post(endpoints.files.uploadMultiple, formData);
+        const apiResponse = response.data;
+        const uploadedFiles = apiResponse?.data?.files || apiResponse?.files || [];
+
+        if (!Array.isArray(uploadedFiles) || uploadedFiles.length === 0) {
+          enqueueSnackbar("No image uploaded", { variant: "warning" });
+          return;
+        }
+
+        const uploadedFile = uploadedFiles[0];
+        if (uploadedFile?.url && uploadedFile?.success !== false) {
+          const imageUrl = uploadedFile.url;
+          setValue("image_url", imageUrl);
+          setPreviewImage(imageUrl);
+          enqueueSnackbar("Image uploaded successfully", { variant: "success" });
+        } else {
+          enqueueSnackbar("Failed to upload image", { variant: "error" });
+        }
+      } catch (error: any) {
+        console.error("Upload error:", error);
+        const errorMessage =
+          error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          error?.message ||
+          "Failed to upload image";
+        enqueueSnackbar(errorMessage, { variant: "error" });
+      } finally {
+        setUploadingImage(false);
+        // Reset file input
+        if (event.target) {
+          event.target.value = "";
+        }
+      }
+    },
+    [setValue, enqueueSnackbar]
+  );
+
+  // Handle remove image
+  const handleRemoveImage = useCallback(() => {
+    setValue("image_url", "");
+    setPreviewImage(null);
+  }, [setValue]);
 
   const handleOpenDeleteDialog = (category: any) => {
     setSelectedCategory(category);
@@ -303,12 +387,24 @@ export default function AdminCategoriesView() {
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      {category.parent_name ? (
-                        <Chip label={category.parent_name} size="small" variant="outlined" />
-                      ) : !category.parent_id ? (
-                        <Typography variant="body2" color="text.secondary">Root Category</Typography>
+                      {category.parent_name === 'Root Category' ? (
+                        <Chip
+                          label="Root Category"
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            borderColor: "#4caf50", // green border for parent
+                          }}
+                        />
                       ) : (
-                        <Chip label={`Parent #${category.parent_id}`} size="small" variant="outlined" />
+                        <Chip
+                          label={category.parent_name}
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            borderColor: "#2196f3", // blue border for child without name
+                          }}
+                        />
                       )}
                     </TableCell>
                     <TableCell>
@@ -398,19 +494,115 @@ export default function AdminCategoriesView() {
                     />
                   )}
                 />
-                <Controller
-                  name="image_url"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Image URL"
-                      error={!!errors.image_url}
-                      helperText={errors.image_url?.message}
-                      fullWidth
-                    />
+                
+                {/* Image Upload Section */}
+                <Box>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                    Category Image
+                  </Typography>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={handleImageUpload}
+                    style={{ display: "none" }}
+                  />
+                  {previewImage ? (
+                    <Box
+                      sx={{
+                        position: "relative",
+                        width: "100%",
+                        height: 200,
+                        borderRadius: 1,
+                        overflow: "hidden",
+                        border: (theme) => `1px solid ${alpha(theme.palette.grey[500], 0.2)}`,
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src={previewImage}
+                        alt="Category preview"
+                        sx={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{
+                          position: "absolute",
+                          top: 8,
+                          right: 8,
+                        }}
+                      >
+                        <IconButton
+                          size="small"
+                          onClick={() => fileInputRef.current?.click()}
+                          sx={{
+                            bgcolor: (theme) => alpha(theme.palette.grey[900], 0.72),
+                            color: "common.white",
+                            "&:hover": {
+                              bgcolor: (theme) => alpha(theme.palette.grey[900], 0.48),
+                            },
+                          }}
+                        >
+                          <Iconify icon="eva:edit-fill" width={16} />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={handleRemoveImage}
+                          sx={{
+                            bgcolor: (theme) => alpha(theme.palette.error.main, 0.72),
+                            color: "common.white",
+                            "&:hover": {
+                              bgcolor: (theme) => alpha(theme.palette.error.main, 0.48),
+                            },
+                          }}
+                        >
+                          <Iconify icon="eva:trash-2-fill" width={16} />
+                        </IconButton>
+                      </Stack>
+                    </Box>
+                  ) : (
+                    <Box
+                      onClick={() => !uploadingImage && fileInputRef.current?.click()}
+                      sx={{
+                        width: "100%",
+                        height: 200,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: 1,
+                        cursor: uploadingImage ? "default" : "pointer",
+                        border: (theme) => `dashed 2px ${alpha(theme.palette.grey[500], 0.3)}`,
+                        bgcolor: (theme) => alpha(theme.palette.grey[500], 0.04),
+                        ...(!uploadingImage && {
+                          "&:hover": {
+                            bgcolor: (theme) => alpha(theme.palette.grey[500], 0.08),
+                          },
+                        }),
+                      }}
+                    >
+                      {uploadingImage ? (
+                        <CircularProgress size={32} />
+                      ) : (
+                        <>
+                          <Iconify icon="eva:cloud-upload-fill" width={40} sx={{ color: "text.secondary", mb: 1 }} />
+                          <Typography variant="body2" color="text.secondary">
+                            Click to upload image
+                          </Typography>
+                          <Typography variant="caption" color="text.disabled">
+                            JPG, PNG, WebP (max 5MB)
+                          </Typography>
+                        </>
+                      )}
+                    </Box>
                   )}
-                />
+                </Box>
+
                 <Controller
                   name="parent_id"
                   control={control}
@@ -464,6 +656,7 @@ export default function AdminCategoriesView() {
               <Button
                 type="submit"
                 variant="contained"
+                disabled={uploadingImage}
               >
                 Create
               </Button>
@@ -516,19 +709,115 @@ export default function AdminCategoriesView() {
                     />
                   )}
                 />
-                <Controller
-                  name="image_url"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Image URL"
-                      error={!!errors.image_url}
-                      helperText={errors.image_url?.message}
-                      fullWidth
-                    />
+                
+                {/* Image Upload Section */}
+                <Box>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                    Category Image
+                  </Typography>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={handleImageUpload}
+                    style={{ display: "none" }}
+                  />
+                  {previewImage ? (
+                    <Box
+                      sx={{
+                        position: "relative",
+                        width: "100%",
+                        height: 200,
+                        borderRadius: 1,
+                        overflow: "hidden",
+                        border: (theme) => `1px solid ${alpha(theme.palette.grey[500], 0.2)}`,
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src={previewImage}
+                        alt="Category preview"
+                        sx={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{
+                          position: "absolute",
+                          top: 8,
+                          right: 8,
+                        }}
+                      >
+                        <IconButton
+                          size="small"
+                          onClick={() => fileInputRef.current?.click()}
+                          sx={{
+                            bgcolor: (theme) => alpha(theme.palette.grey[900], 0.72),
+                            color: "common.white",
+                            "&:hover": {
+                              bgcolor: (theme) => alpha(theme.palette.grey[900], 0.48),
+                            },
+                          }}
+                        >
+                          <Iconify icon="eva:edit-fill" width={16} />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={handleRemoveImage}
+                          sx={{
+                            bgcolor: (theme) => alpha(theme.palette.error.main, 0.72),
+                            color: "common.white",
+                            "&:hover": {
+                              bgcolor: (theme) => alpha(theme.palette.error.main, 0.48),
+                            },
+                          }}
+                        >
+                          <Iconify icon="eva:trash-2-fill" width={16} />
+                        </IconButton>
+                      </Stack>
+                    </Box>
+                  ) : (
+                    <Box
+                      onClick={() => !uploadingImage && fileInputRef.current?.click()}
+                      sx={{
+                        width: "100%",
+                        height: 200,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: 1,
+                        cursor: uploadingImage ? "default" : "pointer",
+                        border: (theme) => `dashed 2px ${alpha(theme.palette.grey[500], 0.3)}`,
+                        bgcolor: (theme) => alpha(theme.palette.grey[500], 0.04),
+                        ...(!uploadingImage && {
+                          "&:hover": {
+                            bgcolor: (theme) => alpha(theme.palette.grey[500], 0.08),
+                          },
+                        }),
+                      }}
+                    >
+                      {uploadingImage ? (
+                        <CircularProgress size={32} />
+                      ) : (
+                        <>
+                          <Iconify icon="eva:cloud-upload-fill" width={40} sx={{ color: "text.secondary", mb: 1 }} />
+                          <Typography variant="body2" color="text.secondary">
+                            Click to upload image
+                          </Typography>
+                          <Typography variant="caption" color="text.disabled">
+                            JPG, PNG, WebP (max 5MB)
+                          </Typography>
+                        </>
+                      )}
+                    </Box>
                   )}
-                />
+                </Box>
+
                 <Controller
                   name="parent_id"
                   control={control}
@@ -584,6 +873,7 @@ export default function AdminCategoriesView() {
               <Button
                 type="submit"
                 variant="contained"
+                disabled={uploadingImage}
               >
                 Update
               </Button>
@@ -596,7 +886,7 @@ export default function AdminCategoriesView() {
           <DialogTitle>Delete Category</DialogTitle>
           <DialogContent>
             <Typography>
-              Are you sure you want to delete the category "{selectedCategory?.name}"?
+              Are you sure you want to delete the category &quot;{selectedCategory?.name}&quot;?
               This action cannot be undone.
             </Typography>
           </DialogContent>
