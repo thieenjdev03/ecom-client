@@ -83,7 +83,10 @@ export const paths = {
     root: `/categories`,
     details: (slug: string) => `/categories/${slug}`,
   },
-  collection: `/collection`,
+  collections: {
+    root: `/collections`,
+    details: (slug: string) => `/collections/${slug}`,
+  },
   post: {
     root: `/post`,
     details: (title: string) => `/post/${paramCase(title)}`,
@@ -185,6 +188,9 @@ export const paths = {
     },
     sizes: {
       root: `${ROOTS.DASHBOARD}/sizes`,
+    },
+    collections: {
+      root: `${ROOTS.DASHBOARD}/collections`,
     },
     invoice: {
       root: `${ROOTS.DASHBOARD}/invoice`,

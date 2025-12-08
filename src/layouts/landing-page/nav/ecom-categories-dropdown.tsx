@@ -81,10 +81,10 @@ export default function EcomCategoriesDropdown({
           textShadow,
           cursor: "pointer",
           transition: "all 0.3s ease",
+          pb: 0.5,
+          borderBottom: "2px solid transparent",
           "&:hover": {
-            color: "primary.main",
-            transform: "translateY(-2px)",
-            textShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+            borderBottomColor: "currentColor",
           },
         }}
       >
@@ -133,13 +133,27 @@ export default function EcomCategoriesDropdown({
                         sx={{
                           px: 1,
                           transition: "all 0.2s ease",
+                          "& .MuiTypography-root, & .MuiListItemButton-root": {
+                            borderBottom: "1px solid transparent",
+                          },
                           "&:hover": {
-                            backgroundColor: "primary.lighter",
-                            transform: "translateX(4px)",
+                            backgroundColor: "transparent",
+                            "& .category-text": {
+                              borderBottomColor: "currentColor",
+                            },
                           },
                         }}
                       >
-                        {child.name}
+                        <Typography
+                          component="span"
+                          className="category-text"
+                          sx={{
+                            borderBottom: "1px solid transparent",
+                            transition: "all 0.2s ease",
+                          }}
+                        >
+                          {child.name}
+                        </Typography>
                       </ListItemButton>
                     ))}
                   </List>
@@ -161,12 +175,23 @@ export default function EcomCategoriesDropdown({
                         px: 1,
                         transition: "all 0.2s ease",
                         "&:hover": {
-                          backgroundColor: "primary.lighter",
-                          transform: "translateX(4px)",
+                          backgroundColor: "transparent",
+                          "& .category-text": {
+                            borderBottomColor: "currentColor",
+                          },
                         },
                       }}
                     >
-                      {p.name}
+                      <Typography
+                        component="span"
+                        className="category-text"
+                        sx={{
+                          borderBottom: "1px solid transparent",
+                          transition: "all 0.2s ease",
+                        }}
+                      >
+                        {p.name}
+                      </Typography>
                     </ListItemButton>
                   ))}
                 </List>

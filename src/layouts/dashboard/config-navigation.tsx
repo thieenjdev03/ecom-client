@@ -121,6 +121,7 @@ export function useNavData() {
               // { title: t("create"), path: paths.dashboard.product.new },
               // { title: t("edit"), path: paths.dashboard.product.demo.edit },
               { title: t("categories.title"), path: paths.dashboard.categories.root },
+              { title: t("collections"), path: paths.dashboard.collections.root },
               { title: t("colors"), path: paths.dashboard.colors.root },
               { title: t("sizes"), path: paths.dashboard.sizes.root },
             ],

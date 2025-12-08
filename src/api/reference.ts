@@ -143,3 +143,146 @@ export async function deleteSize(id: string) {
   mutate(endpoints.refs.sizes);
   return res.data;
 }
+
+// ----------------------------------------------------------------------
+
+// Collection types
+export interface Collection {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  banner_image_url?: string;
+  seo_title?: string;
+  seo_description?: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface CollectionListResponse {
+  data: {
+    items: Collection[];
+    nextCursor: string | null;
+  };
+  message: string;
+  success: boolean;
+}
+
+// Collections hooks
+export function useGetCollections(limit: number = 20, cursor?: string) {
+  const params = new URLSearchParams();
+  params.append("limit", String(limit));
+  if (cursor) {
+    params.append("cursor", cursor);
+  }
+  const URL = `${endpoints.collections.list}?${params.toString()}`;
+  
+  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
+  
+  const memoized = useMemo(
+    () => ({
+      // Map from response format: { data: { items: [...], nextCursor }, message, success }
+      collections: (Array.isArray(data?.data?.items) ? data.data.items : []) as Collection[],
+      nextCursor: data?.data?.nextCursor || null,
+      hasMore: !!data?.data?.nextCursor,
+      collectionsLoading: isLoading,
+      collectionsError: error,
+      collectionsValidating: isValidating,
+    }),
+    [data, error, isLoading, isValidating],
+  );
+  return memoized;
+}
+
+export function useGetCollectionBySlug(slug: string) {
+  const URL = slug ? endpoints.collections.bySlug(slug) : null;
+  
+  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
+  
+  const memoized = useMemo(
+    () => ({
+      collection: data?.data || data || null,
+      collectionLoading: isLoading,
+      collectionError: error,
+      collectionValidating: isValidating,
+    }),
+    [data, error, isLoading, isValidating],
+  );
+  return memoized;
+}
+
+export function useGetCollectionById(id: string) {
+  const URL = id ? endpoints.collections.byId(id) : null;
+  
+  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
+  
+  const memoized = useMemo(
+    () => ({
+      collection: data?.data || data || null,
+      collectionLoading: isLoading,
+      collectionError: error,
+      collectionValidating: isValidating,
+    }),
+    [data, error, isLoading, isValidating],
+  );
+  return memoized;
+}
+
+export function useGetCollectionProducts(collectionId: string, limit: number = 20, cursor?: string) {
+  const params = new URLSearchParams();
+  params.append("limit", String(limit));
+  if (cursor) {
+    params.append("cursor", cursor);
+  }
+  const URL = collectionId ? `${endpoints.collections.products(collectionId)}?${params.toString()}` : null;
+  
+  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
+  
+  const memoized = useMemo(
+    () => ({
+      products: (Array.isArray(data?.data) ? data.data : []),
+      meta: data?.meta || { next_cursor: null, has_more: false },
+      productsLoading: isLoading,
+      productsError: error,
+      productsValidating: isValidating,
+    }),
+    [data, error, isLoading, isValidating],
+  );
+  return memoized;
+}
+
+// Collections CRUD operations
+export async function createCollection(payload: {
+  name: string;
+  slug: string;
+  description?: string;
+  banner_image_url?: string;
+  seo_title?: string;
+  seo_description?: string;
+  is_active?: boolean;
+}) {
+  const res = await axios.post(endpoints.collections.list, payload);
+  mutate(endpoints.collections.list);
+  return res.data;
+}
+
+export async function updateCollection({ id, ...payload }: {
+  id: string;
+  name?: string;
+  slug?: string;
+  description?: string;
+  banner_image_url?: string;
+  seo_title?: string;
+  seo_description?: string;
+  is_active?: boolean;
+}) {
+  const res = await axios.patch(endpoints.collections.byId(id), payload);
+  mutate(endpoints.collections.list);
+  return res.data;
+}
+
+export async function deleteCollection(id: string) {
+  const res = await axios.delete(endpoints.collections.byId(id));
+  mutate(endpoints.collections.list);
+  return res.data;
+}

@@ -34,11 +34,10 @@ import { useResponsive } from "src/hooks/use-responsive";
 import { HEADER } from "../config-layout";
 import HeaderShadow from "../common/header-shadow";
 import LanguagePopover from "../common/language-popover";
-import { PRODUCT_CATEGORY_GROUP_OPTIONS } from "src/_mock";
 import { useAuthContext } from "src/auth/hooks";
 import { useCheckoutContext } from "src/sections/checkout/context/checkout-context";
 import { CartPreviewDrawer } from "src/components/cart-preview";
-import { useGetCategoryTree } from "src/api/reference";
+import { useGetCategoryTree, useGetCollections } from "src/api/reference";
 import { useTranslate } from "src/locales";
 
 // ----------------------------------------------------------------------
@@ -85,6 +84,9 @@ export default function HeaderEcom() {
   const isAccountMenuOpen = Boolean(accountMenuAnchor);
 
   const { categoryTree } = useGetCategoryTree();
+  
+  // Fetch collections from API
+  const { collections, collectionsLoading } = useGetCollections();
 
   // Shop mega menu state (2-level categories)
   const [isShopMegaMenuOpen, setIsShopMegaMenuOpen] = useState(false);
@@ -95,17 +97,10 @@ export default function HeaderEcom() {
   const [isTagsDropdownOpen, setIsTagsDropdownOpen] = useState(false);
   const tagsMenuTimerRef = useRef<number | null>(null);
 
-  // Mock data for product tags
-  const MOCK_PRODUCT_TAGS = useMemo(() => [
-    { id: 1, name: "New Arrivals", slug: "new-arrivals", icon: "solar:star-bold-duotone" },
-    { id: 2, name: "Best Sellers", slug: "best-sellers", icon: "solar:fire-bold-duotone" },
-    { id: 3, name: "Sale", slug: "sale", icon: "solar:tag-price-bold-duotone" },
-    { id: 4, name: "Limited Edition", slug: "limited-edition", icon: "solar:diamond-bold-duotone" },
-    { id: 5, name: "Trending", slug: "trending", icon: "solar:graph-up-bold-duotone" },
-    { id: 6, name: "Summer Collection", slug: "summer-collection", icon: "solar:sun-bold-duotone" },
-    { id: 7, name: "Winter Collection", slug: "winter-collection", icon: "solar:snowflake-bold-duotone" },
-    { id: 8, name: "Eco-Friendly", slug: "eco-friendly", icon: "solar:leaf-bold-duotone" },
-  ], []);
+  // Filter only active collections for display
+  const activeCollections = useMemo(() => {
+    return collections?.filter((c) => c.is_active) || [];
+  }, [collections]);
 
   // Helper function to get user display name
   const getUserDisplayName = useCallback(() => {
@@ -259,14 +254,6 @@ export default function HeaderEcom() {
     }, 200);
   }, [clearTagsMenuTimer]);
 
-  // Collection groups
-  const collectionGroups = PRODUCT_CATEGORY_GROUP_OPTIONS.map((g) => ({
-    title: g.group,
-    items: g.classify.map((c) => ({
-      label: c,
-      href: `${paths.product.root}?category=${encodeURIComponent(c)}`,
-    })),
-  }));
   return (
     <AppBar elevation={0} sx={{ bgcolor: "transparent", boxShadow: "none" }}>
       <Toolbar
@@ -332,10 +319,10 @@ export default function HeaderEcom() {
                   transition: "all 0.3s ease",
                   cursor: "pointer",
                   whiteSpace: "nowrap",
+                  pb: 0.5,
+                  borderBottom: "2px solid transparent",
                   "&:hover": {
-                    color: theme.palette.primary.main,
-                    transform: "translateY(-2px)",
-                    textShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+                    borderBottomColor: "currentColor",
                   },
                 }}
               >
@@ -363,10 +350,10 @@ export default function HeaderEcom() {
                     display: "flex",
                     alignItems: "center",
                     gap: 0.5,
+                    pb: 0.5,
+                    borderBottom: "2px solid transparent",
                     "&:hover": {
-                      color: theme.palette.primary.main,
-                      transform: "translateY(-2px)",
-                      textShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+                      borderBottomColor: "currentColor",
                     },
                   }}
                 >
@@ -508,21 +495,20 @@ export default function HeaderEcom() {
                               href={paths.categories.details(p.slug)}
                               underline="none"
                               sx={{
-                                display: "flex",
+                                display: "inline-flex",
                                 alignItems: "center",
                                 minHeight: 36,
                                 mb: 0.5,
                                 px: 1.5,
-                                borderRadius: 1,
                                 fontSize: 14,
                                 color: "text.secondary",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
                                 whiteSpace: "nowrap",
                                 transition: "all 0.2s ease",
+                                borderBottom: "1px solid transparent",
                                 "&:hover": {
-                                  bgcolor: "action.hover",
-                                  color: "primary.main",
+                                  borderBottomColor: "currentColor",
                                 },
                               }}
                             >
@@ -590,14 +576,14 @@ export default function HeaderEcom() {
                                 lineHeight: 1.5,
                                 py: 0.5,
                                 px: 1,
-                                borderRadius: 0.75,
                                 transition: "all 0.2s ease",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
                                 whiteSpace: "nowrap",
+                                display: "inline-block",
+                                borderBottom: "1px solid transparent",
                                 "&:hover": {
-                                  color: "primary.main",
-                                  bgcolor: "action.hover",
+                                  borderBottomColor: "currentColor",
                                 },
                               }}
                             >
@@ -630,10 +616,10 @@ export default function HeaderEcom() {
                     display: "flex",
                     alignItems: "center",
                     gap: 0.5,
+                    pb: 0.5,
+                    borderBottom: "2px solid transparent",
                     "&:hover": {
-                      color: theme.palette.primary.main,
-                      transform: "translateY(-2px)",
-                      textShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+                      borderBottomColor: "currentColor",
                     },
                   }}
                 >
@@ -648,7 +634,7 @@ export default function HeaderEcom() {
                   />
                 </Typography>
 
-                {/* Collection/Tags Dropdown */}
+                {/* Collection Dropdown */}
                 {isTagsDropdownOpen && (
                   <Box
                     sx={{
@@ -679,62 +665,82 @@ export default function HeaderEcom() {
                           mb: 1,
                         }}
                       >
-                        {t("header.popularTags")}
+                        {t("header.collection")}
                       </Typography>
 
-                      {/* Tags list */}
-                      {MOCK_PRODUCT_TAGS.map((tag) => (
-                        <Link
-                          key={tag.id}
-                          component={RouterLink}
-                          href={`${paths.product.root}?tag=${encodeURIComponent(tag.slug)}`}
-                          underline="none"
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1.5,
-                            px: 2.5,
-                            py: 1,
-                            fontSize: 14,
-                            color: "text.primary",
-                            transition: "all 0.2s ease",
-                            "&:hover": {
-                              bgcolor: "action.hover",
+                      {/* Collections list from API */}
+                      {collectionsLoading ? (
+                        <Box sx={{ px: 2.5, py: 2, textAlign: "center" }}>
+                          <Typography variant="body2" color="text.secondary">
+                            Loading...
+                          </Typography>
+                        </Box>
+                      ) : activeCollections.length === 0 ? (
+                        <Box sx={{ px: 2.5, py: 2, textAlign: "center" }}>
+                          <Typography variant="body2" color="text.secondary">
+                            No collections available
+                          </Typography>
+                        </Box>
+                      ) : (
+                        activeCollections.slice(0, 8).map((collection) => (
+                          <Box
+                            key={collection.id}
+                            sx={{
+                              px: 2.5,
+                              py: 1,
+                            }}
+                          >
+                            <Link
+                              component={RouterLink}
+                              href={paths.collections.details(collection.slug)}
+                              underline="none"
+                              sx={{
+                                display: "inline-block",
+                                fontSize: 14,
+                                color: "text.primary",
+                                transition: "all 0.2s ease",
+                                borderBottom: "1px solid transparent",
+                                "&:hover": {
+                                  borderBottomColor: "currentColor",
+                                },
+                              }}
+                            >
+                              {collection.name}
+                            </Link>
+                          </Box>
+                        ))
+                      )}
+
+                      {activeCollections.length > 0 && (
+                        <>
+                          <Divider sx={{ my: 1.5 }} />
+
+                          {/* View all collections link */}
+                          <Link
+                            component={RouterLink}
+                            href={paths.collections.root}
+                            underline="none"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: 0.5,
+                              px: 2.5,
+                              py: 1,
+                              fontSize: 13,
+                              fontWeight: 500,
                               color: "primary.main",
-                            },
-                          }}
-                        >
-                          <Iconify icon={tag.icon} width={20} sx={{ color: "primary.main" }} />
-                          {tag.name}
-                        </Link>
-                      ))}
-
-                      <Divider sx={{ my: 1.5 }} />
-
-                      {/* View all collections link */}
-                      <Link
-                        component={RouterLink}
-                        href={paths.product.root}
-                        underline="none"
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 0.5,
-                          px: 2.5,
-                          py: 1,
-                          fontSize: 13,
-                          fontWeight: 500,
-                          color: "primary.main",
-                          transition: "all 0.2s ease",
-                          "&:hover": {
-                            bgcolor: "primary.lighter",
-                          },
-                        }}
-                      >
-                        {t("header.viewAllCollections")}
-                        <Iconify icon="eva:arrow-ios-forward-fill" width={16} />
-                      </Link>
+                              transition: "all 0.2s ease",
+                              "&:hover": {
+                                bgcolor: "primary.lighter",
+                              },
+                            }}
+                          >
+                            {t("header.viewAllCollections")}
+                            <Iconify icon="eva:arrow-ios-forward-fill" width={16} />
+                          </Link>
+                        </>
+                      )}
                     </Box>
                   </Box>
                 )}
@@ -1060,31 +1066,38 @@ export default function HeaderEcom() {
               </ListItemButton>
               <Collapse in={openCollection} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {collectionGroups.map((group) => (
-                    <Box key={group.title} sx={{ pl: 2, mb: 1 }}>
-                      <Typography variant="overline" sx={{ fontSize: 11, color: "text.secondary", px: 2, py: 1 }}>
-                        {group.title}
+                  {collectionsLoading ? (
+                    <Box sx={{ pl: 4, py: 2 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Loading...
                       </Typography>
-                      {group.items.map((item) => (
-                        <ListItemButton
-                          key={item.href}
-                          component={RouterLink}
-                          href={item.href}
-                          onClick={handleCloseMobileMenu}
-                          sx={{
-                            borderRadius: 1,
-                            pl: 4,
-                            py: 0.75,
-                            "&:hover": {
-                              bgcolor: "action.hover",
-                            },
-                          }}
-                        >
-                          <Typography variant="body2">{item.label}</Typography>
-                        </ListItemButton>
-                      ))}
                     </Box>
-                  ))}
+                  ) : activeCollections.length === 0 ? (
+                    <Box sx={{ pl: 4, py: 2 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        No collections available
+                      </Typography>
+                    </Box>
+                  ) : (
+                    activeCollections.map((collection) => (
+                      <ListItemButton
+                        key={collection.id}
+                        component={RouterLink}
+                        href={paths.collections.details(collection.slug)}
+                        onClick={handleCloseMobileMenu}
+                        sx={{
+                          borderRadius: 1,
+                          pl: 4,
+                          py: 0.75,
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
+                        }}
+                      >
+                        <Typography variant="body2">{collection.name}</Typography>
+                      </ListItemButton>
+                    ))
+                  )}
                 </List>
               </Collapse>
             </List>

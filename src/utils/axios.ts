@@ -79,4 +79,11 @@ export const endpoints = {
     subscribeFromRegister: `${apiUrl}/marketing/subscribe-from-register`,
     unsubscribe: `${apiUrl}/marketing/unsubscribe`,
   },
+  collections: {
+    list: `${apiUrl}/collections`,
+    byId: (id: string) => `${apiUrl}/collections/${id}`,
+    bySlug: (slug: string) => `${apiUrl}/collections/slug/${slug}`,
+    products: (id: string) => `${apiUrl}/collections/${id}/products`,
+    productsCount: (id: string) => `${apiUrl}/collections/${id}/products/count`,
+  },
 };
