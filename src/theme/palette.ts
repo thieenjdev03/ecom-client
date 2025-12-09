@@ -95,7 +95,7 @@ export const error = {
 
 export const common = {
   black: "#000000",
-  white: "#FFFFFF",
+  white: "#f3f4f6",
 };
 
 export const action = {

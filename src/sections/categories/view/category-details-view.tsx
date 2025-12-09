@@ -271,156 +271,41 @@ export default function CategoryDetailsView({ slug }: CategoryDetailsViewProps) 
   // Total products count
   const totalProducts = meta?.total || products.length;
 
-  // Check if category has a valid image URL
-  const hasCategoryImage = category?.image_url && category.image_url.trim() !== "";
-  const categoryImageUrl = category?.image_url || "";
-
   const renderHero = (
     <Box
       sx={{
-        position: "relative",
-        width: "100%",
-        height: { xs: 280, sm: 360, md: 400 },
-        overflow: "hidden",
-        borderRadius: 2,
+        textAlign: "center",
         mb: 4,
+        py: 2,
       }}
     >
-      {/* Background - Show category image or gradient fallback */}
-      {hasCategoryImage ? (
-        <>
-          {/* Category Image */}
-          <Box
-            component="img"
-            src={categoryImageUrl}
-            alt={category?.name || "Category"}
-            sx={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              objectPosition: "center",
-            }}
-          />
-          {/* Dark overlay for better text readability */}
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              bgcolor: alpha("#000", 0.4),
-            }}
-          />
-        </>
-      ) : (
-        <>
-          {/* Gradient background fallback when no image */}
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
-            }}
-          />
-          {/* Decorative circles */}
-          <Box
-            sx={{
-              position: "absolute",
-              top: "20%",
-              right: "10%",
-              width: 200,
-              height: 200,
-              borderRadius: "50%",
-              bgcolor: alpha("#fff", 0.03),
-            }}
-          />
-          <Box
-            sx={{
-              position: "absolute",
-              bottom: "-20%",
-              left: "5%",
-              width: 150,
-              height: 150,
-              borderRadius: "50%",
-              bgcolor: alpha("#fff", 0.02),
-            }}
-          />
-        </>
-      )}
-
-      {/* Content */}
-      <Box
+      <Typography
+        variant="h2"
         sx={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          px: 2,
+          fontWeight: 700,
+          fontSize: { xs: "16px", sm: "20px", md: "24px" },
+          letterSpacing: "2px",
+          textTransform: "uppercase",
+          mb: 1,
         }}
       >
-        <Typography
-          variant="h2"
-          sx={{
-            color: "common.white",
-            fontWeight: 700,
-            fontSize: { xs: "32px", sm: "40px", md: "48px" },
-            letterSpacing: "2px",
-            textTransform: "uppercase",
-            textShadow: "0 2px 8px rgba(0,0,0,0.3)",
-            mb: 1,
-          }}
-        >
-          {category?.name}
-        </Typography>
+        {category?.name}
+      </Typography>
 
-        <Typography
-          variant="body1"
-          sx={{
-            color: "common.white",
-            fontWeight: 500,
-            fontSize: { xs: "14px", sm: "16px" },
-            letterSpacing: "1px",
-            textTransform: "uppercase",
-            opacity: 0.9,
-            mb: 2,
-          }}
-        >
-          {totalProducts} {totalProducts === 1 ? t("shop.product") : t("shop.productsCount")}
-        </Typography>
+      <Typography
+        variant="body1"
+        sx={{
+          fontWeight: 500,
+          fontSize: { xs: "10px", sm: "12px" },
+          letterSpacing: "1px",
+          textTransform: "uppercase",
+          opacity: 0.7,
+          mb: 2,
+        }}
+      >
+        {totalProducts} {totalProducts === 1 ? t("shop.product") : t("shop.productsCount")}
+      </Typography>
 
-        {/* Breadcrumbs inside hero */}
-        <CustomBreadcrumbs
-          links={[
-            { name: t("header.home"), href: "/" },
-            { name: t("categories.title"), href: paths.categories.root },
-            { name: category?.name || "" },
-          ]}
-          sx={{
-            "& .MuiBreadcrumbs-ol": {
-              justifyContent: "center",
-            },
-            "& .MuiLink-root, & .MuiTypography-root": {
-              color: "common.white",
-              opacity: 0.85,
-              fontSize: "13px",
-            },
-            "& .MuiBreadcrumbs-separator": {
-              color: "common.white",
-              opacity: 0.6,
-            },
-          }}
-        />
-      </Box>
     </Box>
   );
 

@@ -231,35 +231,11 @@ export default function ProductItem({ product }: Props) {
           <Iconify icon="solar:cart-plus-bold" width={24} />
         </Fab>
       )}
-
-      <Tooltip
-        title={!available && !isFeatured && variants && variants.length === 0 ? "Out of stock" : "In stock"}
-        placement="bottom-end"
-      >
-        <Image
-          alt={name}
-          src={images?.[currentImageIndex] || images?.[0] || coverUrl}
-          ratio="3/4"
-          sx={{
-            borderRadius: 1.5,
-            transition: (theme) =>
-              theme.transitions.create("all", {
-                easing: theme.transitions.easing.easeInOut,
-                duration: theme.transitions.duration.shorter,
-              }),
-            ...(!available &&
-              !isFeatured && variants && variants.length === 0 && {
-                opacity: 0.48,
-                filter: "grayscale(1)",
-              }),
-          }}
-        />
-      </Tooltip>
     </Box>
   );
 
   const renderContent = (
-    <Stack spacing={2}>
+    <Stack spacing={1}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Link
         component={RouterLink}
@@ -268,8 +244,8 @@ export default function ProductItem({ product }: Props) {
         variant="subtitle2"
         noWrap
         sx={{
-          fontSize: "0.875rem",
-          fontWeight: 500,
+          fontSize: "1rem",
+          fontWeight: 600,
           lineHeight: 1.4,
           "&:hover": {
             textDecoration: "underline",

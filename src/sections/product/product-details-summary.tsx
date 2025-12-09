@@ -348,26 +348,38 @@ export default function ProductDetailsSummary({
     }
   });
 
-  const renderPrice = (
-    <Box sx={{ typography: "h5" }}>
-      {displayOriginalPrice && (
-        <Box
-          component="span"
-          sx={{
-            color: "text.disabled",
-            textDecoration: "line-through",
-            mr: 0.5,
-          }}
-        >
-          {fCurrency(displayOriginalPrice)}
-        </Box>
-      )}
+  const renderPrice = () => {
+    // Only show out of stock label if variant is selected and out of stock
+    if (variants && variants.length > 0 && selectedVariant && selectedVariant.stock === 0) {
+      return (
+        <Label color="error" variant="filled">
+          {t("productDetails.outOfStock")}
+        </Label>
+      );
+    }
 
-      <Box component="span" sx={{ fontWeight: 700 }}>
-        {fCurrency(displayPrice)}
+    // Show price normally (with or without variant selection)
+    return (
+      <Box sx={{ typography: "h5" }}>
+        {displayOriginalPrice && (
+          <Box
+            component="span"
+            sx={{
+              color: "text.disabled",
+              textDecoration: "line-through",
+              mr: 0.5,
+            }}
+          >
+            {fCurrency(displayOriginalPrice)}
+          </Box>
+        )}
+
+        <Box component="span" sx={{ fontWeight: 700 }}>
+          {fCurrency(displayPrice)}
+        </Box>
       </Box>
-    </Box>
-  );
+    );
+  };
 
   const renderColorOptions = (
     <Stack direction="column" spacing={1.5}>
@@ -659,7 +671,12 @@ export default function ProductDetailsSummary({
   );
 
   const renderInventoryType = () => {
-    // Stock status based on displayStock and publish status
+    // Hide inventory label when product has variants but no variant selected
+    if (variants && variants.length > 0 && !selectedVariant) {
+      return null;
+    }
+
+    // Only show out of stock or discontinued labels, not in stock
     if (publish === "draft") {
       return (
         <Label color="default" variant="filled">
@@ -667,18 +684,15 @@ export default function ProductDetailsSummary({
         </Label>
       );
     }
-    if (displayStock > 0) {
+    if (displayStock === 0) {
       return (
-        <Label color="success" variant="filled">
-          {t("productDetails.inStock")}
+        <Label color="error" variant="filled">
+          {t("productDetails.outOfStock")}
         </Label>
       );
     }
-    return (
-      <Label color="error" variant="filled">
-        {t("productDetails.outOfStock")}
-      </Label>
-    );
+    // Don't show "In Stock" label
+    return null;
   };
   const renderMoreDetailSection = (
     <Stack spacing={1.5}>
@@ -735,13 +749,14 @@ export default function ProductDetailsSummary({
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Stack spacing={3} sx={{ pt: 3 }} {...other}>
         <Stack spacing={2} alignItems="flex-start">
-          {renderLabels}
-
           {renderInventoryType()}
 
-          <Typography variant="h5">{name}</Typography>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography variant="h5">{name}</Typography>
+            {renderLabels}
+          </Stack>
 
-          {renderPrice}
+          {renderPrice()}
 
           {renderSubDescription}
 
