@@ -48,6 +48,14 @@
   "item_external_link": "项目外部链接",
   "only_admin_can_see_this_item": "只有管理员可以看到此项目",
   "upgrade_to_pro": "升级到专业版",
+  "collections": {
+    "title": "系列",
+    "notFound": "未找到系列",
+    "notFoundDescription": "您要查找的系列不存在。",
+    "unavailable": "系列不可用",
+    "unavailableDescription": "此系列目前不可用。",
+    "errorLoading": "加载系列时出错"
+  },
   "demo": {
     "title": "Chinese"
   }

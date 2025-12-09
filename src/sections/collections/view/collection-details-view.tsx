@@ -1,26 +1,50 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import isEqual from "lodash/isEqual";
+import { useState, useCallback, useMemo, useEffect } from "react";
 
+import Stack from "@mui/material/Stack";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
+import Pagination from "@mui/material/Pagination";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
+
+import { paths } from "src/routes/paths";
+
+import { useBoolean } from "src/hooks/use-boolean";
+import { useDebounce } from "src/hooks/use-debounce";
+import { useGetCollectionBySlug } from "src/api/reference";
+import { useGetProducts, ProductQueryParams } from "src/api/product";
 
 import {
-  useGetCollectionBySlug,
-  useGetCollectionProducts,
-} from "src/api/reference";
+  PRODUCT_SORT_OPTIONS,
+  PRODUCT_COLOR_OPTIONS,
+} from "src/_mock";
 
 import EmptyContent from "src/components/empty-content";
 import { useSettingsContext } from "src/components/settings";
+import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 import { LoadingScreen } from "src/components/loading-screen";
-import Iconify from "src/components/iconify";
+import { useTranslate } from "src/locales";
+
+import {
+  IProductFilters,
+  IProductFilterValue,
+} from "src/types/product";
 
 import ProductList from "src/sections/product/product-list";
+import ProductFiltersResult from "src/sections/product/product-filters-result";
+import ProductSortFilterAccordion from "src/sections/product/product-sort-filter-accordion";
 
 // ----------------------------------------------------------------------
+
+const defaultFilters: IProductFilters = {
+  gender: [],
+  colors: [],
+  rating: "",
+  category: "all",
+  priceRange: [0, 200],
+};
 
 // ----------------------------------------------------------------------
 
@@ -29,49 +53,158 @@ interface CollectionDetailsViewProps {
 }
 
 export default function CollectionDetailsView({ slug }: CollectionDetailsViewProps) {
+  const { t } = useTranslate();
   const settings = useSettingsContext();
+
+  const openSortFilter = useBoolean();
+
+  const [sortBy, setSortBy] = useState("priceAsc");
+
+  const [searchQuery] = useState("");
+
+  const debouncedQuery = useDebounce(searchQuery);
+
+  const [filters, setFilters] = useState(defaultFilters);
+
+  const [page, setPage] = useState(1);
+
+  const limit = 20;
 
   // Fetch collection by slug
   const { collection, collectionLoading, collectionError } = useGetCollectionBySlug(slug);
 
-  // State for cursor-based pagination
-  const [cursors, setCursors] = useState<string[]>([]);
-  const currentCursor = cursors.length > 0 ? cursors[cursors.length - 1] : undefined;
+  // Convert sortBy UI value to API sort_by and sort_order
+  const getApiSort = useCallback((sortValue: string) => {
+    const sortMap: Record<string, { sort_by: "created_at" | "updated_at" | "name" | "price" | "status"; sort_order: "ASC" | "DESC" }> = {
+      priceAsc: { sort_by: "price", sort_order: "ASC" },
+      priceDesc: { sort_by: "price", sort_order: "DESC" },
+      bestSelling: { sort_by: "created_at", sort_order: "DESC" }, // Fallback to newest for best selling
+      newest: { sort_by: "created_at", sort_order: "DESC" },
+      oldest: { sort_by: "created_at", sort_order: "ASC" },
+    };
+    return sortMap[sortValue] || sortMap.priceAsc;
+  }, []);
 
-  // Fetch products in collection
-  const {
-    products,
-    meta,
-    productsLoading,
-    productsError,
-  } = useGetCollectionProducts(collection?.id || "", 20, currentCursor);
-
-  // Handle load more
-  const handleLoadMore = useCallback(() => {
-    if (meta?.next_cursor) {
-      setCursors((prev) => [...prev, meta.next_cursor]);
+  // Get locale from i18n
+  const getLocale = useCallback(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("i18nextLng");
+      return stored || "en";
     }
-  }, [meta?.next_cursor]);
+    return "en";
+  }, []);
 
-  // Accumulated products for infinite scroll effect
-  const [accumulatedProducts, setAccumulatedProducts] = useState<any[]>([]);
+  // Build query parameters for API (only API-supported filters)
+  const queryParams = useMemo((): ProductQueryParams | null => {
+    // Don't create params until collection is loaded
+    if (!collection?.id) return null;
 
-  // Update accumulated products when new products are fetched
-  useMemo(() => {
-    if (products && products.length > 0) {
-      if (cursors.length === 0) {
-        // First page - replace all
-        setAccumulatedProducts(products);
-      } else {
-        // Subsequent pages - append
-        setAccumulatedProducts((prev) => {
-          const existingIds = new Set(prev.map((p) => p.id));
-          const newProducts = products.filter((p: any) => !existingIds.has(p.id));
-          return [...prev, ...newProducts];
-        });
-      }
+    const sortConfig = getApiSort(sortBy);
+
+    const params: ProductQueryParams = {
+      page,
+      limit,
+      locale: getLocale(),
+      status: "active",
+      collection_id: collection.id,
+      sort_by: sortConfig.sort_by,
+      sort_order: sortConfig.sort_order,
+    };
+
+    // Add search query
+    if (debouncedQuery) {
+      params.search = debouncedQuery;
     }
-  }, [products, cursors.length]);
+
+    return params;
+  }, [page, limit, debouncedQuery, sortBy, getApiSort, getLocale, collection?.id]);
+
+  // Fetch products with API-supported filters and pagination
+  const { products: apiProducts, productsLoading, productsEmpty, meta } = useGetProducts(
+    queryParams || undefined
+  );
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [sortBy, debouncedQuery]);
+
+  // Apply client-side filters for filters not supported by API
+  const products = useMemo(() => {
+    let filtered = [...apiProducts];
+
+    // Filter by gender
+    if (filters.gender && filters.gender.length > 0) {
+      filtered = filtered.filter((product) =>
+        filters.gender.includes(product.gender),
+      );
+    }
+
+    // Filter by colors
+    if (filters.colors && filters.colors.length > 0) {
+      filtered = filtered.filter((product) =>
+        product.colors.some((color) => filters.colors.includes(color)),
+      );
+    }
+
+    // Filter by price range
+    const [min, max] = filters.priceRange;
+    if (min !== 0 || max !== 200) {
+      filtered = filtered.filter(
+        (product) => product.price >= min && product.price <= max,
+      );
+    }
+
+    // Filter by rating
+    if (filters.rating) {
+      const convertRating = (value: string) => {
+        if (value === "up4Star") return 4;
+        if (value === "up3Star") return 3;
+        if (value === "up2Star") return 2;
+        return 1;
+      };
+      const minRating = convertRating(filters.rating);
+      filtered = filtered.filter((product) => product.totalRatings > minRating);
+    }
+
+    return filtered;
+  }, [apiProducts, filters]);
+
+  const handleFilters = useCallback(
+    (name: string, value: IProductFilterValue) => {
+      setFilters((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+      // Reset to page 1 when filters change
+      setPage(1);
+    },
+    [],
+  );
+
+  const handleResetFilters = useCallback(() => {
+    setFilters(defaultFilters);
+    setPage(1);
+  }, []);
+
+  const canReset = !isEqual(defaultFilters, filters);
+
+  // Note: notFound logic needs to account for client-side filtering
+  const notFound = (productsEmpty || products.length === 0) && canReset;
+
+  const handleSortBy = useCallback((newValue: string) => {
+    setSortBy(newValue);
+    setPage(1); // Reset to page 1 when sort changes
+  }, []);
+
+  const handlePageChange = useCallback((event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  // Calculate total pages based on API meta
+  const totalPages = meta?.totalPages || 1;
 
   // Loading state
   if (collectionLoading) {
@@ -84,7 +217,7 @@ export default function CollectionDetailsView({ slug }: CollectionDetailsViewPro
       <Container sx={{ py: 4 }}>
         <EmptyContent
           filled
-          title="Error loading collection"
+          title={t("collections.errorLoading") || "Error loading collection"}
           description={collectionError?.message || ""}
         />
       </Container>
@@ -97,8 +230,8 @@ export default function CollectionDetailsView({ slug }: CollectionDetailsViewPro
       <Container sx={{ py: 2 }}>
         <EmptyContent
           filled
-          title="Collection not found"
-          description="The collection you are looking for does not exist."
+          title={t("collections.notFound") || "Collection not found"}
+          description={t("collections.notFoundDescription") || "The collection you are looking for does not exist."}
         />
       </Container>
     );
@@ -110,12 +243,15 @@ export default function CollectionDetailsView({ slug }: CollectionDetailsViewPro
       <Container sx={{ py: 2 }}>
         <EmptyContent
           filled
-          title="Collection unavailable"
-          description="This collection is currently not available."
+          title={t("collections.unavailable") || "Collection unavailable"}
+          description={t("collections.unavailableDescription") || "This collection is currently not available."}
         />
       </Container>
     );
   }
+
+  // Total products count
+  const totalProducts = meta?.total || products.length;
 
   // Check if collection has a valid banner image
   const hasBannerImage = collection?.banner_image_url && collection.banner_image_url.trim() !== "";
@@ -206,8 +342,8 @@ export default function CollectionDetailsView({ slug }: CollectionDetailsViewPro
               mb: 1,
             }}
           >
-            {collection.description.length > 60 
-              ? `${collection.description.substring(0, 60)}...` 
+            {collection.description.length > 60
+              ? `${collection.description.substring(0, 60)}...`
               : collection.description}
           </Typography>
         )}
@@ -230,68 +366,73 @@ export default function CollectionDetailsView({ slug }: CollectionDetailsViewPro
 
         {/* Product count */}
         <Typography
-          variant="body2"
+          variant="body1"
           sx={{
             color: "common.white",
-            fontWeight: 400,
-            fontSize: { xs: "12px", sm: "13px" },
-            opacity: 0.75,
-            letterSpacing: "0.5px",
+            fontWeight: 500,
+            fontSize: { xs: "14px", sm: "16px" },
+            letterSpacing: "1px",
+            textTransform: "uppercase",
+            opacity: 0.9,
+            mb: 2,
           }}
         >
-          {accumulatedProducts.length} {accumulatedProducts.length === 1 ? "product" : "products"}
+          {totalProducts} {totalProducts === 1 ? t("shop.product") : t("shop.productsCount")}
         </Typography>
+
+        {/* Breadcrumbs inside hero */}
+        <CustomBreadcrumbs
+          links={[
+            { name: t("header.home"), href: "/" },
+            { name: t("collections.title") || "Collections", href: paths.collections.root },
+            { name: collection?.name || "" },
+          ]}
+          sx={{
+            "& .MuiBreadcrumbs-ol": {
+              justifyContent: "center",
+            },
+            "& .MuiLink-root, & .MuiTypography-root": {
+              color: "common.white",
+              opacity: 0.85,
+              fontSize: "13px",
+            },
+            "& .MuiBreadcrumbs-separator": {
+              color: "common.white",
+              opacity: 0.6,
+            },
+          }}
+        />
       </Box>
     </Box>
   );
 
-  const renderProducts = (
-    <>
-      {productsError ? (
-        <EmptyContent
-          filled
-          title="Error loading products"
-          description={productsError?.message || ""}
-          sx={{ py: 10 }}
-        />
-      ) : accumulatedProducts.length === 0 && !productsLoading ? (
-        <EmptyContent
-          filled
-          title="No products"
-          description="This collection doesn't have any products yet."
-          sx={{ py: 10 }}
-        />
-      ) : (
-        <>
-          <ProductList products={accumulatedProducts} loading={productsLoading && cursors.length === 0} />
+  const renderFilters = (
+    <ProductSortFilterAccordion
+      open={openSortFilter.value}
+      onToggle={openSortFilter.onToggle}
+      sort={sortBy}
+      onSort={handleSortBy}
+      sortOptions={PRODUCT_SORT_OPTIONS}
+      filters={filters}
+      onFilters={handleFilters}
+      colorOptions={PRODUCT_COLOR_OPTIONS}
+      canReset={canReset}
+      onResetFilters={handleResetFilters}
+    />
+  );
 
-          {/* Load More Button */}
-          {meta?.has_more && (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                mt: 5,
-              }}
-            >
-              <Button
-                variant="outlined"
-                size="large"
-                onClick={handleLoadMore}
-                disabled={productsLoading}
-                startIcon={productsLoading ? <CircularProgress size={20} /> : <Iconify icon="eva:arrow-ios-downward-fill" />}
-                sx={{
-                  minWidth: 200,
-                  borderRadius: 2,
-                }}
-              >
-                {productsLoading ? "Loading..." : "Load More"}
-              </Button>
-            </Box>
-          )}
-        </>
-      )}
-    </>
+  const renderResults = (
+    <ProductFiltersResult
+      filters={filters}
+      onFilters={handleFilters}
+      canReset={canReset}
+      onResetFilters={handleResetFilters}
+      results={meta?.total || products.length}
+    />
+  );
+
+  const renderNotFound = (
+    <EmptyContent filled title={t("common.noData") || "No Data"} sx={{ py: 10 }} />
   );
 
   return (
@@ -306,9 +447,66 @@ export default function CollectionDetailsView({ slug }: CollectionDetailsViewPro
           mb: 15,
         }}
       >
-        {renderProducts}
+        {/* Filter & Sort Bar */}
+        <Stack
+          spacing={2.5}
+          sx={{
+            mb: { xs: 3, md: 5 },
+          }}
+        >
+          {renderFilters}
+
+          {canReset && renderResults}
+        </Stack>
+
+        {(notFound || productsEmpty) && renderNotFound}
+
+        <ProductList products={products} loading={productsLoading} />
+
+        {/* Pagination */}
+        {!productsEmpty && totalPages > 1 && (
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="center"
+            spacing={2}
+            sx={{ mt: 6, mb: 2 }}
+          >
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              size="large"
+              showFirstButton
+              showLastButton
+              siblingCount={1}
+              boundaryCount={1}
+              sx={{
+                "& .MuiPaginationItem-root": {
+                  "&.Mui-selected": {
+                    fontWeight: 700,
+                  },
+                },
+              }}
+            />
+          </Stack>
+        )}
+
+        {/* Pagination Info */}
+        {!productsEmpty && meta && (
+          <Typography
+            variant="body2"
+            sx={{
+              textAlign: "center",
+              color: "text.secondary",
+              mb: 4,
+            }}
+          >
+            {t("common.showingResults") || "Showing"} {((page - 1) * limit) + 1}-{Math.min(page * limit, meta.total || 0)} {t("common.of") || "of"} {meta.total || 0} {t("shop.productsCount") || "products"}
+          </Typography>
+        )}
       </Container>
     </>
   );
 }
-

@@ -160,6 +160,8 @@
     "addAtLeastOneVariant": "Thêm ít nhất 1 biến thể",
     "variantSkuMustBeUnique": "SKU biến thể phải là duy nhất",
     "slugAlreadyExists": "Đường dẫn đã tồn tại",
+    "collections": "Bộ sưu tập",
+    "selectCollections": "Chọn bộ sưu tập (tùy chọn)",
     "updateSuccess": "Cập nhật thành công!",
     "createSuccess": "Tạo thành công!",
     "maximumFiveImagesAllowed": "Tối đa 5 hình ảnh được phép",
@@ -191,7 +193,14 @@
     "draftCleared": "Đã xóa bản nháp",
     "confirmClearDraft": "Bạn có chắc muốn xóa bản nháp và bắt đầu lại từ đầu?"
   },
-  "collections": "Bộ sưu tập",
+  "collections": {
+    "title": "Bộ sưu tập",
+    "notFound": "Không tìm thấy bộ sưu tập",
+    "notFoundDescription": "Bộ sưu tập mà bạn đang tìm kiếm không tồn tại.",
+    "unavailable": "Bộ sưu tập không khả dụng",
+    "unavailableDescription": "Bộ sưu tập này hiện không khả dụng.",
+    "errorLoading": "Lỗi khi tải bộ sưu tập"
+  },
   "categories": {
     "title": "Danh mục sản phẩm",
     "mainCategories": "Danh mục chính",
@@ -360,19 +369,25 @@
     "viewAllCollections": "Xem tất cả bộ sưu tập"
   },
   "footer": {
-    "weAre": "CHÚNG TÔI LÀ ...",
-    "ourStory": "Câu chuyện của chúng tôi",
-    "careers": "Tuyển dụng",
-    "contactUs": "LIÊN HỆ",
-    "email": "Email",
+    "about": "VỀ CHÚNG TÔI",
+    "swaslic": "SWASLIC",
+    "joinUs": "THAM GIA",
+    "contacts": "LIÊN HỆ",
+    "mail": "EMAIL",
+    "phone": "ĐIỆN THOẠI",
+    "social": "MẠNG XÃ HỘI",
     "policy": "CHÍNH SÁCH",
-    "shippingPolicy": "Chính sách vận chuyển",
-    "privacyPolicy": "Chính sách bảo mật",
-    "exchangePolicy": "Chính sách đổi trả",
-    "termsOfUse": "Điều khoản sử dụng",
-    "category": "Danh Mục",
-    "bikini": "Bikini",
-    "followUs": "THEO DÕI CHÚNG TÔI",
+    "shipping": "VẬN CHUYỂN",
+    "privacy": "BẢO MẬT",
+    "exchange": "ĐỔI TRẢ",
+    "faqs": "CÂU HỎI THƯỜNG GẶP",
+    "category": "DANH MỤC",
+    "allProducts": "TẤT CẢ SẢN PHẨM",
+    "newArrivals": "HÀNG MỚI VỀ",
+    "onePiece": "ĐỒ BƠI LIỀN",
+    "twoPieces": "ĐỒ BƠI HAI MẢNH",
+    "tops": "ÁO",
+    "bottoms": "QUẦN",
     "copyright": "© {{year}} NO NAME"
   }
 }

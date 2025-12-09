@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, MouseEvent, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, MouseEvent, useMemo } from "react";
 
 import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
@@ -39,6 +39,7 @@ import { useCheckoutContext } from "src/sections/checkout/context/checkout-conte
 import { CartPreviewDrawer } from "src/components/cart-preview";
 import { useGetCategoryTree, useGetCollections } from "src/api/reference";
 import { useTranslate } from "src/locales";
+import NavDropdown, { DropdownGroup, DropdownItem } from "./nav/nav-dropdown";
 
 // ----------------------------------------------------------------------
 
@@ -87,15 +88,6 @@ export default function HeaderEcom() {
   
   // Fetch collections from API
   const { collections, collectionsLoading } = useGetCollections();
-
-  // Shop mega menu state (2-level categories)
-  const [isShopMegaMenuOpen, setIsShopMegaMenuOpen] = useState(false);
-  const [activeShopParentId, setActiveShopParentId] = useState<number | null>(null);
-  const shopMegaMenuTimerRef = useRef<number | null>(null);
-
-  // Collection/Tags dropdown state  
-  const [isTagsDropdownOpen, setIsTagsDropdownOpen] = useState(false);
-  const tagsMenuTimerRef = useRef<number | null>(null);
 
   // Filter only active collections for display
   const activeCollections = useMemo(() => {
@@ -190,69 +182,30 @@ export default function HeaderEcom() {
   const parentGroupsWithChildren = groups.filter((g) => g.children.length > 0);
   const parentsWithoutChildren = groups.filter((g) => g.children.length === 0).map((g) => g.parent);
 
+  // Prepare data for NavDropdown components
+  const shopDropdownGroups: DropdownGroup[] = useMemo(
+    () =>
+      parentGroupsWithChildren.map((g) => ({
+        parent: { id: g.parent.id, name: g.parent.name, slug: g.parent.slug },
+        children: g.children.map((c) => ({ id: c.id, name: c.name, slug: c.slug })),
+      })),
+    [parentGroupsWithChildren]
+  );
 
-  // Shop mega menu handlers (2-level categories)
-  const clearShopMegaMenuTimer = useCallback(() => {
-    if (shopMegaMenuTimerRef.current) {
-      window.clearTimeout(shopMegaMenuTimerRef.current);
-      shopMegaMenuTimerRef.current = null;
-    }
-  }, []);
+  const shopOrphanItems: DropdownItem[] = useMemo(
+    () => parentsWithoutChildren.map((p) => ({ id: p.id, name: p.name, slug: p.slug })),
+    [parentsWithoutChildren]
+  );
 
-  const openShopMegaMenu = useCallback(() => {
-    clearShopMegaMenuTimer();
-    if (!parentGroupsWithChildren.length) {
-      setIsShopMegaMenuOpen(false);
-      return;
-    }
-    setIsShopMegaMenuOpen(true);
-    // Set default active parent to first item when opening
-    setActiveShopParentId((prev) => (prev == null ? parentGroupsWithChildren[0].parent.id : prev));
-  }, [clearShopMegaMenuTimer, parentGroupsWithChildren]);
-
-  const closeShopMegaMenu = useCallback(() => {
-    clearShopMegaMenuTimer();
-    shopMegaMenuTimerRef.current = window.setTimeout(() => {
-      setIsShopMegaMenuOpen(false);
-    }, 200);
-  }, [clearShopMegaMenuTimer]);
-
-  const handleSelectShopParent = useCallback((id: number) => {
-    setActiveShopParentId(id);
-  }, []);
-
-  // Get active parent group for shop mega menu
-  const activeShopParentGroup = useMemo(() => {
-    if (!parentGroupsWithChildren.length) {
-      return null;
-    }
-    if (activeShopParentId == null) {
-      return parentGroupsWithChildren[0];
-    }
-    return parentGroupsWithChildren.find((g) => g.parent.id === activeShopParentId) || parentGroupsWithChildren[0];
-  }, [activeShopParentId, parentGroupsWithChildren]);
-
-  const activeShopChildren = activeShopParentGroup?.children || [];
-
-  // Tags dropdown handlers
-  const clearTagsMenuTimer = useCallback(() => {
-    if (tagsMenuTimerRef.current) {
-      window.clearTimeout(tagsMenuTimerRef.current);
-      tagsMenuTimerRef.current = null;
-    }
-  }, []);
-
-  const openTagsDropdown = useCallback(() => {
-    clearTagsMenuTimer();
-    setIsTagsDropdownOpen(true);
-  }, [clearTagsMenuTimer]);
-
-  const closeTagsDropdown = useCallback(() => {
-    clearTagsMenuTimer();
-    tagsMenuTimerRef.current = window.setTimeout(() => {
-      setIsTagsDropdownOpen(false);
-    }, 200);
-  }, [clearTagsMenuTimer]);
+  const collectionDropdownItems: DropdownItem[] = useMemo(
+    () =>
+      activeCollections.map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+      })),
+    [activeCollections]
+  );
 
   return (
     <AppBar elevation={0} sx={{ bgcolor: "transparent", boxShadow: "none" }}>
@@ -328,423 +281,40 @@ export default function HeaderEcom() {
               >
                 {t("header.home")}
               </Link>
-              {/* Shop with 2-level mega menu */}
-              <Box
-                onMouseEnter={openShopMegaMenu}
-                onMouseLeave={closeShopMegaMenu}
-                sx={{ position: "relative" }}
-              >
-                <Link
-                  component={RouterLink}
+              {/* Shop with 2-level mega menu using NavDropdown */}
+              <NavDropdown
+                label={t("header.shop")}
                   href={paths.product.root}
-                  underline="none"
                   color={activeColor}
-                  sx={{
-                    typography: "subtitle2",
-                    letterSpacing: 1,
-                    textShadow: activeShadow,
-                    transition: "all 0.3s ease",
-                    cursor: "pointer",
-                    position: "relative",
-                    whiteSpace: "nowrap",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 0.5,
-                    pb: 0.5,
-                    borderBottom: "2px solid transparent",
-                    "&:hover": {
-                      borderBottomColor: "currentColor",
-                    },
-                  }}
-                >
-                  {t("header.shop")}
-                  <Iconify
-                    icon="eva:arrow-ios-downward-fill"
-                    width={16}
-                    sx={{
-                      transition: "transform 0.2s",
-                      transform: isShopMegaMenuOpen ? "rotate(180deg)" : "rotate(0deg)",
-                    }}
-                  />
-                </Link>
+                textShadow={activeShadow}
+                contentProps={{
+                  type: "two-level",
+                  groups: shopDropdownGroups,
+                  orphanItems: shopOrphanItems,
+                  orphanTitle: t("header.another"),
+                  allItemsLink: paths.product.root,
+                  allItemsText: t("header.allProducts"),
+                  emptyChildrenText: t("categories.categoryDetails.noProducts"),
+                  getItemHref: (slug) => paths.categories.details(slug),
+                }}
+              />
 
-                {/* Shop Mega Menu - 2 Level Categories */}
-                {isShopMegaMenuOpen && parentGroupsWithChildren.length > 0 && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      left: 0,
-                      top: "100%",
-                      mt: 1,
-                      bgcolor: "background.paper",
-                      borderRadius: 2,
-                      boxShadow: "0 24px 50px rgba(15, 23, 42, 0.18)",
-                      display: { xs: "none", md: "flex" },
-                      minHeight: 260,
-                      width: "max-content",
-                      minWidth: 600,
-                      maxWidth: 900,
-                      overflow: "hidden",
-                      zIndex: (theme) => theme.zIndex.appBar + 1,
-                    }}
-                    onMouseEnter={openShopMegaMenu}
-                    onMouseLeave={closeShopMegaMenu}
-                  >
-                    {/* Left column: parent categories */}
-                    <Box
-                      sx={{
-                        width: "28%",
-                        minWidth: 200,
-                        borderRight: 1,
-                        borderColor: "divider",
-                        py: 3,
-                        px: 2,
-                        bgcolor: "grey.50",
-                      }}
-                    >
-                      {/* All Products link */}
-                      <Link
-                        component={RouterLink}
-                        href={paths.product.root}
-                        underline="none"
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1.5,
-                          minHeight: 44,
-                          mb: 1,
-                          px: 1.5,
-                          borderRadius: 1,
-                          fontSize: 15,
-                          fontWeight: 600,
-                          color: "primary.main",
-                          transition: "all 0.2s ease",
-                          "&:hover": {
-                            bgcolor: "action.hover",
-                          },
-                        }}
-                      >
-                        <Iconify icon="solar:shop-bold-duotone" width={20} />
-                        {t("header.allProducts")}
-                      </Link>
-
-                      <Divider sx={{ mb: 1.5 }} />
-
-                      {parentGroupsWithChildren.map((g) => {
-                        const isActive = activeShopParentGroup?.parent.id === g.parent.id;
-                        return (
-                          <Box
-                            key={g.parent.id}
-                            onMouseEnter={() => handleSelectShopParent(g.parent.id)}
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              minHeight: 44,
-                              mb: 0.5,
-                              px: 1.5,
-                              borderRadius: 1,
-                              cursor: "pointer",
-                              bgcolor: isActive ? "action.hover" : "transparent",
-                              color: isActive ? "primary.main" : "text.primary",
-                              fontWeight: isActive ? 600 : 400,
-                              transition: "all 0.2s ease",
-                              "&:hover": {
-                                bgcolor: "action.hover",
-                                color: "primary.main",
-                                fontWeight: 600,
-                              },
-                            }}
-                          >
-                            <Typography
-                              variant="subtitle2"
-                              sx={{
-                                fontSize: 15,
-                                fontWeight: "inherit",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                width: "100%",
-                              }}
-                            >
-                              {g.parent.name}
-                            </Typography>
-                          </Box>
-                        );
-                      })}
-
-                      {parentsWithoutChildren.length > 0 && (
-                        <Box sx={{ mt: 2, pt: 2, borderTop: 1, borderColor: "divider" }}>
-                          <Typography
-                            variant="overline"
-                            sx={{
-                              fontSize: 11,
-                              color: "text.secondary",
-                              letterSpacing: 0.6,
-                              display: "block",
-                              mb: 1,
-                              px: 1.5,
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {t("header.another")}
-                          </Typography>
-                          {parentsWithoutChildren.map((p) => (
-                            <Link
-                              key={p.id}
-                              component={RouterLink}
-                              href={paths.categories.details(p.slug)}
-                              underline="none"
-                              sx={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                minHeight: 36,
-                                mb: 0.5,
-                                px: 1.5,
-                                fontSize: 14,
-                                color: "text.secondary",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                transition: "all 0.2s ease",
-                                borderBottom: "1px solid transparent",
-                                "&:hover": {
-                                  borderBottomColor: "currentColor",
-                                },
-                              }}
-                            >
-                              {p.name}
-                            </Link>
-                          ))}
-                        </Box>
-                      )}
-                    </Box>
-
-                    {/* Right panel: children categories */}
-                    <Box
-                      sx={{
-                        flex: 1,
-                        py: 3,
-                        px: 4,
-                        display: "flex",
-                        flexDirection: "column",
-                        bgcolor: "background.paper",
-                      }}
-                    >
-                      {activeShopParentGroup && (
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontSize: 18,
-                            fontWeight: 700,
-                            mb: 2,
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {activeShopParentGroup.parent.name}
-                        </Typography>
-                      )}
-
-                      {activeShopChildren.length === 0 ? (
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "text.secondary", mt: 1 }}
-                        >
-                          {t("categories.categoryDetails.noProducts")}
-                        </Typography>
-                      ) : (
-                        <Box
-                          sx={{
-                            display: "grid",
-                            gridTemplateColumns: {
-                              md: "repeat(3, minmax(0, 1fr))",
-                              lg: "repeat(3, minmax(0, 1fr))",
-                            },
-                            columnGap: 3,
-                            rowGap: 1.5,
-                          }}
-                        >
-                          {activeShopChildren.map((child: Category) => (
-                            <Link
-                              key={child.id}
-                              component={RouterLink}
-                              href={paths.categories.details(child.slug)}
-                              underline="none"
-                              sx={{
-                                fontSize: 14,
-                                fontWeight: 400,
-                                color: "text.primary",
-                                lineHeight: 1.5,
-                                py: 0.5,
-                                px: 1,
-                                transition: "all 0.2s ease",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                display: "inline-block",
-                                borderBottom: "1px solid transparent",
-                                "&:hover": {
-                                  borderBottomColor: "currentColor",
-                                },
-                              }}
-                            >
-                              {child.name}
-                            </Link>
-                          ))}
-                        </Box>
-                      )}
-                    </Box>
-                  </Box>
-                )}
-              </Box>
-
-              {/* Collection with tags dropdown */}
-              <Box
-                onMouseEnter={openTagsDropdown}
-                onMouseLeave={closeTagsDropdown}
-                sx={{ position: "relative" }}
-              >
-                <Typography
-                  component="span"
-                  sx={{
-                    typography: "subtitle2",
-                    letterSpacing: 1,
-                    color: activeColorValue,
-                    textShadow: activeShadow,
-                    cursor: "pointer",
-                    transition: "all 0.3s ease",
-                    whiteSpace: "nowrap",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 0.5,
-                    pb: 0.5,
-                    borderBottom: "2px solid transparent",
-                    "&:hover": {
-                      borderBottomColor: "currentColor",
-                    },
-                  }}
-                >
-                  {t("header.collection")}
-                  <Iconify
-                    icon="eva:arrow-ios-downward-fill"
-                    width={16}
-                    sx={{
-                      transition: "transform 0.2s",
-                      transform: isTagsDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
-                    }}
-                  />
-                </Typography>
-
-                {/* Collection Dropdown */}
-                {isTagsDropdownOpen && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      left: 0,
-                      top: "100%",
-                      mt: 1,
-                      bgcolor: "background.paper",
-                      borderRadius: 2,
-                      boxShadow: "0 24px 50px rgba(15, 23, 42, 0.18)",
-                      minWidth: 280,
-                      maxWidth: 320,
-                      overflow: "hidden",
-                      zIndex: (theme) => theme.zIndex.appBar + 1,
-                    }}
-                    onMouseEnter={openTagsDropdown}
-                    onMouseLeave={closeTagsDropdown}
-                  >
-                    <Box sx={{ py: 2 }}>
-                      <Typography
-                        variant="overline"
-                        sx={{
-                          fontSize: 11,
-                          color: "text.secondary",
-                          letterSpacing: 0.6,
-                          display: "block",
-                          px: 2.5,
-                          mb: 1,
-                        }}
-                      >
-                        {t("header.collection")}
-                      </Typography>
-
-                      {/* Collections list from API */}
-                      {collectionsLoading ? (
-                        <Box sx={{ px: 2.5, py: 2, textAlign: "center" }}>
-                          <Typography variant="body2" color="text.secondary">
-                            Loading...
-                          </Typography>
-                        </Box>
-                      ) : activeCollections.length === 0 ? (
-                        <Box sx={{ px: 2.5, py: 2, textAlign: "center" }}>
-                          <Typography variant="body2" color="text.secondary">
-                            No collections available
-                          </Typography>
-                        </Box>
-                      ) : (
-                        activeCollections.slice(0, 8).map((collection) => (
-                          <Box
-                            key={collection.id}
-                            sx={{
-                              px: 2.5,
-                              py: 1,
-                            }}
-                          >
-                            <Link
-                              component={RouterLink}
-                              href={paths.collections.details(collection.slug)}
-                              underline="none"
-                              sx={{
-                                display: "inline-block",
-                                fontSize: 14,
-                                color: "text.primary",
-                                transition: "all 0.2s ease",
-                                borderBottom: "1px solid transparent",
-                                "&:hover": {
-                                  borderBottomColor: "currentColor",
-                                },
-                              }}
-                            >
-                              {collection.name}
-                            </Link>
-                          </Box>
-                        ))
-                      )}
-
-                      {activeCollections.length > 0 && (
-                        <>
-                          <Divider sx={{ my: 1.5 }} />
-
-                          {/* View all collections link */}
-                          <Link
-                            component={RouterLink}
-                            href={paths.collections.root}
-                            underline="none"
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              gap: 0.5,
-                              px: 2.5,
-                              py: 1,
-                              fontSize: 13,
-                              fontWeight: 500,
-                              color: "primary.main",
-                              transition: "all 0.2s ease",
-                              "&:hover": {
-                                bgcolor: "primary.lighter",
-                              },
-                            }}
-                          >
-                            {t("header.viewAllCollections")}
-                            <Iconify icon="eva:arrow-ios-forward-fill" width={16} />
-                          </Link>
-                        </>
-                      )}
-                    </Box>
-                  </Box>
-                )}
-              </Box>
+              {/* Collection with single-level dropdown using NavDropdown */}
+              <NavDropdown
+                label={t("header.collection")}
+                color={activeColorValue}
+                textShadow={activeShadow}
+                contentProps={{
+                  type: "single",
+                  items: collectionDropdownItems,
+                  loading: collectionsLoading,
+                  emptyText: "No collections available",
+                  loadingText: "Loading...",
+                  viewAllLink: paths.collections.root,
+                  viewAllText: t("header.viewAllCollections"),
+                  getItemHref: (slug) => paths.collections.details(slug),
+                }}
+              />
             </Stack>
           </Box>
 

@@ -21,7 +21,7 @@ const YEAR = new Date().getFullYear();
 
 export default function Footer() {
   const { t } = useTranslate();
-  
+
   const mainFooter = (
     <Box
       component="footer"
@@ -38,100 +38,118 @@ export default function Footer() {
           justifyContent="space-between"
           alignItems="flex-start"
         >
+          {/* ABOUT Section */}
           <Grid xs={12} md={2.5}>
-            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
-              {t("footer.weAre")}
+            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 1 }}>
+              {t("footer.about")}
             </Typography>
             <Stack spacing={2} sx={{ mt: 3 }}>
               <Link
                 component={RouterLink}
                 href={paths.about}
                 color="inherit"
-                variant="body1"
+                variant="body2"
               >
-                {t("footer.ourStory")}
+                {t("footer.swaslic")}
               </Link>
-              <Link href="#" color="inherit" variant="body1">
-                {t("footer.contactUs")}
+              <Link href="#" color="inherit" variant="body2">
+                {t("footer.joinUs")}
               </Link>
             </Stack>
           </Grid>
 
-          <Grid xs={12} md={3}>
-            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
-              {t("footer.contactUs")}
+          {/* CONTACTS Section */}
+          <Grid xs={12} md={2.5}>
+            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 1 }}>
+              {t("footer.contacts")}
             </Typography>
             <Stack spacing={2} sx={{ mt: 3 }}>
               <Link
                 component={RouterLink}
                 href={paths.contact}
                 color="inherit"
-                variant="body1"
+                variant="body2"
                 sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
               >
-                <Iconify icon="solar:letter-broken" width={20} /> example@example.com
+                <Iconify icon="solar:letter-broken" width={18} />{" "}
+                {t("footer.mail")}
               </Link>
               <Link
                 href="#"
                 color="inherit"
-                variant="body1"
+                variant="body2"
                 sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
               >
-                <Iconify icon="solar:phone-linear" width={20} /> (+84) 1234567890
+                <Iconify icon="solar:phone-linear" width={18} />{" "}
+                {t("footer.phone")}
               </Link>
-              <Stack direction="row" spacing={2}>
-              <IconButton size="small">
-                <Iconify icon="mdi:instagram" width={22} />
-              </IconButton>
-              <IconButton size="small">
-                <Iconify icon="mdi:tiktok" width={22} />
-              </IconButton>
-            </Stack>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Typography variant="body2" color="inherit">
+                  {t("footer.social")}
+                </Typography>
+                <IconButton size="small">
+                  <Iconify icon="mdi:instagram" width={20} />
+                </IconButton>
+                <IconButton size="small">
+                  <Iconify icon="mdi:tiktok" width={20} />
+                </IconButton>
+              </Stack>
             </Stack>
           </Grid>
 
-          <Grid xs={12} md={3}>
-            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
+          {/* POLICY Section */}
+          <Grid xs={12} md={2.5}>
+            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 1 }}>
               {t("footer.policy")}
             </Typography>
             <Stack spacing={2} sx={{ mt: 3 }}>
-              <Link href="#" color="inherit" variant="body1">
-                {t("footer.shippingPolicy")}
+              <Link href="#" color="inherit" variant="body2">
+                {t("footer.shipping")}
               </Link>
-              <Link href="#" color="inherit" variant="body1">
-                {t("footer.privacyPolicy")}
+              <Link href="#" color="inherit" variant="body2">
+                {t("footer.privacy")}
               </Link>
-              <Link href="#" color="inherit" variant="body1">
-                {t("footer.exchangePolicy")}
+              <Link href="#" color="inherit" variant="body2">
+                {t("footer.exchange")}
               </Link>
-              <Link href="#" color="inherit" variant="body1">
-                {t("footer.termsOfUse")}
+              <Link href="#" color="inherit" variant="body2">
+                {t("footer.faqs")}
               </Link>
             </Stack>
           </Grid>
 
-          <Grid xs={12} md={2}>
-            <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: 1 }}>
+          {/* CATEGORY Section */}
+          <Grid xs={12} md={3}>
+            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 1 }}>
               {t("footer.category")}
             </Typography>
             <Stack spacing={2} sx={{ mt: 3 }}>
-              <Link href="#" color="inherit" variant="body1">
-                {t("footer.bikini")}
+              <Link
+                component={RouterLink}
+                href={paths.product.root}
+                color="inherit"
+                variant="body2"
+              >
+                {t("footer.allProducts")}
+              </Link>
+              <Link href="#" color="inherit" variant="body2">
+                {t("footer.newArrivals")}
+              </Link>
+              <Link href="#" color="inherit" variant="body2">
+                {t("footer.onePiece")}
+              </Link>
+              <Link href="#" color="inherit" variant="body2">
+                {t("footer.twoPieces")}
+              </Link>
+              <Link href="#" color="inherit" variant="body2">
+                {t("footer.tops")}
+              </Link>
+              <Link href="#" color="inherit" variant="body2">
+                {t("footer.bottoms")}
               </Link>
             </Stack>
           </Grid>
         </Grid>
-      </Container>
-
-      <Divider sx={{ mt: 6 }} />
-
-      <Container sx={{ py: 2 }}>
-        <Typography
-          variant="body2"
-          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-        >
-          {t("footer.copyright", { year: YEAR })}
-        </Typography>
       </Container>
     </Box>
   );

@@ -15,6 +15,7 @@ export type ProductQueryParams = {
   limit?: number;
   // Filter parameters (API supported)
   category_id?: string;
+  collection_id?: string; // Filter by collection
   status?: "active" | "draft" | "out_of_stock" | "discontinued";
   is_featured?: boolean;
   enable_sale_tag?: boolean;
@@ -54,6 +55,7 @@ export function useGetProducts(params?: ProductQueryParams) {
     
     // API supported filters
     if (params.category_id) queryParams.category_id = params.category_id;
+    if (params.collection_id) queryParams.collection_id = params.collection_id;
     if (params.status) queryParams.status = params.status;
     if (params.is_featured !== undefined) queryParams.is_featured = params.is_featured;
     if (params.enable_sale_tag !== undefined) queryParams.enable_sale_tag = params.enable_sale_tag;

@@ -59,6 +59,9 @@ export const createProductValidationSchema = (t: any) =>
       .of(Yup.string())
       .min(1, t('productForm.selectAtLeastOneSize'))
       .required(),
+    collectionIds: Yup.array()
+      .of(Yup.string())
+      .nullable(),
     images: Yup.array()
       .of(Yup.string().url(t('productForm.mustBeValidUrl')))
       .max(5, t('productForm.maxFiveImages')),
@@ -169,6 +172,7 @@ export const getDefaultProductFormValues = () => ({
   images: [] as string[],
   colorIds: [] as string[],
   sizeIds: [] as string[],
+  collectionIds: [] as string[],
   weight: undefined as number | undefined,
   dimensions: {
     length: undefined as number | undefined,

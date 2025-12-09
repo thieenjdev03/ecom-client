@@ -49,7 +49,7 @@ import FormProvider, {
 
 import { IProductItem } from "src/types/product";
 import { Product } from "src/types/product-dto";
-import { useGetCategories, useGetColors, useGetSizes, createCategory, createColor, createSize } from "src/api/reference";
+import { useGetCategories, useGetColors, useGetSizes, useGetCollections, createCategory, createColor, createSize } from "src/api/reference";
 import { createProduct, updateProduct } from "src/api/product";
 import { endpoints, fetcher } from "src/utils/axios";
 import useSWR from "swr";
@@ -68,6 +68,8 @@ type Props = {
   variant,
   colors,
   sizes,
+  selectedColorIds,
+  selectedSizeIds,
   isUploading,
   variantFileInputRef,
   onUploadImage,
@@ -77,6 +79,15 @@ type Props = {
   t
 }: any) => {
   const variantImageUrl = variant?.imageUrl || "";
+  
+  // Filter colors and sizes based on selected IDs from Attributes section
+  const availableColors = (selectedColorIds && selectedColorIds.length > 0)
+    ? colors.filter((c: any) => selectedColorIds.includes(c.id))
+    : colors;
+  const availableSizes = (selectedSizeIds && selectedSizeIds.length > 0)
+    ? sizes.filter((s: any) => selectedSizeIds.includes(s.id))
+    : sizes;
+  
   const selectedColor = colors.find((c: any) => c.id === variant?.colorId);
   const selectedSize = sizes.find((s: any) => s.id === variant?.sizeId);
 
@@ -287,7 +298,7 @@ type Props = {
                   size="small"
                 >
                   <option value="">{t("productForm.selectColor")}</option>
-                  {colors.map((c: any) => (
+                  {availableColors.map((c: any) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
                     </option>
@@ -328,7 +339,7 @@ type Props = {
                 size="small"
               >
                 <option value="">{t("productForm.selectSize")}</option>
-                {sizes.map((s: any) => (
+                {availableSizes.map((s: any) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
                   </option>
@@ -589,6 +600,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
 
   const { categories } = useGetCategories();
   const { colors } = useGetColors();
+  const { collections, collectionsLoading } = useGetCollections();
   
   // Watch the selected category to filter sizes by category
   const selectedCategoryId = watch("category");
@@ -770,6 +782,16 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       return { en: "", vi: "" };
     };
 
+    // Extract collection IDs if available
+    const collectionIds: string[] = [];
+    if ((product as any).collections && Array.isArray((product as any).collections)) {
+      (product as any).collections.forEach((c: any) => {
+        if (c?.id) collectionIds.push(c.id);
+      });
+    } else if ((product as any).collection_ids && Array.isArray((product as any).collection_ids)) {
+      collectionIds.push(...(product as any).collection_ids);
+    }
+
     return {
       name: getMultiLangField(product.name),
       slug: getMultiLangField(product.slug),
@@ -779,9 +801,11 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
       price: product.price ? Number(product.price) : 0,
       salePrice: product.sale_price ? Number(product.sale_price) : undefined,
       isFeatured: product.is_featured || false,
+      status: (product as any).status || 'active', // Map status from product
       category: product.category?.id || product.category_id || "",
       colorIds: Array.from(colorIdsSet),
       sizeIds: Array.from(sizeIdsSet),
+      collectionIds,
       manageVariants: hasVariants,
       sku: hasVariants ? "" : (product.sku || ""),
       stockQuantity: hasVariants ? 0 : (product.stock_quantity || 0),
@@ -1371,6 +1395,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
           cost_price: (data as any).costPrice != null ? Number((data as any).costPrice) : undefined,
           enable_sale_tag: Boolean((data as any).enable_sale_tag || false),
           is_featured: !!data.isFeatured,
+          status: data.status || 'active', // Status based on Publish switch
           meta_title: (data as any).metaTitle || undefined, // Already in multi-language format { en: "", vi: "" }
           meta_description: (data as any).metaDescription || undefined, // Already in multi-language format { en: "", vi: "" }
           weight: data.weight != null ? Number(data.weight) : undefined,
@@ -1382,6 +1407,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
             }
             : undefined,
           category_id: data.category,
+          collection_ids: (data as any).collectionIds?.length > 0 ? (data as any).collectionIds : undefined,
         };
 
         if (data.manageVariants) {
@@ -1862,11 +1888,20 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
   );
 
   const manageVariants = watch("manageVariants");
-  const isFeatured = watch("isFeatured");
-  const isSale = watch("isSale");
+  const _isFeatured = watch("isFeatured");
+  const _isSale = watch("isSale");
   const isNew = watch("isNew");
+  
+  // Get selected color and size IDs from Attributes section
+  const watchedColorIds = watch("colorIds");
+  const watchedSizeIds = watch("sizeIds");
 
-  const renderVariants = useMemo(() => (
+  const renderVariants = useMemo(() => {
+    // Move inside useMemo to avoid dependency changes on every render
+    const selectedColorIds = watchedColorIds || [];
+    const selectedSizeIds = watchedSizeIds || [];
+    
+    return (
     <>
       {manageVariants && (
         <>
@@ -1931,6 +1966,8 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                       variant={variant}
                       colors={colors}
                       sizes={sizes}
+                      selectedColorIds={selectedColorIds}
+                      selectedSizeIds={selectedSizeIds}
                       isUploading={isUploadingVariant}
                       variantFileInputRef={{
                         current: variantFileInputRefs.current.get(index) || null,
@@ -1955,7 +1992,8 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
         </>
       )}
     </>
-  ), [manageVariants, variantFields, colors, sizes, uploadingVariantImages, uploadingBulkVariantImages, mdUp, t, handleUploadVariantImage, handleDeleteVariantImage, handleBulkUploadVariantImages, removeVariant, appendVariant, getValues, langTab]);
+    );
+  }, [manageVariants, variantFields, colors, sizes, watchedColorIds, watchedSizeIds, uploadingVariantImages, uploadingBulkVariantImages, mdUp, t, handleUploadVariantImage, handleDeleteVariantImage, handleBulkUploadVariantImages, removeVariant, appendVariant, getValues, langTab]);
 
   const renderActions = (
     <>
@@ -1974,9 +2012,20 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <FormControlLabel
-              control={<Switch defaultChecked />}
-              label={t("productForm.publish")}
+            <Controller
+              name="status"
+              control={methods.control}
+              render={({ field }) => (
+                <FormControlLabel
+                  control={
+                    <Switch 
+                      checked={field.value === 'active'} 
+                      onChange={(e) => field.onChange(e.target.checked ? 'active' : 'inactive')}
+                    />
+                  }
+                  label={t("productForm.publish")}
+                />
+              )}
             />
             {!currentProduct && (
               <Button
@@ -2041,7 +2090,7 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                   {/* Category */}
                   <Stack direction="row" spacing={2} width="100%" alignItems="center">
                     <RHFSelect 
-                      sx={{ width: "90%" }}
+                      sx={{ width: "100%" }}
                       required 
                       native 
                       name="category" 
@@ -2055,78 +2104,80 @@ export default function ProductNewEditForm({ currentProduct }: Props) {
                         </option>
                       ))}
                     </RHFSelect>
-                    <IconButton size="small" color="primary" onClick={() => setOpenCreateCategory(true)} aria-label="add category">
-                      <i className="fa-solid fa-plus"></i>
-                    </IconButton>
                   </Stack>
 
-                  {/* Colors */}
-                  <Stack direction="row" spacing={2} width="100%" alignItems="center">
-                    <Box sx={{ flexGrow: 1 }}>
-                      <RHFMultiSelect
-                        sx={{ width: "100%" }}
-                        checkbox
-                        name="colorIds"
-                        label={t("productForm.colors")}
-                        required
-                        options={colors.map((c: any) => ({ label: c.name, value: c.id }))}
-                      />
-                      {/* Simple inline preview of selected colors using hex or image thumbnail */}
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
-                        {(watch("colorIds") || []).map((id: string) => {
-                          const color = colors.find((c: any) => c.id === id);
-                          if (!color) return null;
-                          return (
-                            <Box
-                              key={id}
-                              sx={{
-                                width: 18,
-                                height: 18,
-                                borderRadius: "50%",
-                                border: "1px solid",
-                                borderColor: "divider",
-                                bgcolor: color.hexCode || "transparent",
-                                overflow: "hidden",
-                              }}
-                              title={color.name}
-                            >
-                              {color.imageUrl && (
-                                <Box
-                                  component="img"
-                                  src={color.imageUrl}
-                                  alt={color.name}
-                                  sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                />
-                              )}
-                            </Box>
-                          );
-                        })}
-                      </Box>
-                    </Box>
-                    <IconButton
-                      sx={{ width: "30px", height: "30px" }}
-                      size="small"
-                      color="primary"
-                      onClick={() => setOpenCreateColor(true)}
-                      aria-label="add color"
-                    >
-                      <i className="fa-solid fa-plus"></i>
-                    </IconButton>
-                  </Stack>
+
 
                   {/* Sizes */}
                   <Stack direction="row" spacing={2} width="100%" alignItems="center">
                     <RHFMultiSelect
-                      sx={{ width: "90%" }}
+                      sx={{ width: "100%" }}
                       checkbox
                       name="sizeIds"
                       label={t("productForm.sizes")}
                       required
                       options={sizes.map((s: any) => ({ label: s.name, value: s.id }))}
                     />
-                    <IconButton size="small" color="primary" onClick={() => setOpenCreateSize(true)} aria-label="add size">
-                      <i className="fa-solid fa-plus"></i>
-                    </IconButton>
+                  </Stack>
+
+                  {/* Collections */}
+                  <Stack direction="row" spacing={2} width="100%" alignItems="center">
+                    <RHFMultiSelect
+                      sx={{ width: "100%" }}
+                      checkbox
+                      name="collectionIds"
+                      label={t("productForm.collections")}
+                      options={
+                        collectionsLoading
+                          ? []
+                          : (collections || [])
+                              .filter((c: any) => c.is_active)
+                              .map((c: any) => ({ label: c.name, value: c.id }))
+                      }
+                      placeholder={collectionsLoading ? "Loading..." : t("productForm.selectCollections")}
+                    />
+                  </Stack>
+                                    {/* Colors */}
+                  <Stack direction="column" spacing={2} width="100%">
+                    <RHFMultiSelect
+                      sx={{ width: "100%" }}
+                      checkbox
+                      name="colorIds"
+                      label={t("productForm.colors")}
+                      required
+                      options={colors.map((c: any) => ({ label: c.name, value: c.id }))}
+                    />
+                    {/* Simple inline preview of selected colors using hex or image thumbnail */}
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
+                      {(watch("colorIds") || []).map((id: string) => {
+                        const color = colors.find((c: any) => c.id === id);
+                        if (!color) return null;
+                        return (
+                          <Box
+                            key={id}
+                            sx={{
+                              width: 18,
+                              height: 18,
+                              borderRadius: "50%",
+                              border: "1px solid",
+                              borderColor: "divider",
+                              bgcolor: color.hexCode || "transparent",
+                              overflow: "hidden",
+                            }}
+                            title={color.name}
+                          >
+                            {color.imageUrl && (
+                              <Box
+                                component="img"
+                                src={color.imageUrl}
+                                alt={color.name}
+                                sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                              />
+                            )}
+                          </Box>
+                        );
+                      })}
+                    </Box>
                   </Stack>
               </Stack>
             </Collapse>

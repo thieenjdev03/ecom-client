@@ -160,6 +160,8 @@
     "addAtLeastOneVariant": "Add at least 1 variant",
     "variantSkuMustBeUnique": "Variant SKU must be unique",
     "slugAlreadyExists": "Slug already exists",
+    "collections": "Collections",
+    "selectCollections": "Select collections (optional)",
     "updateSuccess": "Update success!",
     "createSuccess": "Create success!",
     "maximumFiveImagesAllowed": "Maximum 5 images allowed",
@@ -191,7 +193,14 @@
     "draftCleared": "Draft cleared",
     "confirmClearDraft": "Are you sure you want to clear the draft and start over?"
   },
-  "collections": "Collections",
+  "collections": {
+    "title": "Collections",
+    "notFound": "Collection not found",
+    "notFoundDescription": "The collection you are looking for does not exist.",
+    "unavailable": "Collection unavailable",
+    "unavailableDescription": "This collection is currently not available.",
+    "errorLoading": "Error loading collection"
+  },
   "categories": {
     "title": "Categories",
     "mainCategories": "Main Categories",
@@ -238,6 +247,10 @@
     "selectAllAria": "Select all items",
     "deleteSelected": "Delete selected",
     "deleteSelectedAria": "Delete selected items"
+  },
+  "collection": {
+    "title": "Collections",
+    "selectCollections": "Select collections (optional)"
   },
   "productDetails": {
     "quantityMustBeGreaterThanZero": "Quantity must be greater than 0",
@@ -360,19 +373,25 @@
     "viewAllCollections": "View All Collections"
   },
   "footer": {
-    "weAre": "About",
-    "ourStory": "Lume Store",
-    "careers": "Careers",
-    "contactUs": "Join US",
-    "email": "Email",
+    "about": "ABOUT",
+    "swaslic": "SWASLIC",
+    "joinUs": "JOIN US",
+    "contacts": "CONTACTS",
+    "mail": "MAIL",
+    "phone": "PHONE",
+    "social": "SOCIAL",
     "policy": "POLICY",
-    "shippingPolicy": "Shipping policy",
-    "privacyPolicy": "Privacy Policy",
-    "exchangePolicy": "Exchange Policy",
-    "termsOfUse": "FAQs",
+    "shipping": "SHIPPING",
+    "privacy": "PRIVACY",
+    "exchange": "EXCHANGE",
+    "faqs": "FAQs",
     "category": "CATEGORY",
-    "bikini": "Bikini",
-    "followUs": "FOLLOW US",
+    "allProducts": "ALL PRODUCTS",
+    "newArrivals": "NEW - ARRIVALS",
+    "onePiece": "ONE PIECE",
+    "twoPieces": "TWO PIECES",
+    "tops": "TOPS",
+    "bottoms": "BOTTOMS",
     "copyright": "© {{year}} NO NAME"
   }
 }

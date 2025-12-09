@@ -48,6 +48,14 @@
   "item_external_link": "رابط خارجي للعنصر",
   "only_admin_can_see_this_item": "يمكن للمسؤول فقط رؤية هذا العنصر",
   "upgrade_to_pro": "الترقية إلى Pro",
+  "collections": {
+    "title": "المجموعات",
+    "notFound": "لم يتم العثور على المجموعة",
+    "notFoundDescription": "المجموعة التي تبحث عنها غير موجودة.",
+    "unavailable": "المجموعة غير متاحة",
+    "unavailableDescription": "هذه المجموعة غير متاحة حاليًا.",
+    "errorLoading": "خطأ في تحميل المجموعة"
+  },
   "demo": {
     "title": "Arabic"
   }

@@ -48,6 +48,14 @@
   "item_external_link": "lien externe de l'élément",
   "only_admin_can_see_this_item": "Seul l'administrateur peut voir cet élément",
   "upgrade_to_pro": "Passer à la version Pro",
+  "collections": {
+    "title": "Collections",
+    "notFound": "Collection non trouvée",
+    "notFoundDescription": "La collection que vous recherchez n'existe pas.",
+    "unavailable": "Collection indisponible",
+    "unavailableDescription": "Cette collection n'est actuellement pas disponible.",
+    "errorLoading": "Erreur lors du chargement de la collection"
+  },
   "demo": {
     "title": "France"
   }
