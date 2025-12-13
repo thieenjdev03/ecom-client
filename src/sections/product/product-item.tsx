@@ -2,9 +2,7 @@ import { useState } from "react";
 import Fab from "@mui/material/Fab";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
-import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
-import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 
 import { paths } from "src/routes/paths";
@@ -15,8 +13,7 @@ import { fCurrency } from "src/utils/format-number";
 import Label from "src/components/label";
 import Image from "src/components/image";
 import Iconify from "src/components/iconify";
-import { ColorPreview } from "src/components/color-utils";
-
+import Typography from "@mui/material/Typography";
 import { IProductItem, IApiProductItem } from "src/types/product";
 
 import { useCheckoutContext } from "../checkout/context";
@@ -35,11 +32,9 @@ export default function ProductItem({ product }: Props) {
   const { onAddToWishlist, onRemoveFromWishlist, isInWishlist } = useWishlistContext();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  console.log("product", product);
-  
   // Check if it's API product format or legacy format
   const isApiProduct = 'slug' in product && 'sale_price' in product;
-  
+
   let id: string;
   let name: string;
   let price: number;
@@ -80,19 +75,13 @@ export default function ProductItem({ product }: Props) {
     coverUrl = legacyProduct.coverUrl;
     variants = legacyProduct.variants;
   }
-  
+
   // Mock colors and sizes for now (can be updated when API provides this data)
   const colors = ['#000000', '#FFFFFF', '#FF0000']; // Default colors
   const sizes = ['S', 'M', 'L', 'XL']; // Default sizes
-  
+
   // Labels based on data
   const newLabel = { enabled: false, content: 'New' };
-  const saleLabel = { 
-    enabled: Boolean(priceSale),
-    content: priceSale && price && Number(price) > 0
-      ? `${Math.round(((Number(price) - Number(priceSale)) / Number(price)) * 100)}%`
-      : ""
-  };
   const linkTo = paths.product.details(id);
 
   const handleImageHover = () => {
@@ -175,23 +164,16 @@ export default function ProductItem({ product }: Props) {
     onAddToCart(newProduct);
   };
 
-  const renderLabels = (newLabel.enabled || saleLabel.enabled) && (
+  const renderLabels = newLabel.enabled && (
     <Stack
       direction="row"
       alignItems="center"
       spacing={1}
       sx={{ position: "absolute", zIndex: 9, top: 16, right: 16 }}
     >
-      {newLabel.enabled && (
-        <Label variant="filled" color="info">
-          {newLabel.content}
-        </Label>
-      )}
-      {saleLabel.enabled && (
-        <Label variant="filled" color="error">
-          {saleLabel.content}
-        </Label>
-      )}
+      <Label variant="filled" color="info">
+        {newLabel.content}
+      </Label>
     </Stack>
   );
 
@@ -209,6 +191,13 @@ export default function ProductItem({ product }: Props) {
       onMouseEnter={handleImageHover}
       onMouseLeave={handleImageLeave}
     >
+      <Image
+        alt={name}
+        src={images?.[currentImageIndex] || coverUrl}
+        ratio="1/1"
+        sx={{ borderRadius: 1.5 }}
+      />
+
       {!!available && !isFeatured && variants && variants.length > 0 && (
         <Fab
           color="warning"
@@ -236,41 +225,41 @@ export default function ProductItem({ product }: Props) {
 
   const renderContent = (
     <Stack spacing={1}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Link
-        component={RouterLink}
-        href={linkTo}
-        color="inherit"
-        variant="subtitle2"
-        noWrap
-        sx={{
-          fontSize: "1rem",
-          fontWeight: 600,
-          lineHeight: 1.4,
-          "&:hover": {
-            textDecoration: "underline",
-          },
-        }}
-      >
-        {name}
-      </Link>
-      <IconButton
-            size="small"
-            onClick={handleWishlistToggle}
-            sx={{
-              p: 0.5,
-              "&:hover": {
-                backgroundColor: "rgba(0, 0, 0, 0.04)",
-              },
-            }}
-          >
-            <Iconify 
-              icon={isInWishlist(id) ? "solar:heart-bold" : "solar:heart-outline"} 
-              width={20} 
-              sx={{ color: isInWishlist(id) ? "error.main" : "inherit" }}
-            />
-          </IconButton>
-        </Stack>
+          component={RouterLink}
+          href={linkTo}
+          color="inherit"
+          variant="subtitle2"
+          noWrap
+          sx={{
+            fontSize: "1rem",
+            fontWeight: 600,
+            lineHeight: 1.4,
+            "&:hover": {
+              textDecoration: "underline",
+            },
+          }}
+        >
+          {name}
+        </Link>
+        <IconButton
+          size="small"
+          onClick={handleWishlistToggle}
+          sx={{
+            p: 0.5,
+            "&:hover": {
+              backgroundColor: "rgba(0, 0, 0, 0.04)",
+            },
+          }}
+        >
+          <Iconify
+            icon={isInWishlist(id) ? "solar:heart-bold" : "solar:heart-outline"}
+            width={20}
+            sx={{ color: isInWishlist(id) ? "error.main" : "inherit" }}
+          />
+        </IconButton>
+      </Stack>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Stack direction="row" spacing={0.5} sx={{ typography: "subtitle1" }}>
           {priceSale && (
@@ -286,23 +275,14 @@ export default function ProductItem({ product }: Props) {
             {fCurrency(price)}
           </Box>
         </Stack>
-
-        <Stack direction="row" alignItems="center" spacing={1}>
-          {stock_quantity > 0 && (
-            <Box
-              sx={{
-                px: 1,
-                py: 0.5,
-                borderRadius: 1,
-                bgcolor: stock_quantity > 10 ? 'success.lighter' : 'warning.lighter',
-                typography: 'caption',
-                color: stock_quantity > 10 ? 'success.darker' : 'warning.darker',
-              }}
-            >
-              {stock_quantity} left
-            </Box>
+        <Stack direction="row" alignItems="flex-end" spacing={1}>
+          {priceSale && (
+            <Typography variant="subtitle2" sx={{ color: "error.main" }}>
+              -{Math.round(((Number(price) - Number(priceSale)) / Number(price)) * 100)}%
+            </Typography>
           )}
         </Stack>
+
       </Stack>
     </Stack>
   );
@@ -311,7 +291,7 @@ export default function ProductItem({ product }: Props) {
     <Box
       sx={{
         position: "relative",
-        borderRadius: 2,
+        borderRadius: 1.5,
         overflow: "hidden",
         transition: (theme) =>
           theme.transitions.create("all", {

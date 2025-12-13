@@ -55,7 +55,8 @@ export default function Footer() {
         py: 5,
         textAlign: "center",
         position: "relative",
-        bgcolor: "background.default",
+        bgcolor: "#ffffff",
+        width: "100%",
       }}
     >
       <Container>
@@ -75,7 +76,8 @@ export default function Footer() {
       component="footer"
       sx={{
         position: "relative",
-        bgcolor: "background.default",
+        bgcolor: "#ffffff",
+        width: "100%",
       }}
     >
       <Divider />
@@ -91,17 +93,16 @@ export default function Footer() {
 
         <Grid
           container
-          justifyContent={{
-            xs: "center",
-            md: "space-between",
-          }}
+          spacing={4}
+          justifyContent="center"
         >
-          <Grid xs={8} md={3}>
+          <Grid xs={12} md={3}>
             <Typography
               variant="body2"
               sx={{
                 maxWidth: 270,
-                mx: { xs: "auto", md: "unset" },
+                mx: "auto",
+                textAlign: "center",
               }}
             >
               The starting point for your next project with Minimal UI Kit,
@@ -111,7 +112,7 @@ export default function Footer() {
 
             <Stack
               direction="row"
-              justifyContent={{ xs: "center", md: "flex-start" }}
+              justifyContent="center"
               sx={{
                 mt: 3,
                 mb: { xs: 5, md: 0 },
@@ -132,34 +133,30 @@ export default function Footer() {
             </Stack>
           </Grid>
 
-          <Grid xs={12} md={6}>
-            <Stack spacing={5} direction={{ xs: "column", md: "row" }}>
-              {LINKS.map((list) => (
-                <Stack
-                  key={list.headline}
-                  spacing={2}
-                  alignItems={{ xs: "center", md: "flex-start" }}
-                  sx={{ width: 1 }}
-                >
-                  <Typography component="div" variant="overline">
-                    {list.headline}
-                  </Typography>
+          {LINKS.map((list) => (
+            <Grid xs={12} sm={6} md={2} key={list.headline}>
+              <Stack
+                spacing={2}
+                alignItems="center"
+              >
+                <Typography component="div" variant="overline">
+                  {list.headline}
+                </Typography>
 
-                  {list.children.map((link) => (
-                    <Link
-                      key={link.name}
-                      component={RouterLink}
-                      href={link.href}
-                      color="inherit"
-                      variant="body2"
-                    >
-                      {link.name}
-                    </Link>
-                  ))}
-                </Stack>
-              ))}
-            </Stack>
-          </Grid>
+                {list.children.map((link) => (
+                  <Link
+                    key={link.name}
+                    component={RouterLink}
+                    href={link.href}
+                    color="inherit"
+                    variant="body2"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </Stack>
+            </Grid>
+          ))}
         </Grid>
 
         <Typography variant="body2" sx={{ mt: 10 }}>

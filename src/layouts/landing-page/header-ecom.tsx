@@ -62,9 +62,11 @@ export default function HeaderEcom() {
       : "common.white"
     : "text.primary";
   const activeShadow =
-    isHome && !offsetTop
-      ? "0 0 10px rgba(0, 0, 0, 0.5)"
-      : "0 0 10px rgba(0, 0, 0, 0.2)";
+    applyBlur
+      ? "none"
+      : isHome && !offsetTop
+        ? "0 0 10px rgba(0, 0, 0, 0.5)"
+        : "0 0 10px rgba(0, 0, 0, 0.2)";
   const activeColorValue =
     isHome && !offsetTop
       ? theme.palette.common.white
@@ -357,14 +359,12 @@ export default function HeaderEcom() {
                 "& .MuiIconButton-root": {
                   color: activeColor,
                   transition: "all 0.3s ease",
+                  borderBottom: "2px solid transparent",
                   "&:hover": {
-                    color: theme.palette.primary.main,
-                    transform: "scale(1.1)",
-                    backgroundColor: "rgba(0, 0, 0, 0.05)",
+                    borderBottomColor: "currentColor",
                   },
                 },
                 "& .MuiIconButton-root svg": {
-                  textShadow: activeShadow,
                   width: { xs: 18, md: 22 },
                   height: { xs: 18, md: 22 },
                 },
@@ -373,24 +373,22 @@ export default function HeaderEcom() {
               <LanguagePopover />
             </Box>
             {/* Wishlist */}
-            <IconButton 
-              component={RouterLink} 
-              href={paths.landing.product.wishlist} 
-              color="inherit" 
-              sx={{ 
+            <IconButton
+              component={RouterLink}
+              href={paths.landing.product.wishlist}
+              color="inherit"
+              sx={{
                 color: activeColor,
                 transition: "all 0.3s ease",
+                borderBottom: "2px solid transparent",
                 "&:hover": {
-                  color: theme.palette.error.main,
-                  transform: "scale(1.1)",
-                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                  borderBottomColor: "currentColor",
                 },
               }}
             >
               <Iconify
                 icon="solar:heart-linear"
                 width={{ xs: 20, md: 22 }}
-                sx={{ textShadow: activeShadow }}
               />
             </IconButton>
             {/* User Account */}
@@ -399,10 +397,9 @@ export default function HeaderEcom() {
               sx={{
                 color: activeColor,
                 transition: "all 0.3s ease",
+                borderBottom: "2px solid transparent",
                 "&:hover": {
-                  color: theme.palette.primary.main,
-                  transform: "scale(1.1)",
-                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                  borderBottomColor: "currentColor",
                 },
               }}
               onClick={handleOpenAccountMenu}
@@ -412,7 +409,6 @@ export default function HeaderEcom() {
               <Iconify
                 icon="solar:user-linear"
                 width={{ xs: 20, md: 22 }}
-                sx={{ textShadow: activeShadow }}
               />
             </IconButton>
           
@@ -420,21 +416,19 @@ export default function HeaderEcom() {
             <IconButton
               color="inherit"
               onClick={checkout.onOpenCartPreview}
-              sx={{ 
+              sx={{
                 color: activeColor,
                 transition: "all 0.3s ease",
                 position: "relative",
+                borderBottom: "2px solid transparent",
                 "&:hover": {
-                  color: theme.palette.success.main,
-                  transform: "scale(1.1)",
-                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                  borderBottomColor: "currentColor",
                 },
               }}
             >
               <Iconify
                 icon="solar:bag-3-linear"
                 width={{ xs: 20, md: 22 }}
-                sx={{ textShadow: activeShadow }}
               />
               {checkout.totalItems > 0 && (
                 <Box

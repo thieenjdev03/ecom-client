@@ -18,7 +18,7 @@ export default function MainLayout({ children }: Props) {
   const homePage = pathname === "/" || !isDashboardPage;
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: 1 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <HeaderEcom />
 
       <Box

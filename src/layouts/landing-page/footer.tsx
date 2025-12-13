@@ -22,13 +22,15 @@ const YEAR = new Date().getFullYear();
 export default function Footer() {
   const { t } = useTranslate();
 
-  const mainFooter = (
+const mainFooter = (
     <Box
       component="footer"
       sx={{
         position: "relative",
-        bgcolor: "background.default",
+        bgcolor: "#ffffff",
         borderTop: (theme) => `1px solid ${theme.palette.divider}`,
+        width: "100%",
+        pb: 4,
       }}
     >
       <Container sx={{ pt: 6, pb: 0 }}>
@@ -84,9 +86,6 @@ export default function Footer() {
                 {t("footer.phone")}
               </Link>
               <Stack direction="row" spacing={1} alignItems="center">
-                <Typography variant="body2" color="inherit">
-                  {t("footer.social")}
-                </Typography>
                 <IconButton size="small">
                   <Iconify icon="mdi:instagram" width={20} />
                 </IconButton>
