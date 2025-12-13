@@ -18,7 +18,6 @@ import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 
-import IconButton from "@mui/material/IconButton";
 
 import { usePathname } from "next/navigation";
 import Iconify from "src/components/iconify";
@@ -40,6 +39,7 @@ import { CartPreviewDrawer } from "src/components/cart-preview";
 import { useGetCategoryTree, useGetCollections } from "src/api/reference";
 import { useTranslate } from "src/locales";
 import NavDropdown, { DropdownGroup, DropdownItem } from "./nav/nav-dropdown";
+import Logo from "src/components/logo";
 
 // ----------------------------------------------------------------------
 
@@ -139,9 +139,9 @@ export default function HeaderEcom() {
   }, []);
 
   const handleOpenAccountMenu = useCallback(
-    (event: MouseEvent<HTMLButtonElement>) => {
+    (event: MouseEvent<Element>) => {
       if (isAuthenticated) {
-        setAccountMenuAnchor(event.currentTarget);
+        setAccountMenuAnchor(event.currentTarget as HTMLElement);
         return;
       }
       router.push(paths.auth.jwt.login);
@@ -231,16 +231,21 @@ export default function HeaderEcom() {
         <Container sx={{ height: 1, display: "flex", alignItems: "center", px: { xs: 1, sm: 2 } }}>
           {/* Mobile Menu Button */}
           {!mdUp && (
-            <IconButton
+            <Box
               onClick={handleOpenMobileMenu}
               sx={{
                 color: activeColor,
-                transition: "all 0.3s ease",
                 mr: 1,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                p: 1,
+                pb: 0.5,
+                transition: "all 0.3s ease",
+                borderBottom: "2px solid transparent",
                 "&:hover": {
-                  color: theme.palette.primary.main,
-                  transform: "scale(1.1)",
-                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                  borderBottomColor: "currentColor",
                 },
               }}
             >
@@ -249,7 +254,7 @@ export default function HeaderEcom() {
                 width={24}
                 sx={{ textShadow: activeShadow }}
               />
-            </IconButton>
+            </Box>
           )}
 
           {/* Desktop Navigation with mega categories menu */}
@@ -271,14 +276,9 @@ export default function HeaderEcom() {
                   typography: "subtitle2",
                   letterSpacing: 1,
                   textShadow: activeShadow,
-                  transition: "all 0.3s ease",
                   cursor: "pointer",
                   whiteSpace: "nowrap",
                   pb: 0.5,
-                  borderBottom: "2px solid transparent",
-                  "&:hover": {
-                    borderBottomColor: "currentColor",
-                  },
                 }}
               >
                 {t("header.home")}
@@ -322,28 +322,29 @@ export default function HeaderEcom() {
 
           {/* Logo */}
           <Box sx={{ flex: { xs: 1, md: 0 }, textAlign: "left" }}>
-            <Typography
-              variant={mdUp ? "h3" : "h4"}
-              component={RouterLink}
-              href="/"
+            <Logo
               sx={{
-                fontWeight: 700,
-                letterSpacing: { xs: 2, md: 8 },
+                width: { xs: 80, sm: 90, md: 120 },
+                height: { xs: 40, sm: 45, md: 60 },
                 color: activeColor,
-                textShadow: activeShadow,
-                textDecoration: "none",
-                display: "block",
-                transition: "all 0.3s ease",
+                filter: activeShadow !== "none" ? activeShadow : "none",
                 cursor: "pointer",
+                pb: 0.5,
+                transition: "all 0.3s ease",
+                borderBottom: "2px solid transparent",
                 "&:hover": {
-                  color: theme.palette.primary.main,
                   transform: "scale(1.05)",
-                  textShadow: "0 6px 12px rgba(0, 0, 0, 0.4)",
+                  borderBottomColor: "currentColor",
+                  filter: `drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15)) ${activeShadow !== "none" ? activeShadow : ""}`,
+                },
+                "& img": {
+                  transition: "transform 0.3s ease",
+                },
+                "&:hover img": {
+                  transform: "scale(1.02)",
                 },
               }}
-            >
-              LUMÉ
-            </Typography>
+            />
           </Box>
 
           {/* Right side icons */}
@@ -354,55 +355,42 @@ export default function HeaderEcom() {
             sx={{ flex: { xs: 0, md: 1 }, justifyContent: "flex-end" }}
           >
             {/* Language Popover */}
+            <LanguagePopover />
+            {/* Wishlist */}
             <Box
               sx={{
-                "& .MuiIconButton-root": {
-                  color: activeColor,
-                  transition: "all 0.3s ease",
-                  borderBottom: "2px solid transparent",
-                  "&:hover": {
-                    borderBottomColor: "currentColor",
-                  },
-                },
-                "& .MuiIconButton-root svg": {
-                  width: { xs: 18, md: 22 },
-                  height: { xs: 18, md: 22 },
-                },
-              }}
-            >
-              <LanguagePopover />
-            </Box>
-            {/* Wishlist */}
-            <IconButton
-              component={RouterLink}
-              href={paths.landing.product.wishlist}
-              color="inherit"
-              sx={{
                 color: activeColor,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                p: 1,
+                pb: 0.5,
                 transition: "all 0.3s ease",
                 borderBottom: "2px solid transparent",
-                "&:hover": {
-                  borderBottomColor: "currentColor",
-                },
               }}
             >
               <Iconify
                 icon="solar:heart-linear"
                 width={{ xs: 20, md: 22 }}
               />
-            </IconButton>
+            </Box>
             {/* User Account */}
-            <IconButton
-              color="inherit"
+            <Box
+              onClick={handleOpenAccountMenu}
               sx={{
                 color: activeColor,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                p: 1,
+                pb: 0.5,
                 transition: "all 0.3s ease",
                 borderBottom: "2px solid transparent",
                 "&:hover": {
                   borderBottomColor: "currentColor",
                 },
               }}
-              onClick={handleOpenAccountMenu}
               aria-haspopup="true"
               aria-controls={isAccountMenuOpen ? "header-account-menu" : undefined}
             >
@@ -410,16 +398,21 @@ export default function HeaderEcom() {
                 icon="solar:user-linear"
                 width={{ xs: 20, md: 22 }}
               />
-            </IconButton>
+            </Box>
           
             {/* Cart */}
-            <IconButton
-              color="inherit"
+            <Box
               onClick={checkout.onOpenCartPreview}
               sx={{
                 color: activeColor,
-                transition: "all 0.3s ease",
+                cursor: "pointer",
                 position: "relative",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                p: 1,
+                pb: 0.5,
+                transition: "all 0.3s ease",
                 borderBottom: "2px solid transparent",
                 "&:hover": {
                   borderBottomColor: "currentColor",
@@ -452,7 +445,7 @@ export default function HeaderEcom() {
                   {checkout.totalItems > 99 ? "99+" : checkout.totalItems}
                 </Box>
               )}
-            </IconButton>
+            </Box>
           </Stack>
         </Container>
       </Toolbar>
@@ -472,24 +465,32 @@ export default function HeaderEcom() {
       >
         <Scrollbar>
           <Box sx={{ p: 2.5 }}>
-            <Stack direction="row" alignItems="left" justifyContent="space-between" sx={{ mb: 3 }}>
-              <Typography
-                variant="h5"
-                component={RouterLink}
-                href="/"
+            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
+              <Logo
+                sx={{
+                  width: 80,
+                  height: 40,
+                }}
+                onClick={handleCloseMobileMenu}
+              />
+              <Box
                 onClick={handleCloseMobileMenu}
                 sx={{
-                  fontWeight: 700,
-                  letterSpacing: 2,
-                  color: "text.primary",
-                  textDecoration: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  p: 1,
+                  pb: 0.5,
+                  transition: "all 0.3s ease",
+                  borderBottom: "2px solid transparent",
+                  "&:hover": {
+                    borderBottomColor: "currentColor",
+                  },
                 }}
               >
-                LUMÉ
-              </Typography>
-              <IconButton onClick={handleCloseMobileMenu}>
                 <Iconify icon="solar:close-circle-bold" width={24} />
-              </IconButton>
+              </Box>
             </Stack>
 
             <Divider sx={{ mb: 2 }} />
