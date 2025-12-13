@@ -74,7 +74,6 @@ export default function HeaderEcom() {
   const userProfile = useAuthContext();
   const checkout = useCheckoutContext();
   // Mobile menu state
-  console.log('userProfile', userProfile);
   const isAuthenticated = Boolean(userProfile?.authenticated);
   const userEmail = userProfile?.user?.email as string | undefined;
   const logoutUser = userProfile?.logout;

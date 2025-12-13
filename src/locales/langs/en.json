@@ -4,7 +4,6 @@
   "user": "user",
   "list": "list",
   "edit": "edit",
-  "shop": "shop",
   "blog": "blog",
   "post": "post",
   "mail": "mail",
@@ -328,6 +327,10 @@
     "justNow": "just now",
     "minutesAgo": "{minutes} minutes ago",
     "hoursAgo": "{hours} hours ago"
+  },
+  "common": {
+    "showingResults": "Showing",
+    "of": "of"
   },
   "shop": {
     "title": "Shop",

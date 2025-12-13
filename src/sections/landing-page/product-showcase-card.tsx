@@ -227,36 +227,23 @@ export default function ProductShowcaseCard({
 
   return (
     <Box sx={{ px: 1, height: "100%" }}>
-      <Link
-        component={RouterLink}
-        href={linkTo}
+      <Box
         sx={{
-          display: "block",
+          display: "flex",
+          alignItems: "stretch",
+          flexDirection: isPriceBottom ? "column-reverse" : "row",
           height: "100%",
-          textDecoration: "none",
+          position: "relative",
+          transition: (theme) =>
+            theme.transitions.create("all", {
+              easing: theme.transitions.easing.easeInOut,
+              duration: theme.transitions.duration.shorter,
+            }),
           "&:hover": {
-            textDecoration: "none",
+            transform: "translateY(-2px)",
           },
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "stretch",
-            flexDirection: isPriceBottom ? "column-reverse" : "row",
-            height: "100%",
-            position: "relative",
-            cursor: "pointer",
-            transition: (theme) =>
-              theme.transitions.create("all", {
-                easing: theme.transitions.easing.easeInOut,
-                duration: theme.transitions.duration.shorter,
-              }),
-            "&:hover": {
-              transform: "translateY(-2px)",
-            },
-          }}
-        >
           <Stack
             spacing={1}
             sx={{
@@ -268,9 +255,20 @@ export default function ProductShowcaseCard({
             }}
           >
             <Stack direction="row" alignItems="center" justifyContent="space-between">
-              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                {product.name}
-              </Typography>
+              <Link
+                component={RouterLink}
+                href={linkTo}
+                sx={{
+                  textDecoration: "none",
+                  "&:hover": {
+                    textDecoration: "none",
+                  },
+                }}
+              >
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, cursor: "pointer" }}>
+                  {product.name}
+                </Typography>
+              </Link>
               {showWishlistButton && (
                 <IconButton
                   size="small"
@@ -352,8 +350,7 @@ export default function ProductShowcaseCard({
             />
           </Box>
         </Box>
-      </Link>
-    </Box>
+      </Box>
   );
 }
 

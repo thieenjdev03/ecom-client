@@ -62,6 +62,10 @@ export default function HomeProductShowcase({
     slidesToShow: effectiveLayout === "price-bottom" ? 5 : 4,
     slidesToScroll: 1,
     infinite: false,
+    swipe: true,
+    swipeToSlide: true,
+    touchMove: true,
+    draggable: true,
     responsive: [
       {
         breakpoint: 1200,
@@ -267,7 +271,7 @@ export default function HomeProductShowcase({
         }}
       >
         <CarouselArrows
-          filled
+          filled={false}
           onPrev={carousel.onPrev}
           onNext={carousel.onNext}
           sx={{ height: 1 }}

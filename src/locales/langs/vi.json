@@ -4,7 +4,6 @@
   "user": "người dùng",
   "list": "danh sách",
   "edit": "chỉnh sửa",
-  "shop": "cửa hàng",
   "blog": "blog",
   "post": "bài viết",
   "mail": "thư",
@@ -324,6 +323,10 @@
     "justNow": "vừa xong",
     "minutesAgo": "{minutes} phút trước",
     "hoursAgo": "{hours} giờ trước"
+  },
+  "common": {
+    "showingResults": "Hiển thị",
+    "of": "của"
   },
   "shop": {
     "title": "Cửa hàng",

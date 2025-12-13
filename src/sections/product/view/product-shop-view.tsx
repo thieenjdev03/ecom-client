@@ -6,7 +6,6 @@ import { useState, useCallback, useMemo } from "react";
 import Stack from "@mui/material/Stack";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import Pagination from "@mui/material/Pagination";
 import Box from "@mui/material/Box";
 import { alpha } from "@mui/material/styles";
 
@@ -412,25 +411,15 @@ export default function ProductShopView() {
 
       {(notFound || productsEmpty) && renderNotFound}
 
-      <ProductList products={products} loading={productsLoading} />
-
-      {!productsEmpty && totalPages > 1 && (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            mt: 5,
-          }}
-        >
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={handlePageChange}
-            color="primary"
-            size="large"
-          />
-        </Box>
-      )}
+      <ProductList
+        products={products}
+        loading={productsLoading}
+        page={page}
+        totalPages={totalPages}
+        total={meta?.total || 0}
+        limit={limit}
+        onPageChange={handlePageChange}
+      />
     </Container>
   );
 }

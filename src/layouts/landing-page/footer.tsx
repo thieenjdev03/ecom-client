@@ -1,7 +1,6 @@
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
-import Divider from "@mui/material/Divider";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Unstable_Grid2";
 import IconButton from "@mui/material/IconButton";
@@ -12,10 +11,6 @@ import { RouterLink } from "src/routes/components";
 
 import Iconify from "src/components/iconify";
 import { useTranslate } from "src/locales";
-
-// ----------------------------------------------------------------------
-
-const YEAR = new Date().getFullYear();
 
 // ----------------------------------------------------------------------
 
@@ -42,19 +37,20 @@ const mainFooter = (
         >
           {/* ABOUT Section */}
           <Grid xs={12} md={2.5}>
-            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 1, textAlign: 'center' }}>
               {t("footer.about")}
             </Typography>
-            <Stack spacing={2} sx={{ mt: 3 }}>
+            <Stack spacing={2} sx={{ mt: 3, justifyContent: "center", alignItems: "center" }}>
               <Link
                 component={RouterLink}
                 href={paths.about}
                 color="inherit"
                 variant="body2"
+                sx={{ textAlign: 'center' }}
               >
                 {t("footer.swaslic")}
               </Link>
-              <Link href="#" color="inherit" variant="body2">
+              <Link href="#" color="inherit" variant="body2" sx={{ textAlign: 'center' }}>
                 {t("footer.joinUs")}
               </Link>
             </Stack>
@@ -62,16 +58,16 @@ const mainFooter = (
 
           {/* CONTACTS Section */}
           <Grid xs={12} md={2.5}>
-            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 1, textAlign: 'center' }}>
               {t("footer.contacts")}
             </Typography>
-            <Stack spacing={2} sx={{ mt: 3 }}>
+            <Stack spacing={2} sx={{ mt: 3, justifyContent: "center", alignItems: "center" }}>
               <Link
                 component={RouterLink}
                 href={paths.contact}
                 color="inherit"
                 variant="body2"
-                sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
+                sx={{ display: "inline-flex", alignItems: "center", gap: 1, textAlign: 'center' }}
               >
                 <Iconify icon="solar:letter-broken" width={18} />{" "}
                 {t("footer.mail")}
@@ -80,7 +76,7 @@ const mainFooter = (
                 href="#"
                 color="inherit"
                 variant="body2"
-                sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
+                sx={{ display: "inline-flex", alignItems: "center", gap: 1, textAlign: 'center' }}
               >
                 <Iconify icon="solar:phone-linear" width={18} />{" "}
                 {t("footer.phone")}
@@ -98,20 +94,20 @@ const mainFooter = (
 
           {/* POLICY Section */}
           <Grid xs={12} md={2.5}>
-            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 1, textAlign: 'center' }}>
               {t("footer.policy")}
             </Typography>
-            <Stack spacing={2} sx={{ mt: 3 }}>
-              <Link href="#" color="inherit" variant="body2">
+            <Stack spacing={2} sx={{ mt: 3, justifyContent: "center", alignItems: "center" }}>
+              <Link href="#" color="inherit" variant="body2" sx={{ textAlign: 'center' }}>
                 {t("footer.shipping")}
               </Link>
-              <Link href="#" color="inherit" variant="body2">
+              <Link href="#" color="inherit" variant="body2" sx={{ textAlign: 'center' }}>
                 {t("footer.privacy")}
               </Link>
-              <Link href="#" color="inherit" variant="body2">
+              <Link href="#" color="inherit" variant="body2" sx={{ textAlign: 'center' }}>
                 {t("footer.exchange")}
               </Link>
-              <Link href="#" color="inherit" variant="body2">
+              <Link href="#" color="inherit" variant="body2" sx={{ textAlign: 'center' }}>
                 {t("footer.faqs")}
               </Link>
             </Stack>
@@ -119,31 +115,32 @@ const mainFooter = (
 
           {/* CATEGORY Section */}
           <Grid xs={12} md={3}>
-            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: 1, textAlign: 'center' }}>
               {t("footer.category")}
             </Typography>
-            <Stack spacing={2} sx={{ mt: 3 }}>
+            <Stack spacing={2} sx={{ mt: 3, justifyContent: "center", alignItems: "center" }}>
               <Link
                 component={RouterLink}
                 href={paths.product.root}
                 color="inherit"
                 variant="body2"
+                sx={{ textAlign: 'center' }}
               >
                 {t("footer.allProducts")}
               </Link>
-              <Link href="#" color="inherit" variant="body2">
+              <Link href="#" color="inherit" variant="body2" sx={{ textAlign: 'center' }}>
                 {t("footer.newArrivals")}
               </Link>
-              <Link href="#" color="inherit" variant="body2">
+              <Link href="#" color="inherit" variant="body2" sx={{ textAlign: 'center' }}>
                 {t("footer.onePiece")}
               </Link>
-              <Link href="#" color="inherit" variant="body2">
+              <Link href="#" color="inherit" variant="body2" sx={{ textAlign: 'center' }}>
                 {t("footer.twoPieces")}
               </Link>
-              <Link href="#" color="inherit" variant="body2">
+              <Link href="#" color="inherit" variant="body2" sx={{ textAlign: 'center' }}>
                 {t("footer.tops")}
               </Link>
-              <Link href="#" color="inherit" variant="body2">
+              <Link href="#" color="inherit" variant="body2" sx={{ textAlign: 'center' }}>
                 {t("footer.bottoms")}
               </Link>
             </Stack>

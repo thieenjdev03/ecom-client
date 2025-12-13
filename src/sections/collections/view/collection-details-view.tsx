@@ -6,7 +6,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import Stack from "@mui/material/Stack";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import Pagination from "@mui/material/Pagination";
+import Pagination, { paginationClasses } from "@mui/material/Pagination";
 import Box from "@mui/material/Box";
 
 import { paths } from "src/routes/paths";
@@ -466,45 +466,40 @@ export default function CollectionDetailsView({ slug }: CollectionDetailsViewPro
         {/* Pagination */}
         {!productsEmpty && totalPages > 1 && (
           <Stack
-            direction="row"
+            direction="column"
             alignItems="center"
-            justifyContent="center"
             spacing={2}
-            sx={{ mt: 6, mb: 2 }}
+            sx={{ mt: 6, mb: 4 }}
           >
             <Pagination
               count={totalPages}
               page={page}
               onChange={handlePageChange}
-              color="primary"
-              size="large"
               showFirstButton
               showLastButton
               siblingCount={1}
               boundaryCount={1}
               sx={{
-                "& .MuiPaginationItem-root": {
-                  "&.Mui-selected": {
-                    fontWeight: 700,
-                  },
+                mt: 8,
+                [`& .${paginationClasses.ul}`]: {
+                  justifyContent: "center",
                 },
               }}
             />
-          </Stack>
-        )}
 
-        {/* Pagination Info */}
-        {!productsEmpty && meta && (
-          <Typography
-            variant="body2"
-            sx={{
-              textAlign: "center",
-              color: "text.secondary",
-              mb: 4,
-            }}
-          >
-            {t("common.showingResults") || "Showing"} {((page - 1) * limit) + 1}-{Math.min(page * limit, meta.total || 0)} {t("common.of") || "of"} {meta.total || 0} {t("shop.productsCount") || "products"}
-          </Typography>
+            {/* Pagination Info */}
+            {meta && (
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  textAlign: "center",
+                }}
+              >
+                {t("common.showingResults") || "Showing"} {((page - 1) * limit) + 1}-{Math.min(page * limit, meta.total || 0)} {t("common.of") || "of"} {meta.total || 0} {t("shop.productsCount") || "products"}
+              </Typography>
+            )}
+          </Stack>
         )}
       </Container>
     </>
