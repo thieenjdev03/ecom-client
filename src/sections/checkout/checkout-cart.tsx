@@ -342,7 +342,7 @@ export default function CheckoutCart() {
     <Box
       sx={{
         mx: "auto",
-        mt: 2,
+        mt: 4,
       }}
     >
       <Grid container spacing={4} sx={{
@@ -403,7 +403,6 @@ export default function CheckoutCart() {
             )}
           </Stack>
         </Grid>
-s
         <Grid xs={12} md={5}>
           <CheckoutSummary
             total={checkout.total}

@@ -229,7 +229,7 @@ export default function CheckoutShippingForm({
   };
 
   return (
-    <Box sx={{ mb: 3 }}>
+    <Box sx={{ mb: 3, mt: 3 }}>
       <ShippingAddressSection
         formData={formData}
         onFieldChange={handleChange}

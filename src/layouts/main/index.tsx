@@ -32,7 +32,6 @@ export default function MainLayout({ children }: Props) {
       >
         {children}
       </Box>
-
       {homePage ? <LandingFooter /> : <Footer />}
     </Box>
   );

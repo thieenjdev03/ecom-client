@@ -24,7 +24,6 @@
   "product": "sản phẩm",
   "invoice": "hóa đơn",
   "details": "chi tiết",
-  "checkout": "thanh toán",
   "calendar": "lịch",
   "overview": "tổng quan",
   "analytics": "phân tích",
@@ -326,7 +325,8 @@
   },
   "common": {
     "showingResults": "Hiển thị",
-    "of": "của"
+    "of": "của",
+    "noData": "Không có dữ liệu"
   },
   "shop": {
     "title": "Cửa hàng",
@@ -392,5 +392,33 @@
     "tops": "ÁO",
     "bottoms": "QUẦN",
     "copyright": "© {{year}} NO NAME"
+  },
+  "auth": {
+    "register": {
+      "title": "Tạo tài khoản",
+      "alreadyHaveAccount": "Đã có tài khoản?",
+      "signIn": "Đăng nhập",
+      "marketingOptIn": "Nhận email khuyến mãi từ chúng tôi",
+      "marketingOptInDescription": "Nhận các cập nhật sản phẩm được tuyển chọn và khuyến mãi qua email.",
+      "termsAgreement": "Bằng cách đăng ký, tôi đồng ý với",
+      "termsOfService": "Điều khoản dịch vụ",
+      "and": "và",
+      "privacyPolicy": "Chính sách bảo mật",
+      "createAccount": "Tạo tài khoản",
+      "firstName": "Tên",
+      "lastName": "Họ",
+      "email": "Địa chỉ email",
+      "password": "Mật khẩu",
+      "phoneNumber": "Số điện thoại",
+      "selectCountry": "Chọn quốc gia",
+      "enterPhoneNumber": "Nhập số điện thoại của bạn",
+      "countryRequired": "Quốc gia là bắt buộc",
+      "phoneNumberRequired": "Số điện thoại là bắt buộc",
+      "firstNameRequired": "Tên là bắt buộc",
+      "lastNameRequired": "Họ là bắt buộc",
+      "emailRequired": "Email là bắt buộc",
+      "emailInvalid": "Email phải là địa chỉ email hợp lệ",
+      "passwordRequired": "Mật khẩu là bắt buộc"
+    }
   }
 }

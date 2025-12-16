@@ -29,7 +29,7 @@ export default function AuthClassicLayout({ children }: Props) {
         maxWidth: 480,
         backgroundColor: "white",
         borderRadius: 1,
-        padding: 8,
+        padding: 4,
         boxShadow: 1,
         border: "1px solid #e0e0e0",
         height: "50%",

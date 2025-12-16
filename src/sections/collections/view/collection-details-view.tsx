@@ -432,7 +432,7 @@ export default function CollectionDetailsView({ slug }: CollectionDetailsViewPro
   );
 
   const renderNotFound = (
-    <EmptyContent filled title={t("common.noData") || "No Data"} sx={{ py: 10 }} />
+    <EmptyContent filled title={t("categoryDetails.noData") || "No Data"} sx={{ py: 10 }} />
   );
 
   return (

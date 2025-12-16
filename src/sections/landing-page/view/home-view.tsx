@@ -13,7 +13,6 @@ import ScrollProgress from "src/components/scroll-progress";
 import LandingHero from "../landing-hero";
 
 import HomeProductShowcase from "../home-product-showcase";
-import HomeContactForm from "../home-contact-form";
 
 // ----------------------------------------------------------------------
 
@@ -68,16 +67,7 @@ export default function LandingPageView() {
           bgcolor: "background.default",
         }}
       >
-        <HomeProductShowcase priceBottom={true} title="New Arrivals"/>
-      </Box>
-      <Box
-        sx={{
-          scrollSnapAlign: "start",
-          position: "relative",
-          bgcolor: "background.default",
-        }}
-      >
-        <HomeContactForm />
+        <HomeProductShowcase priceBottom={true} title="Sawslic's New Arrivals"/>
       </Box>
     </MainLayout>
   );

@@ -330,7 +330,8 @@
   },
   "common": {
     "showingResults": "Showing",
-    "of": "of"
+    "of": "of",
+    "noData": "No data"
   },
   "shop": {
     "title": "Shop",
@@ -396,5 +397,33 @@
     "tops": "TOPS",
     "bottoms": "BOTTOMS",
     "copyright": "© {{year}} NO NAME"
+  },
+  "auth": {
+    "register": {
+      "title": "Create an account",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "marketingOptIn": "Receive promotional emails from us",
+      "marketingOptInDescription": "Receive curated product updates and promotions via email.",
+      "termsAgreement": "By signing up, I agree to",
+      "termsOfService": "Terms of Service",
+      "and": "and",
+      "privacyPolicy": "Privacy Policy",
+      "createAccount": "Create account",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email address",
+      "password": "Password",
+      "phoneNumber": "Phone number",
+      "selectCountry": "Choose a country",
+      "enterPhoneNumber": "Enter your phone number",
+      "countryRequired": "Country is required",
+      "phoneNumberRequired": "Phone number is required",
+      "firstNameRequired": "First name required",
+      "lastNameRequired": "Last name required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Email must be a valid email address",
+      "passwordRequired": "Password is required"
+    }
   }
 }

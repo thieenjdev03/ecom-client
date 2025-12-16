@@ -20,6 +20,7 @@ import { useRouter } from "src/routes/hooks";
 import { useBoolean } from "src/hooks/use-boolean";
 
 import { useAuthContext } from "src/auth/hooks";
+import { useTranslate } from "src/locales";
 import { PATH_AFTER_REGISTER_USER } from "src/config-global";
 
 import Iconify from "src/components/iconify";
@@ -32,6 +33,7 @@ import TextField from "@mui/material/TextField";
 
 export default function JwtRegisterView() {
   const { register } = useAuthContext();
+  const { t } = useTranslate();
 
   const router = useRouter();
 
@@ -40,14 +42,14 @@ export default function JwtRegisterView() {
   const password = useBoolean();
 
   const RegisterSchema = Yup.object().shape({
-    firstName: Yup.string().required("First name required"),
-    lastName: Yup.string().required("Last name required"),
+    firstName: Yup.string().required(t("auth.register.firstNameRequired")),
+    lastName: Yup.string().required(t("auth.register.lastNameRequired")),
     email: Yup.string()
-      .required("Email is required")
-      .email("Email must be a valid email address"),
-    password: Yup.string().required("Password is required"),
-    phoneNumber: Yup.string().required("Phone number is required"),
-    country: Yup.string().required("Country is required"),
+      .required(t("auth.register.emailRequired"))
+      .email(t("auth.register.emailInvalid")),
+    password: Yup.string().required(t("auth.register.passwordRequired")),
+    phoneNumber: Yup.string().required(t("auth.register.phoneNumberRequired")),
+    country: Yup.string().required(t("auth.register.countryRequired")),
     marketingOptIn: Yup.boolean().default(false),
   });
 
@@ -123,17 +125,17 @@ export default function JwtRegisterView() {
 
   const renderHead = (
     <Stack spacing={2} sx={{ mb: 5, position: "relative" }}>
-      <Typography variant="h4">Create an account</Typography>
+      <Typography variant="h4">{t("auth.register.title")}</Typography>
 
       <Stack direction="row" spacing={0.5}>
-        <Typography variant="body2"> Already have an account? </Typography>
+        <Typography variant="body2">{t("auth.register.alreadyHaveAccount")}</Typography>
 
         <Link
           href={paths.auth.jwt.login}
           component={RouterLink}
           variant="subtitle2"
         >
-          Sign in
+          {t("auth.register.signIn")}
         </Link>
       </Stack>
     </Stack>
@@ -149,13 +151,13 @@ export default function JwtRegisterView() {
         color: "text.secondary",
       }}
     >
-      {"By signing up, I agree to "}
+      {t("auth.register.termsAgreement")}{" "}
       <Link underline="always" color="text.primary">
-        Terms of Service
-      </Link>
-      {" and "}
+        {t("auth.register.termsOfService")}
+      </Link>{" "}
+      {t("auth.register.and")}{" "}
       <Link underline="always" color="text.primary">
-        Privacy Policy
+        {t("auth.register.privacyPolicy")}
       </Link>
       .
     </Typography>
@@ -167,7 +169,7 @@ export default function JwtRegisterView() {
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
         <RHFTextField
           name="firstName"
-          label="First name"
+          label={t("auth.register.firstName")}
           sx={{
             "& .MuiOutlinedInput-root": {
               "&:hover fieldset": {
@@ -182,7 +184,7 @@ export default function JwtRegisterView() {
         />
         <RHFTextField
           name="lastName"
-          label="Last name"
+          label={t("auth.register.lastName")}
           sx={{
             "& .MuiOutlinedInput-root": {
               "&:hover fieldset": {
@@ -199,7 +201,7 @@ export default function JwtRegisterView() {
 
       <RHFTextField
         name="email"
-        label="Email address"
+        label={t("auth.register.email")}
         sx={{
           "& .MuiOutlinedInput-root": {
             "&:hover fieldset": {
@@ -223,8 +225,8 @@ export default function JwtRegisterView() {
           <RHFAutocomplete
             name="country"
             type="country"
-            label="Country"
-            placeholder="Choose a country"
+            label={t("auth.register.country")}
+            placeholder={t("auth.register.selectCountry")}
             options={countries.map((option) => option.label)}
           />
         </Box>
@@ -242,11 +244,11 @@ export default function JwtRegisterView() {
                 <TextField
                   {...field}
                   fullWidth
-                  label="Phone number"
+                  label={t("auth.register.phoneNumber")}
                   placeholder={
                     countryPhoneCode
-                      ? "Enter your phone number"
-                      : "Select country first"
+                      ? t("auth.register.enterPhoneNumber")
+                      : t("auth.register.countryRequired")
                   }
                   value={displayValue}
                   onChange={(e) => {
@@ -312,7 +314,7 @@ export default function JwtRegisterView() {
 
       <RHFTextField
         name="password"
-        label="Password"
+        label={t("auth.register.password")}
         type={password.value ? "text" : "password"}
         sx={{
           "& .MuiOutlinedInput-root": {
@@ -343,10 +345,10 @@ export default function JwtRegisterView() {
       <Stack spacing={0.5}>
         <RHFCheckbox
           name="marketingOptIn"
-          label="Nhận email khuyến mãi từ chúng tôi"
+          label={t("auth.register.marketingOptIn")}
         />
         <Typography variant="caption" sx={{ color: "text.secondary" }}>
-          Receive curated product updates and promotions via email.
+          {t("auth.register.marketingOptInDescription")}
         </Typography>
       </Stack>
       <LoadingButton
@@ -365,7 +367,7 @@ export default function JwtRegisterView() {
           },
         }}
       >
-        Create account
+        {t("auth.register.createAccount")}
       </LoadingButton>
     </Stack>
   );

@@ -84,45 +84,45 @@ export default function ShippingAddressSection({
         };
       case "US":
         return {
-          addressPlaceholder: "Enter street address (e.g., 123 Main St)...",
+          addressPlaceholder: "Street address, P.O. box, company name, c/o",
           addressLabel: "Street Address",
-          cityLabel: "City",
-          postalCodeLabel: "ZIP Code (optional)",
+          cityLabel: "City/Town",
+          postalCodeLabel: "Postal code",
           phoneLabel: "Phone Number",
-          apartmentLabel: "Apt, suite, etc. (optional)",
-          provinceLabel: "State / Province",
+          apartmentLabel: "(Optional) Apartment, suite, unit, building, floor, etc.",
+          provinceLabel: "State/Country",
           districtLabel: "County / District",
           wardLabel: "Neighborhood (optional)",
           labelLabel: "Label (optional)",
-          noteLabel: "Delivery notes (optional)",
+          noteLabel: "Notes about your order, e.g. special notes for delivery.",
         };
       case "UK":
         return {
-          addressPlaceholder: "Enter street address (e.g., 123 High Street)...",
+          addressPlaceholder: "Street address, P.O. box, company name, c/o",
           addressLabel: "Street Address",
-          cityLabel: "City / Town",
-          postalCodeLabel: "Postcode (optional)",
+          cityLabel: "City/Town",
+          postalCodeLabel: "Postal code",
           phoneLabel: "Phone Number",
-          apartmentLabel: "Flat, unit, etc. (optional)",
-          provinceLabel: "County / Province",
+          apartmentLabel: "(Optional) Apartment, suite, unit, building, floor, etc.",
+          provinceLabel: "State/Country",
           districtLabel: "District",
           wardLabel: "Ward (optional)",
           labelLabel: "Label (optional)",
-          noteLabel: "Delivery notes (optional)",
+          noteLabel: "Notes about your order, e.g. special notes for delivery.",
         };
       default:
         return {
-          addressPlaceholder: "Enter delivery address...",
+          addressPlaceholder: "Street address, P.O. box, company name, c/o",
           addressLabel: "Address",
-          cityLabel: "City",
-          postalCodeLabel: "Postal Code (optional)",
-          phoneLabel: "Phone",
-          apartmentLabel: "Apartment, suite, etc. (optional)",
-          provinceLabel: "State / Province",
+          cityLabel: "City/Town",
+          postalCodeLabel: "Postal code",
+          phoneLabel: "Phone Number",
+          apartmentLabel: "(Optional) Apartment, suite, unit, building, floor, etc.",
+          provinceLabel: "State/Country",
           districtLabel: "District",
           wardLabel: "Ward",
           labelLabel: "Label (optional)",
-          noteLabel: "Delivery notes (optional)",
+          noteLabel: "Notes about your order, e.g. special notes for delivery.",
         };
     }
   };
@@ -135,7 +135,7 @@ export default function ShippingAddressSection({
     <Box sx={{ mb: 3 }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
         <Typography variant="h6" sx={{ fontWeight: 600, textTransform: "uppercase" }}>
-          Shipping Address
+          Delivery Information
         </Typography>
         {hasData && onClearForm && (
           <Button
@@ -150,13 +150,6 @@ export default function ShippingAddressSection({
         )}
       </Stack>
       <Stack spacing={3}>
-        {/* {hasData && (
-          <Alert severity="success" icon={<Iconify icon="solar:check-circle-bold" width={20} />}>
-            <Typography variant="caption">
-              Thông tin của bạn đã được lưu tự động
-            </Typography>
-          </Alert>
-        )} */}
         <Box>
           <Typography variant="body2" sx={{ color: "text.secondary", mb: 1 }}>
             Please ensure your address is correct.
@@ -206,13 +199,13 @@ export default function ShippingAddressSection({
         <Stack direction="row" spacing={2}>
           <TextField
             fullWidth
-            label="First name"
+            label="First Name"
             value={formData.firstName}
             onChange={onFieldChange("firstName")}
           />
           <TextField
             fullWidth
-            label="Last name"
+            label="Last Name"
             value={formData.lastName}
             onChange={onFieldChange("lastName")}
           />
@@ -320,7 +313,11 @@ export default function ShippingAddressSection({
                 onChange={onFieldChange("isDefault")}
               />
             }
-            label="Set as default shipping address"
+            label={
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Set as default shipping address
+              </Typography>
+            }
           />
           <FormControlLabel
             control={
@@ -329,7 +326,11 @@ export default function ShippingAddressSection({
                 onChange={onFieldChange("isBilling")}
               />
             }
-            label="Use as billing address too"
+            label={
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Use as billing address too
+              </Typography>
+            }
           />
         </Stack>
       </Stack>
