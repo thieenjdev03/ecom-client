@@ -97,8 +97,9 @@ export default function OrderDetailsView({ id }: Props) {
         return;
       }
       try {
-        await orderApi.update(id, {
-          status: newValue.toUpperCase() as Order["status"],
+        await orderApi.changeStatus(id, {
+          toStatus: newValue.toUpperCase() as Order["status"],
+          note: `Status updated from ${getOrderStatusLabel(status)} to ${getOrderStatusLabel(newValue)}`,
         });
         setStatus(newValue);
         enqueueSnackbar("Order status updated successfully", { variant: "success" });
@@ -108,7 +109,7 @@ export default function OrderDetailsView({ id }: Props) {
         enqueueSnackbar("Failed to update order status", { variant: "error" });
       }
     },
-    [id, enqueueSnackbar, allowedStatusOptions, mutateOrder]
+    [id, status, enqueueSnackbar, allowedStatusOptions, mutateOrder]
   );
 
   const handleEditSubmit = useCallback(

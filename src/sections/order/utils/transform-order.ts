@@ -1,5 +1,5 @@
 import { Order } from "src/api/order";
-import { normalizeOrderStatus } from "../constant";
+import { getOrderStatusLabel, normalizeOrderStatus } from "../constant";
 
 import {
   IOrderCustomer,
@@ -101,20 +101,53 @@ const parseShippingFromNotes = (notes?: string | null): IOrderShippingAddress =>
 };
 
 const buildTimeline = (order: Order) => {
-  const timeline = [
-    { title: "Order placed", time: new Date(order.createdAt) },
-    order.paidAt && { title: "Payment completed", time: new Date(order.paidAt) },
-    order.shippedAt && { title: "Shipped", time: new Date(order.shippedAt) },
-    order.deliveredAt && { title: "Delivered", time: new Date(order.deliveredAt) },
-    { title: "Last updated", time: new Date(order.updatedAt) },
-  ].filter(Boolean) as { title: string; time: Date }[];
+  const trackingHistory = (order as any).tracking_history as Order['tracking_history'] | undefined;
+
+  const trackingEvents = (trackingHistory || []).map((event, index) => {
+    const fromLabel = getOrderStatusLabel(event.from_status);
+    const toLabel = getOrderStatusLabel(event.to_status);
+    const title = `Status: ${toLabel}`;
+
+    return {
+      id: `tracking-${event.changed_at}-${event.to_status}-${index}`,
+      title,
+      time: new Date(event.changed_at),
+      note: event.note || `Status changed from ${fromLabel} to ${toLabel}`,
+      changedBy: event.changed_by || null,
+      fromStatus: event.from_status,
+      toStatus: event.to_status,
+    };
+  });
+
+  const baseEvents = [
+    { id: "order-placed", title: "Order placed", time: new Date(order.createdAt) },
+    order.paidAt && {
+      id: "payment-completed",
+      title: "Payment completed",
+      time: new Date(order.paidAt),
+      toStatus: "PAID",
+    },
+    order.shippedAt && { id: "shipped", title: "Shipped", time: new Date(order.shippedAt) },
+    order.deliveredAt && { id: "delivered", title: "Delivered", time: new Date(order.deliveredAt) },
+    { id: "last-updated", title: "Last updated", time: new Date(order.updatedAt) },
+  ].filter(Boolean) as IOrderHistory['timeline'];
+
+  const allEvents = [...trackingEvents, ...baseEvents].sort(
+    (a, b) => a.time.getTime() - b.time.getTime(),
+  );
+
+  const paymentEvent = trackingEvents.find((ev) => ev.toStatus === "PAID");
+
+  const completionTime = allEvents.length
+    ? allEvents[allEvents.length - 1].time
+    : new Date(order.updatedAt);
 
   return {
     orderTime: new Date(order.createdAt),
-    paymentTime: order.paidAt ? new Date(order.paidAt) : null,
+    paymentTime: order.paidAt ? new Date(order.paidAt) : paymentEvent?.time || null,
     deliveryTime: order.shippedAt ? new Date(order.shippedAt) : null,
-    completionTime: order.deliveredAt ? new Date(order.deliveredAt) : new Date(order.updatedAt),
-    timeline,
+    completionTime,
+    timeline: allEvents,
   };
 };
 

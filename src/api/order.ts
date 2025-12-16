@@ -90,6 +90,13 @@ export type Order = {
   billingAddress?: any;
   notes?: string;
   internalNotes?: string | null;
+  tracking_history?: Array<{
+    from_status: Order['status'];
+    to_status: Order['status'];
+    changed_at: string;
+    changed_by: string;
+    note?: string | null;
+  }>;
   carrier?: string | null;
   trackingNumber?: string | null;
   shippedAt?: string | null;
@@ -154,6 +161,11 @@ export type UpdateOrderPayload = Partial<{
   paidCurrency: string | null;
   paidAt: string | null;
 }>;
+
+export type ChangeOrderStatusPayload = {
+  toStatus: Order['status'];
+  note?: string | null;
+};
 
 // ----------------------------------------------------------------------
 
@@ -243,12 +255,17 @@ export const orderApi = {
     return res.data;
   },
 
-  // Update order status (legacy)
-  async updateStatus(id: string, status: Order['status']) {
-    const res = await axios.patch(`${base}/${id}/status`, { status }, {
+  // Change order status with tracking (preferred)
+  async changeStatus(id: string, payload: ChangeOrderStatusPayload) {
+    const res = await axios.post(`${base}/${id}/status`, payload, {
       headers: getAuthHeaders(),
     });
     return res.data;
+  },
+
+  // Update order status (legacy fallback)
+  async updateStatus(id: string, status: Order['status']) {
+    return this.changeStatus(id, { toStatus: status });
   },
 
   // Cancel order

@@ -19,8 +19,13 @@ export type IOrderHistory = {
   deliveryTime: Date | null;
   completionTime: Date | null;
   timeline: {
+    id: string;
     title: string;
     time: Date;
+    note?: string | null;
+    changedBy?: string | null;
+    fromStatus?: string;
+    toStatus?: string;
   }[];
 };
 

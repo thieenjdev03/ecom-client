@@ -1,3 +1,6 @@
+// =====================
+// Status flow definition
+// =====================
 export const ORDER_STATUS_FLOW = [
   "pending_payment",
   "paid",
@@ -18,28 +21,83 @@ export type OrderWorkflowStatus = typeof ORDER_STATUS_FLOW[number];
 export type OrderAdditionalStatus = typeof ORDER_STATUS_ADDITIONAL[number];
 export type OrderStatusValue = OrderWorkflowStatus | OrderAdditionalStatus;
 
+// =====================
+// Status meta definition
+// =====================
 type OrderStatusMeta = {
   label: string;
   color: "default" | "primary" | "info" | "success" | "warning" | "error";
 };
 
 export const ORDER_STATUS_META: Record<OrderStatusValue, OrderStatusMeta> = {
-  pending_payment: { label: "Pending payment", color: "warning" },
-  paid: { label: "Paid", color: "info" },
-  processing: { label: "Processing", color: "info" },
-  packed: { label: "Packed", color: "info" },
-  ready_to_go: { label: "Ready to go", color: "info" },
-  at_carrier_facility: { label: "At carrier facility", color: "info" },
-  in_transit: { label: "In transit", color: "info" },
-  arrived_in_country: { label: "Arrived in country", color: "info" },
-  at_local_facility: { label: "At local facility", color: "info" },
-  out_for_delivery: { label: "Out for delivery", color: "warning" },
-  delivered: { label: "Delivered", color: "success" },
-  cancelled: { label: "Cancelled", color: "error" },
-  failed: { label: "Failed", color: "error" },
-  refunded: { label: "Refunded", color: "error" },
+  // ───── Payment ─────
+  pending_payment: {
+    label: "Pending payment",
+    color: "warning", // cần user action
+  },
+  paid: {
+    label: "Paid",
+    color: "info", // tiền đã ok, chưa xong
+  },
+
+  // ───── Internal processing ─────
+  processing: {
+    label: "Processing",
+    color: "info",
+  },
+  packed: {
+    label: "Packed",
+    color: "info",
+  },
+  ready_to_go: {
+    label: "Ready to go",
+    color: "info",
+  },
+
+  // ───── Shipping ─────
+  at_carrier_facility: {
+    label: "At carrier facility",
+    color: "info",
+  },
+  in_transit: {
+    label: "In transit",
+    color: "info",
+  },
+  arrived_in_country: {
+    label: "Arrived in country",
+    color: "info",
+  },
+  at_local_facility: {
+    label: "At local facility",
+    color: "info",
+  },
+  out_for_delivery: {
+    label: "Out for delivery",
+    color: "warning", // highlight vì sắp hoàn tất
+  },
+
+  // ───── Terminal states ─────
+  delivered: {
+    label: "Delivered",
+    color: "success",
+  },
+  cancelled: {
+    label: "Cancelled",
+    color: "error",
+  },
+  failed: {
+    label: "Failed",
+    color: "error",
+  },
+  refunded: {
+    label: "Refunded",
+    color: "error",
+  },
 };
 
+// =====================
+// Status descriptions (UX / tooltip)
+// =====================
 const ORDER_STATUS_DESCRIPTIONS: Partial<Record<OrderStatusValue, string>> = {
   pending_payment: "Chờ khách hoàn tất thanh toán.",
   paid: "Đã nhận tiền thành công.",
@@ -57,12 +115,16 @@ const ORDER_STATUS_DESCRIPTIONS: Partial<Record<OrderStatusValue, string>> = {
   refunded: "Đơn hàng đã được hoàn tiền.",
 };
 
-const ORDER_STATUS_META_MAP: Record<string, OrderStatusMeta> = ORDER_STATUS_META;
+// =====================
+// Helpers
+// =====================
+const ORDER_STATUS_META_MAP: Record<OrderStatusValue, OrderStatusMeta> = ORDER_STATUS_META;
 
 export const ORDER_STATUS_OPTIONS = ORDER_STATUS_FLOW.map((value) => ({
   value,
   label: ORDER_STATUS_META[value].label,
 }));
+
 export const ORDER_STATUS_ALL_OPTIONS = [
   ...ORDER_STATUS_OPTIONS,
   ...ORDER_STATUS_ADDITIONAL.map((value) => ({
@@ -71,34 +133,49 @@ export const ORDER_STATUS_ALL_OPTIONS = [
   })),
 ];
 
-export const normalizeOrderStatus = (status?: string | null): OrderStatusValue | "" =>
+export const normalizeOrderStatus = (
+  status?: string | null,
+): OrderStatusValue | "" =>
   status ? (status.toLowerCase() as OrderStatusValue) : "";
 
-export const getOrderStatusMeta = (status?: string | null): OrderStatusMeta | undefined =>
+export const getOrderStatusMeta = (
+  status?: string | null,
+): OrderStatusMeta | undefined =>
   ORDER_STATUS_META_MAP[normalizeOrderStatus(status)];
 
 export const getOrderStatusLabel = (status?: string | null): string => {
   const meta = getOrderStatusMeta(status);
   if (meta) return meta.label;
+
   const normalized = normalizeOrderStatus(status);
   if (!normalized) return "Unknown status";
+
   return normalized
     .split("_")
     .map((token) => token.charAt(0).toUpperCase() + token.slice(1))
     .join(" ");
 };
 
-export const getOrderStatusColor = (status?: string | null): OrderStatusMeta["color"] => {
+export const getOrderStatusColor = (
+  status?: string | null,
+): OrderStatusMeta["color"] => {
   const meta = getOrderStatusMeta(status);
   return meta?.color || "default";
 };
 
-export const getOrderStatusDescription = (status?: string | null): string | undefined => {
+export const getOrderStatusDescription = (
+  status?: string | null,
+): string | undefined => {
   const normalized = normalizeOrderStatus(status);
   return normalized ? ORDER_STATUS_DESCRIPTIONS[normalized] : undefined;
 };
 
-const ORDER_STATUS_OVERRIDES: Partial<Record<OrderStatusValue, OrderStatusValue[]>> = {
+// =====================
+// Next status logic (Admin actions)
+// =====================
+const ORDER_STATUS_OVERRIDES: Partial<
+  Record<OrderStatusValue, OrderStatusValue[]>
+> = {
   pending_payment: ["cancelled"],
   paid: ["cancelled", "refunded"],
   processing: ["cancelled"],
@@ -106,19 +183,25 @@ const ORDER_STATUS_OVERRIDES: Partial<Record<OrderStatusValue, OrderStatusValue[
   delivered: ["refunded"],
 };
 
-export const getNextOrderStatuses = (status?: string | null): OrderStatusValue[] => {
+export const getNextOrderStatuses = (
+  status?: string | null,
+): OrderStatusValue[] => {
   const normalized = normalizeOrderStatus(status);
   if (!normalized) {
     return ORDER_STATUS_FLOW.length ? [ORDER_STATUS_FLOW[0]] : [];
   }
 
   const result: OrderStatusValue[] = [];
-  const currentIndex = ORDER_STATUS_FLOW.indexOf(normalized as OrderWorkflowStatus);
+  const currentIndex = ORDER_STATUS_FLOW.indexOf(
+    normalized as OrderWorkflowStatus,
+  );
 
+  // Happy-path next status
   if (currentIndex >= 0 && currentIndex < ORDER_STATUS_FLOW.length - 1) {
     result.push(ORDER_STATUS_FLOW[currentIndex + 1]);
   }
 
+  // Override / exceptional transitions
   const overrides = ORDER_STATUS_OVERRIDES[normalized];
   if (overrides?.length) {
     result.push(...overrides);
