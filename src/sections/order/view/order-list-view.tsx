@@ -155,14 +155,17 @@ function transformOrderToIOrderItem(order: Order): IOrderItem {
       completionTime: new Date(order.updatedAt),
       timeline: [
         {
+          id: "order-placed",
           title: "Order placed",
           time: new Date(order.createdAt),
         },
         ...(order.paidAt ? [{
+          id: "payment-completed",
           title: "Payment completed",
           time: new Date(order.paidAt),
         }] : []),
         {
+          id: "order-updated",
           title: "Order updated",
           time: new Date(order.updatedAt),
         },

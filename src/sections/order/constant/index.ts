@@ -140,8 +140,10 @@ export const normalizeOrderStatus = (
 
 export const getOrderStatusMeta = (
   status?: string | null,
-): OrderStatusMeta | undefined =>
-  ORDER_STATUS_META_MAP[normalizeOrderStatus(status)];
+): OrderStatusMeta | undefined => {
+  const normalized = normalizeOrderStatus(status);
+  return normalized ? ORDER_STATUS_META_MAP[normalized] : undefined;
+};
 
 export const getOrderStatusLabel = (status?: string | null): string => {
   const meta = getOrderStatusMeta(status);
